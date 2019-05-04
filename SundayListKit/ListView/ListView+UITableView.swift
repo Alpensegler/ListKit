@@ -8,6 +8,9 @@
 
 import UIKit
 
+public protocol TableListDelegate: TableViewDelegate, TableViewDataSource, Updatable { }
+
+private var tableListDelegateKey: Void?
 private var listViewDefaultAnimationKey: Void?
 
 extension UITableView: ListView {
@@ -15,49 +18,50 @@ extension UITableView: ListView {
     public typealias SupplementaryView = UITableViewHeaderFooterView
     public typealias Size = CGFloat
     
+    public var defaultAnimation: UITableView.Animation {
+        get { return Associator.getValue(key: &listViewDefaultAnimationKey, from: self) ?? .fade }
+        set { Associator.set(value: newValue, key: &listViewDefaultAnimationKey, to: self) }
+    }
+    
+    public func defaultSupplementraySize(for type: SupplementaryViewType) -> ListSize {
+        switch type {
+        case .header: return sectionHeaderHeight
+        case .footer: return sectionFooterHeight
+        case .custom: return 0 as CGFloat
+        }
+    }
+    
+    public var defaultItemSize: ListSize {
+        return rowHeight
+    }
+    
+    public var listDelegate: TableListDelegate? {
+        get { return Associator.getValue(key: &tableListDelegateKey, from: self) }
+        set {
+            Associator.set(value: newValue, policy: .weak, key: &tableListDelegateKey, to: self)
+            dataSource = newValue?.asTableViewDataSource
+            delegate = newValue?.asTableViewDelegate
+            newValue?.addListViewToUpdater(listView: self)
+        }
+    }
+    
     public func reloadSynchronously() {
         reloadData()
     }
     
-    public func perform(update: BatchUpdates, animation: Animation, completion: ((Bool) -> Void)?) {
-        func __update() {
-            // Update items.
-            if update.insertItems.count > 0 {
-                insertRows(at: update.insertItems, with: animation.insertRows)
-            }
-            if update.deleteItems.count > 0 {
-                deleteRows(at: update.deleteItems, with: animation.deleteRows)
-            }
-            if update.reloadItems.count > 0 {
-                reloadRows(at: update.reloadItems, with: animation.reloadRows)
-            }
-            for move in update.moveItems {
-                moveRow(at: move.from, to: move.to)
-            }
-            
-            // Update sections.
-            if update.insertSections.count > 0 {
-                insertSections(update.insertSections, with: animation.insertSections)
-            }
-            if update.deleteSections.count > 0 {
-                deleteSections(update.deleteSections, with: animation.deleteSections)
-            }
-            if update.reloadSections.count > 0 {
-                reloadSections(update.reloadSections, with: animation.reloadSections)
-            }
-            for move in update.moveSections {
-                moveSection(move.from, toSection: move.to)
-            }
-        }
-        
+    public func performUpdate(animation: UITableView.Animation, completion: ((Bool) -> Void)?) {
+        listDelegate?.performUpdate(self, animation: animation, completion: completion)
+    }
+    
+    public func perform(update: () -> Void, animation: Animation, completion: ((Bool) -> Void)?) {
         if #available(iOS 11.0, *) {
-            performBatchUpdates(__update, completion: completion)
+            performBatchUpdates(update, completion: completion)
         } else {
             beginUpdates()
             CATransaction.setCompletionBlock {
                 completion?(true)
             }
-            __update()
+            update()
             endUpdates()
         }
     }
@@ -89,43 +93,28 @@ extension UITableView: ListView {
     public func reloadSections(_ sections: IndexSet) {
         reloadSections(sections, with: defaultAnimation.reloadSections)
     }
-
     
-    public func register(_ headerViewClass: AnyClass?, forHeaderViewReuseIdentifier identifier: String) {
-        register(headerViewClass, forHeaderFooterViewReuseIdentifier: identifier)
-    }
-    
-    public func register(_ nib: UINib?, forHeaderViewReuseIdentifier identifier: String) {
-        register(nib, forHeaderFooterViewReuseIdentifier: identifier)
-    }
-    
-    public func register(_ footerViewClass: AnyClass?, forFooterViewReuseIdentifier identifier: String) {
-        register(footerViewClass, forHeaderFooterViewReuseIdentifier: identifier)
-    }
-    
-    public func register(_ nib: UINib?, forFooterViewReuseIdentifier identifier: String) {
-        register(nib, forHeaderFooterViewReuseIdentifier: identifier)
-    }
-    
-    public func dequeueReusableFooterView(withIdentifier identifier: String, indexPath: IndexPath) -> UITableViewHeaderFooterView {
-        return dequeueReusableHeaderFooterView(withIdentifier: identifier) ?? .init()
-    }
-    
-    public func dequeueReusableHeaderView(withIdentifier identifier: String, indexPath: IndexPath) -> UITableViewHeaderFooterView {
-        return dequeueReusableHeaderFooterView(withIdentifier: identifier) ?? .init()
-    }
-    
-    public var defaultAnimation: UITableView.Animation {
-        get {
-            return Associator.getValue(key: &listViewDefaultAnimationKey, from: self) ?? .fade
-        }
-        set {
-            Associator.set(value: newValue, key: &listViewDefaultAnimationKey, to: self)
+    public func register(supplementaryViewType: SupplementaryViewType, _ supplementaryClass: AnyClass?, identifier: String) {
+        switch supplementaryViewType {
+        case .header: register(supplementaryClass, forHeaderFooterViewReuseIdentifier: identifier)
+        case .footer: register(supplementaryClass, forHeaderFooterViewReuseIdentifier: identifier)
+        case .custom: fatalError("table view dose not support custom supplementary view type")
         }
     }
     
-    public var defaultItemSize: ListSize {
-        return rowHeight
+    public func register(supplementaryViewType: SupplementaryViewType, _ nib: UINib?, identifier: String) {
+        switch supplementaryViewType {
+        case .header: register(nib, forHeaderFooterViewReuseIdentifier: identifier)
+        case .footer: register(nib, forHeaderFooterViewReuseIdentifier: identifier)
+        case .custom: fatalError("table view dose not support custom supplementary view type")
+        }
+    }
+    
+    public func dequeueReusableSupplementaryView(type: SupplementaryViewType, withIdentifier identifier: String, indexPath: IndexPath) -> UITableViewHeaderFooterView? {
+        switch type {
+        case .header, .footer: return dequeueReusableHeaderFooterView(withIdentifier: identifier)
+        case .custom: fatalError("table view dose not support custom supplementary view type")
+        }
     }
 }
 
@@ -137,6 +126,14 @@ extension UITableView {
         let deleteRows: RowAnimation
         let insertRows: RowAnimation
         let reloadRows: RowAnimation
+        
+        public init(animated: Bool) {
+            if animated {
+                self.init()
+            } else {
+                self.init(allUsing: .none)
+            }
+        }
         
         public init(
             deleteSections: RowAnimation = .none,

@@ -9,26 +9,8 @@
 class ListViewStorage {
     var registeredCellIdentifiers = Set<String>()
     var registeredNibNames = Set<String>()
-    var registeredHeaderIdentifiers = Set<String>()
-    var registeredFooterIdentifiers = Set<String>()
-    var registeredHeaderNibNames = Set<String>()
-    var registeredFooterNibNames = Set<String>()
-    
-    init(
-        registeredCellIdentifiers: Set<String> = [],
-        registeredNibNames: Set<String> = [],
-        registeredHeaderIdentifiers: Set<String> = [],
-        registeredFooterIdentifiers: Set<String> = [],
-        registeredHeaderNibNames: Set<String> = [],
-        registeredFooterNibNames: Set<String> = []
-    ) {
-        self.registeredCellIdentifiers = registeredCellIdentifiers
-        self.registeredNibNames = registeredNibNames
-        self.registeredHeaderIdentifiers = registeredHeaderIdentifiers
-        self.registeredFooterIdentifiers = registeredFooterIdentifiers
-        self.registeredHeaderNibNames = registeredHeaderNibNames
-        self.registeredFooterNibNames = registeredFooterNibNames
-    }
+    var registeredSupplementaryIdentifiers = [SupplementaryViewType: Set<String>]()
+    var registeredSupplementaryNibName = [SupplementaryViewType: Set<String>]()
 }
 
 public extension ListView {
@@ -44,7 +26,7 @@ public extension ListView {
             _storage.registeredCellIdentifiers.insert(id)
             register(CustomCell.self, forCellReuseIdentifier: id)
         }
-        let cell = dequeueReusableCell(withIdentifier: identifier, for: indexPath)
+        let cell = dequeueReusableCell(withIdentifier: id, for: indexPath)
         (cell as? CustomCell).map(configuration)
         return cell
     }
@@ -67,25 +49,29 @@ public extension ListView {
         return cell
     }
     
-    func dequeueReusableHeaderView<CustomSupplementaryView: UIView>(
-        withHeaderClass cellClass: CustomSupplementaryView.Type,
+    func dequeueReusableSupplementaryView<CustomSupplementaryView: UIView>(
+        type: SupplementaryViewType,
+        withSupplementaryClass supplementaryClass: CustomSupplementaryView.Type,
         identifier: String = "",
         indexPath: IndexPath,
         configuration: (CustomSupplementaryView) -> Void = { _ in }
     ) -> SupplementaryView {
         assert(CustomSupplementaryView.isSubclass(of: SupplementaryView.self), "TBD")
         let id = identifierFor(class: CustomSupplementaryView.self, type: Self.headerType, identifier: identifier)
-        if !_storage.registeredHeaderIdentifiers.contains(id) {
-            _storage.registeredHeaderIdentifiers.insert(id)
-            register(CustomSupplementaryView.self, forHeaderViewReuseIdentifier: id)
+        if _storage.registeredSupplementaryIdentifiers[type]?.contains(id) != true {
+            var identifiers = _storage.registeredSupplementaryIdentifiers[type] ?? .init()
+            identifiers.insert(id)
+            _storage.registeredSupplementaryIdentifiers[type] = identifiers
+            register(supplementaryViewType: type, supplementaryClass, identifier: id)
         }
-        let header = dequeueReusableHeaderView(withIdentifier: id, indexPath: indexPath)
-        (header as? CustomSupplementaryView).map(configuration)
-        return header
+        let supplementaryView = dequeueReusableSupplementaryView(type: type, withIdentifier: id, indexPath: indexPath) ?? CustomSupplementaryView()
+        (supplementaryView as? CustomSupplementaryView).map(configuration)
+        return supplementaryView as! SupplementaryView
     }
     
-    func dequeueReusableHeaderView<CustomSupplementaryView: UIView>(
-        withHeaderClass cellClass: CustomSupplementaryView.Type,
+    func dequeueReusableSupplementaryView<CustomSupplementaryView: UIView>(
+        type: SupplementaryViewType,
+        withSupplementaryClass supplementaryClass: CustomSupplementaryView.Type,
         nibName: String,
         bundle: Bundle? = nil,
         indexPath: IndexPath,
@@ -94,62 +80,24 @@ public extension ListView {
         assert(CustomSupplementaryView.isSubclass(of: SupplementaryView.self), "TBD")
         let nib = UINib(nibName: nibName, bundle: bundle)
         let id = nibName + Self.headerType
-        if !_storage.registeredHeaderNibNames.contains(id) {
-            _storage.registeredHeaderNibNames.insert(id)
-            register(nib, forHeaderViewReuseIdentifier: id)
+        if _storage.registeredSupplementaryNibName[type]?.contains(id) != true {
+            var identifiers = _storage.registeredSupplementaryNibName[type] ?? .init()
+            identifiers.insert(id)
+            _storage.registeredSupplementaryNibName[type] = identifiers
+            register(supplementaryViewType: type, nib, identifier: id)
         }
-        let header = dequeueReusableHeaderView(withIdentifier: id, indexPath: indexPath)
-        (header as? CustomSupplementaryView).map(configuration)
-        return header
-    }
-    
-    func dequeueReusableFooterView<CustomSupplementaryView: UIView>(
-        withFooterClass cellClass: CustomSupplementaryView.Type,
-        identifier: String = "",
-        indexPath: IndexPath,
-        configuration: (CustomSupplementaryView) -> Void = { _ in }
-    ) -> SupplementaryView {
-        assert(CustomSupplementaryView.isSubclass(of: SupplementaryView.self), "TBD")
-        let id = identifierFor(class: CustomSupplementaryView.self, type: Self.footerType, identifier: identifier)
-        if !_storage.registeredFooterIdentifiers.contains(id) {
-            _storage.registeredFooterIdentifiers.insert(id)
-            register(CustomSupplementaryView.self, forHeaderViewReuseIdentifier: id)
-        }
-        let footer = dequeueReusableFooterView(withIdentifier: id, indexPath: indexPath)
-        (footer as? CustomSupplementaryView).map(configuration)
-        return footer
-    }
-    
-    func dequeueReusableFooterView<CustomSupplementaryView: UIView>(
-        withFooterClass cellClass: CustomSupplementaryView.Type,
-        nibName: String,
-        bundle: Bundle? = nil,
-        indexPath: IndexPath,
-        configuration: (CustomSupplementaryView) -> Void = { _ in }
-    ) -> SupplementaryView {
-        assert(CustomSupplementaryView.isSubclass(of: SupplementaryView.self), "TBD")
-        let nib = UINib(nibName: nibName, bundle: bundle)
-        let id = nibName + Self.footerType
-        if !_storage.registeredFooterNibNames.contains(id) {
-            _storage.registeredFooterNibNames.insert(id)
-            register(nib, forFooterViewReuseIdentifier: id)
-        }
-        let footer = dequeueReusableFooterView(withIdentifier: id, indexPath: indexPath)
-        (footer as? CustomSupplementaryView).map(configuration)
-        return footer
+        let supplementaryView = dequeueReusableSupplementaryView(type: type, withIdentifier: id, indexPath: indexPath) ?? CustomSupplementaryView()
+        (supplementaryView as? CustomSupplementaryView).map(configuration)
+        return supplementaryView as! SupplementaryView
     }
 }
 
-var listAdapterListViewStorageKey: Void?
+var listViewStorageKey: Void?
 
 extension ListView {
     var _storage: ListViewStorage {
-        get {
-            return Associator.getValue(key: &listAdapterListViewStorageKey, from: self, initialValue: .init())
-        }
-        set {
-            Associator.set(value: newValue, key: &listAdapterListViewStorageKey, to: self)
-        }
+        get { return Associator.getValue(key: &listViewStorageKey, from: self, initialValue: .init()) }
+        set { Associator.set(value: newValue, key: &listViewStorageKey, to: self) }
     }
 }
 

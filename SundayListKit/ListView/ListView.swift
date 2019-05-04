@@ -8,21 +8,19 @@
 
 import UIKit
 
-public protocol ListView: class, Hashable {
+public protocol ListView: UIScrollView {
     associatedtype Cell: UIView
     associatedtype SupplementaryView: UIView
-    associatedtype Animation
+    associatedtype Animation: ListViewAnimationOption
     func reloadSynchronously()
-    func perform(update: BatchUpdates, animation: Animation, completion: ((Bool) -> Void)?)
+    func perform(update: () -> Void, animation: Animation, completion: ((Bool) -> Void)?)
+    func performUpdate(animation: Animation, completion: ((Bool) -> Void)?)
     func register(_ cellClass: AnyClass?, forCellReuseIdentifier identifier: String)
     func register(_ nib: UINib?, forCellReuseIdentifier identifier: String)
-    func register(_ headerViewClass: AnyClass?, forHeaderViewReuseIdentifier identifier: String)
-    func register(_ nib: UINib?, forHeaderViewReuseIdentifier identifier: String)
-    func register(_ footerViewClass: AnyClass?, forFooterViewReuseIdentifier identifier: String)
-    func register(_ nib: UINib?, forFooterViewReuseIdentifier identifier: String)
+    func register(supplementaryViewType: SupplementaryViewType, _ supplementaryClass: AnyClass?, identifier: String)
+    func register(supplementaryViewType: SupplementaryViewType, _ nib: UINib?, identifier: String)
     func dequeueReusableCell(withIdentifier identifier: String, for indexPath: IndexPath) -> Cell
-    func dequeueReusableHeaderView(withIdentifier identifier: String, indexPath: IndexPath) -> SupplementaryView
-    func dequeueReusableFooterView(withIdentifier identifier: String, indexPath: IndexPath) -> SupplementaryView
+    func dequeueReusableSupplementaryView(type: SupplementaryViewType, withIdentifier identifier: String, indexPath: IndexPath) -> SupplementaryView?
     func insertItems(at indexPaths: [IndexPath])
     func deleteItems(at indexPaths: [IndexPath])
     func reloadItems(at indexPaths: [IndexPath])
@@ -31,14 +29,33 @@ public protocol ListView: class, Hashable {
     func deleteSections(_ sections: IndexSet)
     func reloadSections(_ sections: IndexSet)
     func moveSection(_ section: Int, toSection newSection: Int)
+    func defaultSupplementraySize(for type: SupplementaryViewType) -> ListSize
     var defaultAnimation: Animation { get set }
     var defaultItemSize: ListSize { get }
 }
 
-private var listViewDefaultAnimationKey: Void?
+public extension ListView {
+    func performUpdate(completion: ((Bool) -> Void)? = nil) {
+        performUpdate(animation: defaultAnimation, completion: completion)
+    }
+}
 
 public protocol ListViewAnimationOption {
-    init()
+    init(animated: Bool)
+}
+
+public enum SupplementaryViewType: Hashable {
+    case header
+    case footer
+    case custom(String)
+    
+    init(_ rawValue: String) {
+        switch rawValue {
+        case UICollectionView.elementKindSectionHeader: self = .header
+        case UICollectionView.elementKindSectionFooter: self = .footer
+        default: self = .custom(rawValue)
+        }
+    }
 }
 
 public protocol ListSize {

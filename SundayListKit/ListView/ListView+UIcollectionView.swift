@@ -8,6 +8,9 @@
 
 import UIKit
 
+public protocol CollectionListDelegate: CollectionViewDelegateFlowLayout, CollectionViewDataSource, Updatable { }
+
+private var collectionListDelegateKey: Void?
 private var listViewDefaultAnimationKey: Void?
 
 extension UICollectionView: ListView {
@@ -16,50 +19,50 @@ extension UICollectionView: ListView {
     public typealias SupplementaryView = UICollectionReusableView
     public typealias Size = CGSize
     
+    public var defaultAnimation: Bool {
+        get { return Associator.getValue(key: &listViewDefaultAnimationKey, from: self) ?? true }
+        set { Associator.set(value: newValue, key: &listViewDefaultAnimationKey, to: self) }
+    }
+    
+    public var defaultItemSize: ListSize {
+        return (collectionViewLayout as? UICollectionViewFlowLayout)?.itemSize ?? .zero
+    }
+    
+    public func defaultSupplementraySize(for type: SupplementaryViewType) -> ListSize {
+        switch type {
+        case .header: return (collectionViewLayout as? UICollectionViewFlowLayout)?.headerReferenceSize ?? .zero
+        case .footer: return (collectionViewLayout as? UICollectionViewFlowLayout)?.footerReferenceSize ?? .zero
+        case .custom: return CGSize.zero
+        }
+    }
+    
+    public var listDelegate: CollectionListDelegate? {
+        get { return Associator.getValue(key: &collectionListDelegateKey, from: self) }
+        set {
+            Associator.set(value: newValue, policy: .weak, key: &collectionListDelegateKey, to: self)
+            dataSource = newValue?.asCollectionViewDataSource
+            delegate = newValue?.asCollectionViewDelegate
+            newValue?.addListViewToUpdater(listView: self)
+        }
+    }
+    
     public func reloadSynchronously() {
         reloadData()
-        
-        // Force a layout so that it is safe to call insert after this.
         layoutIfNeeded()
     }
     
-    public func perform(update: BatchUpdates, animation: Bool, completion: ((Bool) -> Void)? = nil) {
-        func __update() {
-            // Update items.
-            if !update.insertItems.isEmpty {
-                self.insertItems(at: update.insertItems)
-            }
-            if !update.deleteItems.isEmpty {
-                self.deleteItems(at: update.deleteItems)
-            }
-            if !update.reloadItems.isEmpty {
-                self.reloadItems(at: update.reloadItems)
-            }
-            for move in update.moveItems {
-                self.moveItem(at: move.from, to: move.to)
-            }
-            
-            // Update sections.
-            if !update.insertSections.isEmpty {
-                self.insertSections(update.insertSections)
-            }
-            if !update.deleteSections.isEmpty {
-                self.deleteSections(update.deleteSections)
-            }
-            if !update.reloadSections.isEmpty {
-                self.reloadSections(update.reloadSections)
-            }
-            for move in update.moveSections {
-                self.moveSection(move.from, toSection: move.to)
-            }
-        }
+    public func perform(update: () -> Void, animation: Bool, completion: ((Bool) -> Void)? = nil) {
         if animation {
-            performBatchUpdates(__update, completion: completion)
+            performBatchUpdates(update, completion: completion)
         } else {
             UIView.performWithoutAnimation {
-                performBatchUpdates(__update, completion: completion)
+                performBatchUpdates(update, completion: completion)
             }
         }
+    }
+    
+    public func performUpdate(animation: Bool, completion: ((Bool) -> Void)?) {
+        listDelegate?.performUpdate(self, animation: animation, completion: completion)
     }
     
     public func register(_ cellClass: AnyClass?, forCellReuseIdentifier identifier: String) {
@@ -70,44 +73,35 @@ extension UICollectionView: ListView {
         register(nib, forCellWithReuseIdentifier: identifier)
     }
     
-    public func register(_ headerViewClass: AnyClass?, forHeaderViewReuseIdentifier identifier: String) {
-        register(headerViewClass, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: identifier)
+    public func register(supplementaryViewType: SupplementaryViewType, _ nib: UINib?, identifier: String) {
+        register(nib, forSupplementaryViewOfKind: kind(for: supplementaryViewType), withReuseIdentifier: identifier)
     }
     
-    public func register(_ nib: UINib?, forHeaderViewReuseIdentifier identifier: String) {
-        register(nib, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: identifier)
-    }
-    
-    public func register(_ footerViewClass: AnyClass?, forFooterViewReuseIdentifier identifier: String) {
-        register(footerViewClass, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: identifier)
-    }
-    
-    public func register(_ nib: UINib?, forFooterViewReuseIdentifier identifier: String) {
-        register(nib, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: identifier)
+    public func register(supplementaryViewType: SupplementaryViewType, _ supplementaryClass: AnyClass?, identifier: String) {
+        register(supplementaryClass, forSupplementaryViewOfKind: kind(for: supplementaryViewType), withReuseIdentifier: identifier)
     }
     
     public func dequeueReusableCell(withIdentifier identifier: String, for indexPath: IndexPath) -> UICollectionViewCell {
         return dequeueReusableCell(withReuseIdentifier: identifier, for: indexPath)
     }
     
-    public func dequeueReusableHeaderView(withIdentifier identifier: String, indexPath: IndexPath) -> UICollectionReusableView {
-        return dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: identifier, for: indexPath)
+    public func dequeueReusableSupplementaryView(type: SupplementaryViewType, withIdentifier identifier: String, indexPath: IndexPath) -> UICollectionReusableView? {
+        return dequeueReusableSupplementaryView(ofKind: kind(for: type), withReuseIdentifier: identifier, for: indexPath)
     }
-    
-    public func dequeueReusableFooterView(withIdentifier identifier: String, indexPath: IndexPath) -> UICollectionReusableView {
-        return dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: identifier, for: indexPath)
-    }
-    
-    public var defaultAnimation: Bool {
-        get {
-            return Associator.getValue(key: &listViewDefaultAnimationKey, from: self) ?? true
-        }
-        set {
-            Associator.set(value: newValue, key: &listViewDefaultAnimationKey, to: self)
+}
+
+private extension UICollectionView {
+    func kind(for kind: SupplementaryViewType) -> String {
+        switch kind {
+        case .header: return UICollectionView.elementKindSectionHeader
+        case .footer: return UICollectionView.elementKindSectionFooter
+        case .custom(let kind): return kind
         }
     }
-    
-    public var defaultItemSize: ListSize {
-        return (collectionViewLayout as? UICollectionViewFlowLayout)?.itemSize ?? .zero
+}
+
+extension Bool: ListViewAnimationOption {
+    public init(animated: Bool) {
+        self = animated
     }
 }

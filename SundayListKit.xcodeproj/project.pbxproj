@@ -7,34 +7,105 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F31FBB6F22C94C2800EC07EA /* SundayListKit_iOS13.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F31FBB6622C94C2800EC07EA /* SundayListKit_iOS13.framework */; };
+		F31FBB7422C94C2800EC07EA /* SundayListKit_iOS13Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31FBB7322C94C2800EC07EA /* SundayListKit_iOS13Tests.swift */; };
+		F31FBB7622C94C2800EC07EA /* SundayListKit_iOS13.h in Headers */ = {isa = PBXBuildFile; fileRef = F31FBB6822C94C2800EC07EA /* SundayListKit_iOS13.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		F31FBB7D22C95C6100EC07EA /* DifferingExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = F33406CA22BE8CD3001ACE3F /* DifferingExtension.swift */; };
+		F31FBB7E22C95CDA00EC07EA /* DifferingExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = F33406CA22BE8CD3001ACE3F /* DifferingExtension.swift */; };
+		F31FBB7F22C95CEA00EC07EA /* ListIndexContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ECCDE1226FFF5700192F71 /* ListIndexContext.swift */; };
+		F31FBB8022C95CED00EC07EA /* ListContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ECCDDE226FFF5700192F71 /* ListContext.swift */; };
+		F31FBB8322C95CF700EC07EA /* Source.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ECCDE0226FFF5700192F71 /* Source.swift */; };
+		F31FBB8522C95D0100EC07EA /* ListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ECCDD7226FFF5700192F71 /* ListView.swift */; };
+		F31FBB8722C95D0800EC07EA /* ListViewStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ECCDD8226FFF5700192F71 /* ListViewStorage.swift */; };
+		F31FBB8822C95D0B00EC07EA /* ListView+UIcollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ECCDD4226FFF5700192F71 /* ListView+UIcollectionView.swift */; };
+		F31FBB8922C95D0E00EC07EA /* ListView+UITableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ECCDD6226FFF5700192F71 /* ListView+UITableView.swift */; };
+		F31FBB8A22C95D1300EC07EA /* Source+UIKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ECCDDD226FFF5700192F71 /* Source+UIKit.swift */; };
+		F31FBB8B22C95D1600EC07EA /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ECCDEA226FFF5700192F71 /* Extensions.swift */; };
+		F31FBB8C22C95D1A00EC07EA /* Associator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ECCDEB226FFF5700192F71 /* Associator.swift */; };
+		F31FBB9522C95DF800EC07EA /* CollectionViewDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31FBB8F22C95DF800EC07EA /* CollectionViewDataSource.swift */; };
+		F31FBB9622C95DF800EC07EA /* CollectionViewDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31FBB8F22C95DF800EC07EA /* CollectionViewDataSource.swift */; };
+		F31FBB9722C95DF800EC07EA /* TableViewDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31FBB9022C95DF800EC07EA /* TableViewDataSource.swift */; };
+		F31FBB9822C95DF800EC07EA /* TableViewDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31FBB9022C95DF800EC07EA /* TableViewDataSource.swift */; };
+		F31FBB9922C95DF800EC07EA /* CollectionViewDelegateFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31FBB9122C95DF800EC07EA /* CollectionViewDelegateFlowLayout.swift */; };
+		F31FBB9A22C95DF800EC07EA /* CollectionViewDelegateFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31FBB9122C95DF800EC07EA /* CollectionViewDelegateFlowLayout.swift */; };
+		F31FBB9B22C95DF800EC07EA /* CollectionViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31FBB9222C95DF800EC07EA /* CollectionViewDelegate.swift */; };
+		F31FBB9C22C95DF800EC07EA /* CollectionViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31FBB9222C95DF800EC07EA /* CollectionViewDelegate.swift */; };
+		F31FBB9D22C95DF800EC07EA /* TableViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31FBB9322C95DF800EC07EA /* TableViewDelegate.swift */; };
+		F31FBB9E22C95DF800EC07EA /* TableViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31FBB9322C95DF800EC07EA /* TableViewDelegate.swift */; };
+		F31FBB9F22C95DF800EC07EA /* ScrollViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31FBB9422C95DF800EC07EA /* ScrollViewDelegate.swift */; };
+		F31FBBA022C95DF800EC07EA /* ScrollViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31FBB9422C95DF800EC07EA /* ScrollViewDelegate.swift */; };
+		F324104622D67485001F1924 /* DataSource+UIKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = F358BF5C22D66FBB00F20F40 /* DataSource+UIKit.swift */; };
+		F324104822D67700001F1924 /* Adapter+UICollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F324104722D67700001F1924 /* Adapter+UICollectionView.swift */; };
+		F324104922D6773D001F1924 /* Adapter+UICollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F324104722D67700001F1924 /* Adapter+UICollectionView.swift */; };
+		F324104B22D6C834001F1924 /* ContextEquatableDifference.swift in Sources */ = {isa = PBXBuildFile; fileRef = F324104A22D6C834001F1924 /* ContextEquatableDifference.swift */; };
+		F324104C22D6CF79001F1924 /* ContextEquatableDifference.swift in Sources */ = {isa = PBXBuildFile; fileRef = F324104A22D6C834001F1924 /* ContextEquatableDifference.swift */; };
+		F324104E22D6D04B001F1924 /* ContextDiffableDifference.swift in Sources */ = {isa = PBXBuildFile; fileRef = F324104D22D6D04B001F1924 /* ContextDiffableDifference.swift */; };
+		F324105022D6D0E0001F1924 /* ContextEqualDiffableDifference.swift in Sources */ = {isa = PBXBuildFile; fileRef = F324104F22D6D0E0001F1924 /* ContextEqualDiffableDifference.swift */; };
+		F324105122D6D0E0001F1924 /* ContextEqualDiffableDifference.swift in Sources */ = {isa = PBXBuildFile; fileRef = F324104F22D6D0E0001F1924 /* ContextEqualDiffableDifference.swift */; };
+		F324105222D6D31F001F1924 /* ContextDiffableDifference.swift in Sources */ = {isa = PBXBuildFile; fileRef = F324104D22D6D04B001F1924 /* ContextDiffableDifference.swift */; };
+		F324105422D6D4F6001F1924 /* CollectionSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F324105322D6D4F6001F1924 /* CollectionSource.swift */; };
+		F324105522D6D4F6001F1924 /* CollectionSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F324105322D6D4F6001F1924 /* CollectionSource.swift */; };
+		F33F06FB22D4E8C5004E0A00 /* Context.swift in Sources */ = {isa = PBXBuildFile; fileRef = F33F06FA22D4E8C5004E0A00 /* Context.swift */; };
+		F33F06FC22D4FDA8004E0A00 /* Context.swift in Sources */ = {isa = PBXBuildFile; fileRef = F33F06FA22D4E8C5004E0A00 /* Context.swift */; };
+		F33F06FF22D5ED19004E0A00 /* ContextDifference.swift in Sources */ = {isa = PBXBuildFile; fileRef = F33F06FE22D5ED19004E0A00 /* ContextDifference.swift */; };
+		F33F070022D5ED33004E0A00 /* ContextDifference.swift in Sources */ = {isa = PBXBuildFile; fileRef = F33F06FE22D5ED19004E0A00 /* ContextDifference.swift */; };
+		F33F070322D5EDF8004E0A00 /* Adapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F33F070222D5EDF8004E0A00 /* Adapter.swift */; };
+		F33F070422D5EDF8004E0A00 /* Adapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F33F070222D5EDF8004E0A00 /* Adapter.swift */; };
+		F33F070622D66939004E0A00 /* Adapter+UITableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F33F070522D66939004E0A00 /* Adapter+UITableView.swift */; };
+		F33F070722D66939004E0A00 /* Adapter+UITableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F33F070522D66939004E0A00 /* Adapter+UITableView.swift */; };
+		F33F070922D66991004E0A00 /* DataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F33F070822D66991004E0A00 /* DataSource.swift */; };
+		F33F070A22D66991004E0A00 /* DataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F33F070822D66991004E0A00 /* DataSource.swift */; };
+		F358BF5B22D66F8900F20F40 /* AnySource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F37D45E822CE305A0085F052 /* AnySource.swift */; };
+		F358BF5D22D66FBB00F20F40 /* DataSource+UIKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = F358BF5C22D66FBB00F20F40 /* DataSource+UIKit.swift */; };
+		F37B9C0922D6E62D004665BF /* ListAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ECCDDF226FFF5700192F71 /* ListAdapter.swift */; };
+		F37D45E322CDC8280085F052 /* Sources.swift in Sources */ = {isa = PBXBuildFile; fileRef = F37D45E122CDC7C40085F052 /* Sources.swift */; };
+		F37D45E922CE305A0085F052 /* AnySource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F37D45E822CE305A0085F052 /* AnySource.swift */; };
+		F37D45EA22CE333E0085F052 /* Diffable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ABFCC622CCB7EE00A14F14 /* Diffable.swift */; };
+		F3ABFCC322CB863200A14F14 /* SourceBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ABFCC222CB863200A14F14 /* SourceBuilder.swift */; };
+		F3ABFCC822CCB7EF00A14F14 /* Diffable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ABFCC622CCB7EE00A14F14 /* Diffable.swift */; };
+		F3ADD10222CF35BF0004226B /* IdentifiableExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ADD10122CF35BF0004226B /* IdentifiableExtensions.swift */; };
+		F3ADD10322CF35BF0004226B /* IdentifiableExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ADD10122CF35BF0004226B /* IdentifiableExtensions.swift */; };
+		F3ADD10522CF70BD0004226B /* ValueWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ADD10422CF70BD0004226B /* ValueWrapper.swift */; };
+		F3ADD10622CF70BD0004226B /* ValueWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ADD10422CF70BD0004226B /* ValueWrapper.swift */; };
+		F3C575EC22D2476700BEEAC7 /* ListUpdatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ECCDDC226FFF5700192F71 /* ListUpdatable.swift */; };
+		F3C575ED22D2476800BEEAC7 /* ListUpdatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ECCDDC226FFF5700192F71 /* ListUpdatable.swift */; };
+		F3C575EF22D282F100BEEAC7 /* FetchedResultsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ECCE0A2270281000192F71 /* FetchedResultsController.swift */; };
+		F3C575F422D3660E00BEEAC7 /* ItemSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3C575F322D3660E00BEEAC7 /* ItemSource.swift */; };
+		F3C575F522D3661300BEEAC7 /* ItemSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3C575F322D3660E00BEEAC7 /* ItemSource.swift */; };
+		F3C575F722D3664A00BEEAC7 /* SectionSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3C575F622D3664A00BEEAC7 /* SectionSource.swift */; };
+		F3C575F822D3665100BEEAC7 /* SectionSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3C575F622D3664A00BEEAC7 /* SectionSource.swift */; };
+		F3C575FA22D366D900BEEAC7 /* ListSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3C575F922D366D900BEEAC7 /* ListSource.swift */; };
+		F3C575FC22D366F200BEEAC7 /* NeverSubSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3C575FB22D366F200BEEAC7 /* NeverSubSource.swift */; };
+		F3C575FD22D3674400BEEAC7 /* ListSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3C575F922D366D900BEEAC7 /* ListSource.swift */; };
+		F3C575FE22D3674900BEEAC7 /* NeverSubSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3C575FB22D366F200BEEAC7 /* NeverSubSource.swift */; };
+		F3C575FF22D3C12200BEEAC7 /* Identifiable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F329957A22BE884000684F8D /* Identifiable.swift */; };
 		F3ECCDBE226FFF1200192F71 /* SundayListKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F3ECCDB4226FFF1200192F71 /* SundayListKit.framework */; };
 		F3ECCDC3226FFF1200192F71 /* SundayListKitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ECCDC2226FFF1200192F71 /* SundayListKitTests.swift */; };
 		F3ECCDC5226FFF1200192F71 /* SundayListKit.h in Headers */ = {isa = PBXBuildFile; fileRef = F3ECCDB7226FFF1200192F71 /* SundayListKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F3ECCDEF226FFF5700192F71 /* CollectionDifference.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ECCDCF226FFF5600192F71 /* CollectionDifference.swift */; };
 		F3ECCDF0226FFF5700192F71 /* Differing.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ECCDD0226FFF5600192F71 /* Differing.swift */; };
 		F3ECCDF2226FFF5700192F71 /* ListView+UIcollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ECCDD4226FFF5700192F71 /* ListView+UIcollectionView.swift */; };
-		F3ECCDF3226FFF5700192F71 /* ListViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ECCDD5226FFF5700192F71 /* ListViewDelegate.swift */; };
 		F3ECCDF4226FFF5700192F71 /* ListView+UITableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ECCDD6226FFF5700192F71 /* ListView+UITableView.swift */; };
 		F3ECCDF5226FFF5700192F71 /* ListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ECCDD7226FFF5700192F71 /* ListView.swift */; };
 		F3ECCDF6226FFF5700192F71 /* ListViewStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ECCDD8226FFF5700192F71 /* ListViewStorage.swift */; };
-		F3ECCDF9226FFF5700192F71 /* ListUpdateContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ECCDDC226FFF5700192F71 /* ListUpdateContext.swift */; };
-		F3ECCDFA226FFF5700192F71 /* ListViewConfigurable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ECCDDD226FFF5700192F71 /* ListViewConfigurable.swift */; };
-		F3ECCDFB226FFF5700192F71 /* ListData.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ECCDDE226FFF5700192F71 /* ListData.swift */; };
+		F3ECCDFA226FFF5700192F71 /* Source+UIKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ECCDDD226FFF5700192F71 /* Source+UIKit.swift */; };
+		F3ECCDFB226FFF5700192F71 /* ListContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ECCDDE226FFF5700192F71 /* ListContext.swift */; };
 		F3ECCDFC226FFF5700192F71 /* ListAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ECCDDF226FFF5700192F71 /* ListAdapter.swift */; };
-		F3ECCDFD226FFF5700192F71 /* ListDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ECCDE0226FFF5700192F71 /* ListDataSource.swift */; };
-		F3ECCDFE226FFF5700192F71 /* ListContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ECCDE1226FFF5700192F71 /* ListContext.swift */; };
-		F3ECCDFF226FFF5700192F71 /* CollectionViewDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ECCDE3226FFF5700192F71 /* CollectionViewDataSource.swift */; };
-		F3ECCE00226FFF5700192F71 /* TableViewDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ECCDE4226FFF5700192F71 /* TableViewDataSource.swift */; };
-		F3ECCE01226FFF5700192F71 /* CollectionViewDelegateFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ECCDE5226FFF5700192F71 /* CollectionViewDelegateFlowLayout.swift */; };
-		F3ECCE02226FFF5700192F71 /* CollectionViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ECCDE6226FFF5700192F71 /* CollectionViewDelegate.swift */; };
-		F3ECCE03226FFF5700192F71 /* TableViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ECCDE7226FFF5700192F71 /* TableViewDelegate.swift */; };
-		F3ECCE04226FFF5700192F71 /* ScrollViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ECCDE8226FFF5700192F71 /* ScrollViewDelegate.swift */; };
+		F3ECCDFD226FFF5700192F71 /* Source.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ECCDE0226FFF5700192F71 /* Source.swift */; };
+		F3ECCDFE226FFF5700192F71 /* ListIndexContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ECCDE1226FFF5700192F71 /* ListIndexContext.swift */; };
 		F3ECCE05226FFF5700192F71 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ECCDEA226FFF5700192F71 /* Extensions.swift */; };
 		F3ECCE06226FFF5700192F71 /* Associator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ECCDEB226FFF5700192F71 /* Associator.swift */; };
-		F3ECCE07226FFF5700192F71 /* Diffable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ECCDEC226FFF5700192F71 /* Diffable.swift */; };
+		F3ECCE0B2270281000192F71 /* FetchedResultsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ECCE0A2270281000192F71 /* FetchedResultsController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		F31FBB7022C94C2800EC07EA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F3ECCDAB226FFF1200192F71 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F31FBB6522C94C2800EC07EA;
+			remoteInfo = "SundayListKit iOS13";
+		};
 		F3ECCDBF226FFF1200192F71 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = F3ECCDAB226FFF1200192F71 /* Project object */;
@@ -45,6 +116,41 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		F31FBB6622C94C2800EC07EA /* SundayListKit_iOS13.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SundayListKit_iOS13.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		F31FBB6822C94C2800EC07EA /* SundayListKit_iOS13.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SundayListKit_iOS13.h; sourceTree = "<group>"; };
+		F31FBB6922C94C2800EC07EA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		F31FBB6E22C94C2800EC07EA /* SundayListKit iOS13Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "SundayListKit iOS13Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		F31FBB7322C94C2800EC07EA /* SundayListKit_iOS13Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SundayListKit_iOS13Tests.swift; sourceTree = "<group>"; };
+		F31FBB7522C94C2800EC07EA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		F31FBB8F22C95DF800EC07EA /* CollectionViewDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CollectionViewDataSource.swift; sourceTree = "<group>"; };
+		F31FBB9022C95DF800EC07EA /* TableViewDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TableViewDataSource.swift; sourceTree = "<group>"; };
+		F31FBB9122C95DF800EC07EA /* CollectionViewDelegateFlowLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CollectionViewDelegateFlowLayout.swift; sourceTree = "<group>"; };
+		F31FBB9222C95DF800EC07EA /* CollectionViewDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CollectionViewDelegate.swift; sourceTree = "<group>"; };
+		F31FBB9322C95DF800EC07EA /* TableViewDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TableViewDelegate.swift; sourceTree = "<group>"; };
+		F31FBB9422C95DF800EC07EA /* ScrollViewDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScrollViewDelegate.swift; sourceTree = "<group>"; };
+		F324104722D67700001F1924 /* Adapter+UICollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Adapter+UICollectionView.swift"; sourceTree = "<group>"; };
+		F324104A22D6C834001F1924 /* ContextEquatableDifference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextEquatableDifference.swift; sourceTree = "<group>"; };
+		F324104D22D6D04B001F1924 /* ContextDiffableDifference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextDiffableDifference.swift; sourceTree = "<group>"; };
+		F324104F22D6D0E0001F1924 /* ContextEqualDiffableDifference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextEqualDiffableDifference.swift; sourceTree = "<group>"; };
+		F324105322D6D4F6001F1924 /* CollectionSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionSource.swift; sourceTree = "<group>"; };
+		F329957A22BE884000684F8D /* Identifiable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Identifiable.swift; sourceTree = "<group>"; };
+		F33406CA22BE8CD3001ACE3F /* DifferingExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DifferingExtension.swift; sourceTree = "<group>"; };
+		F33F06FA22D4E8C5004E0A00 /* Context.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Context.swift; sourceTree = "<group>"; };
+		F33F06FE22D5ED19004E0A00 /* ContextDifference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextDifference.swift; sourceTree = "<group>"; };
+		F33F070222D5EDF8004E0A00 /* Adapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Adapter.swift; sourceTree = "<group>"; };
+		F33F070522D66939004E0A00 /* Adapter+UITableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Adapter+UITableView.swift"; sourceTree = "<group>"; };
+		F33F070822D66991004E0A00 /* DataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSource.swift; sourceTree = "<group>"; };
+		F358BF5C22D66FBB00F20F40 /* DataSource+UIKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataSource+UIKit.swift"; sourceTree = "<group>"; };
+		F37D45E122CDC7C40085F052 /* Sources.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources.swift; sourceTree = "<group>"; };
+		F37D45E822CE305A0085F052 /* AnySource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnySource.swift; sourceTree = "<group>"; };
+		F3ABFCC222CB863200A14F14 /* SourceBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourceBuilder.swift; sourceTree = "<group>"; };
+		F3ABFCC622CCB7EE00A14F14 /* Diffable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Diffable.swift; sourceTree = "<group>"; };
+		F3ADD10122CF35BF0004226B /* IdentifiableExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdentifiableExtensions.swift; sourceTree = "<group>"; };
+		F3ADD10422CF70BD0004226B /* ValueWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValueWrapper.swift; sourceTree = "<group>"; };
+		F3C575F322D3660E00BEEAC7 /* ItemSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemSource.swift; sourceTree = "<group>"; };
+		F3C575F622D3664A00BEEAC7 /* SectionSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionSource.swift; sourceTree = "<group>"; };
+		F3C575F922D366D900BEEAC7 /* ListSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListSource.swift; sourceTree = "<group>"; };
+		F3C575FB22D366F200BEEAC7 /* NeverSubSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NeverSubSource.swift; sourceTree = "<group>"; };
 		F3ECCDB4226FFF1200192F71 /* SundayListKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SundayListKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F3ECCDB7226FFF1200192F71 /* SundayListKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SundayListKit.h; sourceTree = "<group>"; };
 		F3ECCDB8226FFF1200192F71 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -54,28 +160,36 @@
 		F3ECCDCF226FFF5600192F71 /* CollectionDifference.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CollectionDifference.swift; sourceTree = "<group>"; };
 		F3ECCDD0226FFF5600192F71 /* Differing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Differing.swift; sourceTree = "<group>"; };
 		F3ECCDD4226FFF5700192F71 /* ListView+UIcollectionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ListView+UIcollectionView.swift"; sourceTree = "<group>"; };
-		F3ECCDD5226FFF5700192F71 /* ListViewDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListViewDelegate.swift; sourceTree = "<group>"; };
 		F3ECCDD6226FFF5700192F71 /* ListView+UITableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ListView+UITableView.swift"; sourceTree = "<group>"; };
 		F3ECCDD7226FFF5700192F71 /* ListView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListView.swift; sourceTree = "<group>"; };
 		F3ECCDD8226FFF5700192F71 /* ListViewStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListViewStorage.swift; sourceTree = "<group>"; };
-		F3ECCDDC226FFF5700192F71 /* ListUpdateContext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListUpdateContext.swift; sourceTree = "<group>"; };
-		F3ECCDDD226FFF5700192F71 /* ListViewConfigurable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListViewConfigurable.swift; sourceTree = "<group>"; };
-		F3ECCDDE226FFF5700192F71 /* ListData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListData.swift; sourceTree = "<group>"; };
+		F3ECCDDC226FFF5700192F71 /* ListUpdatable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListUpdatable.swift; sourceTree = "<group>"; };
+		F3ECCDDD226FFF5700192F71 /* Source+UIKit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Source+UIKit.swift"; sourceTree = "<group>"; };
+		F3ECCDDE226FFF5700192F71 /* ListContext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListContext.swift; sourceTree = "<group>"; };
 		F3ECCDDF226FFF5700192F71 /* ListAdapter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListAdapter.swift; sourceTree = "<group>"; };
-		F3ECCDE0226FFF5700192F71 /* ListDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListDataSource.swift; sourceTree = "<group>"; };
-		F3ECCDE1226FFF5700192F71 /* ListContext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListContext.swift; sourceTree = "<group>"; };
-		F3ECCDE3226FFF5700192F71 /* CollectionViewDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CollectionViewDataSource.swift; sourceTree = "<group>"; };
-		F3ECCDE4226FFF5700192F71 /* TableViewDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TableViewDataSource.swift; sourceTree = "<group>"; };
-		F3ECCDE5226FFF5700192F71 /* CollectionViewDelegateFlowLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CollectionViewDelegateFlowLayout.swift; sourceTree = "<group>"; };
-		F3ECCDE6226FFF5700192F71 /* CollectionViewDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CollectionViewDelegate.swift; sourceTree = "<group>"; };
-		F3ECCDE7226FFF5700192F71 /* TableViewDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TableViewDelegate.swift; sourceTree = "<group>"; };
-		F3ECCDE8226FFF5700192F71 /* ScrollViewDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScrollViewDelegate.swift; sourceTree = "<group>"; };
+		F3ECCDE0226FFF5700192F71 /* Source.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Source.swift; sourceTree = "<group>"; };
+		F3ECCDE1226FFF5700192F71 /* ListIndexContext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListIndexContext.swift; sourceTree = "<group>"; };
 		F3ECCDEA226FFF5700192F71 /* Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		F3ECCDEB226FFF5700192F71 /* Associator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Associator.swift; sourceTree = "<group>"; };
-		F3ECCDEC226FFF5700192F71 /* Diffable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Diffable.swift; sourceTree = "<group>"; };
+		F3ECCE0A2270281000192F71 /* FetchedResultsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchedResultsController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		F31FBB6322C94C2800EC07EA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F31FBB6B22C94C2800EC07EA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F31FBB6F22C94C2800EC07EA /* SundayListKit_iOS13.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F3ECCDB1226FFF1200192F71 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -94,11 +208,97 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		F31FBB6722C94C2800EC07EA /* SundayListKit iOS13 */ = {
+			isa = PBXGroup;
+			children = (
+				F31FBB6822C94C2800EC07EA /* SundayListKit_iOS13.h */,
+				F31FBB6922C94C2800EC07EA /* Info.plist */,
+			);
+			path = "SundayListKit iOS13";
+			sourceTree = "<group>";
+		};
+		F31FBB7222C94C2800EC07EA /* SundayListKit iOS13Tests */ = {
+			isa = PBXGroup;
+			children = (
+				F31FBB7322C94C2800EC07EA /* SundayListKit_iOS13Tests.swift */,
+				F31FBB7522C94C2800EC07EA /* Info.plist */,
+			);
+			path = "SundayListKit iOS13Tests";
+			sourceTree = "<group>";
+		};
+		F31FBB8E22C95DF800EC07EA /* DelegateWrapper */ = {
+			isa = PBXGroup;
+			children = (
+				F31FBB8F22C95DF800EC07EA /* CollectionViewDataSource.swift */,
+				F31FBB9022C95DF800EC07EA /* TableViewDataSource.swift */,
+				F31FBB9122C95DF800EC07EA /* CollectionViewDelegateFlowLayout.swift */,
+				F31FBB9222C95DF800EC07EA /* CollectionViewDelegate.swift */,
+				F31FBB9322C95DF800EC07EA /* TableViewDelegate.swift */,
+				F31FBB9422C95DF800EC07EA /* ScrollViewDelegate.swift */,
+			);
+			path = DelegateWrapper;
+			sourceTree = "<group>";
+		};
+		F33F06FD22D5ECE8004E0A00 /* Context */ = {
+			isa = PBXGroup;
+			children = (
+				F33F06FA22D4E8C5004E0A00 /* Context.swift */,
+				F33F06FE22D5ED19004E0A00 /* ContextDifference.swift */,
+				F324104A22D6C834001F1924 /* ContextEquatableDifference.swift */,
+				F324104D22D6D04B001F1924 /* ContextDiffableDifference.swift */,
+				F324104F22D6D0E0001F1924 /* ContextEqualDiffableDifference.swift */,
+				F3ECCDDE226FFF5700192F71 /* ListContext.swift */,
+				F3ECCDE1226FFF5700192F71 /* ListIndexContext.swift */,
+				F3ECCDDC226FFF5700192F71 /* ListUpdatable.swift */,
+			);
+			path = Context;
+			sourceTree = "<group>";
+		};
+		F33F070122D5EDD5004E0A00 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				F3ECCDE0226FFF5700192F71 /* Source.swift */,
+				F324105322D6D4F6001F1924 /* CollectionSource.swift */,
+				F33F070822D66991004E0A00 /* DataSource.swift */,
+				F33F070222D5EDF8004E0A00 /* Adapter.swift */,
+				F3ECCDDD226FFF5700192F71 /* Source+UIKit.swift */,
+				F358BF5C22D66FBB00F20F40 /* DataSource+UIKit.swift */,
+				F33F070522D66939004E0A00 /* Adapter+UITableView.swift */,
+				F324104722D67700001F1924 /* Adapter+UICollectionView.swift */,
+			);
+			path = Source;
+			sourceTree = "<group>";
+		};
+		F37D45E722CE30320085F052 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				F33F070122D5EDD5004E0A00 /* Source */,
+				F3ABFCC122CB861D00A14F14 /* SourceBuilder */,
+				F3C575F922D366D900BEEAC7 /* ListSource.swift */,
+				F3C575F622D3664A00BEEAC7 /* SectionSource.swift */,
+				F3C575F322D3660E00BEEAC7 /* ItemSource.swift */,
+				F3C575FB22D366F200BEEAC7 /* NeverSubSource.swift */,
+				F37D45E822CE305A0085F052 /* AnySource.swift */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		F3ABFCC122CB861D00A14F14 /* SourceBuilder */ = {
+			isa = PBXGroup;
+			children = (
+				F3ABFCC222CB863200A14F14 /* SourceBuilder.swift */,
+				F37D45E122CDC7C40085F052 /* Sources.swift */,
+			);
+			path = SourceBuilder;
+			sourceTree = "<group>";
+		};
 		F3ECCDAA226FFF1200192F71 = {
 			isa = PBXGroup;
 			children = (
 				F3ECCDB6226FFF1200192F71 /* SundayListKit */,
 				F3ECCDC1226FFF1200192F71 /* SundayListKitTests */,
+				F31FBB6722C94C2800EC07EA /* SundayListKit iOS13 */,
+				F31FBB7222C94C2800EC07EA /* SundayListKit iOS13Tests */,
 				F3ECCDB5226FFF1200192F71 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -108,6 +308,8 @@
 			children = (
 				F3ECCDB4226FFF1200192F71 /* SundayListKit.framework */,
 				F3ECCDBD226FFF1200192F71 /* SundayListKitTests.xctest */,
+				F31FBB6622C94C2800EC07EA /* SundayListKit_iOS13.framework */,
+				F31FBB6E22C94C2800EC07EA /* SundayListKit iOS13Tests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -115,11 +317,12 @@
 		F3ECCDB6226FFF1200192F71 /* SundayListKit */ = {
 			isa = PBXGroup;
 			children = (
-				F3ECCDD9226FFF5700192F71 /* General */,
-				F3ECCDE2226FFF5700192F71 /* DelegateWrapper */,
-				F3ECCDCE226FFF5600192F71 /* Differ */,
+				F37D45E722CE30320085F052 /* Sources */,
+				F33F06FD22D5ECE8004E0A00 /* Context */,
 				F3ECCDD3226FFF5700192F71 /* ListView */,
 				F3ECCDE9226FFF5700192F71 /* Utility */,
+				F3ECCE09227027F400192F71 /* CoreData */,
+				F3ECCDDF226FFF5700192F71 /* ListAdapter.swift */,
 				F3ECCDB7226FFF1200192F71 /* SundayListKit.h */,
 				F3ECCDB8226FFF1200192F71 /* Info.plist */,
 			);
@@ -138,8 +341,11 @@
 		F3ECCDCE226FFF5600192F71 /* Differ */ = {
 			isa = PBXGroup;
 			children = (
+				F329957A22BE884000684F8D /* Identifiable.swift */,
+				F3ADD10122CF35BF0004226B /* IdentifiableExtensions.swift */,
 				F3ECCDCF226FFF5600192F71 /* CollectionDifference.swift */,
 				F3ECCDD0226FFF5600192F71 /* Differing.swift */,
+				F33406CA22BE8CD3001ACE3F /* DifferingExtension.swift */,
 			);
 			path = Differ;
 			sourceTree = "<group>";
@@ -147,9 +353,8 @@
 		F3ECCDD3226FFF5700192F71 /* ListView */ = {
 			isa = PBXGroup;
 			children = (
+				F31FBB8E22C95DF800EC07EA /* DelegateWrapper */,
 				F3ECCDD7226FFF5700192F71 /* ListView.swift */,
-				F3ECCDDD226FFF5700192F71 /* ListViewConfigurable.swift */,
-				F3ECCDD5226FFF5700192F71 /* ListViewDelegate.swift */,
 				F3ECCDD8226FFF5700192F71 /* ListViewStorage.swift */,
 				F3ECCDD4226FFF5700192F71 /* ListView+UIcollectionView.swift */,
 				F3ECCDD6226FFF5700192F71 /* ListView+UITableView.swift */,
@@ -157,44 +362,37 @@
 			path = ListView;
 			sourceTree = "<group>";
 		};
-		F3ECCDD9226FFF5700192F71 /* General */ = {
-			isa = PBXGroup;
-			children = (
-				F3ECCDDF226FFF5700192F71 /* ListAdapter.swift */,
-				F3ECCDE0226FFF5700192F71 /* ListDataSource.swift */,
-				F3ECCDDC226FFF5700192F71 /* ListUpdateContext.swift */,
-				F3ECCDE1226FFF5700192F71 /* ListContext.swift */,
-				F3ECCDDE226FFF5700192F71 /* ListData.swift */,
-			);
-			path = General;
-			sourceTree = "<group>";
-		};
-		F3ECCDE2226FFF5700192F71 /* DelegateWrapper */ = {
-			isa = PBXGroup;
-			children = (
-				F3ECCDE8226FFF5700192F71 /* ScrollViewDelegate.swift */,
-				F3ECCDE4226FFF5700192F71 /* TableViewDataSource.swift */,
-				F3ECCDE7226FFF5700192F71 /* TableViewDelegate.swift */,
-				F3ECCDE3226FFF5700192F71 /* CollectionViewDataSource.swift */,
-				F3ECCDE6226FFF5700192F71 /* CollectionViewDelegate.swift */,
-				F3ECCDE5226FFF5700192F71 /* CollectionViewDelegateFlowLayout.swift */,
-			);
-			path = DelegateWrapper;
-			sourceTree = "<group>";
-		};
 		F3ECCDE9226FFF5700192F71 /* Utility */ = {
 			isa = PBXGroup;
 			children = (
+				F3ECCDCE226FFF5600192F71 /* Differ */,
+				F3ABFCC622CCB7EE00A14F14 /* Diffable.swift */,
 				F3ECCDEA226FFF5700192F71 /* Extensions.swift */,
 				F3ECCDEB226FFF5700192F71 /* Associator.swift */,
-				F3ECCDEC226FFF5700192F71 /* Diffable.swift */,
+				F3ADD10422CF70BD0004226B /* ValueWrapper.swift */,
 			);
 			path = Utility;
+			sourceTree = "<group>";
+		};
+		F3ECCE09227027F400192F71 /* CoreData */ = {
+			isa = PBXGroup;
+			children = (
+				F3ECCE0A2270281000192F71 /* FetchedResultsController.swift */,
+			);
+			path = CoreData;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
+		F31FBB6122C94C2800EC07EA /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F31FBB7622C94C2800EC07EA /* SundayListKit_iOS13.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F3ECCDAF226FFF1200192F71 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -206,6 +404,42 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		F31FBB6522C94C2800EC07EA /* SundayListKit iOS13 */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F31FBB7B22C94C2800EC07EA /* Build configuration list for PBXNativeTarget "SundayListKit iOS13" */;
+			buildPhases = (
+				F31FBB6122C94C2800EC07EA /* Headers */,
+				F31FBB6222C94C2800EC07EA /* Sources */,
+				F31FBB6322C94C2800EC07EA /* Frameworks */,
+				F31FBB6422C94C2800EC07EA /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "SundayListKit iOS13";
+			productName = "SundayListKit iOS13";
+			productReference = F31FBB6622C94C2800EC07EA /* SundayListKit_iOS13.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		F31FBB6D22C94C2800EC07EA /* SundayListKit iOS13Tests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F31FBB7C22C94C2800EC07EA /* Build configuration list for PBXNativeTarget "SundayListKit iOS13Tests" */;
+			buildPhases = (
+				F31FBB6A22C94C2800EC07EA /* Sources */,
+				F31FBB6B22C94C2800EC07EA /* Frameworks */,
+				F31FBB6C22C94C2800EC07EA /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F31FBB7122C94C2800EC07EA /* PBXTargetDependency */,
+			);
+			name = "SundayListKit iOS13Tests";
+			productName = "SundayListKit iOS13Tests";
+			productReference = F31FBB6E22C94C2800EC07EA /* SundayListKit iOS13Tests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		F3ECCDB3226FFF1200192F71 /* SundayListKit */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = F3ECCDC8226FFF1200192F71 /* Build configuration list for PBXNativeTarget "SundayListKit" */;
@@ -248,10 +482,16 @@
 		F3ECCDAB226FFF1200192F71 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1020;
+				LastSwiftUpdateCheck = 1100;
 				LastUpgradeCheck = 1020;
 				ORGANIZATIONNAME = Frain;
 				TargetAttributes = {
+					F31FBB6522C94C2800EC07EA = {
+						CreatedOnToolsVersion = 11.0;
+					};
+					F31FBB6D22C94C2800EC07EA = {
+						CreatedOnToolsVersion = 11.0;
+					};
 					F3ECCDB3226FFF1200192F71 = {
 						CreatedOnToolsVersion = 10.2.1;
 					};
@@ -266,6 +506,7 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				Base,
 			);
 			mainGroup = F3ECCDAA226FFF1200192F71;
 			productRefGroup = F3ECCDB5226FFF1200192F71 /* Products */;
@@ -274,11 +515,27 @@
 			targets = (
 				F3ECCDB3226FFF1200192F71 /* SundayListKit */,
 				F3ECCDBC226FFF1200192F71 /* SundayListKitTests */,
+				F31FBB6522C94C2800EC07EA /* SundayListKit iOS13 */,
+				F31FBB6D22C94C2800EC07EA /* SundayListKit iOS13Tests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		F31FBB6422C94C2800EC07EA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F31FBB6C22C94C2800EC07EA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F3ECCDB2226FFF1200192F71 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -296,31 +553,107 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		F31FBB6222C94C2800EC07EA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F3C575FD22D3674400BEEAC7 /* ListSource.swift in Sources */,
+				F31FBB9822C95DF800EC07EA /* TableViewDataSource.swift in Sources */,
+				F31FBB8922C95D0E00EC07EA /* ListView+UITableView.swift in Sources */,
+				F3ADD10322CF35BF0004226B /* IdentifiableExtensions.swift in Sources */,
+				F31FBBA022C95DF800EC07EA /* ScrollViewDelegate.swift in Sources */,
+				F31FBB8722C95D0800EC07EA /* ListViewStorage.swift in Sources */,
+				F33F070722D66939004E0A00 /* Adapter+UITableView.swift in Sources */,
+				F358BF5B22D66F8900F20F40 /* AnySource.swift in Sources */,
+				F31FBB8A22C95D1300EC07EA /* Source+UIKit.swift in Sources */,
+				F3ABFCC822CCB7EF00A14F14 /* Diffable.swift in Sources */,
+				F3C575F822D3665100BEEAC7 /* SectionSource.swift in Sources */,
+				F324104622D67485001F1924 /* DataSource+UIKit.swift in Sources */,
+				F324104C22D6CF79001F1924 /* ContextEquatableDifference.swift in Sources */,
+				F33F070422D5EDF8004E0A00 /* Adapter.swift in Sources */,
+				F3C575FE22D3674900BEEAC7 /* NeverSubSource.swift in Sources */,
+				F31FBB8522C95D0100EC07EA /* ListView.swift in Sources */,
+				F31FBB9E22C95DF800EC07EA /* TableViewDelegate.swift in Sources */,
+				F33F070022D5ED33004E0A00 /* ContextDifference.swift in Sources */,
+				F324105122D6D0E0001F1924 /* ContextEqualDiffableDifference.swift in Sources */,
+				F3C575EF22D282F100BEEAC7 /* FetchedResultsController.swift in Sources */,
+				F37D45E322CDC8280085F052 /* Sources.swift in Sources */,
+				F31FBB8C22C95D1A00EC07EA /* Associator.swift in Sources */,
+				F33F070A22D66991004E0A00 /* DataSource.swift in Sources */,
+				F31FBB9A22C95DF800EC07EA /* CollectionViewDelegateFlowLayout.swift in Sources */,
+				F31FBB7F22C95CEA00EC07EA /* ListIndexContext.swift in Sources */,
+				F324105222D6D31F001F1924 /* ContextDiffableDifference.swift in Sources */,
+				F31FBB9622C95DF800EC07EA /* CollectionViewDataSource.swift in Sources */,
+				F31FBB8822C95D0B00EC07EA /* ListView+UIcollectionView.swift in Sources */,
+				F31FBB7D22C95C6100EC07EA /* DifferingExtension.swift in Sources */,
+				F31FBB8322C95CF700EC07EA /* Source.swift in Sources */,
+				F3ADD10622CF70BD0004226B /* ValueWrapper.swift in Sources */,
+				F31FBB9C22C95DF800EC07EA /* CollectionViewDelegate.swift in Sources */,
+				F31FBB8022C95CED00EC07EA /* ListContext.swift in Sources */,
+				F324104922D6773D001F1924 /* Adapter+UICollectionView.swift in Sources */,
+				F3ABFCC322CB863200A14F14 /* SourceBuilder.swift in Sources */,
+				F37B9C0922D6E62D004665BF /* ListAdapter.swift in Sources */,
+				F3C575EC22D2476700BEEAC7 /* ListUpdatable.swift in Sources */,
+				F31FBB8B22C95D1600EC07EA /* Extensions.swift in Sources */,
+				F3C575F522D3661300BEEAC7 /* ItemSource.swift in Sources */,
+				F324105522D6D4F6001F1924 /* CollectionSource.swift in Sources */,
+				F33F06FC22D4FDA8004E0A00 /* Context.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F31FBB6A22C94C2800EC07EA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F31FBB7422C94C2800EC07EA /* SundayListKit_iOS13Tests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F3ECCDB0226FFF1200192F71 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F3ECCE00226FFF5700192F71 /* TableViewDataSource.swift in Sources */,
-				F3ECCE04226FFF5700192F71 /* ScrollViewDelegate.swift in Sources */,
-				F3ECCDFA226FFF5700192F71 /* ListViewConfigurable.swift in Sources */,
+				F324105022D6D0E0001F1924 /* ContextEqualDiffableDifference.swift in Sources */,
+				F31FBB9B22C95DF800EC07EA /* CollectionViewDelegate.swift in Sources */,
+				F3ECCDFA226FFF5700192F71 /* Source+UIKit.swift in Sources */,
 				F3ECCDF4226FFF5700192F71 /* ListView+UITableView.swift in Sources */,
-				F3ECCDF9226FFF5700192F71 /* ListUpdateContext.swift in Sources */,
+				F3C575ED22D2476800BEEAC7 /* ListUpdatable.swift in Sources */,
+				F33F06FB22D4E8C5004E0A00 /* Context.swift in Sources */,
+				F3ECCE0B2270281000192F71 /* FetchedResultsController.swift in Sources */,
+				F324104822D67700001F1924 /* Adapter+UICollectionView.swift in Sources */,
+				F324104E22D6D04B001F1924 /* ContextDiffableDifference.swift in Sources */,
+				F33F06FF22D5ED19004E0A00 /* ContextDifference.swift in Sources */,
+				F324105422D6D4F6001F1924 /* CollectionSource.swift in Sources */,
 				F3ECCDFC226FFF5700192F71 /* ListAdapter.swift in Sources */,
-				F3ECCE03226FFF5700192F71 /* TableViewDelegate.swift in Sources */,
-				F3ECCDFD226FFF5700192F71 /* ListDataSource.swift in Sources */,
-				F3ECCE07226FFF5700192F71 /* Diffable.swift in Sources */,
+				F3C575F422D3660E00BEEAC7 /* ItemSource.swift in Sources */,
+				F3ECCDFD226FFF5700192F71 /* Source.swift in Sources */,
 				F3ECCE06226FFF5700192F71 /* Associator.swift in Sources */,
-				F3ECCE01226FFF5700192F71 /* CollectionViewDelegateFlowLayout.swift in Sources */,
 				F3ECCDF2226FFF5700192F71 /* ListView+UIcollectionView.swift in Sources */,
-				F3ECCDFF226FFF5700192F71 /* CollectionViewDataSource.swift in Sources */,
-				F3ECCDFB226FFF5700192F71 /* ListData.swift in Sources */,
+				F3C575FC22D366F200BEEAC7 /* NeverSubSource.swift in Sources */,
+				F33F070322D5EDF8004E0A00 /* Adapter.swift in Sources */,
+				F3ECCDFB226FFF5700192F71 /* ListContext.swift in Sources */,
+				F358BF5D22D66FBB00F20F40 /* DataSource+UIKit.swift in Sources */,
 				F3ECCDF5226FFF5700192F71 /* ListView.swift in Sources */,
+				F3ADD10222CF35BF0004226B /* IdentifiableExtensions.swift in Sources */,
+				F31FBB9722C95DF800EC07EA /* TableViewDataSource.swift in Sources */,
+				F33F070922D66991004E0A00 /* DataSource.swift in Sources */,
 				F3ECCDF6226FFF5700192F71 /* ListViewStorage.swift in Sources */,
 				F3ECCDF0226FFF5700192F71 /* Differing.swift in Sources */,
-				F3ECCDFE226FFF5700192F71 /* ListContext.swift in Sources */,
-				F3ECCE02226FFF5700192F71 /* CollectionViewDelegate.swift in Sources */,
-				F3ECCDF3226FFF5700192F71 /* ListViewDelegate.swift in Sources */,
+				F33F070622D66939004E0A00 /* Adapter+UITableView.swift in Sources */,
+				F324104B22D6C834001F1924 /* ContextEquatableDifference.swift in Sources */,
+				F3C575FF22D3C12200BEEAC7 /* Identifiable.swift in Sources */,
+				F31FBB9F22C95DF800EC07EA /* ScrollViewDelegate.swift in Sources */,
+				F31FBB9D22C95DF800EC07EA /* TableViewDelegate.swift in Sources */,
+				F3ECCDFE226FFF5700192F71 /* ListIndexContext.swift in Sources */,
+				F3C575F722D3664A00BEEAC7 /* SectionSource.swift in Sources */,
+				F3ADD10522CF70BD0004226B /* ValueWrapper.swift in Sources */,
+				F3C575FA22D366D900BEEAC7 /* ListSource.swift in Sources */,
+				F31FBB9522C95DF800EC07EA /* CollectionViewDataSource.swift in Sources */,
+				F31FBB9922C95DF800EC07EA /* CollectionViewDelegateFlowLayout.swift in Sources */,
+				F37D45EA22CE333E0085F052 /* Diffable.swift in Sources */,
 				F3ECCDEF226FFF5700192F71 /* CollectionDifference.swift in Sources */,
+				F37D45E922CE305A0085F052 /* AnySource.swift in Sources */,
+				F31FBB7E22C95CDA00EC07EA /* DifferingExtension.swift in Sources */,
 				F3ECCE05226FFF5700192F71 /* Extensions.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -336,6 +669,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		F31FBB7122C94C2800EC07EA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F31FBB6522C94C2800EC07EA /* SundayListKit iOS13 */;
+			targetProxy = F31FBB7022C94C2800EC07EA /* PBXContainerItemProxy */;
+		};
 		F3ECCDC0226FFF1200192F71 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = F3ECCDB3226FFF1200192F71 /* SundayListKit */;
@@ -344,6 +682,98 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		F31FBB7722C94C2800EC07EA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 38U8W94Y3Q;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = "SundayListKit iOS13/Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				OTHER_SWIFT_FLAGS = "-D iOS13";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.frain.SundayListKit-iOS13";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		F31FBB7822C94C2800EC07EA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 38U8W94Y3Q;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = "SundayListKit iOS13/Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				OTHER_SWIFT_FLAGS = "-D iOS13";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.frain.SundayListKit-iOS13";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		F31FBB7922C94C2800EC07EA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 38U8W94Y3Q;
+				INFOPLIST_FILE = "SundayListKit iOS13Tests/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.frain.SundayListKit-iOS13Tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		F31FBB7A22C94C2800EC07EA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 38U8W94Y3Q;
+				INFOPLIST_FILE = "SundayListKit iOS13Tests/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.frain.SundayListKit-iOS13Tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		F3ECCDC6226FFF1200192F71 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -396,7 +826,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -454,7 +884,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -511,6 +941,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.frain.SundayListKit;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -557,6 +988,24 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		F31FBB7B22C94C2800EC07EA /* Build configuration list for PBXNativeTarget "SundayListKit iOS13" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F31FBB7722C94C2800EC07EA /* Debug */,
+				F31FBB7822C94C2800EC07EA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F31FBB7C22C94C2800EC07EA /* Build configuration list for PBXNativeTarget "SundayListKit iOS13Tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F31FBB7922C94C2800EC07EA /* Debug */,
+				F31FBB7A22C94C2800EC07EA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		F3ECCDAE226FFF1200192F71 /* Build configuration list for PBXProject "SundayListKit" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

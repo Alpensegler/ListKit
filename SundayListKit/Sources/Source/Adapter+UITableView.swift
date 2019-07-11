@@ -76,7 +76,7 @@ extension Adapter where Self: TableViewDelegate {
     
     //Reordering Table Rows
     func tableView(_ tableView: UITableView, targetIndexPathForMoveFromRowAt sourceIndexPath: IndexPath, toProposedIndexPath proposedDestinationIndexPath: IndexPath) -> IndexPath {
-        targetIndexPathForMoveFrom(sourceIndexPath, toProposedIndexPath: proposedDestinationIndexPath, context: self[tableView])
+        return targetIndexPathForMoveFrom(sourceIndexPath, toProposedIndexPath: proposedDestinationIndexPath, context: self[tableView])
     }
     
     //Tracking the Removal of Views

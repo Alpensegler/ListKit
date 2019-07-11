@@ -62,7 +62,7 @@ extension Source {
     }
     
     subscript<List: ListView>(snapshot listView: List) -> Snapshot {
-        get { Associator.getValue(key: &listSourceSnapshotKey, from: listView, initialValue: snapshot(for: listView)) }
+        get { return Associator.getValue(key: &listSourceSnapshotKey, from: listView, initialValue: snapshot(for: listView)) }
         nonmutating set { Associator.set(value: newValue, key: &listSourceSnapshotKey, to: listView) }
     }
 }

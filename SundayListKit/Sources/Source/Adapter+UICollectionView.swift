@@ -56,7 +56,7 @@ public extension Adapter where Self: CollectionViewDelegate {
     
     //Handling Layout Changes
     func collectionView(_ collectionView: UICollectionView, targetIndexPathForMoveFromItemAt originalIndexPath: IndexPath, toProposedIndexPath proposedIndexPath: IndexPath) -> IndexPath {
-        targetIndexPathForMoveFrom(originalIndexPath, toProposedIndexPath: proposedIndexPath, context: self[collectionView])
+        return targetIndexPathForMoveFrom(originalIndexPath, toProposedIndexPath: proposedIndexPath, context: self[collectionView])
     }
     
     //Controlling the Spring-Loading Behavior

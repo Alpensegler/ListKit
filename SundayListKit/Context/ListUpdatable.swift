@@ -44,6 +44,16 @@ public extension ListUpdatable {
             listView.reloadSynchronously()
         }
     }
+    
+    func performReload<List: ListView>(
+        _ listView: List,
+        animation: List.Animation = .init(animated: true),
+        completion: ((Bool) -> Void)? = nil
+    ) {
+        let currentSnapshot = snapshot(for: listView)
+        self[snapshot: listView] = currentSnapshot
+        listView.reloadSynchronously()
+    }
 }
 
 public extension ListUpdatable {

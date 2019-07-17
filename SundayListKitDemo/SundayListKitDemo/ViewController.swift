@@ -9,47 +9,46 @@
 import UIKit
 import SundayListKit
 
-final class ViewController: UIViewController, TableListAdapter, CollectionListAdapter {
+class ViewController: UIViewController, TableListAdapter, CollectionListAdapter {
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var collectionView: UICollectionView!
     
     private let _models = ["Roy", "Pinlin", "Zhiyi", "Frain", "Jack", "Cookie"]
     
     typealias Item = String
-
-    func source<List>(for listView: List) -> [ViewController.Item] where List : ListView {
+    
+    var source: [String] {
         var shuffledModels = _models.shuffled()
         shuffledModels.removeFirst()
         return shuffledModels.shuffled()
     }
     
-    func cellForViewModel<List>(for context: ListIndexContext<List, ViewController>, viewModel: String) -> List.Cell where List: ListView {
-        if context.listView === tableView {
-            return context.dequeueReusableCell(withCellClass: UITableViewCell.self) {
-                $0.textLabel?.text = viewModel
-            }
-        } else {
-            return context.dequeueReusableCell(withCellClass: TextCell.self) {
-                $0.label.text = viewModel
-            }
+    func tableContext(_ context: TableListContext, cellForItem item: String) -> UITableViewCell {
+        return context.dequeueReusableCell(withCellClass: UITableViewCell.self) {
+            $0.textLabel?.text = item
         }
     }
     
-    func sizeForViewModel<List>(context: ListIndexContext<List, ViewController>, viewModel: String) -> ListSize where List : ListView {
-        if context.listView === tableView { return context.listView.defaultItemSize }
+    func collectionContext(_ context: CollectionListContext, cellForItem item: String) -> UICollectionViewCell {
+        return context.dequeueReusableCell(withCellClass: TextCell.self) {
+            $0.label.text = item
+        }
+    }
+    
+    func collectionContext(_ context: CollectionListContext, layout collectionViewLayout: UICollectionViewLayout, sizeForItem item: String) -> CGSize {
         return CGSize(width: 125, height: 125)
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        tableView.listDelegate = self
-        collectionView.listDelegate = self
-        performUpdate()
+        tableView.coordinator = tableCoordinator()
+        collectionView.coordinator = collectionCoordinator()
+        performUpdate(animated: true, completion: nil)
     }
     
     @IBAction func onRefresh(_ sender: Any) {
-        performUpdate()
+        performUpdate(animated: true, completion: nil)
     }
 }
 

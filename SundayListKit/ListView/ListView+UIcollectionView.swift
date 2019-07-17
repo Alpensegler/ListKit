@@ -8,9 +8,6 @@
 
 import UIKit
 
-public protocol CollectionListDelegate: CollectionViewDelegateFlowLayout, CollectionViewDataSource, Updatable { }
-
-private var collectionListDelegateKey: Void?
 private var listViewDefaultAnimationKey: Void?
 
 extension UICollectionView: ListView {
@@ -18,17 +15,18 @@ extension UICollectionView: ListView {
     public typealias Animation = Bool
     public typealias SupplementaryView = UICollectionReusableView
     public typealias Size = CGSize
+    public typealias Coordinator = CollectionCoordinator
     
     public var defaultAnimation: Bool {
         get { return Associator.getValue(key: &listViewDefaultAnimationKey, from: self) ?? true }
         set { Associator.set(value: newValue, key: &listViewDefaultAnimationKey, to: self) }
     }
     
-    public var defaultItemSize: ListSize {
+    public var defaultItemSize: CGSize {
         return (collectionViewLayout as? UICollectionViewFlowLayout)?.itemSize ?? .zero
     }
     
-    public func defaultSupplementraySize(for type: SupplementaryViewType) -> ListSize {
+    public func defaultSupplementraySize(for type: SupplementaryViewType) -> CGSize {
         switch type {
         case .header: return (collectionViewLayout as? UICollectionViewFlowLayout)?.headerReferenceSize ?? .zero
         case .footer: return (collectionViewLayout as? UICollectionViewFlowLayout)?.footerReferenceSize ?? .zero
@@ -36,19 +34,11 @@ extension UICollectionView: ListView {
         }
     }
     
-    public var listDelegate: CollectionListDelegate? {
-        get { return Associator.getValue(key: &collectionListDelegateKey, from: self) }
-        set {
-            Associator.set(value: newValue, policy: .weak, key: &collectionListDelegateKey, to: self)
-            dataSource = newValue?.asCollectionViewDataSource
-            delegate = newValue?.asCollectionViewDelegate
-            newValue?.addListViewToUpdater(listView: self)
-        }
-    }
-    
-    public func reloadSynchronously() {
+    public func reloadSynchronously(completion: ((Bool) -> Void)? = nil) {
         reloadData()
         layoutIfNeeded()
+        didReload = true
+        completion?(true)
     }
     
     public func perform(update: () -> Void, animation: Bool, completion: ((Bool) -> Void)? = nil) {
@@ -59,10 +49,6 @@ extension UICollectionView: ListView {
                 performBatchUpdates(update, completion: completion)
             }
         }
-    }
-    
-    public func performUpdate(animation: Bool, completion: ((Bool) -> Void)?) {
-        listDelegate?.performUpdate(self, animation: animation, completion: completion)
     }
     
     public func register(_ cellClass: AnyClass?, forCellReuseIdentifier identifier: String) {

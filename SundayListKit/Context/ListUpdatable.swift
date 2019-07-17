@@ -1,261 +1,207 @@
 //
-//  ListViewUpdateContext.swift
+//  ListUpdatable.swift
 //  SundayListKit
 //
 //  Created by Frain on 2019/4/23.
 //  Copyright © 2019 Frain. All rights reserved.
 //
 
-public protocol Updatable {
-    func addListViewToUpdater<List: ListView>(listView: List)
-    func addListViewToUpdater<List: ListView>(listView: List, offset: IndexPath, sectionCount: Int, cellCount: Int)
-    func performUpdate<List: ListView>(_ listView: List, animation: List.Animation, completion: ((Bool) -> Void)?)
-}
-
-public protocol Updater {
-    associatedtype Value
-    var updaters: [ListUpdater<Value>] { get }
-}
-
-public protocol ListUpdatable: Updatable, Updater, Source where Value == Self {
-    var listsUpdater: ListsUpdater<Self> { get }
+public protocol ListUpdatable {
+    var listUpdater: ListUpdater { get }
     func performUpdate(animated: Bool, completion: ((Bool) -> Void)?)
 }
 
-public extension ListUpdatable {
+public extension ListUpdatable where Self: Source {
+    var snapshot: SourceSnapshot {
+        get {
+            return rawSnapshot ?? {
+                let snapshot = createSnapshot(with: source)
+                listUpdater.snapshotValue = snapshot
+                return snapshot
+            }()
+        }
+        nonmutating set { listUpdater.snapshotValue = newValue }
+    }
+    
     func performUpdate(animated: Bool = true, completion: ((Bool) -> Void)? = nil) {
-        listsUpdater.updateList(animated: animated, completion: completion)
-    }
-    
-    func performUpdate<List: ListView>(
-        _ listView: List,
-        animation: List.Animation = .init(animated: true),
-        completion: ((Bool) -> Void)? = nil
-    ) {
-        let currentSnapshot = snapshot(for: listView)
-        if didLoad(listView: listView) {
-            let sourceSnapshot = self[snapshot: listView]
-            self[snapshot: listView] = currentSnapshot
-            listView.perform(update: {
-                update(from: sourceSnapshot, to: .init(listView: listView, snapshot: currentSnapshot))
-            }, animation: animation, completion: completion)
+        if let sourceSnapshot = rawSnapshot {
+            let snapshot = createSnapshot(with: source)
+            self.snapshot = snapshot
+            let updateContext = UpdateContext(rawSnapshot: sourceSnapshot, snapshot: snapshot)
+            update(context: updateContext)
+            listUpdater.collectionContext.forEach { updateContext.commitUpdate(for: $0, animated: animated, offset: .default, completion: completion) }
+            listUpdater.tableContext.forEach { updateContext.commitUpdate(for: $0, animated: animated, offset: .default, completion: completion) }
         } else {
-            self[snapshot: listView] = currentSnapshot
-            listView.reloadSynchronously()
+            performReload(completion)
+        }
+    }
+    func performReload(_ completion: ((Bool) -> Void)? = nil) {
+        snapshot = createSnapshot(with: source)
+        listUpdater.collectionContext.forEach { $0.reloadSynchronously(completion: completion) }
+        listUpdater.tableContext.forEach { $0.reloadSynchronously(completion: completion) }
+    }
+}
+
+extension ListUpdatable where Self: Source {
+    var rawSnapshot: SourceSnapshot? { return listUpdater.snapshotValue as? SourceSnapshot }
+}
+
+extension ListUpdatable {
+    func setCollectionView(_ collectionView: UICollectionView, offset: IndexPath = .default) {
+        if let index = listUpdater.collectionContext.firstIndex(where: { $0.listView === collectionView }) {
+            listUpdater.collectionContext[index].offset = offset
+        } else {
+            listUpdater.collectionContext.append(.init(listView: collectionView, offset: offset))
         }
     }
     
-    func performReload<List: ListView>(
-        _ listView: List,
-        animation: List.Animation = .init(animated: true),
-        completion: ((Bool) -> Void)? = nil
-    ) {
-        let currentSnapshot = snapshot(for: listView)
-        self[snapshot: listView] = currentSnapshot
-        listView.reloadSynchronously()
+    func setTableView(_ tableView: UITableView, offset: IndexPath = .default) {
+        if let index = listUpdater.tableContext.firstIndex(where: { $0.listView === tableView }) {
+            listUpdater.tableContext[index].offset = offset
+        } else {
+            listUpdater.tableContext.append(.init(listView: tableView, offset: offset))
+        }
     }
 }
 
-public extension ListUpdatable {
-    var updaters: [ListUpdater<Value>] {
-        return listsUpdater.updaters
-    }
-        
-    func addListViewToUpdater<List: ListView>(listView: List, offset: IndexPath, sectionCount: Int, cellCount: Int) {
-        listsUpdater.addListView(listView: listView, offset: offset, sectionCount: sectionCount, cellCount: cellCount)
-    }
-    
-    func addListViewToUpdater<List: ListView>(listView: List) {
-        listsUpdater.addListView(listView: listView)
-    }
-}
-
-public final class ListUpdater<Value>: Updater {
-    public var updaters: [ListUpdater<Value>] { return [self] }
-    
+class ListUpdaterContext<List: ListView>: UpdateContextBase {
+    weak var listView: List?
+    var offset: IndexPath
     var isUpdating = false
-    var updates = [() -> Void]()
     
-    let insertItemsBlock: ([IndexPath]) -> Void
-    let deleteItemsBlock: ([IndexPath]) -> Void
-    let reloadItemsBlock: ([IndexPath]) -> Void
-    let moveItemBlock: (IndexPath, IndexPath) -> Void
-    
-    let insertSectionsBlock: (IndexSet) -> Void
-    let deleteSectionsBlock: (IndexSet) -> Void
-    let reloadSectionsBlock: (IndexSet) -> Void
-    let moveSectionBlock: (Int, Int) -> Void
-    
-    let reloadContextBlock: () -> Void
-    
-    let update: (Bool, ((Bool) -> Void)?) -> Void
-    
-    var isListView: (AnyObject) -> Bool
-    
-    init<List: ListView>(listView: List, offset: IndexPath, sectionCount: Int, cellCount: Int) {
-        isListView = { [weak listView] in $0 === listView }
-        update = { [weak listView] in listView?.performUpdate(animation: .init(animated: $0), completion: $1) }
-        insertItemsBlock = { [weak listView] in listView?.insertItems(at: $0.map { $0.addingOffset(offset) }) }
-        deleteItemsBlock = { [weak listView] in listView?.deleteItems(at: $0.map { $0.addingOffset(offset) }) }
-        reloadItemsBlock = { [weak listView] in listView?.reloadItems(at: $0.map { $0.addingOffset(offset) }) }
-        moveItemBlock = { [weak listView] in listView?.moveItem(at: $0.addingOffset(offset), to: $1.addingOffset(offset)) }
-        insertSectionsBlock = { [weak listView] in listView?.insertSections(IndexSet($0.map { $0 + offset.section })) }
-        deleteSectionsBlock = { [weak listView] in listView?.deleteSections(IndexSet($0.map { $0 + offset.section })) }
-        reloadSectionsBlock = { [weak listView] in listView?.reloadSections(IndexSet($0.map { $0 + offset.section })) }
-        moveSectionBlock = { [weak listView] in listView?.moveSection($0 + offset.section, toSection: $1 + offset.section) }
-        reloadContextBlock = { [weak listView] in
-            if sectionCount > 0 {
-                listView?.reloadSections(IndexSet(offset.section..<sectionCount + offset.section))
-            } else {
-                listView?.reloadItems(at: (0..<cellCount).map { IndexPath(item: $0 + offset.item, section: offset.section) })
-            }
-        }
+    override func insertItems(at indexPaths: [IndexPath]) {
+        super.insertItems(at: indexPaths.map { $0.addingOffset(offset) })
+        if !isUpdating { update() }
     }
     
-    init<List: ListView>(listView: List) {
-        isListView = { [weak listView] in $0 === listView }
-        update = { [weak listView] in listView?.performUpdate(animation: .init(animated: $0), completion: $1) }
-        insertItemsBlock = { [weak listView] in listView?.insertItems(at: $0) }
-        deleteItemsBlock = { [weak listView] in listView?.deleteItems(at: $0) }
-        reloadItemsBlock = { [weak listView] in listView?.reloadItems(at: $0) }
-        moveItemBlock = { [weak listView] in listView?.moveItem(at: $0, to: $1) }
-        insertSectionsBlock = { [weak listView] in listView?.insertSections($0) }
-        deleteSectionsBlock = { [weak listView] in listView?.deleteSections($0) }
-        reloadSectionsBlock = { [weak listView] in listView?.reloadSections($0) }
-        moveSectionBlock = { [weak listView] in listView?.moveSection($0, toSection: $1) }
-        reloadContextBlock = { [weak listView] in listView?.reloadSynchronously() }
+    override func deleteItems(at indexPaths: [IndexPath]) {
+        super.deleteItems(at: indexPaths.map { $0.addingOffset(offset) })
+        if !isUpdating { update() }
+    }
+    
+    override func reloadItems(at indexPaths: [IndexPath]) {
+        super.reloadItems(at: indexPaths.map { $0.addingOffset(offset) })
+        if !isUpdating { update() }
+    }
+    
+    override func moveItem(at indexPath: IndexPath, to newIndexPath: IndexPath) {
+        super.moveItem(at: indexPath.addingOffset(offset), to: newIndexPath.addingOffset(offset))
+        if !isUpdating { update() }
+    }
+    
+    override func insertSections(_ sections: IndexSet) {
+        super.insertSections(IndexSet(sections.map { $0 + offset.section }))
+        if !isUpdating { update() }
+    }
+    
+    override func deleteSections(_ sections: IndexSet) {
+        super.deleteSections(IndexSet(sections.map { $0 + offset.section }))
+        if !isUpdating { update() }
+    }
+    
+    override func reloadSections(_ sections: IndexSet) {
+        super.reloadSections(IndexSet(sections.map { $0 + offset.section }))
+        if !isUpdating { update() }
+    }
+    
+    override func moveSection(_ section: Int, toSection newSection: Int) {
+        super.moveSection(section + offset.section, toSection: newSection + offset.section)
+        if !isUpdating { update() }
+    }
+    
+    func reloadSynchronously(completion: ((Bool) -> Void)? = nil) {
+        listView?.reloadSynchronously(completion: completion)
+    }
+    
+    func update() {
+        guard let listView = listView else { return }
+        performUpdate(listView: listView, animated: true)
+        updates.removeAll()
     }
     
     func startUpdate() {
         isUpdating = true
     }
     
-    func endUpdate(completion: ((Bool) -> Void)? = nil) {
-        updates.forEach { $0() }
+    func endUpdate() {
         isUpdating = false
+        update()
     }
     
-    func updateList(animated: Bool, completion: ((Bool) -> Void)? = nil) {
-        update(animated, completion)
+    init(listView: List, offset: IndexPath) {
+        self.listView = listView
+        self.offset = offset
     }
 }
 
-public class ListsUpdater<Value>: Updater {
-    public var updaters = [ListUpdater<Value>]()
-    
-    public func addListView<List: ListView>(listView: List) {
-        let updater = ListUpdater<Value>(listView: listView)
-        if let index = updaters.firstIndex(where: { $0.isListView(listView) }) {
-            updaters[index] = updater
-        } else {
-            updaters.append(updater)
-        }
-    }
-    
-    public func addListView<List: ListView>(listView: List, offset: IndexPath, sectionCount: Int, cellCount: Int) {
-        let updater = ListUpdater<Value>(listView: listView, offset: offset, sectionCount: sectionCount, cellCount: cellCount)
-        if let index = updaters.firstIndex(where: { $0.isListView(listView) }) {
-            updaters[index] = updater
-        } else {
-            updaters.append(updater)
-        }
-    }
-}
 
-public extension Updater {
-    func updateList(animated: Bool, completion: ((Bool) -> Void)? = nil) {
-        updaters.forEach { $0.updateList(animated: animated, completion: completion) }
-    }
+public class ListUpdater {
+    var tableContext = [ListUpdaterContext<UITableView>]()
+    var collectionContext = [ListUpdaterContext<UICollectionView>]()
+    var snapshotValue: Any?
     
-    func reloadCurrentContext() {
-        waitOrUpdateImmediatly { $0.reloadContextBlock() }
-    }
+    public init() { }
     
     func startUpdate() {
-        for index in updaters.indices {
-            updaters[index].startUpdate()
-        }
+        tableContext.forEach { $0.startUpdate() }
+        collectionContext.forEach { $0.startUpdate() }
     }
     
-    func endUpdate(completion: ((Bool) -> Void)? = nil) {
-        for index in updaters.indices {
-            updaters[index].endUpdate(completion: completion)
-        }
+    func endUpdate() {
+        tableContext.forEach { $0.endUpdate() }
+        collectionContext.forEach { $0.endUpdate() }
     }
-}
+    
+    func reloadSynchronously() {
+        tableContext.forEach { $0.reloadSynchronously() }
+        collectionContext.forEach { $0.reloadSynchronously() }
+    }
 
-public extension Updater where Value: CollectionSource, Value.Element == Value.Item {
-    func insertItem(at indice: [Int]) {
-        waitOrUpdateImmediatly { $0.insertItemsBlock(indice.map { IndexPath(item: $0) }) }
-    }
-    
-    func deleteItems(at indice: [Int]) {
-        waitOrUpdateImmediatly { $0.deleteItemsBlock(indice.map { IndexPath(item: $0) }) }
-    }
-    
-    func reloadItems(at indice: [Int]) {
-        waitOrUpdateImmediatly { $0.reloadItemsBlock(indice.map { IndexPath(item: $0) }) }
-    }
-    
-    func moveItem(at index: Int, to newIndex: Int) {
-        waitOrUpdateImmediatly { $0.moveItemBlock(IndexPath(item: index), IndexPath(item: newIndex)) }
-    }
-}
-
-public extension Updater where Value: MultiSectionSource {
     func insertItems(at indexPaths: [IndexPath]) {
-        waitOrUpdateImmediatly { $0.insertItemsBlock(indexPaths) }
+        tableContext.forEach { $0.insertItems(at: indexPaths) }
+        collectionContext.forEach { $0.insertItems(at: indexPaths) }
     }
     
     func deleteItems(at indexPaths: [IndexPath]) {
-        waitOrUpdateImmediatly { $0.deleteItemsBlock(indexPaths) }
+        tableContext.forEach { $0.deleteItems(at: indexPaths) }
+        collectionContext.forEach { $0.deleteItems(at: indexPaths) }
     }
     
     func reloadItems(at indexPaths: [IndexPath]) {
-        waitOrUpdateImmediatly { $0.reloadItemsBlock(indexPaths) }
+        tableContext.forEach { $0.reloadItems(at: indexPaths) }
+        collectionContext.forEach { $0.reloadItems(at: indexPaths) }
     }
     
     func moveItem(at indexPath: IndexPath, to newIndexPath: IndexPath) {
-        waitOrUpdateImmediatly { $0.moveItemBlock(indexPath, newIndexPath) }
+        tableContext.forEach { $0.moveItem(at: indexPath, to: newIndexPath) }
+        collectionContext.forEach { $0.moveItem(at: indexPath, to: indexPath) }
     }
     
     func insertSections(_ sections: IndexSet) {
-        waitOrUpdateImmediatly { $0.insertSectionsBlock(sections) }
+        tableContext.forEach { $0.insertSections(sections) }
+        collectionContext.forEach { $0.insertSections(sections) }
     }
     
     func deleteSections(_ sections: IndexSet) {
-        waitOrUpdateImmediatly { $0.deleteSectionsBlock(sections) }
+        tableContext.forEach { $0.deleteSections(sections) }
+        collectionContext.forEach { $0.deleteSections(sections) }
     }
     
     func reloadSections(_ sections: IndexSet) {
-        waitOrUpdateImmediatly { $0.reloadSectionsBlock(sections) }
+        tableContext.forEach { $0.deleteSections(sections) }
+        collectionContext.forEach { $0.deleteSections(sections) }
     }
     
     func moveSection(_ section: Int, toSection newSection: Int) {
-        waitOrUpdateImmediatly { $0.moveSectionBlock(section, newSection) }
+        tableContext.forEach { $0.moveSection(section, toSection: newSection) }
+        collectionContext.forEach { $0.moveSection(section, toSection: newSection) }
     }
 }
 
-private var listViewUpdatableUpdateContextKey: Void?
+private var listUpdatableUpdaterKey: Void?
 
 public extension ListUpdatable where Self: AnyObject {
-    var listsUpdater: ListsUpdater<Self> {
-        return Associator.getValue(key: &listViewUpdatableUpdateContextKey, from: self, initialValue: .init())
-    }
-}
-
-fileprivate extension Updater {
-    func waitOrUpdateImmediatly(_ block: @escaping (ListUpdater<Value>) -> Void) {
-        updaters.forEach { $0.waitOrUpdateImmediatly(block) }
-    }
-}
-
-fileprivate extension ListUpdater {
-    func waitOrUpdateImmediatly(_ block: @escaping (ListUpdater<Value>) -> Void) {
-        if isUpdating {
-            updates.append { [unowned self] in block(self) }
-        } else {
-            block(self)
-        }
+    var listUpdater: ListUpdater {
+        return Associator.getValue(key: &listUpdatableUpdaterKey, from: self, initialValue: .init())
     }
 }

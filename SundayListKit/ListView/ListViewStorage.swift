@@ -30,6 +30,18 @@ public extension ListView {
         (cell as? CustomCell).map(configuration)
         return cell
     }
+
+    func dequeueReusableCell<CustomCell: UIView>(
+        withCellClass cellClass: CustomCell.Type,
+        storyBoardIdentifier: String,
+        indexPath: IndexPath,
+        configuration: (CustomCell) -> Void = { _ in }
+    ) -> Cell {
+        assert(CustomCell.isSubclass(of: Cell.self), "TBD")
+        let cell = dequeueReusableCell(withIdentifier: storyBoardIdentifier, for: indexPath)
+        (cell as? CustomCell).map(configuration)
+        return cell
+    }
     
     func dequeueReusableCell<CustomCell: UIView>(
         withCellClass cellClass: CustomCell.Type,
@@ -57,7 +69,7 @@ public extension ListView {
         configuration: (CustomSupplementaryView) -> Void = { _ in }
     ) -> SupplementaryView {
         assert(CustomSupplementaryView.isSubclass(of: SupplementaryView.self), "TBD")
-        let id = identifierFor(class: CustomSupplementaryView.self, type: Self.headerType, identifier: identifier)
+        let id = identifierFor(class: CustomSupplementaryView.self, type: type.rawValue, identifier: identifier)
         if _storage.registeredSupplementaryIdentifiers[type]?.contains(id) != true {
             var identifiers = _storage.registeredSupplementaryIdentifiers[type] ?? .init()
             identifiers.insert(id)
@@ -79,7 +91,7 @@ public extension ListView {
     ) -> SupplementaryView {
         assert(CustomSupplementaryView.isSubclass(of: SupplementaryView.self), "TBD")
         let nib = UINib(nibName: nibName, bundle: bundle)
-        let id = nibName + Self.headerType
+        let id = nibName + type.rawValue
         if _storage.registeredSupplementaryNibName[type]?.contains(id) != true {
             var identifiers = _storage.registeredSupplementaryNibName[type] ?? .init()
             identifiers.insert(id)
@@ -102,9 +114,6 @@ extension ListView {
 }
 
 private extension ListView {
-    static var headerType: String { return "Header" }
-    static var footerType: String { return "Footer" }
-    
     func identifierFor(class: AnyClass, type: String = "", identifier: String) -> String {
         return NSStringFromClass(Cell.self) + identifier
     }

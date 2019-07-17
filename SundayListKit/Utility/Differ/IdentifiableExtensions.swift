@@ -6,9 +6,12 @@
 //  Copyright © 2019 Frain. All rights reserved.
 //
 
-#if iOS13
-import SwiftUI
-#endif
+public typealias Diffable = Identifiable & Equatable
+public typealias IdentifiableSource = Identifiable & Source
+
+public extension Identifiable where Self: Hashable, ID == Self {
+    var id: Self { return self }
+}
 
 public extension Collection where Element: Identifiable {
     func firstIndex(of element: Self.Element) -> Self.Index? {

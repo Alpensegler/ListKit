@@ -1,74 +1,80 @@
 //
-//  listContext.swift
+//  Context.swift
 //  SundayListKit
 //
-//  Created by Frain on 2019/4/16.
+//  Created by Frain on 2019/7/26.
 //  Copyright © 2019 Frain. All rights reserved.
 //
 
-public struct ListIndexContext<List: ListView, Value: Source>: Updater {
-    public typealias Snapshot = Value.Snapshot
-    public let indexPath: IndexPath
-    public let listView: List
-    public let snapshot: Snapshot
-    let offset: IndexPath
-    let listUpdater: ListUpdater<Value>
+public protocol Context {
+    associatedtype List: ListView
+    associatedtype Snapshot
+    
+    var listView: List { get }
+    var snapshot: Snapshot { get }
+    var indexPath: IndexPath { get }
+    var offset: IndexPath { get }
+}
+
+public extension Context {
     var listIndexPath: IndexPath {
-        return IndexPath(item: offset.item + indexPath.item, section: offset.section + indexPath.section)
+        return indexPath.addingOffset(offset)
     }
     
-    public var updaters: [ListUpdater<Value>] { return [listUpdater] }
-    
-    public var section: Int {
-        return indexPath.section
+    var cell: List.Cell? {
+        return listView.cellForItem(at: listIndexPath)
+    }
+}
+
+public extension Context where Snapshot: SectionSnapshot {
+    var item: Snapshot.SubSource.Element {
+        return snapshot.item(at: indexPath)
+    }
+}
+
+public extension Context where Snapshot: ListSnapshot {
+    var subSnapshot: Snapshot.SubSource.Element.SourceSnapshot {
+        return snapshot.elementsSnapshot(at: indexPath)
     }
     
-    public var item: Int {
-        return indexPath.row
+    var item: Snapshot.SubSource.Element.Item {
+        return snapshot.item(at: indexPath)
     }
+}
+
+public struct CollectionContext<Snapshot>: Context {
+    public typealias List = UICollectionView
     
-    public var index: Int {
-        return item
-    }
+    public let snapshot: Snapshot
+    public let indexPath: IndexPath
+    public let offset: IndexPath
+    public let listView: List
     
-    init(listView: List, snapshot: Snapshot, indexPath: IndexPath) {
-        self.listView = listView
-        self.indexPath = indexPath
-        self.offset = .default
+    init(listView: List, indexPath: IndexPath, offset: IndexPath = .default, snapshot: Snapshot) {
         self.snapshot = snapshot
-        self.listUpdater = ListUpdater(listView: listView)
-    }
-    
-    init(listView: List, snapshot: Snapshot, indexPath: IndexPath, offset: IndexPath) {
-        self.listView = listView
         self.indexPath = indexPath
         self.offset = offset
-        self.snapshot = snapshot
-        self.listUpdater = ListUpdater(listView: listView, offset: offset, sectionCount: snapshot.numbersOfSections(), cellCount: snapshot.numbersOfItems(in: 0))
+        self.listView = listView
     }
 }
 
-public extension ListIndexContext where Value: CollectionSource {
-    func element() -> Value.Element {
-        return snapshot.element(for: indexPath)
-    }
-}
-
-public extension ListIndexContext where Value: CollectionSource, Value.Element: Source {
-    func elementItem() -> Value.Element.Item {
-        let element = self.element()
-        return element.item(for: subContext)
-    }
+public struct TableContext<Snapshot>: Context {
+    public typealias List = UITableView
     
-    var subContext: ListIndexContext<List, Value.Element> {
-        let snapshot = self.snapshot.snapshot(for: indexPath)
-        let offset = self.snapshot.elementOffset(for: indexPath)
-        let indexPath = IndexPath(item: listIndexPath.item - offset.item, section: listIndexPath.section - offset.section)
-        return ListIndexContext<List, Value.Element>(listView: listView, snapshot: snapshot, indexPath: indexPath, offset: offset)
+    public var snapshot: Snapshot
+    public var indexPath: IndexPath
+    public var offset: IndexPath
+    public var listView: UITableView
+    
+    init(listView: List, indexPath: IndexPath, offset: IndexPath = .default, snapshot: Snapshot) {
+        self.snapshot = snapshot
+        self.indexPath = indexPath
+        self.offset = offset
+        self.listView = listView
     }
 }
 
-public extension ListIndexContext {
+public extension Context {
     func dequeueReusableCell<CustomCell: UIView>(
         withCellClass cellClass: CustomCell.Type,
         identifier: String = "",
@@ -78,6 +84,20 @@ public extension ListIndexContext {
             withCellClass: cellClass,
             identifier: identifier,
             indexPath: listIndexPath,
+            configuration: configuration
+        )
+    }
+
+    func dequeueReusableCell<CustomCell: UIView>(
+        withCellClass cellClass: CustomCell.Type,
+        storyBoardIdentifier: String,
+        indexPath: IndexPath,
+        configuration: (CustomCell) -> Void = { _ in }
+    ) -> List.Cell {
+        return listView.dequeueReusableCell(
+            withCellClass: cellClass,
+            storyBoardIdentifier: storyBoardIdentifier,
+            indexPath: indexPath,
             configuration: configuration
         )
     }

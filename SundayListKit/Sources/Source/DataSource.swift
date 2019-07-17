@@ -2,35 +2,97 @@
 //  DataSource.swift
 //  SundayListKit
 //
-//  Created by Frain on 2019/6/11.
+//  Created by Frain on 2019/6/8.
 //  Copyright © 2019 Frain. All rights reserved.
 //
 
-public protocol DataSource: ListData {
-    func listSupplementaryView<List: ListView>(for context: ListIndexContext<List, Self>, kind: SupplementaryViewType) -> List.SupplementaryView?
-    func title<List: ListView>(for listView: List, supplementaryViewType kind: SupplementaryViewType, section: Int) -> String?
-    func canMoveViewModel<List: ListView>(_ viewModel: ViewModel, context: ListIndexContext<List, Self>) -> Bool
-    func moveViewModel<List: ListView>(_ viewModel: ViewModel, to context: ListIndexContext<List, Self>)
-    func indexTitles<List: ListView>(for context: ListContext<List, Self>) -> [String]?
-    func indexPath<List: ListView>(forIndexTitle title: String, context: ListContext<List, Self>, at index: Int) -> IndexPath
-    func canEditViewModel<List: ListView>(_ viewModel: ViewModel, context: ListIndexContext<List, Self>) -> Bool
-    func commitEdit<List: ListView>(_ editingStyle: UITableViewCell.EditingStyle, context: ListIndexContext<List, Self>, for viewModel: ViewModel)
+public protocol DataSource: Source {
+    func item(at indexPath: IndexPath) -> Item
+    func numbersOfSections() -> Int
+    func numbersOfItems(in section: Int) -> Int
+}
+
+public struct DataSourceSnapshot {
+    let indices: [Int]
+    
+    public init<Value: DataSource>(_ source: Value) {
+        indices = (0..<source.numbersOfSections()).map { source.numbersOfItems(in: $0) }
+    }
+}
+
+extension DataSourceSnapshot: SnapshotType {
+    public func numbersOfSections() -> Int {
+        return indices.count
+    }
+    
+    public func numbersOfItems(in section: Int) -> Int {
+        return indices[safe: section] ?? 0
+    }
 }
 
 public extension DataSource {
-    func listSupplementaryView<List: ListView>(for context: ListIndexContext<List, Self>, kind: SupplementaryViewType) -> List.SupplementaryView? { return nil }
-    func title<List: ListView>(for listView: List, supplementaryViewType kind: SupplementaryViewType, section: Int) -> String? { return nil }
-    func canMoveViewModel<List: ListView>(_ viewModel: ViewModel, context: ListIndexContext<List, Self>) -> Bool { return true }
-    func canEditViewModel<List: ListView>(_ viewModel: ViewModel, context: ListIndexContext<List, Self>) -> Bool { return true }
-    func moveViewModel<List: ListView>(_ viewModel: ViewModel, to context: ListIndexContext<List, Self>) { }
-    func indexTitles<List: ListView>(for context: ListContext<List, Self>) -> [String]? { return nil }
-    func indexPath<List: ListView>(forIndexTitle title: String, context: ListContext<List, Self>, at index: Int) -> IndexPath { return .default }
-    func commitEdit<List: ListView>(_ editingStyle: UITableViewCell.EditingStyle, context: ListIndexContext<List, Self>, for viewModel: ViewModel) { }
-}
-
-public extension DataSource where Self: CollectionSource, Element: ListData, ViewModel == Element {
-    func cellForViewModel<List: ListView>(for context: ListIndexContext<List, Self>, viewModel: ViewModel) -> List.Cell {
-        let subcontext = context.subContext
-        return viewModel.cellForViewModel(for: subcontext, viewModel: viewModel.viewModel(for: context.subContext))
+    var source: Void {
+        return ()
+    }
+    
+    func numbersOfSections() -> Int {
+        return 1
+    }
+    
+    func item(for snapshot: SourceSnapshot, at indexPath: IndexPath) -> Item {
+        return item(at: indexPath)
+    }
+    
+    func createSnapshot(with source: Void) -> DataSourceSnapshot {
+        return .init(self)
+    }
+    
+    func update(context: UpdateContext<SourceSnapshot>) {
+        context.reloadCurrent()
     }
 }
+
+public extension DataSource where Self: ListUpdatable {
+    func insertItems(at indexPaths: [IndexPath]) {
+        listUpdater.insertItems(at: indexPaths)
+    }
+    
+    func deleteItems(at indexPaths: [IndexPath]) {
+        listUpdater.deleteItems(at: indexPaths)
+    }
+    
+    func reloadItems(at indexPaths: [IndexPath]) {
+        listUpdater.reloadItems(at: indexPaths)
+    }
+    
+    func moveItem(at indexPath: IndexPath, to newIndexPath: IndexPath) {
+        listUpdater.moveItem(at: indexPath, to: newIndexPath)
+    }
+    
+    func insertSections(_ sections: IndexSet) {
+        listUpdater.insertSections(sections)
+    }
+    
+    func deleteSections(_ sections: IndexSet) {
+        listUpdater.deleteSections(sections)
+    }
+    
+    func reloadSections(_ sections: IndexSet) {
+        listUpdater.reloadSections(sections)
+    }
+    
+    func moveSection(_ section: Int, toSection newSection: Int) {
+        listUpdater.moveSection(section, toSection: newSection)
+    }
+    
+    func startUpdate() {
+        listUpdater.startUpdate()
+    }
+    
+    func endUpdate() {
+        listUpdater.endUpdate()
+    }
+}
+
+
+

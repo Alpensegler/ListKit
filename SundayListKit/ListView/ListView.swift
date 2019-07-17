@@ -12,15 +12,21 @@ public protocol ListView: UIScrollView {
     associatedtype Cell: UIView
     associatedtype SupplementaryView: UIView
     associatedtype Animation: ListViewAnimationOption
-    func reloadSynchronously()
+    associatedtype Size
+    associatedtype Coordinator: ListViewCoordinator where Coordinator.List == Self
+    
+    func reloadSynchronously(completion: ((Bool) -> Void)?)
     func perform(update: () -> Void, animation: Animation, completion: ((Bool) -> Void)?)
-    func performUpdate(animation: Animation, completion: ((Bool) -> Void)?)
+    
     func register(_ cellClass: AnyClass?, forCellReuseIdentifier identifier: String)
     func register(_ nib: UINib?, forCellReuseIdentifier identifier: String)
     func register(supplementaryViewType: SupplementaryViewType, _ supplementaryClass: AnyClass?, identifier: String)
     func register(supplementaryViewType: SupplementaryViewType, _ nib: UINib?, identifier: String)
     func dequeueReusableCell(withIdentifier identifier: String, for indexPath: IndexPath) -> Cell
     func dequeueReusableSupplementaryView(type: SupplementaryViewType, withIdentifier identifier: String, indexPath: IndexPath) -> SupplementaryView?
+    
+    func cellForItem(at indexPath: IndexPath) -> Cell?
+    
     func insertItems(at indexPaths: [IndexPath])
     func deleteItems(at indexPaths: [IndexPath])
     func reloadItems(at indexPaths: [IndexPath])
@@ -29,14 +35,32 @@ public protocol ListView: UIScrollView {
     func deleteSections(_ sections: IndexSet)
     func reloadSections(_ sections: IndexSet)
     func moveSection(_ section: Int, toSection newSection: Int)
-    func defaultSupplementraySize(for type: SupplementaryViewType) -> ListSize
+    
+    func defaultSupplementraySize(for type: SupplementaryViewType) -> Size
     var defaultAnimation: Animation { get set }
-    var defaultItemSize: ListSize { get }
+    var defaultItemSize: Size { get }
 }
 
-public extension ListView {
-    func performUpdate(completion: ((Bool) -> Void)? = nil) {
-        performUpdate(animation: defaultAnimation, completion: completion)
+public protocol ListViewCoordinator: NSObject {
+    associatedtype List: ListView
+    func setListView(_ listView: List)
+}
+
+private var coordinatorKey: Void?
+private var didReloadKey: Void?
+
+extension ListView {
+    public var coordinator: Coordinator? {
+        get { return Associator.getValue(key: &coordinatorKey, from: self) }
+        set {
+            Associator.set(value: newValue, key: &coordinatorKey, to: self)
+            newValue?.setListView(self)
+        }
+    }
+    
+    public var didReload: Bool {
+        get { return Associator.getValue(key: &didReloadKey, from: self, initialValue: false) }
+        set { Associator.set(value: newValue, key: &didReloadKey, to: self) }
     }
 }
 
@@ -56,25 +80,12 @@ public enum SupplementaryViewType: Hashable {
         default: self = .custom(rawValue)
         }
     }
-}
-
-public protocol ListSize {
-    var height: CGFloat { get }
-    var size: CGSize { get }
-}
-
-extension CGSize: ListSize {
-    public var size: CGSize {
-        return self
-    }
-}
-
-extension CGFloat: ListSize {
-    public var height: CGFloat {
-        return self
-    }
     
-    public var size: CGSize {
-        return CGSize(width: self, height: self)
+    var rawValue: String {
+        switch self {
+        case .header: return UICollectionView.elementKindSectionHeader
+        case .footer: return UICollectionView.elementKindSectionFooter
+        case .custom(let string): return string
+        }
     }
 }

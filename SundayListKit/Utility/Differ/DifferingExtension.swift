@@ -6,10 +6,6 @@
 //  Copyright © 2019 Frain. All rights reserved.
 //
 
-#if iOS13
-import SwiftUI
-#endif
-
 extension CollectionDifference.Change {
     // Internal common field accessors
     internal var _element: ChangeElement {
@@ -54,30 +50,6 @@ public extension BidirectionalCollection where Element: Identifiable {
         return difference(from: other) { $0.id == $1.id }
         #else
         return diff(from: other) { $0.id == $1.id }
-        #endif
-    }
-}
-
-public extension BidirectionalCollection where Element: Identifiable, Element.IdentifiedValue: Equatable {
-    func difference<C: BidirectionalCollection>(
-        from other: C
-    ) -> CollectionDifference<Element> where C.Element == Self.Element {
-        #if iOS13
-        return difference(from: other) { $0.identifiedValue == $1.identifiedValue }
-        #else
-        return diff(from: other) { $0.id == $1.id && $0.identifiedValue == $1.identifiedValue }
-        #endif
-    }
-}
-
-public extension BidirectionalCollection where Element: Identifiable, Element: Equatable, Element.IdentifiedValue: Equatable {
-    func difference<C: BidirectionalCollection>(
-        from other: C
-    ) -> CollectionDifference<Element> where C.Element == Self.Element {
-        #if iOS13
-        return difference(from: other) { $0.identifiedValue == $1.identifiedValue }
-        #else
-        return diff(from: other) { $0.id == $1.id && $0.identifiedValue == $1.identifiedValue }
         #endif
     }
 }

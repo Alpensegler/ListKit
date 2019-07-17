@@ -6,13 +6,9 @@
 //  Copyright © 2019 Frain. All rights reserved.
 //
 
-#if iOS13
-import SwiftUI
-#endif
-
 import CoreData
 
-public protocol FetchedResultControllerDataSource: FetchedResultsControllerDelegate, ListUpdatable, NeverSubSource where Item: NSFetchRequestResult {
+public protocol FetchedResultControllerDataSource: FetchedResultsControllerDelegate, ListUpdatable, DataSource where Item: NSFetchRequestResult {
     var fetchedResultController: NSFetchedResultsController<Item> { get }
 }
 
@@ -57,15 +53,17 @@ public extension FetchedResultControllerDataSource {
     }
 }
 
-public final class FetchedResultsController<Item: NSFetchRequestResult>: FetchedResultControllerDataSource {
-    public let fetchedResultController: NSFetchedResultsController<Item>
+open class FetchedResultsController<FetchResult: NSFetchRequestResult>: FetchedResultControllerDataSource {
+    public typealias Item = FetchResult
+    public let listUpdater = ListUpdater()
+    open var fetchedResultController: NSFetchedResultsController<FetchResult>
 
-    public init(fetchedResultController: NSFetchedResultsController<Item>) {
+    public init(fetchedResultController: NSFetchedResultsController<FetchResult>) {
         self.fetchedResultController = fetchedResultController
         self.fetchedResultController.delegate = asNSFetchedResultsControllerDelegate
     }
 
-    public init(fetchRequest: NSFetchRequest<Item>, managedObjectContext context: NSManagedObjectContext, sectionNameKeyPath: String?, cacheName name: String?) {
+    public init(fetchRequest: NSFetchRequest<FetchResult>, managedObjectContext context: NSManagedObjectContext, sectionNameKeyPath: String?, cacheName name: String?) {
         fetchedResultController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: context, sectionNameKeyPath: sectionNameKeyPath, cacheName: name)
         fetchedResultController.delegate = asNSFetchedResultsControllerDelegate
     }

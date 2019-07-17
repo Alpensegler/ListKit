@@ -8,22 +8,20 @@
 
 import UIKit
 
-public protocol TableListDelegate: TableViewDelegate, TableViewDataSource, Updatable { }
-
-private var tableListDelegateKey: Void?
 private var listViewDefaultAnimationKey: Void?
 
 extension UITableView: ListView {
     public typealias Cell = UITableViewCell
     public typealias SupplementaryView = UITableViewHeaderFooterView
     public typealias Size = CGFloat
+    public typealias Coordinator = TableCoordinator
     
     public var defaultAnimation: UITableView.Animation {
         get { return Associator.getValue(key: &listViewDefaultAnimationKey, from: self) ?? .fade }
         set { Associator.set(value: newValue, key: &listViewDefaultAnimationKey, to: self) }
     }
     
-    public func defaultSupplementraySize(for type: SupplementaryViewType) -> ListSize {
+    public func defaultSupplementraySize(for type: SupplementaryViewType) -> CGFloat {
         switch type {
         case .header: return sectionHeaderHeight
         case .footer: return sectionFooterHeight
@@ -31,26 +29,14 @@ extension UITableView: ListView {
         }
     }
     
-    public var defaultItemSize: ListSize {
+    public var defaultItemSize: CGFloat {
         return rowHeight
     }
     
-    public var listDelegate: TableListDelegate? {
-        get { return Associator.getValue(key: &tableListDelegateKey, from: self) }
-        set {
-            Associator.set(value: newValue, policy: .weak, key: &tableListDelegateKey, to: self)
-            dataSource = newValue?.asTableViewDataSource
-            delegate = newValue?.asTableViewDelegate
-            newValue?.addListViewToUpdater(listView: self)
-        }
-    }
-    
-    public func reloadSynchronously() {
+    public func reloadSynchronously(completion: ((Bool) -> Void)? = nil) {
         reloadData()
-    }
-    
-    public func performUpdate(animation: UITableView.Animation, completion: ((Bool) -> Void)?) {
-        listDelegate?.performUpdate(self, animation: animation, completion: completion)
+        didReload = true
+        completion?(true)
     }
     
     public func perform(update: () -> Void, animation: Animation, completion: ((Bool) -> Void)?) {
@@ -116,6 +102,11 @@ extension UITableView: ListView {
         case .custom: fatalError("table view dose not support custom supplementary view type")
         }
     }
+    
+    public func cellForItem(at indexPath: IndexPath) -> UITableViewCell? {
+        return cellForRow(at: indexPath)
+    }
+    
 }
 
 extension UITableView {

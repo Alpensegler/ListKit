@@ -13,11 +13,9 @@ import SwiftUI
 
 public protocol CollectionSnapshot: SourceSnapshot {
     associatedtype Element
-    associatedtype Value
     
     var subSource: [Element] { get }
     var subSnapshots: [Any] { get }
-    var value: Value { get }
     func element(for indexPath: IndexPath) -> Element
     func elementSnaphot(for indexPath: IndexPath) -> Any
     func elementOffset(for indexPath: IndexPath) -> IndexPath
@@ -29,20 +27,8 @@ public extension CollectionSnapshot where Element: Source {
     }
 }
 
-public protocol CollectionSource: Source where SubSource: Collection, Snapshot: CollectionSnapshot, Snapshot.Element == Element, Self == Snapshot.Value {
+public protocol CollectionSource: Source where SubSource: Collection, Snapshot: CollectionSnapshot, Snapshot.Element == Element {
     typealias Element = SubSource.Element
-}
-
-public extension CollectionSnapshot where Self: Equatable, Value: Equatable {
-    static func ==(lhs: Self, rhs: Self) -> Bool {
-        return lhs.value == rhs.value
-    }
-}
-
-public extension CollectionSnapshot where Self: Identifiable, Value: Identifiable {
-    typealias ID = Value.ID
-    var id: Value.ID { return value.id }
-    var identifiedValue: Value.IdentifiedValue { return value.identifiedValue }
 }
 
 //MARK: - Collection Diff

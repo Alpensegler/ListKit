@@ -39,11 +39,9 @@ public struct SectionSnapshot<Value, Element>: CollectionSnapshot {
     public typealias Item = Element
     public let subSource: [Element]
     public let subSnapshots: [Any]
-    public let value: Value
     
     public init<List: ListView>(_ source: Value, for listView: List) where Value: CollectionSource, Value.Element == Element {
         self.subSource = Array(source.source(for: listView))
-        self.value = source
         self.subSnapshots = []
     }
     
@@ -56,7 +54,6 @@ public struct SectionSnapshot<Value, Element>: CollectionSnapshot {
         }
         self.subSource = subSource
         self.subSnapshots = snapshots
-        self.value = source
     }
     
     public func numbersOfSections() -> Int {
@@ -79,6 +76,3 @@ public struct SectionSnapshot<Value, Element>: CollectionSnapshot {
         return indexPath
     }
 }
-
-extension SectionSnapshot: Equatable where Value: Equatable { }
-extension SectionSnapshot: Identifiable where Value: Identifiable { }

@@ -75,7 +75,6 @@ public extension ListDataSource {
 public struct ListSnapshot<Value, Element>: SourceCollectionSnapshot, CollectionSnapshot {
     public let subSource: [Element]
     public let subSnapshots: [Any]
-    public let value: Value
     
     let subSourceIndices: [[Int]]
     let subSourceOffsets: [IndexPath]
@@ -102,7 +101,6 @@ public struct ListSnapshot<Value, Element>: SourceCollectionSnapshot, Collection
     
     public init<List: ListView>(_ source: Value, for listView: List) where Value: CollectionSource, Value.Element == Element {
         self.subSource = Array(source.source(for: listView))
-        self.value = source
         self.subSnapshots = []
         self.subSourceIndices = [Array(subSource.indices)]
         self.subSourceOffsets = subSource.indices.map { IndexPath(item: $0) }
@@ -145,7 +143,6 @@ public struct ListSnapshot<Value, Element>: SourceCollectionSnapshot, Collection
             subSnapshots.append(snapshot)
         }
         
-        self.value = source
         self.subSource = subSource
         self.subSnapshots = subSnapshots
         self.subSourceIndices = subSourceIndices
@@ -153,9 +150,6 @@ public struct ListSnapshot<Value, Element>: SourceCollectionSnapshot, Collection
     }
 }
 
-
-extension ListSnapshot: Equatable where Value: Equatable { }
-extension ListSnapshot: Identifiable where Value: Identifiable { }
 
 private extension Array {
     var lastIndex: Int {

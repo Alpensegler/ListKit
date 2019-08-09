@@ -6,12 +6,15 @@
 //  Copyright © 2019 Frain. All rights reserved.
 //
 
-public protocol ItemSnapshot: SnapshotType {
+public protocol ItemSnapshot {
     associatedtype Item
     var item: Item { get }
+    init(_ source: Item)
 }
 
 extension Snapshot: ItemSnapshot where SubSource == Item {
+    public typealias ItemSource = SubSource
+    
     public init(_ source: SubSource) {
         self.source = source
         self.subSource = []
@@ -21,10 +24,10 @@ extension Snapshot: ItemSnapshot where SubSource == Item {
         self.subSourceOffsets = []
     }
     
-    public var item: SubSource { return source }
+    public var item: ItemSource { return source }
 }
 
-public extension Source where SourceSnapshot == Snapshot<SubSource, Item>, SubSource == Item, Item == SourceSnapshot.Item, SourceSnapshot.SubSource == SourceSnapshot.Item {
+public extension Source where SourceSnapshot == Snapshot<Item, Item>, SubSource == Item {
     func createSnapshot(with source: SubSource) -> SourceSnapshot { return .init(source) }
     func item(for snapshot: SourceSnapshot, at indexPath: IndexPath) -> Item {
         return snapshot.item

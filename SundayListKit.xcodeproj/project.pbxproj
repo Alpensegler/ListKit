@@ -11,7 +11,6 @@
 		F30847A522FC7E3C006C588C /* Sources+UITableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F30847A322FC7E38006C588C /* Sources+UITableView.swift */; };
 		F30847A722FC85BC006C588C /* Sources+Builder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ABFCC222CB863200A14F14 /* Sources+Builder.swift */; };
 		F30847A922FCE2CA006C588C /* Source+Array.swift in Sources */ = {isa = PBXBuildFile; fileRef = F30847A822FCE2CA006C588C /* Source+Array.swift */; };
-		F30C5F5622FCF7D800BAED3E /* Sources+Init.swift in Sources */ = {isa = PBXBuildFile; fileRef = F30C5F5522FCF7D800BAED3E /* Sources+Init.swift */; };
 		F30C5F5722FCF7E200BAED3E /* Sources+Init.swift in Sources */ = {isa = PBXBuildFile; fileRef = F30C5F5522FCF7D800BAED3E /* Sources+Init.swift */; };
 		F318FAB622FC4D3100896E75 /* Sources+UICollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F36BD30622F1DFC800274CBA /* Sources+UICollectionView.swift */; };
 		F318FAB922FC4D8B00896E75 /* SectionSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E619AA22F2B37C00E8A7C0 /* SectionSnapshot.swift */; };
@@ -36,6 +35,7 @@
 		F31FBB9F22C95DF800EC07EA /* ScrollViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31FBB9422C95DF800EC07EA /* ScrollViewDelegate.swift */; };
 		F31FBBA022C95DF800EC07EA /* ScrollViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31FBB9422C95DF800EC07EA /* ScrollViewDelegate.swift */; };
 		F324105422D6D4F6001F1924 /* ListSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = F324105322D6D4F6001F1924 /* ListSnapshot.swift */; };
+		F32CECCF22FD947100418817 /* Sources+Init.swift in Sources */ = {isa = PBXBuildFile; fileRef = F30C5F5522FCF7D800BAED3E /* Sources+Init.swift */; };
 		F3599A4222EF69D700C98B57 /* UpdateContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3599A4122EF69D700C98B57 /* UpdateContext.swift */; };
 		F3599A4322EF69D700C98B57 /* UpdateContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3599A4122EF69D700C98B57 /* UpdateContext.swift */; };
 		F3599A4522EF7E5100C98B57 /* Sources.swift in Sources */ = {isa = PBXBuildFile; fileRef = F37D45E122CDC7C40085F052 /* Sources.swift */; };
@@ -591,6 +591,7 @@
 				F3ECCDF6226FFF5700192F71 /* ListViewStorage.swift in Sources */,
 				F3ECCDF0226FFF5700192F71 /* Differing.swift in Sources */,
 				F3C575FF22D3C12200BEEAC7 /* Identifiable.swift in Sources */,
+				F32CECCF22FD947100418817 /* Sources+Init.swift in Sources */,
 				F31FBB9F22C95DF800EC07EA /* ScrollViewDelegate.swift in Sources */,
 				F318FABD22FC5BD400896E75 /* Sources+TypeErase.swift in Sources */,
 				F384EEEC22EA432500FC43DB /* CollectionDataSource.swift in Sources */,
@@ -598,7 +599,6 @@
 				F3A510FC22F11323003D8073 /* ListUpdatable.swift in Sources */,
 				F35D670622EED8C7008C6633 /* TableAdapter.swift in Sources */,
 				F35D670022EE3767008C6633 /* CollectionAdapter.swift in Sources */,
-				F30C5F5622FCF7D800BAED3E /* Sources+Init.swift in Sources */,
 				F36BD30722F1DFC800274CBA /* Sources+UICollectionView.swift in Sources */,
 				F3E619B022F32ABF00E8A7C0 /* ItemSnapshot.swift in Sources */,
 				F36BD30A22F1E34B00274CBA /* Sources+Source.swift in Sources */,
@@ -845,6 +845,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_ENABLE_BATCH_MODE = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				VALIDATE_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";

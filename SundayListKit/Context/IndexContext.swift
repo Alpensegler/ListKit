@@ -27,17 +27,17 @@ public extension Context {
 }
 
 public extension Context where Snapshot: SectionSnapshot {
-    var item: Snapshot.SubSource.Element {
+    var item: Snapshot.Item {
         return snapshot.item(at: indexPath)
     }
 }
 
 public extension Context where Snapshot: ListSnapshot {
-    var subSnapshot: Snapshot.SubSource.Element.SourceSnapshot {
+    var subSnapshot: Snapshot.Element.SourceSnapshot {
         return snapshot.elementsSnapshot(at: indexPath)
     }
     
-    var item: Snapshot.SubSource.Element.Item {
+    var item: Snapshot.Element.Item {
         return snapshot.item(at: indexPath)
     }
 }

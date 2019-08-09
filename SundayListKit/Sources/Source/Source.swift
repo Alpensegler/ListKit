@@ -48,27 +48,3 @@ extension Snapshot: SnapshotType {
         return isSectioned ? subSourceIndices.count : 0
     }
 }
-
-public protocol CollectionSnapshot: SnapshotType {
-    associatedtype Item
-    associatedtype SubSource: Collection
-    var elements: [SubSource.Element] { get set }
-}
-
-extension Snapshot: CollectionSnapshot where SubSource: Collection {
-    public func element(at indexPath: IndexPath) -> SubSource.Element {
-        return elements[indexPath.item]
-    }
-    
-    public var elements: [SubSource.Element] {
-        get { return subSource as! [SubSource.Element] }
-        set { subSource = newValue }
-    }
-}
-
-public extension Snapshot where SubSource: Collection, SubSource.Element: Source {
-    internal(set) var elementsSnapshots: [SubSource.Element.SourceSnapshot] {
-        get { return subSnapshots as! [SubSource.Element.SourceSnapshot] }
-        set { subSnapshots = newValue }
-    }
-}

@@ -6,10 +6,15 @@
 //  Copyright © 2019 Frain. All rights reserved.
 //
 
-public struct AnySourceSnapshot: SnapshotType {
-    var base: SnapshotType
+public protocol AnySourceSnapshotType: SnapshotType {
+    var base: SnapshotType { get }
+    init(_ base: SnapshotType)
+}
+
+public struct AnySourceSnapshot: AnySourceSnapshotType {
+    public var base: SnapshotType
     
-    public init<Snapshot: SnapshotType>(_ base: Snapshot) {
+    public init(_ base: SnapshotType) {
         self.base = base
     }
     
@@ -37,7 +42,15 @@ extension Sources {
     }
 }
 
-extension Sources where SubSource == Any, SourceSnapshot == AnySourceSnapshot, UIViewType == Never {
+public protocol SourcesTypeAraser: Source where SubSource == Any, SourceSnapshot: AnySourceSnapshotType {
+    init<Value: Source>(_ source: Value) where Value.Item == Item
+}
+
+extension Sources: SourcesTypeAraser where SubSource == Any, SourceSnapshot: AnySourceSnapshotType, UIViewType == Never {
+    public init<Value: Source>(_ source: Value) where Item == Value.Item {
+        self.init(sources: source.eraseToSources())
+    }
+    
     init<Source, Snapshot, View>(sources: Sources<Source, Item, Snapshot, View>) {
         sourceClosure = sources.sourceClosure
         sourceStored = sources.sourceStored
@@ -45,7 +58,7 @@ extension Sources where SubSource == Any, SourceSnapshot == AnySourceSnapshot, U
         listUpdater = sources.listUpdater
         diffable = sources.diffable
         
-        createSnapshotWith = { AnySourceSnapshot(sources.createSnapshot(with: $0 as! Source)) }
+        createSnapshotWith = { .init(sources.createSnapshot(with: $0 as! Source)) }
         itemFor = { sources.item(for: $0.base as! Snapshot, at: $1) }
         updateContext = { sources.update(context: .init(rawSnapshot: $0.rawSnapshot.base as! Snapshot, snapshot: $0.snapshot.base as! Snapshot)) }
     }

@@ -15,10 +15,10 @@ public extension CollectionDataSource {
     }
 }
 
-public extension Sources where SubSource == Any, Item == Any, SourceSnapshot == AnySourceSnapshot, UIViewType == UICollectionView {
+public extension Sources where SubSource == Any, Item == Any, SourceSnapshot: AnySourceSnapshotType, UIViewType == UICollectionView {
     private init<Value: CollectionDataSource>(_source: @escaping () -> Value) {
         sourceClosure = { _source().source }
-        createSnapshotWith = { AnySourceSnapshot(_source().createSnapshot(with: $0 as! Value.SubSource)) }
+        createSnapshotWith = { .init(_source().createSnapshot(with: $0 as! Value.SubSource)) }
         itemFor = { _source().item(for: $0.base as! Value.SourceSnapshot, at: $1) }
         updateContext = { _source().update(context: .init(rawSnapshot: $0.rawSnapshot.base as! Value.SourceSnapshot, snapshot: $0.snapshot.base as! Value.SourceSnapshot)) }
         
@@ -153,7 +153,7 @@ public extension Sources where UIViewType == UICollectionView {
 #endif
 
 fileprivate extension CollectionContext {
-    init(_ context: CollectionContext<AnySourceSnapshot>) {
+    init<AnySourceSnapshot: AnySourceSnapshotType>(_ context: CollectionContext<AnySourceSnapshot>) {
         snapshot = context.snapshot.base as! Snapshot
         indexPath = context.indexPath
         offset = context.offset

@@ -68,22 +68,27 @@ public extension BidirectionalCollection where Element: Identifiable, Element: E
 
 public extension CollectionDifference where ChangeElement: Identifiable {
     func inferringMoves() -> CollectionDifference<ChangeElement> {
-        return _inferrringMoves()
+        return inferrringMoves(by: \.id)
     }
 }
 
 public extension CollectionDifference where ChangeElement: Identifiable, ChangeElement: Hashable {
     func inferringMoves() -> CollectionDifference<ChangeElement> {
-        return _inferrringMoves()
+        return inferrringMoves(by: \.self)
     }
 }
 
-extension CollectionDifference where ChangeElement: Identifiable {
-    func _inferrringMoves() -> CollectionDifference<ChangeElement> {
-        let uniqueRemovals: [ChangeElement.ID: Int?] = {
-            var result = [ChangeElement.ID: Int?](minimumCapacity: Swift.min(removals.count, insertions.count))
+public extension CollectionDifference {
+    func inferrringMoves<ID: Hashable>(by key: KeyPath<ChangeElement,ID>) -> CollectionDifference<ChangeElement> {
+        return inferrringMoves(by: { $0[keyPath: key] })
+    }
+    
+    
+    func inferrringMoves<ID: Hashable>(by key: (ChangeElement) -> ID) -> CollectionDifference<ChangeElement> {
+        let uniqueRemovals: [ID: Int?] = {
+            var result = [ID: Int?](minimumCapacity: Swift.min(removals.count, insertions.count))
             for removal in removals {
-                let id = removal._element.id
+                let id = key(removal._element)
                 if result[id] != .none {
                     result[id] = .some(.none)
                 } else {
@@ -93,10 +98,10 @@ extension CollectionDifference where ChangeElement: Identifiable {
             return result.filter { (_, v) -> Bool in v != .none }
         }()
         
-        let uniqueInsertions: [ChangeElement.ID: Int?] = {
-            var result = [ChangeElement.ID: Int?](minimumCapacity: Swift.min(removals.count, insertions.count))
+        let uniqueInsertions: [ID: Int?] = {
+            var result = [ID: Int?](minimumCapacity: Swift.min(removals.count, insertions.count))
             for insertion in insertions {
-                let element = insertion._element.id
+                let element = key(insertion._element)
                 if result[element] != .none {
                     result[element] = .some(.none)
                 } else {
@@ -109,17 +114,17 @@ extension CollectionDifference where ChangeElement: Identifiable {
         return CollectionDifference(map({ (change: Change) -> Change in
             switch change {
             case .remove(offset: let offset, element: let element, associatedWith: _):
-                if uniqueRemovals[element.id] == nil {
+                if uniqueRemovals[key(element)] == nil {
                     return change
                 }
-                if let assoc = uniqueInsertions[element.id] {
+                if let assoc = uniqueInsertions[key(element)] {
                     return .remove(offset: offset, element: element, associatedWith: assoc)
                 }
             case .insert(offset: let offset, element: let element, associatedWith: _):
-                if uniqueInsertions[element.id] == nil {
+                if uniqueInsertions[key(element)] == nil {
                     return change
                 }
-                if let assoc = uniqueRemovals[element.id] {
+                if let assoc = uniqueRemovals[key(element)] {
                     return .insert(offset: offset, element: element, associatedWith: assoc)
                 }
             }

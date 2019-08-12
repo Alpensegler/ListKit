@@ -34,14 +34,10 @@ extension Snapshot: SectionSnapshot where SubSource: Collection, SubSource.Eleme
 }
 
 public extension UpdateContext where Snapshot: SectionSnapshot {
-    func insertElement(at index: Int) { insertItems(at: [IndexPath(item: index)]) }
-    func deleteElement(at index: Int) { deleteItems(at: [IndexPath(item: index)]) }
-    func reloadElement(at index: Int) { reloadItems(at: [IndexPath(item: index)]) }
+    func insertElement(at index: Int) { insertItem(at: IndexPath(item: index)) }
+    func deleteElement(at index: Int) { deleteItem(at: IndexPath(item: index)) }
+    func reloadElement(at index: Int) { reloadItem(at: IndexPath(item: index)) }
     func moveElement(at index: Int, to newIndex: Int) { moveItem(at: IndexPath(item: index), to: IndexPath(item: newIndex)) }
-    func moveElementAndReload(at index: Int, to newIndex: Int) {
-        moveItem(at: IndexPath(item: index), to: IndexPath(item: newIndex))
-        reloadItemsInNextUpdate(at: [IndexPath(item: index)])
-    }
 }
 
 public extension Source where SubSource: Collection, SourceSnapshot == Snapshot<SubSource, Item>, Element == Item {
@@ -162,7 +158,8 @@ public extension UpdateContext where Snapshot: SectionSnapshot, Snapshot.Item: D
                     } else if rawSnapshot.elements[oldIndex] == element {
                         moveElement(at: oldIndex, to: newIndex)
                     } else {
-                        moveElementAndReload(at: oldIndex, to: newIndex)
+                        deleteElement(at: oldIndex)
+                        insertElement(at: newIndex)
                     }
                 } else {
                     insertElement(at: newIndex)

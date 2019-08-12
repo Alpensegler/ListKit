@@ -73,3 +73,63 @@ extension Sources: Collection where SubSource: Collection {
         return source.formIndex(after: &i)
     }
 }
+
+struct AnyDiffable: Identifiable, Equatable {
+    static func == (lhs: AnyDiffable, rhs: AnyDiffable) -> Bool {
+        guard let l = lhs.base, let r = rhs.base else { return false }
+        return l.isContentEqual(to: r)
+    }
+    
+    let _id: () -> AnyHashable
+    let _base: (() -> AnyEquatableBox)?
+    
+    var id: AnyHashable { return _id() }
+    var base: AnyEquatableBox? { return _base?() }
+    
+    init() {
+        let uuid = UUID()
+        _id = { uuid }
+        _base = nil
+    }
+    
+    init(_ id: AnyHashable) {
+        _id = { id }
+        _base = nil
+    }
+    
+    init<T: Identifiable>(_ identifiable: @escaping () -> T) {
+        self._id = { identifiable().id }
+        self._base = { EquatableBox(identifiable().id) }
+    }
+    
+    init<T: Identifiable & Equatable>(_ identifiable: @escaping () -> T) {
+        self._id = { identifiable().id }
+        self._base = { EquatableBox(identifiable()) }
+    }
+}
+
+protocol AnyEquatableBox {
+    var base: Any { get }
+    
+    func isContentEqual(to source: AnyEquatableBox) -> Bool
+}
+
+struct EquatableBox<Base: Equatable>: AnyEquatableBox {
+    private let baseComponent: Base
+    
+    var base: Any {
+        return baseComponent
+    }
+    
+    init(_ base: Base) {
+        baseComponent = base
+    }
+    
+    func isContentEqual(to source: AnyEquatableBox) -> Bool {
+        guard let sourceBase = source.base as? Base else {
+            return false
+        }
+        return baseComponent == sourceBase
+    }
+}
+

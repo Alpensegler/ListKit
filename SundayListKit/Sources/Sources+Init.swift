@@ -12,7 +12,6 @@ public typealias ListSources<Item> = Sources<[AnySources<Item>], Item, Snapshot<
 
 public extension Sources
 where
-    SubSource: RangeReplaceableCollection,
     SubSource.Element: SourcesTypeAraser,
     SubSource.Element: Diffable,
     SubSource.Element.Item == Item,
@@ -40,6 +39,19 @@ where
         itemFor = { $0.item(at: $1) }
         updateContext = { $0.diffUpdate() }
     }
+}
+
+public extension Sources
+where
+    SubSource: RangeReplaceableCollection,
+    SubSource.Element: SourcesTypeAraser,
+    SubSource.Element: Diffable,
+    SubSource.Element.Item == Item,
+    SourceSnapshot: ListSnapshot,
+    SourceSnapshot.SubSource == SubSource,
+    SourceSnapshot.Element == SubSource.Element,
+    UIViewType == Never
+{
     
     private init(_ sources: [SubSource.Element]) {
         var _sources = SubSource()
@@ -133,7 +145,6 @@ public typealias SectionSources<Item> = Sources<[Item], Item, Snapshot<[Item], I
 
 public extension Sources
 where
-    SubSource: RangeReplaceableCollection,
     SubSource.Element == Item,
     SourceSnapshot: SectionSnapshot,
     SourceSnapshot.SubSource == SubSource,
@@ -163,10 +174,23 @@ where
     }
 }
 
-//MARK: Equatable
 public extension Sources
 where
     SubSource: RangeReplaceableCollection,
+    SubSource.Element == Item,
+    SourceSnapshot: SectionSnapshot,
+    SourceSnapshot.SubSource == SubSource,
+    SourceSnapshot.Item == Item,
+    UIViewType == Never
+{
+    init() {
+        self.init(items: .init())
+    }
+}
+
+//MARK: Equatable
+public extension Sources
+where
     SubSource.Element == Item,
     SourceSnapshot: SectionSnapshot,
     SourceSnapshot.SubSource == SubSource,
@@ -186,10 +210,24 @@ where
     }
 }
 
-//MARK: Hashable
 public extension Sources
 where
     SubSource: RangeReplaceableCollection,
+    SubSource.Element == Item,
+    SourceSnapshot: SectionSnapshot,
+    SourceSnapshot.SubSource == SubSource,
+    SourceSnapshot.Item == Item,
+    UIViewType == Never,
+    Item: Equatable
+{
+    init() {
+        self.init(items: .init())
+    }
+}
+
+//MARK: Hashable
+public extension Sources
+where
     SubSource.Element == Item,
     SourceSnapshot: SectionSnapshot,
     SourceSnapshot.SubSource == SubSource,
@@ -209,10 +247,24 @@ where
     }
 }
 
-//MARK: Identifiable
 public extension Sources
 where
     SubSource: RangeReplaceableCollection,
+    SubSource.Element == Item,
+    SourceSnapshot: SectionSnapshot,
+    SourceSnapshot.SubSource == SubSource,
+    SourceSnapshot.Item == Item,
+    UIViewType == Never,
+    Item: Hashable
+{
+    init() {
+        self.init(items: .init())
+    }
+}
+
+//MARK: Identifiable
+public extension Sources
+where
     SubSource.Element == Item,
     SourceSnapshot: SectionSnapshot,
     SourceSnapshot.SubSource == SubSource,
@@ -232,10 +284,24 @@ where
     }
 }
 
-//MARK: Diffable
 public extension Sources
 where
     SubSource: RangeReplaceableCollection,
+    SubSource.Element == Item,
+    SourceSnapshot: SectionSnapshot,
+    SourceSnapshot.SubSource == SubSource,
+    SourceSnapshot.Item == Item,
+    UIViewType == Never,
+    Item: Identifiable
+{
+    init() {
+        self.init(items: .init())
+    }
+}
+
+//MARK: Diffable
+public extension Sources
+where
     SubSource.Element == Item,
     SourceSnapshot: SectionSnapshot,
     SourceSnapshot.SubSource == SubSource,
@@ -255,10 +321,24 @@ where
     }
 }
 
-//MARK: Identifiable + Hashable
 public extension Sources
 where
     SubSource: RangeReplaceableCollection,
+    SubSource.Element == Item,
+    SourceSnapshot: SectionSnapshot,
+    SourceSnapshot.SubSource == SubSource,
+    SourceSnapshot.Item == Item,
+    UIViewType == Never,
+    Item: Diffable
+{
+    init() {
+        self.init(items: .init())
+    }
+}
+
+//MARK: Identifiable + Hashable
+public extension Sources
+where
     SubSource.Element == Item,
     SourceSnapshot: SectionSnapshot,
     SourceSnapshot.SubSource == SubSource,
@@ -276,6 +356,22 @@ where
     init<ID: Hashable>(id: ID, items: SubSource) {
         self.init(items: items)
         diffable = .init(id)
+    }
+}
+
+public extension Sources
+where
+    SubSource: RangeReplaceableCollection,
+    SubSource.Element == Item,
+    SourceSnapshot: SectionSnapshot,
+    SourceSnapshot.SubSource == SubSource,
+    SourceSnapshot.Item == Item,
+    UIViewType == Never,
+    Item: Identifiable,
+    Item: Hashable
+{
+    init() {
+        self.init(items: .init())
     }
 }
 

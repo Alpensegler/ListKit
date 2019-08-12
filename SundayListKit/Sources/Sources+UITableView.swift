@@ -8,7 +8,7 @@
 
 public typealias TableSources<SubSource, Item, Snapshot: SnapshotType> = Sources<SubSource, Item, Snapshot, UITableView>
 
-public extension TableSources {
+public extension Sources where UIViewType == UITableView {
     func provideHeader(_ provider: @escaping (TableContext<SourceSnapshot>, Int) -> UIView?) -> Sources<SubSource, Item, SourceSnapshot, UIViewType> {
         var sources = self
         sources.tableHeader = provider

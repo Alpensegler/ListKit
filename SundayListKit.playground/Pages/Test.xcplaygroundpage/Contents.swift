@@ -1,15 +1,14 @@
 //: [Previous](@previous)
 
-import Foundation
+import SwiftUI
 import SundayListKit_iOS13
 
-extension Int: Data {
+struct ContentView: View {
+    @SectionSources var sources: [Int]
     
+    var body: some View {
+        EmptyView()
+    }
 }
 
-var str = "Hello, playground"
-
-
-
-print("hello world")
 

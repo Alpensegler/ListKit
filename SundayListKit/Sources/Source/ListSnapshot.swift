@@ -115,9 +115,9 @@ public extension UpdateContext where Snapshot: ListSnapshot {
         let offset = snapshot.elementsOffsets[index]
         let numbersOfSection = subSnapshot.numbersOfSections()
         if numbersOfSection > 0 {
-            insertSections(IndexSet((0..<numbersOfSection).map { $0 + offset.section }))
+            (0..<numbersOfSection).forEach { insertSection($0 + offset.section) }
         } else {
-            insertItems(at: (0..<subSnapshot.numbersOfItems(in: 0)).map { IndexPath(item: $0).addingOffset(offset) })
+            (0..<subSnapshot.numbersOfItems(in: 0)).forEach { insertItem(at: IndexPath(item: $0).addingOffset(offset)) }
         }
     }
     
@@ -126,9 +126,9 @@ public extension UpdateContext where Snapshot: ListSnapshot {
         let offset = rawSnapshot.elementsOffsets[index]
         let numbersOfSection = subSnapshot.numbersOfSections()
         if numbersOfSection > 0 {
-            deleteSections(IndexSet((0..<numbersOfSection).map { $0 + offset.section }))
+            (0..<numbersOfSection).forEach { deleteSection($0 + offset.section) }
         } else {
-            deleteItems(at: (0..<subSnapshot.numbersOfItems(in: 0)).map { IndexPath(item: $0).addingOffset(offset) })
+            (0..<subSnapshot.numbersOfItems(in: 0)).forEach { deleteItem(at: IndexPath(item: $0).addingOffset(offset)) }
         }
     }
     
@@ -140,27 +140,27 @@ public extension UpdateContext where Snapshot: ListSnapshot {
         if numbersOfSection > 0, rawNumbersOfSection > 0 {
             if numbersOfSection > rawNumbersOfSection {
                 let start = rawNumbersOfSection - 1
-                insertSections(IndexSet((start..<start + numbersOfSection - rawNumbersOfSection).map { $0 + offset.section }))
-                reloadSections(IndexSet((0..<rawNumbersOfSection).map { $0 + offset.section }))
+                (start..<start + numbersOfSection - rawNumbersOfSection).forEach { insertSection($0 + offset.section) }
+                (0..<rawNumbersOfSection).forEach { reloadSection($0 + offset.section) }
             } else if rawNumbersOfSection > numbersOfSection {
                 let start = numbersOfSection - 1
-                deleteSections(IndexSet((start..<start + rawNumbersOfSection - numbersOfSection).map { $0 + offset.section }))
-                reloadSections(IndexSet((0..<numbersOfSection).map { $0 + offset.section }))
+                (start..<start + rawNumbersOfSection - numbersOfSection).forEach { deleteSection($0 + offset.section) }
+                (0..<numbersOfSection).forEach { reloadSection($0 + offset.section) }
             } else {
-                reloadSections(IndexSet((0..<numbersOfSection).map { $0 + offset.section }))
+                (0..<numbersOfSection).forEach { reloadSection($0 + offset.section) }
             }
         } else if numbersOfSection == 0, rawNumbersOfSection == 0 {
             let (numbersOfItem, rawNumbersOfItem) = (subSnapshot.numbersOfItems(in: 0), rawSubSnapshot.numbersOfItems(in: 0))
             if numbersOfItem > rawNumbersOfItem {
                 let start = rawNumbersOfItem - 1
-                insertItems(at: (start..<start + numbersOfItem - rawNumbersOfItem).map { IndexPath(item: $0).addingOffset(offset) })
-                reloadItems(at: (0..<rawNumbersOfItem).map { IndexPath(item: $0).addingOffset(offset) })
+                (start..<start + numbersOfItem - rawNumbersOfItem).forEach { insertItem(at: IndexPath(item: $0).addingOffset(offset)) }
+                (0..<rawNumbersOfItem).forEach { reloadItem(at: IndexPath(item: $0).addingOffset(offset)) }
             } else if rawNumbersOfItem > numbersOfItem {
                 let start = numbersOfItem - 1
-                deleteItems(at: (start..<start + rawNumbersOfItem - numbersOfItem).map { IndexPath(item: $0).addingOffset(offset) })
-                reloadItems(at: (0..<numbersOfItem).map { IndexPath(item: $0).addingOffset(offset) })
+                (start..<start + rawNumbersOfItem - numbersOfItem).forEach { deleteItem(at: IndexPath(item: $0).addingOffset(offset)) }
+                (0..<numbersOfItem).forEach { reloadItem(at: IndexPath(item: $0).addingOffset(offset)) }
             } else {
-                reloadItems(at: (0..<numbersOfItem).map { IndexPath(item: $0).addingOffset(offset) })
+                (0..<numbersOfItem).forEach { reloadItem(at: IndexPath(item: $0).addingOffset(offset)) }
             }
         } else {
             fatalError("source should always be sectioned of none sectioned")
@@ -176,13 +176,13 @@ public extension UpdateContext where Snapshot: ListSnapshot {
         if numbersOfSection > 0, rawNumbersOfSection > 0 {
             if numbersOfSection > rawNumbersOfSection {
                 let start = rawNumbersOfSection - 1
-                insertSections(IndexSet((start..<start + numbersOfSection - rawNumbersOfSection).map { $0 + offset.section }))
+                (start..<start + numbersOfSection - rawNumbersOfSection).forEach { insertSection($0 + offset.section) }
                 for i in (0..<rawNumbersOfSection) {
                     moveSection(i + rawOffset.section, toSection: i + offset.section)
                 }
             } else if rawNumbersOfSection > numbersOfSection {
                 let start = numbersOfSection - 1
-                deleteSections(IndexSet((start..<start + rawNumbersOfSection - numbersOfSection).map { $0 + offset.section }))
+                (start..<start + rawNumbersOfSection - numbersOfSection).forEach { deleteSection($0 + offset.section) }
                 for i in (0..<numbersOfSection) {
                     moveSection(i + rawOffset.section, toSection: i + offset.section)
                 }
@@ -195,13 +195,13 @@ public extension UpdateContext where Snapshot: ListSnapshot {
             let (numbersOfItem, rawNumbersOfItem) = (subSnapshot.numbersOfItems(in: 0), rawSubSnapshot.numbersOfItems(in: 0))
             if numbersOfItem > rawNumbersOfItem {
                 let start = rawNumbersOfItem - 1
-                insertItems(at: (start..<start + numbersOfItem - rawNumbersOfItem).map { IndexPath(item: $0).addingOffset(offset) })
+                (start..<start + numbersOfItem - rawNumbersOfItem).forEach { insertItem(at: IndexPath(item: $0).addingOffset(offset)) }
                 for i in (0..<rawNumbersOfItem) {
                     moveItem(at: IndexPath(item: i).addingOffset(rawOffset), to: IndexPath(item: i).addingOffset(offset))
                 }
             } else if rawNumbersOfItem > numbersOfItem {
                 let start = numbersOfItem - 1
-                deleteItems(at: (start..<start + rawNumbersOfItem - numbersOfItem).map { IndexPath(item: $0).addingOffset(offset) })
+                (start..<start + rawNumbersOfItem - numbersOfItem).forEach { deleteItem(at: IndexPath(item: $0).addingOffset(offset)) }
                 for i in (0..<numbersOfItem) {
                     moveItem(at: IndexPath(item: i).addingOffset(rawOffset), to: IndexPath(item: i).addingOffset(offset))
                 }
@@ -209,58 +209,6 @@ public extension UpdateContext where Snapshot: ListSnapshot {
                 for i in (0..<numbersOfItem) {
                     moveItem(at: IndexPath(item: i).addingOffset(rawOffset), to: IndexPath(item: i).addingOffset(offset))
                 }
-            }
-        }
-    }
-    
-    func moveElementAndReload(at index: Int, to newIndex: Int) {
-        let subSnapshot = snapshot.elementsSnapshots[newIndex]
-        let offset = snapshot.elementsOffsets[newIndex]
-        let rawSubSnapshot = rawSnapshot.elementsSnapshots[index]
-        let rawOffset = rawSnapshot.elementsOffsets[index]
-        let (numbersOfSection, rawNumbersOfSection) = (subSnapshot.numbersOfSections(), rawSubSnapshot.numbersOfSections())
-        if numbersOfSection > 0, rawNumbersOfSection > 0 {
-            if numbersOfSection > rawNumbersOfSection {
-                let start = rawNumbersOfSection - 1
-                insertSections(IndexSet((start..<start + numbersOfSection - rawNumbersOfSection).map { $0 + offset.section }))
-                for i in (0..<rawNumbersOfSection) {
-                    moveSection(i + rawOffset.section, toSection: i + offset.section)
-                }
-                reloadSectionsInNextUpdate(IndexSet((0..<rawNumbersOfSection).map { $0 + offset.section }))
-            } else if rawNumbersOfSection > numbersOfSection {
-                let start = numbersOfSection - 1
-                deleteSections(IndexSet((start..<start + rawNumbersOfSection - numbersOfSection).map { $0 + offset.section }))
-                for i in (0..<numbersOfSection) {
-                    moveSection(i + rawOffset.section, toSection: i + offset.section)
-                }
-                reloadSectionsInNextUpdate(IndexSet((0..<numbersOfSection).map { $0 + offset.section }))
-            } else {
-                for i in (0..<numbersOfSection) {
-                    moveSection(i + rawOffset.section, toSection: i + offset.section)
-                }
-                reloadSectionsInNextUpdate(IndexSet((0..<numbersOfSection).map { $0 + offset.section }))
-            }
-        } else if numbersOfSection == 0, rawNumbersOfSection == 0 {
-            let (numbersOfItem, rawNumbersOfItem) = (subSnapshot.numbersOfItems(in: 0), rawSubSnapshot.numbersOfItems(in: 0))
-            if numbersOfItem > rawNumbersOfItem {
-                let start = rawNumbersOfItem - 1
-                insertItems(at: (start..<start + numbersOfItem - rawNumbersOfItem).map { IndexPath(item: $0).addingOffset(offset) })
-                for i in (0..<rawNumbersOfItem) {
-                    moveItem(at: IndexPath(item: i).addingOffset(rawOffset), to: IndexPath(item: i).addingOffset(offset))
-                }
-                reloadItemsInNextUpdate(at: (0..<rawNumbersOfItem).map { IndexPath(item: $0).addingOffset(offset) })
-            } else if rawNumbersOfItem > numbersOfItem {
-                let start = numbersOfItem - 1
-                deleteItems(at: (start..<start + rawNumbersOfItem - numbersOfItem).map { IndexPath(item: $0).addingOffset(offset) })
-                for i in (0..<numbersOfItem) {
-                    moveItem(at: IndexPath(item: i).addingOffset(rawOffset), to: IndexPath(item: i).addingOffset(offset))
-                }
-                reloadItemsInNextUpdate(at: (0..<numbersOfItem).map { IndexPath(item: $0).addingOffset(offset) })
-            } else {
-                for i in (0..<numbersOfItem) {
-                    moveItem(at: IndexPath(item: i).addingOffset(rawOffset), to: IndexPath(item: i).addingOffset(offset))
-                }
-                reloadItemsInNextUpdate(at: (0..<numbersOfItem).map { IndexPath(item: $0).addingOffset(offset) })
             }
         }
     }
@@ -276,26 +224,27 @@ public extension Source where SourceSnapshot: ListSnapshot, SourceSnapshot.Eleme
 public extension UpdateContext where Snapshot: ListSnapshot, Snapshot.Element: Identifiable {
     func diffUpdate() {
         let diff = snapshot.elements.difference(from: rawSnapshot.elements).inferringMoves()
-        var operates = (0..<rawSnapshot.elements.count).map { Optional.some((isMove: false, index: $0)) }
+        var rawChanges: [Change<Int>?] = (0..<rawSnapshot.elements.count).map { _ in nil }
+        var changes: [Change<Int>?] = (0..<snapshot.elements.count).map { _ in nil }
         
         for change in diff {
             switch change {
             case .insert(offset: let newIndex, element: _, associatedWith: let assoc):
+                changes[newIndex] = .insert(associatedWith: assoc, isReload: false)
                 if let oldIndex = assoc {
-                    operates.insert((true, oldIndex), at: newIndex)
+                    moveElement(at: oldIndex, to: newIndex)
                 } else {
                     insertElement(at: newIndex)
-                    operates.insert(nil, at: newIndex)
                 }
             case .remove(offset: let oldIndex, element: _, associatedWith: let assoc):
+                rawChanges[oldIndex] = .delete(associatedWith: assoc, isReload: false)
                 if assoc == nil {
                     deleteElement(at: oldIndex)
                 }
-                operates.remove(at: oldIndex)
             }
         }
         
-        update(with: operates)
+        update(with: rawChanges, changes: changes)
     }
 }
 
@@ -310,7 +259,8 @@ public extension Source where SourceSnapshot: ListSnapshot, SourceSnapshot.Eleme
 public extension UpdateContext where Snapshot: ListSnapshot, Snapshot.Element: Diffable {
     func diffUpdate() {
         let diff = snapshot.elements.difference(from: rawSnapshot.elements).inferringMoves()
-        var operates = (0..<rawSnapshot.elements.count).map { Optional.some((isMove: false, index: $0)) }
+        var rawChanges: [Change<Int>?] = (0..<rawSnapshot.elements.count).map { _ in nil }
+        var changes: [Change<Int>?] = (0..<snapshot.elements.count).map { _ in nil }
         
         for change in diff {
             switch change {
@@ -318,62 +268,98 @@ public extension UpdateContext where Snapshot: ListSnapshot, Snapshot.Element: D
                 if let oldIndex = assoc {
                     switch (rawSnapshot.elements[oldIndex] == element, oldIndex == newIndex) {
                     case (true, true):
-                        operates.insert((false, oldIndex), at: newIndex)
+                        changes[newIndex] = .insert(associatedWith: assoc, isReload: false)
                     case (true, false):
-                        operates.insert((true, oldIndex), at: newIndex)
+                        moveElement(at: oldIndex, to: newIndex)
+                        changes[newIndex] = .insert(associatedWith: assoc, isReload: false)
                     case (false, true):
                         reloadElement(at: newIndex)
-                        operates.insert(nil, at: newIndex)
+                        changes[newIndex] = .insert(associatedWith: assoc, isReload: true)
                     case (false, false):
-                        moveElementAndReload(at: oldIndex, to: newIndex)
-                        operates.insert(nil, at: newIndex)
+                        deleteElement(at: oldIndex)
+                        insertElement(at: newIndex)
+                        rawChanges[oldIndex] = .delete(associatedWith: assoc, isReload: false)
+                        changes[newIndex] = .insert(associatedWith: assoc, isReload: false)
                     }
                 } else {
                     insertElement(at: newIndex)
-                    operates.insert(nil, at: newIndex)
+                    changes[newIndex] = .insert(associatedWith: assoc, isReload: false)
                 }
             case .remove(offset: let oldIndex, element: _, associatedWith: let assoc):
+                rawChanges[oldIndex] = .delete(associatedWith: assoc, isReload: false)
                 if assoc == nil {
                     deleteElement(at: oldIndex)
                 }
-                operates.remove(at: oldIndex)
             }
         }
         
-        update(with: operates)
+        update(with: rawChanges, changes: changes)
     }
 }
 
 private extension UpdateContext where Snapshot: ListSnapshot, Snapshot.Element: Identifiable {
-    func update(with operates: [(isMove: Bool, index: Int)?]) {
-        for case let (indexArg, moveArg?) in zip(snapshot.elements.enumerated(), operates) {
-            let (index, element) = indexArg
-            let (isMove, rawIndex) = moveArg
+    func update(with rawChanges: [Change<Int>?], changes: [Change<Int>?]) {
+        let rawUnchangedElement = rawChanges.enumerated().compactMap { $0.element == nil ? $0.offset : nil }
+        let unchangedElement = changes.enumerated().compactMap { $0.element == nil ? $0.offset : nil }
+        for (rawIndex, index) in zip(rawUnchangedElement, unchangedElement) {
             let offset = snapshot.elementsOffsets[index]
             let rawOffset = rawSnapshot.elementsOffsets[rawIndex]
             let updateContext = UpdateContext<Snapshot.Element.SourceSnapshot>(
                 rawSnapshot: rawSnapshot.elementsSnapshots[rawIndex],
                 snapshot: snapshot.elementsSnapshots[index]
             )
-            element.update(context: updateContext)
-            
+            snapshot.elements[index].update(context: updateContext)
+            merge(context: updateContext, rawOffset: rawOffset, offset: offset)
+        }
+        
+        for case let (index, .insert(rawIndex?, false)?) in changes.enumerated().lazy.compactMap({ $0 }) {
+            let offset = snapshot.elementsOffsets[index]
+            let rawOffset = rawSnapshot.elementsOffsets[rawIndex]
+            let updateContext = UpdateContext<Snapshot.Element.SourceSnapshot>(
+                rawSnapshot: rawSnapshot.elementsSnapshots[rawIndex],
+                snapshot: snapshot.elementsSnapshots[index]
+            )
+            snapshot.elements[index].update(context: updateContext)
+            merge(context: updateContext, rawOffset: rawOffset, offset: offset, isMove: true)
+        }
+    }
+    
+    func merge(context: UpdateContext<Snapshot.Element.SourceSnapshot>, rawOffset: IndexPath, offset: IndexPath, isMove: Bool = false) {
+        if context.isSectioned {
             if isMove {
-                let rawNoneOperateIndices = rawSnapshotIndices.enumerated().lazy.compactMap { $0.element.isMove == nil ? $0.offset : nil }
-                let noneOperateIndices = snapshotIndices.enumerated().lazy.compactMap { $0.element.isMove == nil ? $0.offset : nil }
-                let sequence = zip(rawNoneOperateIndices, noneOperateIndices)
-                if updateContext.isSectioned {
-                    updateContext.moveAllSectionReloadToNextUpdate()
-                    for (oldIndex, newIndex) in sequence {
-                        updateContext.moveSection(oldIndex, toSection: newIndex)
-                    }
-                } else {
-                    updateContext.moveAllItemReloadToNextUpdate()
-                    for (oldIndex, newIndex) in sequence {
-                        updateContext.moveItem(at: .init(item: oldIndex), to: .init(item: newIndex))
-                    }
+                let unChangedRawSections = rawSnapshotChanges.enumerated().lazy.compactMap { $0.element.change == nil ? $0 : nil }
+                let unChangedSections = snapshotChanges.enumerated().lazy.compactMap { $0.element.change == nil ? $0 : nil }
+                for (rawArg, arg) in zip(unChangedRawSections, unChangedSections) {
+                    let (rawIndex, rawChange) = rawArg
+                    let (index, change) = arg
+                    rawChange.change = .delete(associatedWith: index, isReload: false)
+                    change.change = .insert(associatedWith: rawIndex, isReload: false)
                 }
             }
-            updates.mergeWith(updates: updateContext.updates, rawOffset: rawOffset, offset: offset)
+            for section in 0..<context.rawSnapshot.numbersOfSections() {
+                rawSnapshotChanges[section + rawOffset.section].change = context.rawSnapshotChanges[section].change?.addingOffset(offset)
+                rawSnapshotChanges[section + rawOffset.section].values = context.rawSnapshotChanges[section].values.map { $0?.addingOffset(offset) }
+            }
+            for section in 0..<context.snapshot.numbersOfSections() {
+                snapshotChanges[section + offset.section].change = context.snapshotChanges[section].change?.addingOffset(rawOffset)
+                snapshotChanges[section + offset.section].values = context.snapshotChanges[section].values.map { $0?.addingOffset(rawOffset) }
+            }
+        } else {
+            if isMove {
+                let unChangedRawItems = rawSnapshotChanges[0].values.enumerated().lazy.compactMap { $0.element == nil ? $0.offset : nil }
+                let unChangedItems = snapshotChanges[0].values.enumerated().lazy.compactMap { $0.element == nil ? $0.offset : nil }
+                for (rawIndex, index) in zip(unChangedRawItems, unChangedItems) {
+                    rawSnapshotChanges[0].values[rawIndex] = .delete(associatedWith: IndexPath(item: index), isReload: false)
+                    snapshotChanges[0].values[rawIndex] = .insert(associatedWith: IndexPath(item: rawIndex), isReload: false)
+                }
+            }
+            
+            for index in 0..<context.rawSnapshot.numbersOfItems(in: 0) {
+                rawSnapshotChanges[rawOffset.section].values[rawOffset.item + index] = context.rawSnapshotChanges[0].values[index]?.addingOffset(offset)
+            }
+            for index in 0..<context.snapshot.numbersOfItems(in: 0) {
+                snapshotChanges[offset.section].values[offset.item + index] = context.snapshotChanges[0].values[index]?.addingOffset(rawOffset)
+            }
         }
     }
 }

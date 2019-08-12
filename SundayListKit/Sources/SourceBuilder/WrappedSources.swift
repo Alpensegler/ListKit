@@ -1,11 +1,15 @@
 //
-//  Sources.swift
+//  WrappedSources.swift
 //  SundayListKit
 //
-//  Created by Frain on 2019/6/4.
+//  Created by Frain on 2019/8/11.
 //  Copyright © 2019 Frain. All rights reserved.
 //
 
+import SwiftUI
+
+@propertyWrapper
+@dynamicMemberLookup
 public struct Sources<SubSource, Item, SourceSnapshot: SnapshotType, UIViewType> {
     public internal(set) var listUpdater = ListUpdater()
     public var source: SubSource {
@@ -14,6 +18,16 @@ public struct Sources<SubSource, Item, SourceSnapshot: SnapshotType, UIViewType>
             if sourceClosure != nil { return }
             sourceStored = newValue
         }
+    }
+    
+    public var wrappedValue: SubSource {
+        get { return source }
+        set { source = newValue }
+    }
+    
+    public subscript<Value>(dynamicMember keyPath: WritableKeyPath<SubSource, Value>) -> Value {
+        get { return source[keyPath: keyPath] }
+        set { source[keyPath: keyPath] = newValue }
     }
     
     let sourceClosure: (() -> SubSource)!
@@ -52,4 +66,24 @@ public struct Sources<SubSource, Item, SourceSnapshot: SnapshotType, UIViewType>
     var tableHeightForItem: ((TableContext<SourceSnapshot>, Item) -> CGFloat)? = nil
     var tableHeightForHeader: ((TableContext<SourceSnapshot>, Int) -> CGFloat)? = nil
     var tableHeightForFooter: ((TableContext<SourceSnapshot>, Int) -> CGFloat)? = nil
+}
+
+extension Sources: View where UIViewType: ListView {
+    public typealias Body = Never
+    public typealias Coordinator = UIViewType.Coordinator
+    public var body: Body { fatalError() }
+}
+
+extension Sources: UIViewRepresentable where UIViewType: ListView {
+    public func makeCoordinator() -> UIViewType.Coordinator {
+        fatalError()
+    }
+    
+    public func makeUIView(context: UIViewRepresentableContext<Self>) -> UIViewType {
+        fatalError()
+    }
+    
+    public func updateUIView(_ uiView: UIViewType, context: UIViewRepresentableContext<Self>) {
+        fatalError()
+    }
 }

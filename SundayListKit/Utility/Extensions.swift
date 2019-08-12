@@ -6,6 +6,16 @@
 //  Copyright © 2019 Frain. All rights reserved.
 //
 
+public protocol IndexPathOffsetable: Equatable {
+    func addingOffset(_ offset: IndexPath) -> Self
+}
+
+extension Int: IndexPathOffsetable {
+    public func addingOffset(_ offset: IndexPath) -> Int {
+        return self + offset.section
+    }
+}
+
 extension Collection
 where
     Element: Collection,
@@ -33,15 +43,17 @@ extension IndexPath {
         return IndexPath(item: 0, section: 0)
     }
     
-    func addingOffset(_ offset: IndexPath) -> IndexPath {
-        return IndexPath(item: offset.item + offset.item, section: offset.section + section)
-    }
-    
     init(item: Int) {
         self.init(item: item, section: 0)
     }
     
     init(section: Int) {
         self.init(item: 0, section: section)
+    }
+}
+
+extension IndexPath: IndexPathOffsetable {
+    public func addingOffset(_ offset: IndexPath) -> IndexPath {
+        return IndexPath(item: offset.item + offset.item, section: offset.section + section)
     }
 }

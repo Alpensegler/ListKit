@@ -151,26 +151,26 @@ where
     SourceSnapshot.Item == Item,
     UIViewType == Never
 {
-    private init(_items: SubSource) {
+    private init(_items: SubSource, customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.reloadCurrent() }) {
         sourceClosure = nil
         sourceStored = _items
         
         itemFor = { $0.item(at: $1) }
         createSnapshotWith = { .init($0) }
-        updateContext = { $0.reloadCurrent() }
+        updateContext = customUpdate
     }
     
-    private init<ID: Hashable>(id: ID, _items: SubSource) {
-        self.init(_items: _items)
+    private init<ID: Hashable>(id: ID, _items: SubSource, customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.reloadCurrent() }) {
+        self.init(_items: _items, customUpdate: customUpdate)
         diffable = .init(id)
     }
     
-    init(items: SubSource) {
-        self.init(_items: items)
+    init(items: SubSource, customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.reloadCurrent() }) {
+        self.init(_items: items, customUpdate: customUpdate)
     }
     
-    init<ID: Hashable>(id: ID, items: SubSource) {
-        self.init(id: id, _items: items)
+    init<ID: Hashable>(id: ID, items: SubSource, customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.reloadCurrent() }) {
+        self.init(id: id, _items: items, customUpdate: customUpdate)
     }
 }
 
@@ -183,8 +183,8 @@ where
     SourceSnapshot.Item == Item,
     UIViewType == Never
 {
-    init() {
-        self.init(items: .init())
+    init(customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.reloadCurrent() }) {
+        self.init(items: .init(), customUpdate: customUpdate)
     }
 }
 
@@ -199,14 +199,12 @@ where
     Item: Equatable
 {
     
-    init(items: SubSource) {
-        self.init(_items: items)
-        updateContext = { $0.diffUpdate() }
+    init(items: SubSource, customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.diffUpdate() }) {
+        self.init(_items: items, customUpdate: customUpdate)
     }
     
-    init<ID: Hashable>(id: ID, items: SubSource) {
-        self.init(items: items)
-        diffable = .init(id)
+    init<ID: Hashable>(id: ID, items: SubSource, customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.diffUpdate() }) {
+        self.init(id: id, _items: items, customUpdate: customUpdate)
     }
 }
 
@@ -220,8 +218,8 @@ where
     UIViewType == Never,
     Item: Equatable
 {
-    init() {
-        self.init(items: .init())
+    init(customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.diffUpdate() }) {
+        self.init(items: .init(), customUpdate: customUpdate)
     }
 }
 
@@ -236,14 +234,12 @@ where
     Item: Hashable
 {
     
-    init(items: SubSource) {
-        self.init(_items: items)
-        updateContext = { $0.diffUpdate() }
+    init(items: SubSource, customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.diffUpdate() }) {
+        self.init(_items: items, customUpdate: customUpdate)
     }
     
-    init<ID: Hashable>(id: ID, items: SubSource) {
-        self.init(items: items)
-        diffable = .init(id)
+    init<ID: Hashable>(id: ID, items: SubSource, customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.diffUpdate() }) {
+        self.init(id: id, _items: items, customUpdate: customUpdate)
     }
 }
 
@@ -257,8 +253,8 @@ where
     UIViewType == Never,
     Item: Hashable
 {
-    init() {
-        self.init(items: .init())
+    init(customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.diffUpdate() }) {
+        self.init(items: .init(), customUpdate: customUpdate)
     }
 }
 
@@ -273,14 +269,12 @@ where
     Item: Identifiable
 {
     
-    init(items: SubSource) {
-        self.init(_items: items)
-        updateContext = { $0.diffUpdate() }
+    init(items: SubSource, customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.diffUpdate() }) {
+        self.init(_items: items, customUpdate: customUpdate)
     }
     
-    init<ID: Hashable>(id: ID, items: SubSource) {
-        self.init(items: items)
-        diffable = .init(id)
+    init<ID: Hashable>(id: ID, items: SubSource, customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.diffUpdate() }) {
+        self.init(id: id, _items: items, customUpdate: customUpdate)
     }
 }
 
@@ -294,8 +288,8 @@ where
     UIViewType == Never,
     Item: Identifiable
 {
-    init() {
-        self.init(items: .init())
+    init(customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.diffUpdate() }) {
+        self.init(items: .init(), customUpdate: customUpdate)
     }
 }
 
@@ -310,14 +304,12 @@ where
     Item: Diffable
 {
     
-    init(items: SubSource) {
-        self.init(_items: items)
-        updateContext = { $0.diffUpdate() }
+    init(items: SubSource, customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.diffUpdate() }) {
+        self.init(_items: items, customUpdate: customUpdate)
     }
     
-    init<ID: Hashable>(id: ID, items: SubSource) {
-        self.init(items: items)
-        diffable = .init(id)
+    init<ID: Hashable>(id: ID, items: SubSource, customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.diffUpdate() }) {
+        self.init(id: id, _items: items)
     }
 }
 
@@ -331,8 +323,8 @@ where
     UIViewType == Never,
     Item: Diffable
 {
-    init() {
-        self.init(items: .init())
+    init(customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.diffUpdate() }) {
+        self.init(items: .init(), customUpdate: customUpdate)
     }
 }
 
@@ -348,14 +340,13 @@ where
     Item: Hashable
 {
     
-    init(items: SubSource) {
-        self.init(_items: items)
+    init(items: SubSource, customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.diffUpdate() }) {
+        self.init(_items: items, customUpdate: customUpdate)
         updateContext = { $0.diffUpdate() }
     }
     
-    init<ID: Hashable>(id: ID, items: SubSource) {
-        self.init(items: items)
-        diffable = .init(id)
+    init<ID: Hashable>(id: ID, items: SubSource, customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.diffUpdate() }) {
+        self.init(id: id, _items: items, customUpdate: customUpdate)
     }
 }
 
@@ -370,8 +361,8 @@ where
     Item: Identifiable,
     Item: Hashable
 {
-    init() {
-        self.init(items: .init())
+    init(customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.diffUpdate() }) {
+        self.init(items: .init(), customUpdate: customUpdate)
     }
 }
 
@@ -386,26 +377,26 @@ where
     SourceSnapshot.Item == Item,
     UIViewType == Never
 {
-    private init(_item: Item) {
+    private init(_item: Item, customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.reloadCurrent() }) {
         sourceClosure = nil
         sourceStored = _item
         
         itemFor = { (snapshot, _) in snapshot.item }
         createSnapshotWith = { .init($0) }
-        updateContext = { $0.reloadCurrent() }
+        updateContext = customUpdate
     }
     
-    private init<ID: Hashable>(id: ID, _item: Item) {
-        self.init(_item: _item)
+    private init<ID: Hashable>(id: ID, _item: Item, customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.reloadCurrent() }) {
+        self.init(_item: _item, customUpdate: customUpdate)
         diffable = .init(id)
     }
     
-    init(item: Item) {
-        self.init(_item: item)
+    init(item: Item, customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.reloadCurrent() }) {
+        self.init(_item: item, customUpdate: customUpdate)
     }
     
-    init<ID: Hashable>(id: ID, item: Item) {
-        self.init(id: id, _item: item)
+    init<ID: Hashable>(id: ID, item: Item, customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.reloadCurrent() }) {
+        self.init(id: id, _item: item, customUpdate: customUpdate)
     }
 }
 
@@ -418,14 +409,8 @@ where
     UIViewType == Never,
     Item: Equatable
 {
-    init(item: Item) {
-        self.init(_item: item)
-        updateContext = { $0.diffUpdate() }
-    }
-    
-    init<ID: Hashable>(id: ID, item: Item) {
-        self.init(id: id, _item: item)
-        diffable = .init(id)
+    init(item: Item, customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.diffUpdate() }) {
+        self.init(_item: item, customUpdate: customUpdate)
     }
 }
 
@@ -439,9 +424,8 @@ where
     UIViewType == Never,
     Item: Hashable
 {
-    init(item: Item) {
-        self.init(_item: item)
-        updateContext = { $0.diffUpdate() }
+    init(item: Item, customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.diffUpdate() }) {
+        self.init(_item: item, customUpdate: customUpdate)
         diffable = .init(item)
     }
 }
@@ -455,9 +439,8 @@ where
     UIViewType == Never,
     Item: Identifiable
 {
-    init(item: Item) {
-        self.init(_item: item)
-        updateContext = { $0.diffUpdate() }
+    init(item: Item, customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.diffUpdate() }) {
+        self.init(_item: item, customUpdate: customUpdate)
         diffable = .init { item }
     }
 }
@@ -471,9 +454,8 @@ where
     UIViewType == Never,
     Item: Diffable
 {
-    init(item: Item) {
-        self.init(_item: item)
-        updateContext = { $0.diffUpdate() }
+    init(item: Item, customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.diffUpdate() }) {
+        self.init(_item: item, customUpdate: customUpdate)
         diffable = .init { item }
     }
 }
@@ -488,9 +470,8 @@ where
     Item: Identifiable,
     Item: Hashable
 {
-    init(item: Item) {
-        self.init(_item: item)
-        updateContext = { $0.diffUpdate() }
+    init(item: Item, customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.diffUpdate() }) {
+        self.init(_item: item, customUpdate: customUpdate)
         diffable = .init { item }
     }
 }

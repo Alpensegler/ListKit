@@ -13,13 +13,12 @@ public struct Sources<SubSource, Item, SourceSnapshot: SnapshotType, UIViewType>
         set {
             if sourceClosure != nil { return }
             sourceStored = newValue
+            performUpdate()
         }
     }
     
     let sourceClosure: (() -> SubSource)!
-    var sourceStored: SubSource! {
-        didSet { performUpdate() }
-    }
+    var sourceStored: SubSource!
     
     var diffable = AnyDiffable()
     
@@ -52,4 +51,14 @@ public struct Sources<SubSource, Item, SourceSnapshot: SnapshotType, UIViewType>
     var tableHeightForItem: ((TableContext<SourceSnapshot>, Item) -> CGFloat)? = nil
     var tableHeightForHeader: ((TableContext<SourceSnapshot>, Int) -> CGFloat)? = nil
     var tableHeightForFooter: ((TableContext<SourceSnapshot>, Int) -> CGFloat)? = nil
+    
+    public mutating func updateWithReloadCurrent(source: SubSource, animated: Bool = true, _ completion: ((Bool) -> Void)? = nil) {
+        self.sourceStored = source
+        performReloadCurrent(animated: animated, completion)
+    }
+    
+    public mutating func updateWithReload(source: SubSource, _ completion: ((Bool) -> Void)? = nil) {
+        self.sourceStored = source
+        performReload(completion)
+    }
 }

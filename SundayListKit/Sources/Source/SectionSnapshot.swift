@@ -50,6 +50,85 @@ public extension Source where SubSource: Collection, SourceSnapshot == Snapshot<
 //MARK: - Collection Diff
 
 //ElementEquatable
+
+public extension UpdateContext where Snapshot: SectionSnapshot {
+    func diffUpdate(by areEquivalent: (Snapshot.SubSource.Element, Snapshot.SubSource.Element) -> Bool) {
+        #if iOS13
+        let diff = snapshot.elements.difference(from: rawSnapshot.elements, by: areEquivalent)
+        #else
+        let diff = snapshot.elements.diff(from: rawSnapshot.elements, by: areEquivalent)
+        #endif
+        for change in diff {
+            switch change {
+            case .insert(offset: let newIndex, _, _):
+                insertElement(at: newIndex)
+            case .remove(offset: let oldIndex, _, _):
+                deleteElement(at: oldIndex)
+            }
+        }
+    }
+    
+    func diffUpdate<ID: Hashable>(idBy key: KeyPath<Snapshot.SubSource.Element, ID>) {
+        diffUpdate(getID: { $0[keyPath: key] })
+    }
+    
+    func diffUpdate<ID: Hashable>(getID key: (Snapshot.SubSource.Element) -> ID) {
+        #if iOS13
+        let diff = snapshot.elements.difference(from: rawSnapshot.elements) { key($0) == key($1) }.inferrringMoves(by: key)
+        #else
+        let diff = snapshot.elements.diff(from: rawSnapshot.elements) { key($0) == key($1) }.inferrringMoves(by: key)
+        #endif
+        for change in diff {
+            switch change {
+            case .insert(offset: let newIndex, element: _, associatedWith: let assoc):
+                if let oldIndex = assoc {
+                    moveElement(at: oldIndex, to: newIndex)
+                } else {
+                    insertElement(at: newIndex)
+                }
+            case .remove(offset: let oldIndex, element: _, associatedWith: let assoc):
+                if assoc == nil {
+                    deleteElement(at: oldIndex)
+                }
+            }
+        }
+    }
+    
+    func diffUpdate<ID: Hashable>(idBy key: KeyPath<Snapshot.SubSource.Element, ID>, by areEquivalent: (Snapshot.SubSource.Element, Snapshot.SubSource.Element) -> Bool) {
+        diffUpdate(getID: { $0[keyPath: key] }, by: areEquivalent)
+    }
+    
+    func diffUpdate<ID: Hashable>(getID key: (Snapshot.SubSource.Element) -> ID, by areEquivalent: (Snapshot.SubSource.Element, Snapshot.SubSource.Element) -> Bool) {
+        #if iOS13
+        let diff = snapshot.elements.difference(from: rawSnapshot.elements) { key($0) == key($1) && areEquivalent($0, $1) }.inferrringMoves(by: key)
+        #else
+        let diff = snapshot.elements.diff(from: rawSnapshot.elements) { key($0) == key($1) && areEquivalent($0, $1) }.inferrringMoves(by: key)
+        #endif
+        for change in diff {
+            switch change {
+            case .insert(offset: let newIndex, element: let element, associatedWith: let assoc):
+                if let oldIndex = assoc {
+                    if oldIndex == newIndex {
+                        reloadElement(at: newIndex)
+                    } else if areEquivalent(rawSnapshot.elements[oldIndex], element) {
+                        moveElement(at: oldIndex, to: newIndex)
+                    } else {
+                        deleteElement(at: oldIndex)
+                        insertElement(at: newIndex)
+                    }
+                } else {
+                    insertElement(at: newIndex)
+                }
+            case .remove(offset: let oldIndex, element: _, associatedWith: let assoc):
+                if assoc == nil {
+                    deleteElement(at: oldIndex)
+                }
+            }
+        }
+    }
+}
+
+
 public extension Source where SourceSnapshot: SectionSnapshot, Item == SourceSnapshot.Item, Item: Equatable {
     func update(context: UpdateContext<SourceSnapshot>) {
         context.diffUpdate()

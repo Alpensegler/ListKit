@@ -37,8 +37,8 @@ public extension ListUpdatable where Self: Source {
                 self.snapshot = sourceSnapshot
                 updateContext.perform(changes: changes, for: listView, offset: $0.offset, animated: animated, completion: completion) {
                     self.snapshot = snapshot
-                    if !listUpdater.onChangeObservers.isEmpty {
-                        changes.forEach { change in listUpdater.onChangeObservers.forEach { $0(change) } }
+                    listUpdater.onChangeObservers.forEach { observe in
+                        changes.forEach { observe($0) }
                     }
                 }
             }
@@ -46,8 +46,8 @@ public extension ListUpdatable where Self: Source {
                 guard let listView = $0.listView else { return }
                 updateContext.perform(changes: changes, for: listView, offset: $0.offset, animated: animated, completion: completion) {
                     self.snapshot = snapshot
-                    if !listUpdater.onChangeObservers.isEmpty {
-                        changes.forEach { change in listUpdater.onChangeObservers.forEach { $0(change) } }
+                    listUpdater.onChangeObservers.forEach { observe in
+                        changes.forEach { observe($0) }
                     }
                 }
             }
@@ -74,8 +74,8 @@ public extension ListUpdatable where Self: Source {
                 guard let listView = $0.listView else { return }
                 updateContext.perform(changes: changes, for: listView, offset: $0.offset, animated: animated, completion: completion) {
                     self.snapshot = snapshot
-                    if !listUpdater.onChangeObservers.isEmpty {
-                        changes.forEach { change in listUpdater.onChangeObservers.forEach { $0(change) } }
+                    listUpdater.onChangeObservers.forEach { observe in
+                        changes.forEach { observe($0) }
                     }
                 }
             }
@@ -83,8 +83,8 @@ public extension ListUpdatable where Self: Source {
                 guard let listView = $0.listView else { return }
                 updateContext.perform(changes: changes, for: listView, offset: $0.offset, animated: animated, completion: completion) {
                     self.snapshot = snapshot
-                    if !listUpdater.onChangeObservers.isEmpty {
-                        changes.forEach { change in listUpdater.onChangeObservers.forEach { $0(change) } }
+                    listUpdater.onChangeObservers.forEach { observe in
+                        changes.forEach { observe($0) }
                     }
                 }
             }

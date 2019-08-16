@@ -9,6 +9,8 @@
 public protocol ListUpdatable {
     var listUpdater: ListUpdater { get }
     func performUpdate(animated: Bool, completion: ((Bool) -> Void)?)
+//    func collectionView(_ collectionView: UICollectionView, didUpdateWith change: ListChange)
+//    func tableView(_ tableView: UITableView, didUpdateWith change: ListChange)
 }
 
 public extension ListUpdatable where Self: Source {
@@ -30,16 +32,24 @@ public extension ListUpdatable where Self: Source {
             let updateContext = UpdateContext(rawSnapshot: sourceSnapshot, snapshot: snapshot)
             update(context: updateContext)
             let changes = updateContext.getChanges()
-            if !listUpdater.onChangeObservers.isEmpty {
-                changes.forEach { change in listUpdater.onChangeObservers.forEach { $0(change) } }
-            }
             listUpdater.collectionContext.forEach {
                 guard let listView = $0.listView else { return }
-                updateContext.perform(changes: changes, for: listView, offset: $0.offset, animated: animated, completion: completion)
+                self.snapshot = sourceSnapshot
+                updateContext.perform(changes: changes, for: listView, offset: $0.offset, animated: animated, completion: completion) {
+                    self.snapshot = snapshot
+                    if !listUpdater.onChangeObservers.isEmpty {
+                        changes.forEach { change in listUpdater.onChangeObservers.forEach { $0(change) } }
+                    }
+                }
             }
             listUpdater.tableContext.forEach {
                 guard let listView = $0.listView else { return }
-                updateContext.perform(changes: changes, for: listView, offset: $0.offset, animated: animated, completion: completion)
+                updateContext.perform(changes: changes, for: listView, offset: $0.offset, animated: animated, completion: completion) {
+                    self.snapshot = snapshot
+                    if !listUpdater.onChangeObservers.isEmpty {
+                        changes.forEach { change in listUpdater.onChangeObservers.forEach { $0(change) } }
+                    }
+                }
             }
         } else {
             performReload(completion)
@@ -57,20 +67,26 @@ public extension ListUpdatable where Self: Source {
     func performReloadCurrent(animated: Bool = true, _ completion: ((Bool) -> Void)? = nil) {
         if let sourceSnapshot = rawSnapshot {
             let snapshot = createSnapshot(with: source)
-            self.snapshot = snapshot
             let updateContext = UpdateContext(rawSnapshot: sourceSnapshot, snapshot: snapshot)
             updateContext.reloadCurrent()
             let changes = updateContext.getChanges()
-            if !listUpdater.onChangeObservers.isEmpty {
-                changes.forEach { change in listUpdater.onChangeObservers.forEach { $0(change) } }
-            }
             listUpdater.collectionContext.forEach {
                 guard let listView = $0.listView else { return }
-                updateContext.perform(changes: changes, for: listView, offset: $0.offset, animated: animated, completion: completion)
+                updateContext.perform(changes: changes, for: listView, offset: $0.offset, animated: animated, completion: completion) {
+                    self.snapshot = snapshot
+                    if !listUpdater.onChangeObservers.isEmpty {
+                        changes.forEach { change in listUpdater.onChangeObservers.forEach { $0(change) } }
+                    }
+                }
             }
             listUpdater.tableContext.forEach {
                 guard let listView = $0.listView else { return }
-                updateContext.perform(changes: changes, for: listView, offset: $0.offset, animated: animated, completion: completion)
+                updateContext.perform(changes: changes, for: listView, offset: $0.offset, animated: animated, completion: completion) {
+                    self.snapshot = snapshot
+                    if !listUpdater.onChangeObservers.isEmpty {
+                        changes.forEach { change in listUpdater.onChangeObservers.forEach { $0(change) } }
+                    }
+                }
             }
         } else {
             performReload(completion)

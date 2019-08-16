@@ -13,13 +13,14 @@ class ViewController: UIViewController, TableListAdapter, CollectionListAdapter 
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var collectionView: UICollectionView!
     
-    private let _models = ["Roy", "Pinlin", "Zhiyi", "Frain", "Jack", "Cookie"]
+    private let _models = ["Roy", "Pinlin", "Zhiyi", "Frain", "Jack", "Cookie", "Kubrick", "Jeremy"]
     
     typealias Item = String
     
     var source: [String] {
         var shuffledModels = _models.shuffled()
         shuffledModels.removeFirst()
+        shuffledModels.removeLast()
         return shuffledModels.shuffled()
     }
     
@@ -44,11 +45,11 @@ class ViewController: UIViewController, TableListAdapter, CollectionListAdapter 
         
         tableView.coordinator = tableCoordinator()
         collectionView.coordinator = collectionCoordinator()
-        performUpdate(animated: true, completion: nil)
+        performUpdate()
     }
     
     @IBAction func onRefresh(_ sender: Any) {
-        performUpdate(animated: true, completion: nil)
+        performUpdate()
     }
 }
 

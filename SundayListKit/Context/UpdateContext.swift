@@ -100,9 +100,10 @@ extension UpdateContext {
         return sectionDelete + sectionInsert + itemsDelete + itemsInsert
     }
     
-    func perform<List: ListView>(changes: [ListChange], for listView: List, offset: IndexPath, animated: Bool, completion: ((Bool) -> Void)? = nil) {
+    func perform<List: ListView>(changes: [ListChange], for listView: List, offset: IndexPath, animated: Bool, completion: ((Bool) -> Void)? = nil, setData: () -> Void) {
         listView.perform(update: {
             for change in changes {
+                setData()
                 switch change {
                 case let .section(index: index, change: .insert(associatedWith: assoc, isReload: isReload)):
                     if let assoc = assoc {

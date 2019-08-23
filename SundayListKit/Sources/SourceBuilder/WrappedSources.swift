@@ -14,7 +14,7 @@ public struct Sources<SubSource, Item, SourceSnapshot: SnapshotType, UIViewType>
     public internal(set) var listUpdater = ListUpdater()
     public var source: SubSource {
         get { return sourceClosure?() ?? sourceStored }
-        set {
+        nonmutating set {
             if sourceClosure != nil { return }
             sourceStored = newValue
         }
@@ -22,17 +22,21 @@ public struct Sources<SubSource, Item, SourceSnapshot: SnapshotType, UIViewType>
     
     public var wrappedValue: SubSource {
         get { return source }
-        set { source = newValue }
+        nonmutating set { source = newValue }
     }
     
     public subscript<Value>(dynamicMember keyPath: WritableKeyPath<SubSource, Value>) -> Value {
         get { return source[keyPath: keyPath] }
-        set { source[keyPath: keyPath] = newValue }
+        nonmutating set { source[keyPath: keyPath] = newValue }
     }
     
     let sourceClosure: (() -> SubSource)!
     var sourceStored: SubSource! {
-        didSet { performUpdate() }
+        get { return listUpdater.sourceValue as? SubSource }
+        nonmutating set {
+            listUpdater.sourceValue = newValue
+            performUpdate(self)
+        }
     }
     
     var diffable = AnyDiffable()
@@ -41,9 +45,11 @@ public struct Sources<SubSource, Item, SourceSnapshot: SnapshotType, UIViewType>
     var createSnapshotWith: ((SubSource) -> SourceSnapshot)!
     var itemFor: ((SourceSnapshot, IndexPath) -> Item)!
     var updateContext: ((UpdateContext<SourceSnapshot>) -> Void)!
+    var performUpdate: (Sources<SubSource, Item, SourceSnapshot, UIViewType>) -> Void = { $0.performUpdate() }
     
     //MARK: - collection adapter
     var collectionView: (() -> UICollectionView)? = nil
+    var collectionViewWillUpdate: ((UICollectionView, ListChange) -> Void)? = nil
     
     var collectionCellForItem: ((CollectionContext<SourceSnapshot>, Item) -> UICollectionViewCell)! = nil
     var collectionSupplementaryView: ((CollectionContext<SourceSnapshot>, SupplementaryViewType, Item) -> UICollectionReusableView?)? = nil
@@ -56,6 +62,8 @@ public struct Sources<SubSource, Item, SourceSnapshot: SnapshotType, UIViewType>
     var collectionSizeForFooter: ((CollectionContext<SourceSnapshot>, UICollectionViewLayout, Int) -> CGSize)? = nil
     
     //MARK: - table adapter
+    var tableViewWillUpdate: ((UITableView, ListChange) -> Void)? = nil
+    
     var tableCellForItem: ((TableContext<SourceSnapshot>, Item) -> UITableViewCell)! = nil
     var tableHeader: ((TableContext<SourceSnapshot>, Int) -> UIView?)? = nil
     var tableFooter: ((TableContext<SourceSnapshot>, Int) -> UIView?)? = nil

@@ -18,6 +18,14 @@ extension Sources: Source, ListUpdatable {
     public func update(context: UpdateContext<SourceSnapshot>) {
         updateContext(context)
     }
+    
+    public func collectionView(_ collectionView: UICollectionView, willUpdateWith change: ListChange) {
+        collectionViewWillUpdate?(collectionView, change)
+    }
+    
+    public func tableView(_ tableView: UITableView, willUpdateWith change: ListChange) {
+        tableViewWillUpdate?(tableView, change)
+    }
 }
 
 public extension Source {

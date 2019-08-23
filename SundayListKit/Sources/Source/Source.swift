@@ -29,14 +29,27 @@ public protocol SnapshotType {
     func numbersOfItems(in section: Int) -> Int
 }
 
+public protocol CollectionSnapshotType: SnapshotType {
+    associatedtype Element
+    var elements: [Element] { get set }
+}
+
+protocol SubSourceContainSnapshot: SnapshotType {
+    var subSource: [Any] { get set }
+    var subSnapshots: [SnapshotType] { get set }
+    
+    var subSourceIndices: [[Int]] { get set }
+    var subSourceOffsets: [IndexPath] { get set }
+}
+
 public struct Snapshot<SubSource, Item> {
     var source: SubSource
     var subSource: [Any]
-    var subSnapshots: [Any]
+    var subSnapshots: [SnapshotType]
     var isSectioned = true
     
-    let subSourceIndices: [[Int]]
-    let subSourceOffsets: [IndexPath]
+    var subSourceIndices: [[Int]]
+    var subSourceOffsets: [IndexPath]
 }
 
 extension Snapshot: SnapshotType {
@@ -46,5 +59,13 @@ extension Snapshot: SnapshotType {
     
     public func numbersOfSections() -> Int {
         return isSectioned ? subSourceIndices.count : 0
+    }
+}
+
+extension Snapshot: CollectionSnapshotType where SubSource: Collection {
+    public typealias Element = SubSource.Element
+    public var elements: [Element] {
+        get { return subSource as! [Element] }
+        set { subSource = newValue }
     }
 }

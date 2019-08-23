@@ -6,11 +6,9 @@
 //  Copyright © 2019 Frain. All rights reserved.
 //
 
-public protocol ListSnapshot: SnapshotType {
-    associatedtype SubSource: Collection where SubSource.Element: Source
-    typealias Element = SubSource.Element
+public protocol ListSnapshot: CollectionSnapshotType where Element: Source {
+    associatedtype SubSource: Collection where SubSource.Element == Element
     
-    var elements: [Element] { get set }
     var elementsSnapshots: [Element.SourceSnapshot] { get }
     var elementsOffsets: [IndexPath] { get }
     func elementsSnapshot(at indexPath: IndexPath) -> Element.SourceSnapshot
@@ -19,16 +17,7 @@ public protocol ListSnapshot: SnapshotType {
     init(_ source: SubSource)
 }
 
-public extension Snapshot where SubSource: Collection {
-    typealias Element = SubSource.Element
-}
-
 extension Snapshot: ListSnapshot where SubSource: Collection, Element: Source, Item == Element.Item {
-    public var elements: [Element] {
-        get { return subSource as! [Element] }
-        set { subSource = newValue }
-    }
-    
     public var elementsOffsets: [IndexPath] {
         return subSourceOffsets
     }
@@ -54,6 +43,8 @@ extension Snapshot: ListSnapshot where SubSource: Collection, Element: Source, I
     }
 }
 
+extension Snapshot: SubSourceContainSnapshot where SubSource: Collection, Element: Source, Item == Element.Item { }
+
 public extension Snapshot where SubSource: Collection, SubSource.Element: Source, SubSource.Element.Item == Item {
     init(_ source: SubSource) {
         let subSourceCollection = source
@@ -65,7 +56,16 @@ public extension Snapshot where SubSource: Collection, SubSource.Element: Source
         var lastSourceWasSection = false
         
         for source in subSourceCollection {
-            let snapshot = source.createSnapshot(with: source.source)
+            let snapshot: SubSource.Element.SourceSnapshot
+            if let updater = (source as? ListUpdatable)?.listUpdater {
+                snapshot = updater.snapshotValue as? SubSource.Element.SourceSnapshot ?? {
+                    let source = source.createSnapshot(with: source.source)
+                    updater.snapshotValue = source
+                    return source
+                }()
+            } else {
+                snapshot = source.createSnapshot(with: source.source)
+            }
             let sectionCount = snapshot.numbersOfSections()
             if sectionCount > 0 {
                 if offset.item > 0 {

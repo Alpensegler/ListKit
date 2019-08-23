@@ -9,6 +9,12 @@
 public typealias TableSources<SubSource, Item, Snapshot: SnapshotType> = Sources<SubSource, Item, Snapshot, UITableView>
 
 public extension Sources where UIViewType == UITableView {
+    func observeOnTableViewUpdate(_ provider: @escaping (UITableView, ListChange) -> Void) -> Sources<SubSource, Item, SourceSnapshot, UIViewType> {
+        var sources = self
+        sources.tableViewWillUpdate = provider
+        return sources
+    }
+    
     func provideHeader(_ provider: @escaping (TableContext<SourceSnapshot>, Int) -> UIView?) -> Sources<SubSource, Item, SourceSnapshot, UIViewType> {
         var sources = self
         sources.tableHeader = provider
@@ -92,7 +98,7 @@ import SwiftUI
 
 public extension Sources where UIViewType == UITableView {
     func makeCoordinator() -> UIViewType.Coordinator {
-        return tableCoordinator()
+        return makeTableCoordinator()
     }
     
     func makeUIView(context: UIViewRepresentableContext<Self>) -> UIViewType {
@@ -102,7 +108,7 @@ public extension Sources where UIViewType == UITableView {
     }
     
     func updateUIView(_ uiView: UIViewType, context: UIViewRepresentableContext<Self>) {
-        performReload()
+        performReloadData()
     }
 }
 

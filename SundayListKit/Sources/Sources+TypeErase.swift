@@ -52,14 +52,14 @@ extension Sources: SourcesTypeAraser where SubSource == Any, SourceSnapshot: Any
     }
     
     init<Source, Snapshot, View>(sources: Sources<Source, Item, Snapshot, View>) {
+        createSnapshotWith = { .init(sources.createSnapshot(with: $0 as! Source)) }
+        itemFor = { sources.item(for: $0.base as! Snapshot, at: $1) }
+        updateContext = { sources.update(context: .init(rawSnapshot: $0.rawSnapshot.base as! Snapshot, snapshot: $0.snapshot.base as! Snapshot)) }
+        
         sourceClosure = sources.sourceClosure
         sourceStored = sources.sourceStored
         
         listUpdater = sources.listUpdater
         diffable = sources.diffable
-        
-        createSnapshotWith = { .init(sources.createSnapshot(with: $0 as! Source)) }
-        itemFor = { sources.item(for: $0.base as! Snapshot, at: $1) }
-        updateContext = { sources.update(context: .init(rawSnapshot: $0.rawSnapshot.base as! Snapshot, snapshot: $0.snapshot.base as! Snapshot)) }
     }
 }

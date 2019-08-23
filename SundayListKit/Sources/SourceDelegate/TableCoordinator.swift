@@ -12,26 +12,65 @@ public class TableCoordinator: NSObject, ListViewCoordinator {
 }
 
 public extension TableDataSource where Self: ListUpdatable {
-    func tableCoordinator() -> TableCoordinator {
+    @discardableResult
+    func setTableView(_ tableView: UITableView) -> Self {
+        storeTableCoordinator(makeTableCoordinator(), to: tableView).setListView(tableView)
+        return self
+    }
+    
+    func makeTableCoordinator() -> TableCoordinator {
         return TableDataSourceCoordinator { self }
     }
 }
 
-public extension TableDataSource where Self: AnyObject, Self: ListUpdatable {
-    func tableCoordinator() -> TableCoordinator {
-        return TableDataSourceCoordinator { [unowned self] in self }
-    }
-}
-
 public extension TableAdapter where Self: ListUpdatable {
-    func tableCoordinator() -> TableCoordinator {
+    @discardableResult
+    func setTableView(_ tableView: UITableView) -> Self {
+        storeTableCoordinator(makeTableCoordinator(), to: tableView).setListView(tableView)
+        return self
+    }
+    
+    func makeTableCoordinator() -> TableCoordinator {
         return TableAdapterCoordinator { self }
     }
 }
 
+public extension TableDataSource where Self: AnyObject, Self: ListUpdatable {
+    @discardableResult
+    func setTableView(_ tableView: UITableView) -> Self {
+        storedTableCoordinator(with: makeTableCoordinator()).setListView(tableView)
+        return self
+    }
+    
+    func makeTableCoordinator() -> TableCoordinator {
+        return TableDataSourceCoordinator { [unowned self] in self }
+    }
+}
+
 public extension TableAdapter where Self: AnyObject, Self: ListUpdatable {
-    func tableCoordinator() -> TableCoordinator {
+    @discardableResult
+    func setTableView(_ tableView: UITableView) -> Self {
+        storedTableCoordinator(with: makeTableCoordinator()).setListView(tableView)
+        return self
+    }
+    
+    func makeTableCoordinator() -> TableCoordinator {
         return TableAdapterCoordinator { [unowned self] in self }
+    }
+}
+
+private var tableCoordinatorKey: Void?
+
+private extension TableDataSource where Self: AnyObject {
+    func storedTableCoordinator(with initialValue: @autoclosure () -> TableCoordinator) -> TableCoordinator {
+        return Associator.getValue(key: &tableCoordinatorKey, from: self, initialValue: initialValue())
+    }
+}
+
+private extension TableDataSource {
+    func storeTableCoordinator(_ coordinator: TableCoordinator, to tableView: UITableView) -> TableCoordinator {
+        Associator.set(value: coordinator, key: &tableCoordinatorKey, to: tableView)
+        return coordinator
     }
 }
 
@@ -46,29 +85,29 @@ public extension TableDataSource where Self: ListUpdatable, Self: UIViewRepresen
     }
     
     func updateUIView(_ uiView: UITableView, context: Context) {
-        performReload()
+        performReloadData()
     }
     
     func makeCoordinator() -> Coordinator {
-        return tableCoordinator()
+        return makeTableCoordinator()
     }
 }
 
 public extension TableDataSource where Self: AnyObject, Self: ListUpdatable, Self: UIViewRepresentable, Self.UIViewType == UITableView, Self.Coordinator == TableCoordinator {
     func makeCoordinator() -> Coordinator {
-        return tableCoordinator()
+        return makeTableCoordinator()
     }
 }
 
 public extension TableAdapter where Self: ListUpdatable, Self: UIViewRepresentable, Self.UIViewType == UITableView, Self.Coordinator == TableCoordinator {
     func makeCoordinator() -> Coordinator {
-        return tableCoordinator()
+        return makeTableCoordinator()
     }
 }
 
 public extension TableAdapter where Self: AnyObject, Self: ListUpdatable, Self: UIViewRepresentable, Self.UIViewType == UITableView, Self.Coordinator == TableCoordinator {
     func makeCoordinator() -> Coordinator {
-        return tableCoordinator()
+        return makeTableCoordinator()
     }
 }
 
@@ -77,7 +116,7 @@ public extension TableAdapter where Self: AnyObject, Self: ListUpdatable, Self: 
 private class TableDataSourceCoordinator<Snapshot>: TableCoordinator, UITableViewDataSource {
     var snapshot: Snapshot { return getSnapshot() }
     let getSnapshot: () -> Snapshot
-    let setTableView: (UITableView) -> Void
+    let addTableContext: (ListUpdater.Context<UITableView>) -> ()
     
     // Providing the Number of Rows and Sections
     let tableViewNumberOfRowsInSection: (Snapshot, Int) -> Int
@@ -101,14 +140,20 @@ private class TableDataSourceCoordinator<Snapshot>: TableCoordinator, UITableVie
     let tableViewSectionForSectionIndexTitleAt: (Snapshot, UITableView, String, Int) -> Int
     
     override func setListView(_ tableView: UITableView) {
-        setTableView(tableView)
-        tableView.didReload = false
         tableView.dataSource = self
+        let context = ListUpdater.Context(
+            offset: .default,
+            keyPath: \.tableContexts,
+            update: { $0.tableView($1, willUpdateWith: .reload) },
+            listView: { [weak tableView, weak self] in tableView.flatMap { $0.dataSource === self ? $0 : nil } },
+            snapshotSetter: { _ in }
+        )
+        addTableContext(context)
     }
     
     init<Coordinator: TableDataSource & ListUpdatable>(_ coordinator: @escaping () -> Coordinator) where Coordinator.SourceSnapshot == Snapshot {
         getSnapshot = { coordinator().snapshot }
-        setTableView = { coordinator().setTableView($0) }
+        addTableContext = { coordinator().addTableContext($0) }
         
         tableViewNumberOfRowsInSection = { $0.numbersOfItems(in: $1) }
         numberOfSections = { $0.numbersOfSections() }
@@ -275,8 +320,8 @@ private final class TableAdapterCoordinator<Snapshot>: TableDataSourceCoordinato
     let scrollViewDidChangeAdjustedContentInset: (UIScrollView) -> Void
     
     override func setListView(_ tableView: UITableView) {
-        super.setListView(tableView)
         tableView.delegate = self
+        super.setListView(tableView)
     }
     
     override init<Coordinator: TableAdapter & ListUpdatable>(_ coordinator: @escaping () -> Coordinator) where Coordinator.SourceSnapshot == Snapshot {

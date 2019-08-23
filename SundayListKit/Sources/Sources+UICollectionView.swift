@@ -40,16 +40,22 @@ public extension Sources where UIViewType == Never {
 
 public extension Sources where UIViewType == UICollectionView {
     init(_ sources: Sources<SubSource, Item, SourceSnapshot, Never>, cellProvider: @escaping (CollectionContext<SourceSnapshot>, Item) -> UICollectionViewCell) {
+        createSnapshotWith = sources.createSnapshotWith
+        itemFor = sources.itemFor
+        updateContext = sources.updateContext
+        collectionCellForItem = cellProvider
+        
         sourceClosure = sources.sourceClosure
         sourceStored = sources.sourceStored
         
         listUpdater = sources.listUpdater
         diffable = sources.diffable
-        
-        createSnapshotWith = sources.createSnapshotWith
-        itemFor = sources.itemFor
-        updateContext = sources.updateContext
-        collectionCellForItem = cellProvider
+    }
+    
+    func observeOnCollectionViewUpdate(_ provider: @escaping (UICollectionView, ListChange) -> Void) -> Sources<SubSource, Item, SourceSnapshot, UIViewType> {
+        var sources = self
+        sources.collectionViewWillUpdate = provider
+        return sources
     }
     
     func provideCollectionView(_ provider: @escaping () -> UICollectionView) -> Sources<SubSource, Item, SourceSnapshot, UIViewType> {
@@ -136,7 +142,7 @@ import SwiftUI
 
 public extension Sources where UIViewType == UICollectionView {
     func makeCoordinator() -> UIViewType.Coordinator {
-        return collectionCoordinator()
+        return makeCollectionCoordinator()
     }
     
     func makeUIView(context: UIViewRepresentableContext<Self>) -> UIViewType {
@@ -146,7 +152,7 @@ public extension Sources where UIViewType == UICollectionView {
     }
     
     func updateUIView(_ uiView: UIViewType, context: UIViewRepresentableContext<Self>) {
-        performReload()
+        performReloadData()
     }
 }
 

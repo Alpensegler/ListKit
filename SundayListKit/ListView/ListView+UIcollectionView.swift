@@ -37,7 +37,6 @@ extension UICollectionView: ListView {
     public func reloadSynchronously(completion: ((Bool) -> Void)? = nil) {
         reloadData()
         layoutIfNeeded()
-        didReload = true
         completion?(true)
     }
     

@@ -35,7 +35,6 @@ extension UITableView: ListView {
     
     public func reloadSynchronously(completion: ((Bool) -> Void)? = nil) {
         reloadData()
-        didReload = true
         completion?(true)
     }
     

@@ -29,6 +29,7 @@ public struct Sources<SubSource, Item, SourceSnapshot: SnapshotType, UIViewType>
     
     //MARK: - collection adapter
     var collectionView: (() -> UICollectionView)? = nil
+    var collectionViewWillUpdate: ((UICollectionView, ListChange) -> Void)? = nil
     
     var collectionCellForItem: ((CollectionContext<SourceSnapshot>, Item) -> UICollectionViewCell)! = nil
     var collectionSupplementaryView: ((CollectionContext<SourceSnapshot>, SupplementaryViewType, Item) -> UICollectionReusableView?)? = nil
@@ -41,6 +42,8 @@ public struct Sources<SubSource, Item, SourceSnapshot: SnapshotType, UIViewType>
     var collectionSizeForFooter: ((CollectionContext<SourceSnapshot>, UICollectionViewLayout, Int) -> CGSize)? = nil
     
     //MARK: - table adapter
+    var tableViewWillUpdate: ((UITableView, ListChange) -> Void)? = nil
+    
     var tableCellForItem: ((TableContext<SourceSnapshot>, Item) -> UITableViewCell)! = nil
     var tableHeader: ((TableContext<SourceSnapshot>, Int) -> UIView?)? = nil
     var tableFooter: ((TableContext<SourceSnapshot>, Int) -> UIView?)? = nil
@@ -51,14 +54,4 @@ public struct Sources<SubSource, Item, SourceSnapshot: SnapshotType, UIViewType>
     var tableHeightForItem: ((TableContext<SourceSnapshot>, Item) -> CGFloat)? = nil
     var tableHeightForHeader: ((TableContext<SourceSnapshot>, Int) -> CGFloat)? = nil
     var tableHeightForFooter: ((TableContext<SourceSnapshot>, Int) -> CGFloat)? = nil
-    
-    public mutating func updateWithReloadCurrent(source: SubSource, animated: Bool = true, _ completion: ((Bool) -> Void)? = nil) {
-        self.sourceStored = source
-        performReloadCurrent(animated: animated, completion)
-    }
-    
-    public mutating func updateWithReload(source: SubSource, _ completion: ((Bool) -> Void)? = nil) {
-        self.sourceStored = source
-        performReload(completion)
-    }
 }

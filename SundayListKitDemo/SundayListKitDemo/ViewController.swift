@@ -43,13 +43,12 @@ class ViewController: UIViewController, TableListAdapter, CollectionListAdapter 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        tableView.coordinator = tableCoordinator()
-        collectionView.coordinator = collectionCoordinator()
-        performUpdate()
+        setCollectionView(collectionView)
+        setTableView(tableView)
     }
     
     @IBAction func onRefresh(_ sender: Any) {
-        performUpdate()
+        performUpdate(animated: false)
     }
 }
 

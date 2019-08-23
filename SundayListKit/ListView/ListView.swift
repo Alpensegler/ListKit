@@ -46,24 +46,6 @@ public protocol ListViewCoordinator: NSObject {
     func setListView(_ listView: List)
 }
 
-private var coordinatorKey: Void?
-private var didReloadKey: Void?
-
-extension ListView {
-    public var coordinator: Coordinator? {
-        get { return Associator.getValue(key: &coordinatorKey, from: self) }
-        set {
-            Associator.set(value: newValue, key: &coordinatorKey, to: self)
-            newValue?.setListView(self)
-        }
-    }
-    
-    public var didReload: Bool {
-        get { return Associator.getValue(key: &didReloadKey, from: self, initialValue: false) }
-        set { Associator.set(value: newValue, key: &didReloadKey, to: self) }
-    }
-}
-
 public protocol ListViewAnimationOption {
     init(animated: Bool)
 }

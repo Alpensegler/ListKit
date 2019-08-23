@@ -6,7 +6,7 @@
 //  Copyright © 2019 Frain. All rights reserved.
 //
 
-public enum Change<Index: IndexPathOffsetable>: IndexPathOffsetable {
+public enum Change<Index: IndexPathOffsetable>: IndexPathOffsetable, CustomStringConvertible {
     case insert(associatedWith: Index?, isReload: Bool)
     case delete(associatedWith: Index?, isReload: Bool)
     
@@ -21,12 +21,41 @@ public enum Change<Index: IndexPathOffsetable>: IndexPathOffsetable {
             return .delete(associatedWith: index?.addingOffset(offset), isReload: isReload)
         }
     }
+    
+    public var description: String {
+        switch self {
+        case let .insert(associatedWith: index, isReload: isReload):
+            if isReload { return "reload" }
+            if let index = index { return "move from " + String(describing: index) }
+            return "insert"
+        case let .delete(associatedWith: index, isReload: isReload):
+            if isReload { return "reload" }
+            if let index = index { return "move to " + String(describing: index) }
+            return "delete"
+        }
+    }
 }
 
-public enum ListChange: Equatable {
+public enum ListChange: Equatable, IndexPathOffsetable, CustomStringConvertible {
     case item(indexPath: IndexPath, change: Change<IndexPath>)
     case section(index: Int, change: Change<Int>)
     case reload
+    
+    public func addingOffset(_ offset: IndexPath) -> ListChange {
+        switch self {
+        case .item(let indexPath, let change): return .item(indexPath: indexPath.addingOffset(offset), change: change.addingOffset(offset))
+        case .section(let index, let change): return .section(index: index.addingOffset(offset), change: change.addingOffset(offset))
+        case .reload: return .reload
+        }
+    }
+    
+    public var description: String {
+        switch self {
+        case .item(let indexPath, let change): return "item at \(indexPath), \(change)"
+        case .section(let index, let change): return "section at \(index), \(change)"
+        case .reload: return "reload"
+        }
+    }
 }
 
 public struct UpdateContext<Snapshot: SnapshotType> {
@@ -104,7 +133,7 @@ extension UpdateContext {
         listView.perform(update: {
             setData()
             for change in changes {
-                switch change {
+                switch change.addingOffset(offset) {
                 case let .section(index: index, change: .insert(associatedWith: assoc, isReload: isReload)):
                     if let assoc = assoc {
                         isReload ? listView.reloadSections([index]) : listView.moveSection(assoc, toSection: index)

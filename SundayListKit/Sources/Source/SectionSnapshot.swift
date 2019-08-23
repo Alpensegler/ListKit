@@ -6,20 +6,14 @@
 //  Copyright © 2019 Frain. All rights reserved.
 //
 
-public protocol SectionSnapshot {
-    associatedtype SubSource: Collection
-    typealias Item = SubSource.Element
-    var elements: [Item] { get set }
+public protocol SectionSnapshot: CollectionSnapshotType {
+    associatedtype SubSource: Collection where SubSource.Element == Element
+    typealias Item = Element
     func item(at indexPath: IndexPath) -> Item
     init(_ source: SubSource)
 }
 
 extension Snapshot: SectionSnapshot where SubSource: Collection, SubSource.Element == Item {
-    public var elements: [Item] {
-        get { return subSource as! [Item] }
-        set { subSource = newValue }
-    }
-    
     public init(_ source: SubSource) {
         self.source = source
         self.subSource = Array(source)

@@ -8,15 +8,14 @@
 
 public protocol ListUpdatable {
     var listUpdater: ListUpdater { get }
-    func performUpdate(animated: Bool, completion: ((Bool) -> Void)?)
-//    func collectionView(_ collectionView: UICollectionView, didUpdateWith change: ListChange)
-//    func tableView(_ tableView: UITableView, didUpdateWith change: ListChange)
+    func collectionView(_ collectionView: UICollectionView, willUpdateWith change: ListChange)
+    func tableView(_ tableView: UITableView, willUpdateWith change: ListChange)
 }
 
 public extension ListUpdatable where Self: Source {
     var snapshot: SourceSnapshot {
         get {
-            return rawSnapshot ?? {
+            return listUpdater.snapshotValue as? SourceSnapshot ?? {
                 let snapshot = createSnapshot(with: source)
                 listUpdater.snapshotValue = snapshot
                 return snapshot
@@ -26,118 +25,113 @@ public extension ListUpdatable where Self: Source {
     }
     
     func performUpdate(animated: Bool = true, completion: ((Bool) -> Void)? = nil) {
-        if let sourceSnapshot = rawSnapshot {
-            let snapshot = createSnapshot(with: source)
-            self.snapshot = snapshot
-            let updateContext = UpdateContext(rawSnapshot: sourceSnapshot, snapshot: snapshot)
-            update(context: updateContext)
-            let changes = updateContext.getChanges()
-            listUpdater.collectionContext.forEach {
-                guard let listView = $0.listView else { return }
-                self.snapshot = sourceSnapshot
-                updateContext.perform(changes: changes, for: listView, offset: $0.offset, animated: animated, completion: completion) {
-                    self.snapshot = snapshot
-                    listUpdater.onChangeObservers.forEach { observe in
-                        changes.forEach { observe($0) }
-                    }
-                }
-            }
-            listUpdater.tableContext.forEach {
-                guard let listView = $0.listView else { return }
-                updateContext.perform(changes: changes, for: listView, offset: $0.offset, animated: animated, completion: completion) {
-                    self.snapshot = snapshot
-                    listUpdater.onChangeObservers.forEach { observe in
-                        changes.forEach { observe($0) }
-                    }
-                }
-            }
-        } else {
-            performReload(completion)
-        }
+        perform(animated: animated, completion: completion) { update(context: $0) }
     }
     
-    func performReload(_ completion: ((Bool) -> Void)? = nil) {
+    func performReloadCurrent(animated: Bool = true, completion: ((Bool) -> Void)? = nil) {
+        perform(animated: animated, completion: completion) { $0.reloadCurrent() }
+    }
+    
+    func performReloadData(_ completion: ((Bool) -> Void)? = nil) {
         snapshot = createSnapshot(with: source)
-        if !listUpdater.onChangeObservers.isEmpty {
-            listUpdater.onChangeObservers.forEach { $0(.reload) }
+        listUpdater.collectionContexts.lazy.compactMap { $0.listView() }.forEach {
+            collectionView($0, willUpdateWith: .reload)
+            $0.reloadSynchronously(completion: completion)
         }
-        listUpdater.reloadSynchronously(completion)
-    }
-    
-    func performReloadCurrent(animated: Bool = true, _ completion: ((Bool) -> Void)? = nil) {
-        if let sourceSnapshot = rawSnapshot {
-            let snapshot = createSnapshot(with: source)
-            let updateContext = UpdateContext(rawSnapshot: sourceSnapshot, snapshot: snapshot)
-            updateContext.reloadCurrent()
-            let changes = updateContext.getChanges()
-            listUpdater.collectionContext.forEach {
-                guard let listView = $0.listView else { return }
-                updateContext.perform(changes: changes, for: listView, offset: $0.offset, animated: animated, completion: completion) {
-                    self.snapshot = snapshot
-                    listUpdater.onChangeObservers.forEach { observe in
-                        changes.forEach { observe($0) }
-                    }
-                }
-            }
-            listUpdater.tableContext.forEach {
-                guard let listView = $0.listView else { return }
-                updateContext.perform(changes: changes, for: listView, offset: $0.offset, animated: animated, completion: completion) {
-                    self.snapshot = snapshot
-                    listUpdater.onChangeObservers.forEach { observe in
-                        changes.forEach { observe($0) }
-                    }
-                }
-            }
-        } else {
-            performReload(completion)
+        listUpdater.tableContexts.lazy.compactMap { $0.listView() }.forEach {
+            tableView($0, willUpdateWith: .reload)
+            $0.reloadSynchronously(completion: completion)
         }
     }
     
-    func observeOnChange(_ change: @escaping (ListChange) -> Void) {
-        listUpdater.onChangeObservers.append(change)
-    }
+    func collectionView(_ collectionView: UICollectionView, willUpdateWith change: ListChange) { }
+    
+    func tableView(_ tableView: UITableView, willUpdateWith change: ListChange) { }
 }
 
 extension ListUpdatable where Self: Source {
-    var rawSnapshot: SourceSnapshot? { return listUpdater.snapshotValue as? SourceSnapshot }
+    func perform(animated: Bool, completion: ((Bool) -> Void)?, with update: (UpdateContext<SourceSnapshot>) -> Void) {
+        let rawSnapshot = snapshot
+        let snapshot = createSnapshot(with: source)
+        let updateContext = UpdateContext(rawSnapshot: rawSnapshot, snapshot: snapshot)
+        update(updateContext)
+        updateWith(updateContext: updateContext, animated: animated, completion: completion)
+    }
+    
+    func updateWith(updateContext: UpdateContext<SourceSnapshot>, animated: Bool, completion: ((Bool) -> Void)?) {
+        let changes = updateContext.getChanges()
+        func update<List: ListView>(context: ListUpdater.Context<List>, updates: (List, ListChange) -> Void) {
+            guard let listView = context.listView() else { return }
+            self.snapshot = updateContext.rawSnapshot
+            updateContext.perform(changes: changes, for: listView, offset: context.offset, animated: animated, completion: completion) {
+                self.snapshot = updateContext.snapshot
+                changes.forEach { updates(listView, $0) }
+            }
+        }
+        
+        listUpdater.collectionContexts.forEach { update(context: $0) { collectionView($0, willUpdateWith: $1) } }
+        listUpdater.tableContexts.forEach { update(context: $0) { tableView($0, willUpdateWith: $1) } }
+    }
 }
 
 extension ListUpdatable {
-    func setCollectionView(_ collectionView: UICollectionView, offset: IndexPath = .default) {
-        if let index = listUpdater.collectionContext.firstIndex(where: { $0.listView === collectionView }) {
-            listUpdater.collectionContext[index].offset = offset
-        } else {
-            listUpdater.collectionContext.append(.init(listView: collectionView, offset: offset))
-        }
+    typealias ListContext<List: ListView> = ListUpdater.Context<List>
+    
+    func addCollectionContext(_ context: ListContext<UICollectionView>) {
+        guard let collectionView = context.listView() else { return }
+        _add(context: context, to: listUpdater, listView: collectionView)
+        collectionView.reloadSynchronously()
     }
     
-    func setTableView(_ tableView: UITableView, offset: IndexPath = .default) {
-        if let index = listUpdater.tableContext.firstIndex(where: { $0.listView === tableView }) {
-            listUpdater.tableContext[index].offset = offset
+    func addTableContext(_ context: ListContext<UITableView>) {
+        guard let tableView = context.listView() else { return }
+        _add(context: context, to: listUpdater, listView: tableView)
+        tableView.reloadSynchronously()
+    }
+    
+    func _add<List: ListView>(context: ListContext<List>, to listUpdater: ListUpdater, listView: List) {
+        if let index = listUpdater[keyPath: context.keyPath].firstIndex(where: { $0.listView() === listView }) {
+            listUpdater[keyPath: context.keyPath][index] = context
         } else {
-            listUpdater.tableContext.append(.init(listView: tableView, offset: offset))
+            listUpdater[keyPath: context.keyPath].append(context)
+        }
+        context.update(self, listView)
+    }
+    
+    func _updateSnapshotSubSource<List: ListView>(_ context: ListContext<List>, listView: List) {
+        guard let subSourceContainer = listUpdater.snapshotValue as? SubSourceContainSnapshot else { return }
+        for (index, source) in subSourceContainer.subSource.enumerated() {
+            guard let updatable = source as? ListUpdatable else { continue }
+            let offset = subSourceContainer.subSourceOffsets[index]
+            let rawSnapshot = subSourceContainer.subSnapshots[index]
+            let context = ListUpdater.Context(offset: offset, keyPath: context.keyPath, update: context.update, listView: context.listView) { [rawSnapshot] snapshot in
+                let rawSectionCount = rawSnapshot.numbersOfSections()
+                let sectionCount = snapshot.numbersOfSections()
+                if sectionCount > 0, rawSectionCount > 0 {
+                    
+                } else if sectionCount < 0, rawSectionCount < 0 {
+                    
+                }
+            }
+            updatable._add(context: context, to: updatable.listUpdater, listView: listView)
         }
     }
 }
 
-
 public class ListUpdater {
-    class Context<List: ListView> {
-        weak var listView: List?
-        var offset: IndexPath
-        
-        init(listView: List, offset: IndexPath) {
-            self.listView = listView
-            self.offset = offset
-        }
+    struct Context<List: ListView> {
+        let offset: IndexPath
+        let keyPath: ReferenceWritableKeyPath<ListUpdater, [Context<List>]>
+        let update: (ListUpdatable, List) -> ()
+        let listView: () -> List?
+        let snapshotSetter: (SnapshotType) -> Void
     }
     
-    var tableContext = [Context<UITableView>]()
-    var collectionContext = [Context<UICollectionView>]()
-    var snapshotValue: Any?
-    var currentSnapshotValue: Any?
+    var tableContexts = [Context<UITableView>]()
+    var collectionContexts = [Context<UICollectionView>]()
     var sourceValue: Any?
-    var onChangeObservers = [(ListChange) -> Void]()
+    var updateContextValue: Any?
+    var snapshotValue: Any?
     
     var isUpdating = false
     
@@ -149,11 +143,6 @@ public class ListUpdater {
     
     func endUpdate() {
         isUpdating = false
-    }
-    
-    public func reloadSynchronously(_ completion: ((Bool) -> Void)? = nil) {
-        tableContext.forEach { $0.listView?.reloadSynchronously(completion: completion) }
-        collectionContext.forEach { $0.listView?.reloadSynchronously(completion: completion) }
     }
 
     //TODO

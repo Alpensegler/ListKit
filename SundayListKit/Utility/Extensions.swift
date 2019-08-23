@@ -54,6 +54,6 @@ extension IndexPath {
 
 extension IndexPath: IndexPathOffsetable {
     public func addingOffset(_ offset: IndexPath) -> IndexPath {
-        return IndexPath(item: offset.item + offset.item, section: offset.section + section)
+        return IndexPath(item: item + offset.item, section: section + section)
     }
 }

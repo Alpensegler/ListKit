@@ -21,23 +21,23 @@ where
     UIViewType == Never
 {
     init<ID: Hashable>(id: ID, _ sources: SubSource) {
-        sourceStored = sources
-        sourceClosure = nil
-        
-        diffable = AnyDiffable(id)
-        
         createSnapshotWith = { .init($0) }
         itemFor = { $0.item(at: $1) }
         updateContext = { $0.diffUpdate() }
+        
+        sourceClosure = nil
+        sourceStored = sources
+        
+        diffable = AnyDiffable(id)
     }
     
     init(_ sources: SubSource) {
-        sourceStored = sources
-        sourceClosure = nil
-        
         createSnapshotWith = { .init($0) }
         itemFor = { $0.item(at: $1) }
         updateContext = { $0.diffUpdate() }
+        
+        sourceClosure = nil
+        sourceStored = sources
     }
 }
 
@@ -56,12 +56,12 @@ where
     private init(_ sources: [SubSource.Element]) {
         var _sources = SubSource()
         _sources.append(contentsOf: sources)
-        sourceStored = _sources
-        sourceClosure = nil
-        
         createSnapshotWith = { .init($0) }
         itemFor = { $0.item(at: $1) }
         updateContext = { $0.diffUpdate() }
+        
+        sourceClosure = nil
+        sourceStored = _sources
     }
     
     init<S: Source>(source: S?) where S.Item == Item {
@@ -152,12 +152,12 @@ where
     UIViewType == Never
 {
     private init(_items: SubSource, customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.reloadCurrent() }) {
-        sourceClosure = nil
-        sourceStored = _items
-        
         itemFor = { $0.item(at: $1) }
         createSnapshotWith = { .init($0) }
         updateContext = customUpdate
+        
+        sourceClosure = nil
+        sourceStored = _items
     }
     
     private init<ID: Hashable>(id: ID, _items: SubSource, customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.reloadCurrent() }) {
@@ -378,12 +378,12 @@ where
     UIViewType == Never
 {
     private init(_item: Item, customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.reloadCurrent() }) {
-        sourceClosure = nil
-        sourceStored = _item
-        
         itemFor = { (snapshot, _) in snapshot.item }
         createSnapshotWith = { .init($0) }
         updateContext = customUpdate
+        
+        sourceClosure = nil
+        sourceStored = _item
     }
     
     private init<ID: Hashable>(id: ID, _item: Item, customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.reloadCurrent() }) {

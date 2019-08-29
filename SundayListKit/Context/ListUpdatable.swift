@@ -223,11 +223,7 @@ private extension ListUpdater {
         let offset = subSourceContainer.subSourceOffsets[index]
         let context = ListUpdater.Context(offset: offset, keyPath: context.keyPath, reloadUpdate: context.reloadUpdate, listView: context.listView) { [weak self] snapshot in
             guard let self = self, var subSourceContainer = self.snapshotValue as? SubSourceContainSnapshot else { return }
-            if let snapshot = snapshot {
-                subSourceContainer.updateSubSource(with: snapshot, at: index)
-            } else {
-                subSourceContainer.removeSubSource(at: index)
-            }
+            subSourceContainer.updateSubSource(with: snapshot, at: index)
             self.snapshotValue = subSourceContainer
             self.updateAllSnapshotSubSource(from: index)
         }

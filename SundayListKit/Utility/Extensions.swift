@@ -10,6 +10,12 @@ public protocol IndexPathOffsetable: Equatable {
     func addingOffset(_ offset: IndexPath) -> Self
 }
 
+public extension IndexPathOffsetable {
+    mutating func addOffset(_ offset: IndexPath) {
+        self = addingOffset(offset)
+    }
+}
+
 extension Int: IndexPathOffsetable {
     public func addingOffset(_ offset: IndexPath) -> Int {
         return self + offset.section

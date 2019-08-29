@@ -46,7 +46,7 @@ extension Snapshot: SectionSnapshot where SubSource: Collection, SubSource.Eleme
     }
     
     mutating func resetIndicesAndOffset() {
-        subSourceIndices = [Array(subSource.indices)]
+        subSourceIndices = [.cell(Array(subSource.indices))]
         subSourceOffsets = subSource.indices.map { IndexPath(item: $0) }
     }
 }

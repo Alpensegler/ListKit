@@ -14,10 +14,6 @@ public protocol ListSnapshot: CollectionSnapshotType where Element: Source {
     func index(of indexPath: IndexPath) -> Int
     func item(at indexPath: IndexPath) -> Element.Item
     
-    mutating func deleteElement(at: Int)
-    mutating func insertElement(element: Element, at: Int)
-    mutating func reloadElement(element: Element, at: Int)
-    
     init(_ source: SubSource)
 }
 
@@ -31,41 +27,33 @@ extension Snapshot: ListSnapshot where SubSource: Collection, Element: Source, I
     }
     
     public func index(of indexPath: IndexPath) -> Int {
-        return subSourceIndices[indexPath]
+        let section = subSourceIndices[indexPath.section]
+        switch section {
+        case .section(let index, _): return index
+        case .cell(let indices): return indices[indexPath.item]
+        }
     }
     
     public func item(at indexPath: IndexPath) -> Element.Item {
-        let index = subSourceIndices[indexPath]
+        let index = self.index(of: indexPath)
         let offset = subSourceOffsets[index]
         let subSnapshot = elementsSnapshots[index]
         let indexPath = IndexPath(item: indexPath.item - offset.item, section: indexPath.section - offset.section)
         return elements[index].item(for: subSnapshot, at: indexPath)
     }
-    
-    mutating public func deleteElement(at: Int) {
-        
-    }
-    
-    mutating public func insertElement(element: Element, at: Int) {
-        
-    }
-    
-    mutating public func reloadElement(element: Element, at: Int) {
-        
-    }
 }
 
 public extension Snapshot where SubSource: Collection, SubSource.Element: Source, SubSource.Element.Item == Item {
     init(_ source: SubSource) {
-        let subSourceCollection = source
-        var subSource = [SubSource.Element]()
-        var subSnapshots = [SnapshotType]()
-        var subSourceIndices = [[Int]]()
-        var subSourceOffsets = [IndexPath]()
+        self.source = source
+        self.subSource = []
+        self.subSnapshots = []
+        self.subSourceIndices = []
+        self.subSourceOffsets = []
+        self.isSectioned = true
         var offset = IndexPath(item: 0, section: 0)
-        var lastSourceWasSection = false
         
-        for source in subSourceCollection {
+        for source in source {
             let snapshot: SubSource.Element.SourceSnapshot
             if let updater = (source as? ListUpdatable)?.listUpdater {
                 snapshot = updater.snapshotValue as? SubSource.Element.SourceSnapshot ?? {
@@ -76,87 +64,94 @@ public extension Snapshot where SubSource: Collection, SubSource.Element: Source
             } else {
                 snapshot = source.createSnapshot(with: source.source)
             }
-            Snapshot<SubSource, Item>.add(snapshot: snapshot, offset: &offset, lastSourceWasSection: &lastSourceWasSection, subSnapshots: &subSnapshots, subSourceIndices: &subSourceIndices, subSourceOffsets: &subSourceOffsets)
+            add(snapshot: snapshot, offset: &offset)
             subSource.append(source)
         }
-        
-        self.source = subSourceCollection
-        self.subSource = subSource
-        self.subSnapshots = subSnapshots
-        self.subSourceIndices = subSourceIndices
-        self.subSourceOffsets = subSourceOffsets
-        self.isSectioned = true
     }
     
 }
 
 extension Snapshot: SubSourceContainSnapshot where SubSource: Collection, Element: Source, Item == Element.Item {
-    mutating func removeSubSource(at index: Int) {
-        subSnapshots.remove(at: index)
-        subSource.remove(at: index)
-        updateSubSourceIndex(from: index)
-    }
-    
-    mutating func updateSubSource(with snapshot: SnapshotType, at index: Int) {
-        subSnapshots[index] = snapshot
-        updateSubSourceIndex(from: index)
-    }
-    
-    mutating func updateSubSourceIndex(from index: Int) {
-        print("before set:", self)
-        var offset = subSourceOffsets[index]
-        var lastSourceWasSection: Bool
-        if index > 0 {
-            let lastOffset = subSourceOffsets[index - 1]
-            let distance = IndexPath(item: offset.item - lastOffset.item, section: offset.section - lastOffset.section)
-            if distance.section > 0 {
-                lastSourceWasSection = true
-                subSourceIndices.removeSubrange(offset.section...)
+    mutating func updateSubSource(with snapshot: SnapshotType?, at index: Int) {
+        let rawSnapshot = subSnapshots[index]
+        let offset = subSourceOffsets[index]
+        if let snapshot = snapshot {
+            subSnapshots[index] = snapshot
+        } else {
+            subSnapshots.remove(at: index)
+            subSource.remove(at: index)
+        }
+        if rawSnapshot.isSectioned, snapshot?.isSectioned != false {
+            let rawSectionCount = rawSnapshot.numbersOfSections()
+            let sectionCount = snapshot?.numbersOfSections()
+            if let snapshot = snapshot, let sectionCount = sectionCount {
+                subSourceIndices.replaceSubrange(offset.section..<offset.section + rawSectionCount, with: (0..<sectionCount).map { .section(index, snapshot.numbersOfItems(in: $0)) })
             } else {
-                lastSourceWasSection = false
-                subSourceIndices[offset.section].removeSubrange(offset.item...)
-                if offset.section + 1 < subSourceIndices.count {
-                    subSourceIndices.removeSubrange((offset.section + 1)...)
+                subSourceIndices.removeSubrange(offset.section..<offset.section + rawSectionCount)
+            }
+            let countOffset = (sectionCount ?? 0) - rawSectionCount
+            if index + 1 < subSourceOffsets.count, countOffset != 0 {
+                for i in index + 1..<subSourceOffsets.count {
+                    subSourceOffsets[i].addOffset(IndexPath(section: countOffset))
+                }
+            }
+        } else if !rawSnapshot.isSectioned, snapshot?.isSectioned != true, case var .cell(indices) = subSourceIndices[offset.section] {
+            let rawCellCount = rawSnapshot.numbersOfItems(in: 0)
+            let cellCount = snapshot?.numbersOfItems(in: 0)
+            func updateOffset() {
+                subSourceIndices[offset.section] = .cell(indices)
+                let countOffset = (cellCount ?? 0) - rawCellCount
+                if index + 1 < subSourceOffsets.count, countOffset != 0 {
+                    for i in index + 1 ..< subSourceOffsets.count {
+                        if subSourceOffsets[i].section != offset.section { break }
+                        subSourceOffsets[i].addOffset(IndexPath(item: countOffset))
+                    }
+                }
+            }
+            if let cellCount = cellCount {
+                indices.replaceSubrange(offset.item..<offset.item + rawCellCount, with: Array(repeating: index, count: cellCount))
+                updateOffset()
+            } else {
+                indices.removeSubrange(offset.item..<offset.item + rawCellCount)
+                if indices.isEmpty {
+                    subSourceIndices.remove(at: offset.section)
+                    if index + 1 < subSourceOffsets.count {
+                        for i in index + 1..<subSourceOffsets.count {
+                            subSourceOffsets[i].addOffset(IndexPath(section: -1))
+                        }
+                    }
+                } else {
+                    updateOffset()
                 }
             }
         } else {
-            lastSourceWasSection = false
-            subSourceIndices.removeAll()
+            fatalError()
         }
-        
-        let snapshots = subSnapshots[index...]
-        
-        subSourceOffsets.removeSubrange(index...)
-        subSnapshots.removeSubrange(index...)
-        
-        for snapshot in snapshots {
-            Snapshot<SubSource, Item>.add(snapshot: snapshot, offset: &offset, lastSourceWasSection: &lastSourceWasSection, subSnapshots: &subSnapshots, subSourceIndices: &subSourceIndices, subSourceOffsets: &subSourceOffsets)
-        }
-        print("after set:", self)
     }
     
-    static func add(snapshot: SnapshotType, offset: inout IndexPath, lastSourceWasSection: inout Bool, subSnapshots: inout [SnapshotType], subSourceIndices: inout [[Int]], subSourceOffsets: inout [IndexPath]) {
+    mutating func add(snapshot: SnapshotType, offset: inout IndexPath) {
         if snapshot.isSectioned {
-            let sectionCount = snapshot.numbersOfSections()
-            if offset.item > 0 {
+            if subSourceIndices.last != nil {
                 offset = IndexPath(item: 0, section: offset.section + 1)
             }
-            subSourceOffsets.append(offset)
-            lastSourceWasSection = true
-            for i in 0..<sectionCount {
-                subSourceIndices.append(Array(repeating: subSnapshots.count, count: snapshot.numbersOfItems(in: i)))
+            for i in 0..<snapshot.numbersOfSections() {
+                subSourceIndices.append(.section(subSnapshots.count, snapshot.numbersOfItems(in: i)))
             }
-            offset.section += sectionCount
+            subSourceOffsets.append(offset)
         } else {
-            subSourceOffsets.append(offset)
-            lastSourceWasSection = false
             let cellCount = snapshot.numbersOfItems(in: 0)
-            if subSourceIndices.isEmpty || lastSourceWasSection {
-                subSourceIndices.append(Array(repeating: subSnapshots.count, count: cellCount))
-            } else {
-                subSourceIndices[subSourceIndices.lastIndex].append(contentsOf: Array(repeating: subSnapshots.count, count: cellCount))
+            switch subSourceIndices.last {
+            case .cell(var cells)?:
+                offset = IndexPath(item: offset.item + 1, section: offset.section)
+                cells.append(contentsOf: Array(repeating: subSnapshots.count, count: cellCount))
+                subSourceIndices[subSourceIndices.lastIndex] = .cell(cells)
+            case .section?:
+                offset = IndexPath(item: 0, section: offset.section + 1)
+                fallthrough
+            case .none:
+                subSourceIndices.append(.cell(Array(repeating: subSnapshots.count, count: cellCount)))
             }
-            offset.item += cellCount
+            subSourceOffsets.append(offset)
         }
         subSnapshots.append(snapshot)
     }

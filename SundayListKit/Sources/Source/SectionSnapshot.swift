@@ -11,6 +11,10 @@ public protocol SectionSnapshot: CollectionSnapshotType {
     typealias Item = Element
     func item(at indexPath: IndexPath) -> Item
     init(_ source: SubSource)
+    
+    mutating func deleteItem(at index: Int)
+    mutating func insertItem(_ item: Item, at index: Int)
+    mutating func reloadItem(_ item: Item, at index: Int)
 }
 
 extension Snapshot: SectionSnapshot where SubSource: Collection, SubSource.Element == Item {
@@ -18,26 +22,60 @@ extension Snapshot: SectionSnapshot where SubSource: Collection, SubSource.Eleme
         self.source = source
         self.subSource = Array(source)
         self.subSnapshots = []
-        self.subSourceIndices = [Array(subSource.indices)]
-        self.subSourceOffsets = subSource.indices.map { IndexPath(item: $0) }
+        self.isSectioned = true
+        resetIndicesAndOffset()
     }
     
     public func item(at indexPath: IndexPath) -> Item {
         return elements[indexPath.item]
     }
+    
+    public mutating func deleteItem(at index: Int) {
+        subSource.remove(at: index)
+        resetIndicesAndOffset()
+    }
+    
+    public mutating func insertItem(_ item: Item, at index: Int) {
+        subSource.insert(item, at: index)
+        resetIndicesAndOffset()
+    }
+    
+    public mutating func reloadItem(_ item: Item, at index: Int) {
+        subSource[index] = item
+        resetIndicesAndOffset()
+    }
+    
+    mutating func resetIndicesAndOffset() {
+        subSourceIndices = [Array(subSource.indices)]
+        subSourceOffsets = subSource.indices.map { IndexPath(item: $0) }
+    }
 }
 
 public extension UpdateContext where Snapshot: SectionSnapshot {
-    func insertElement(at index: Int) { insertItem(at: IndexPath(item: index)) }
-    func deleteElement(at index: Int) { deleteItem(at: IndexPath(item: index)) }
-    func reloadElement(at index: Int) { reloadItem(at: IndexPath(item: index)) }
-    func moveElement(at index: Int, to newIndex: Int) { moveItem(at: IndexPath(item: index), to: IndexPath(item: newIndex)) }
+    func insertItem(at index: Int) { insertItem(at: IndexPath(item: index)) }
+    func deleteItem(at index: Int) { deleteItem(at: IndexPath(item: index)) }
+    func reloadItem(at index: Int) { reloadItem(at: IndexPath(item: index)) }
+    func moveItem(at index: Int, to newIndex: Int) { moveItem(at: IndexPath(item: index), to: IndexPath(item: newIndex)) }
 }
 
 public extension Source where SubSource: Collection, SourceSnapshot == Snapshot<SubSource, Item>, Element == Item {
     func createSnapshot(with source: SubSource) -> SourceSnapshot { return .init(source) }
     func item(for snapshot: SourceSnapshot, at indexPath: IndexPath) -> Item {
         return snapshot.item(at: indexPath)
+    }
+}
+
+public extension Source where SourceSnapshot: SectionSnapshot, Item == SourceSnapshot.Item, Self: ListUpdatable {
+    func insert(item: Item, at index: Int) {
+        updateOrAddToContext(snapshotUpdate: [{ $0.insertItem(item, at: index) }], contextUpdate: [{ $0.insertItem(at: index) }])
+    }
+    
+    func reload(item: Item, at index: Int) {
+        updateOrAddToContext(snapshotUpdate: [{ $0.reloadItem(item, at: index) }], contextUpdate: [{ $0.reloadItem(at: index) }])
+    }
+    
+    func deleteItem(at index: Int) {
+        updateOrAddToContext(snapshotUpdate: [{ $0.deleteItem(at: index) }], contextUpdate: [{ $0.deleteItem(at: index) }])
     }
 }
 
@@ -55,9 +93,9 @@ public extension UpdateContext where Snapshot: SectionSnapshot {
         for change in diff {
             switch change {
             case .insert(offset: let newIndex, _, _):
-                insertElement(at: newIndex)
+                insertItem(at: newIndex)
             case .remove(offset: let oldIndex, _, _):
-                deleteElement(at: oldIndex)
+                deleteItem(at: oldIndex)
             }
         }
     }
@@ -76,13 +114,13 @@ public extension UpdateContext where Snapshot: SectionSnapshot {
             switch change {
             case .insert(offset: let newIndex, element: _, associatedWith: let assoc):
                 if let oldIndex = assoc {
-                    moveElement(at: oldIndex, to: newIndex)
+                    moveItem(at: oldIndex, to: newIndex)
                 } else {
-                    insertElement(at: newIndex)
+                    insertItem(at: newIndex)
                 }
             case .remove(offset: let oldIndex, element: _, associatedWith: let assoc):
                 if assoc == nil {
-                    deleteElement(at: oldIndex)
+                    deleteItem(at: oldIndex)
                 }
             }
         }
@@ -103,19 +141,19 @@ public extension UpdateContext where Snapshot: SectionSnapshot {
             case .insert(offset: let newIndex, element: let element, associatedWith: let assoc):
                 if let oldIndex = assoc {
                     if oldIndex == newIndex {
-                        reloadElement(at: newIndex)
+                        reloadItem(at: newIndex)
                     } else if areEquivalent(rawSnapshot.elements[oldIndex], element) {
-                        moveElement(at: oldIndex, to: newIndex)
+                        moveItem(at: oldIndex, to: newIndex)
                     } else {
-                        deleteElement(at: oldIndex)
-                        insertElement(at: newIndex)
+                        deleteItem(at: oldIndex)
+                        insertItem(at: newIndex)
                     }
                 } else {
-                    insertElement(at: newIndex)
+                    insertItem(at: newIndex)
                 }
             case .remove(offset: let oldIndex, element: _, associatedWith: let assoc):
                 if assoc == nil {
-                    deleteElement(at: oldIndex)
+                    deleteItem(at: oldIndex)
                 }
             }
         }
@@ -139,9 +177,9 @@ public extension UpdateContext where Snapshot: SectionSnapshot, Snapshot.Item: E
         for change in diff {
             switch change {
             case .insert(offset: let newIndex, _, _):
-                insertElement(at: newIndex)
+                insertItem(at: newIndex)
             case .remove(offset: let oldIndex, _, _):
-                deleteElement(at: oldIndex)
+                deleteItem(at: oldIndex)
             }
         }
     }
@@ -166,13 +204,13 @@ public extension UpdateContext where Snapshot: SectionSnapshot, Snapshot.Item: H
             switch change {
             case .insert(offset: let newIndex, element: _, associatedWith: let assoc):
                 if let oldIndex = assoc {
-                    moveElement(at: oldIndex, to: newIndex)
+                    moveItem(at: oldIndex, to: newIndex)
                 } else {
-                    insertElement(at: newIndex)
+                    insertItem(at: newIndex)
                 }
             case .remove(offset: let oldIndex, element: _, associatedWith: let assoc):
                 if assoc == nil {
-                    deleteElement(at: oldIndex)
+                    deleteItem(at: oldIndex)
                 }
             }
         }
@@ -195,13 +233,13 @@ public extension UpdateContext where Snapshot: SectionSnapshot, Snapshot.Item: I
             switch change {
             case .insert(offset: let newIndex, element: _, associatedWith: let assoc):
                 if let oldIndex = assoc {
-                    moveElement(at: oldIndex, to: newIndex)
+                    moveItem(at: oldIndex, to: newIndex)
                 } else {
-                    insertElement(at: newIndex)
+                    insertItem(at: newIndex)
                 }
             case .remove(offset: let oldIndex, element: _, associatedWith: let assoc):
                 if assoc == nil {
-                    deleteElement(at: oldIndex)
+                    deleteItem(at: oldIndex)
                 }
             }
         }
@@ -227,19 +265,19 @@ public extension UpdateContext where Snapshot: SectionSnapshot, Snapshot.Item: D
             case .insert(offset: let newIndex, element: let element, associatedWith: let assoc):
                 if let oldIndex = assoc {
                     if oldIndex == newIndex {
-                        reloadElement(at: newIndex)
+                        reloadItem(at: newIndex)
                     } else if rawSnapshot.elements[oldIndex] == element {
-                        moveElement(at: oldIndex, to: newIndex)
+                        moveItem(at: oldIndex, to: newIndex)
                     } else {
-                        deleteElement(at: oldIndex)
-                        insertElement(at: newIndex)
+                        deleteItem(at: oldIndex)
+                        insertItem(at: newIndex)
                     }
                 } else {
-                    insertElement(at: newIndex)
+                    insertItem(at: newIndex)
                 }
             case .remove(offset: let oldIndex, element: _, associatedWith: let assoc):
                 if assoc == nil {
-                    deleteElement(at: oldIndex)
+                    deleteItem(at: oldIndex)
                 }
             }
         }

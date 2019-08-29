@@ -17,28 +17,31 @@ public protocol Context {
 }
 
 public extension Context {
-    var listIndexPath: IndexPath {
-        return indexPath.addingOffset(offset)
-    }
-    
     var cell: List.Cell? {
         return listView.cellForItem(at: listIndexPath)
     }
-}
-
-public extension Context where Snapshot: SectionSnapshot {
-    var item: Snapshot.Item {
-        return snapshot.item(at: indexPath)
+    
+    var item: Int {
+        return indexPath.item
+    }
+    
+    var section: Int {
+        return indexPath.section
+    }
+    
+    var listIndexPath: IndexPath {
+        return indexPath.addingOffset(offset)
     }
 }
 
 public extension Context where Snapshot: ListSnapshot {
-    var subSnapshot: Snapshot.Element.SourceSnapshot {
-        return snapshot.elementsSnapshot(at: indexPath)
+    var elementsItem: Snapshot.Element.Item {
+        return snapshot.item(at: indexPath)
     }
     
-    var item: Snapshot.Element.Item {
-        return snapshot.item(at: indexPath)
+    var element: Snapshot.Element {
+        let index = snapshot.index(of: indexPath)
+        return snapshot.elements[index]
     }
 }
 
@@ -58,6 +61,16 @@ public struct CollectionContext<Snapshot>: Context {
     }
 }
 
+public extension CollectionContext where Snapshot: ListSnapshot {
+    func elementsContext() -> CollectionContext<Snapshot.Element.SourceSnapshot> {
+        let index = snapshot.index(of: indexPath)
+        let subSnapshot = snapshot.elementsSnapshots[index]
+        let subOffset = snapshot.elementsOffsets[index]
+        let subIndexPath = IndexPath(item: indexPath.item - subOffset.item, section: indexPath.section - subOffset.section)
+        return .init(listView: listView, indexPath: subIndexPath, offset: offset.addingOffset(subOffset), snapshot: subSnapshot)
+    }
+}
+
 public struct TableContext<Snapshot>: Context {
     public typealias List = UITableView
     
@@ -71,6 +84,16 @@ public struct TableContext<Snapshot>: Context {
         self.indexPath = indexPath
         self.offset = offset
         self.listView = listView
+    }
+}
+
+public extension TableContext where Snapshot: ListSnapshot {
+    func elementsContext() -> TableContext<Snapshot.Element.SourceSnapshot> {
+        let index = snapshot.index(of: indexPath)
+        let subSnapshot = snapshot.elementsSnapshots[index]
+        let subOffset = snapshot.elementsOffsets[index]
+        let subIndexPath = IndexPath(item: indexPath.item - subOffset.item, section: indexPath.section - subOffset.section)
+        return .init(listView: listView, indexPath: subIndexPath, offset: offset.addingOffset(subOffset), snapshot: subSnapshot)
     }
 }
 

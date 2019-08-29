@@ -45,3 +45,34 @@ public extension TableDataSource {
     func sectionIndexTitles(for context: TableListContext) -> [String]? { return nil }
     func tableContext(_ context:  TableListContext, sectionForSectionIndexTitle title: String, at index: Int) -> Int { return index }
 }
+
+public extension TableDataSource where SourceSnapshot: ListSnapshot, SourceSnapshot.Element: TableDataSource {
+    //Providing Cells, Headers, and Footers
+    func tableContext(_ context:  TableListContext, cellForItem item: Item) -> UITableViewCell {
+        return context.elementCellForItem()
+    }
+    
+    func tableContext(_ context:  TableListContext, titleForHeaderInSection section: Int) -> String? {
+        return context.elementTitleForHeaderInSection()
+    }
+    
+    func tableContext(_ context:  TableListContext, titleForFooterInSection section: Int) -> String? {
+        return context.elementTitleForFooterInSection()
+    }
+}
+
+public extension TableContext where Snapshot: ListSnapshot, Snapshot.Element: TableDataSource  {
+    func elementCellForItem() -> UITableViewCell {
+        return element.tableContext(elementsContext(), cellForItem: elementsItem)
+    }
+    
+    func elementTitleForHeaderInSection() -> String? {
+        let context = elementsContext()
+        return element.tableContext(context, titleForHeaderInSection: context.section)
+    }
+    
+    func elementTitleForFooterInSection() -> String? {
+        let context = elementsContext()
+        return element.tableContext(context, titleForFooterInSection: context.section)
+    }
+}

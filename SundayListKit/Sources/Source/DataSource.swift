@@ -21,6 +21,10 @@ public struct DataSourceSnapshot {
 }
 
 extension DataSourceSnapshot: SnapshotType {
+    public var isSectioned: Bool {
+        return true
+    }
+    
     public func numbersOfSections() -> Int {
         return indices.count
     }
@@ -54,43 +58,35 @@ public extension DataSource {
 
 public extension DataSource where Self: ListUpdatable {
     func insertItems(at indexPaths: [IndexPath]) {
-        listUpdater.insertItems(at: indexPaths)
+        updateOrAddToContext(contextUpdate: indexPaths.map { index in { $0.insertItem(at: index) } })
     }
     
     func deleteItems(at indexPaths: [IndexPath]) {
-        listUpdater.deleteItems(at: indexPaths)
+        updateOrAddToContext(contextUpdate: indexPaths.map { index in { $0.deleteItem(at: index) } })
     }
     
     func reloadItems(at indexPaths: [IndexPath]) {
-        listUpdater.reloadItems(at: indexPaths)
+        updateOrAddToContext(contextUpdate: indexPaths.map { index in { $0.reloadItem(at: index) } })
     }
     
     func moveItem(at indexPath: IndexPath, to newIndexPath: IndexPath) {
-        listUpdater.moveItem(at: indexPath, to: newIndexPath)
+        updateOrAddToContext(contextUpdate: [{ $0.moveItem(at: indexPath, to: newIndexPath) }])
     }
     
     func insertSections(_ sections: IndexSet) {
-        listUpdater.insertSections(sections)
+        updateOrAddToContext(contextUpdate: sections.map { index in { $0.insertSection(index) } })
     }
     
     func deleteSections(_ sections: IndexSet) {
-        listUpdater.deleteSections(sections)
+        updateOrAddToContext(contextUpdate: sections.map { index in { $0.deleteSection(index) } })
     }
     
     func reloadSections(_ sections: IndexSet) {
-        listUpdater.reloadSections(sections)
+        updateOrAddToContext(contextUpdate: sections.map { index in { $0.reloadSection(index) } })
     }
     
     func moveSection(_ section: Int, toSection newSection: Int) {
-        listUpdater.moveSection(section, toSection: newSection)
-    }
-    
-    func startUpdate() {
-        listUpdater.startUpdate()
-    }
-    
-    func endUpdate() {
-        listUpdater.endUpdate()
+        updateOrAddToContext(contextUpdate: [{ $0.moveSection(section, toSection: newSection) }])
     }
 }
 

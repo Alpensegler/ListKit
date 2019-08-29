@@ -9,7 +9,7 @@
 import UIKit
 import SundayListKit
 
-class ViewController: UIViewController, TableListAdapter, CollectionListAdapter {
+class DoubleListViewController: UIViewController, TableListAdapter, CollectionListAdapter {
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var collectionView: UICollectionView!
     
@@ -48,7 +48,7 @@ class ViewController: UIViewController, TableListAdapter, CollectionListAdapter 
     }
     
     @IBAction func onRefresh(_ sender: Any) {
-        performUpdate(animated: false)
+        performUpdate()
     }
 }
 

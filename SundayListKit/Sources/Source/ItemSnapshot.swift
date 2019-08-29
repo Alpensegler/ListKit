@@ -16,10 +16,10 @@ extension Snapshot: ItemSnapshot where SubSource == Item {
     public typealias ItemSource = SubSource
     
     public init(_ source: SubSource) {
+        self.isSectioned = false
         self.source = source
         self.subSource = []
         self.subSnapshots = []
-        self.isSectioned = false
         self.subSourceIndices = []
         self.subSourceOffsets = []
     }

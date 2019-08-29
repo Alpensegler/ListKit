@@ -14,6 +14,10 @@ public protocol AnySourceSnapshotType: SnapshotType {
 public struct AnySourceSnapshot: AnySourceSnapshotType {
     public var base: SnapshotType
     
+    public var isSectioned: Bool {
+        return base.isSectioned
+    }
+    
     public init(_ base: SnapshotType) {
         self.base = base
     }

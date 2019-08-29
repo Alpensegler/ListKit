@@ -107,3 +107,105 @@ public extension CollectionAdapter {
     func collectionContext(_ context: CollectionListContext, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize { return (collectionViewLayout as? UICollectionViewFlowLayout)?.headerReferenceSize ?? .zero }
     func collectionContext(_ context: CollectionListContext, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize { return (collectionViewLayout as? UICollectionViewFlowLayout)?.footerReferenceSize ?? .zero }
 }
+
+public extension CollectionAdapter where SourceSnapshot: ListSnapshot, SourceSnapshot.Element: CollectionAdapter {
+    //Managing the Selected Cells
+    func collectionContext(_ context: CollectionListContext, shouldSelectItem item: Item) -> Bool {
+        return context.elementShouldSelectItem()
+    }
+    
+    func collectionContext(_ context: CollectionListContext, didSelectItem item: Item) {
+        context.elementDidSelectItem()
+    }
+    
+    func collectionContext(_ context: CollectionListContext, shouldDeselectItem item: Item) -> Bool {
+        return context.elementShouldDeselectItem()
+    }
+    
+    func collectionContext(_ context: CollectionListContext, didDeselectItem item: Item) {
+        context.elementDidDeselectItem()
+    }
+    
+    //Tracking the Addition and Removal of Views
+    func collectionContext(_ context: CollectionListContext, willDisplay cell: UICollectionViewCell, forItem item: Item) {
+        context.elementWillDisplay(cell: cell)
+    }
+    
+    func collectionContext(_ context: CollectionListContext, willDisplaySupplementaryView view: UICollectionReusableView, forElementKind kind: SupplementaryViewType, item: Item) {
+        context.elementWillDisplaySupplementaryView(view: view, forElementKind: kind)
+    }
+    
+    func collectionContext(_ context: CollectionListContext, didEndDisplaying cell: UICollectionViewCell) {
+        context.elementDidEndDisplaying(cell: cell)
+    }
+    
+    func collectionContext(_ context: CollectionListContext, didEndDisplayingSupplementaryView view: UICollectionReusableView, forElementOfKind kind: SupplementaryViewType) {
+        context.elementDidEndDisplayingSupplementaryView(view: view, forElementOfKind: kind)
+    }
+
+    //Getting the Size of Items
+    func collectionContext(_ context: CollectionListContext, layout collectionViewLayout: UICollectionViewLayout, sizeForItem item: Item) -> CGSize {
+        return context.elementsizeForItem(collectionViewLayout: collectionViewLayout)
+    }
+    
+    //header size
+    func collectionContext(_ context: CollectionListContext, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        return context.elementreferenceSizeForHeaderInSection(collectionViewLayout: collectionViewLayout)
+    }
+    
+    func collectionContext(_ context: CollectionListContext, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
+        return context.elementreferenceSizeForFooterInSection(collectionViewLayout: collectionViewLayout)
+    }
+}
+
+public extension CollectionContext where Snapshot: ListSnapshot, Snapshot.Element: CollectionAdapter {
+    //Managing the Selected Cells
+    func elementShouldSelectItem() -> Bool {
+        return element.collectionContext(elementsContext(), shouldSelectItem: elementsItem)
+    }
+    
+    func elementDidSelectItem() {
+        element.collectionContext(elementsContext(), didSelectItem: elementsItem)
+    }
+    
+    func elementShouldDeselectItem() -> Bool {
+        return element.collectionContext(elementsContext(), shouldDeselectItem: elementsItem)
+    }
+    
+    func elementDidDeselectItem() {
+        element.collectionContext(elementsContext(), didDeselectItem: elementsItem)
+    }
+    
+    //Tracking the Addition and Removal of Views
+    func elementWillDisplay(cell: UICollectionViewCell) {
+        element.collectionContext(elementsContext(), willDisplay: cell, forItem: elementsItem)
+    }
+    
+    func elementWillDisplaySupplementaryView(view: UICollectionReusableView, forElementKind kind: SupplementaryViewType) {
+        element.collectionContext(elementsContext(), willDisplaySupplementaryView: view, forElementKind: kind, item: elementsItem)
+    }
+    
+    func elementDidEndDisplaying(cell: UICollectionViewCell) {
+        element.collectionContext(elementsContext(), didEndDisplaying: cell)
+    }
+    
+    func elementDidEndDisplayingSupplementaryView(view: UICollectionReusableView, forElementOfKind kind: SupplementaryViewType) {
+        element.collectionContext(elementsContext(), didEndDisplayingSupplementaryView: view, forElementOfKind: kind)
+    }
+
+    //Getting the Size of Items
+    func elementsizeForItem(collectionViewLayout: UICollectionViewLayout) -> CGSize {
+        return element.collectionContext(elementsContext(), layout: collectionViewLayout, sizeForItem: elementsItem)
+    }
+    
+    //header size
+    func elementreferenceSizeForHeaderInSection(collectionViewLayout: UICollectionViewLayout) -> CGSize {
+        let context = elementsContext()
+        return element.collectionContext(context, layout: collectionViewLayout, referenceSizeForHeaderInSection: context.section)
+    }
+    
+    func elementreferenceSizeForFooterInSection(collectionViewLayout: UICollectionViewLayout) -> CGSize {
+        let context = elementsContext()
+        return element.collectionContext(context, layout: collectionViewLayout, referenceSizeForFooterInSection: context.section)
+    }
+}

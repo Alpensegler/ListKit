@@ -37,3 +37,24 @@ public extension CollectionDataSource {
     func indexTitles(for context: CollectionListContext) -> [String]? { return nil }
     func collectionContext(_ context: CollectionListContext, indexPathForIndexTitle title: String, at index: Int) -> IndexPath { return IndexPath(section: index) }
 }
+
+public extension CollectionDataSource where SourceSnapshot: ListSnapshot, SourceSnapshot.Element: CollectionDataSource {
+    //Getting Views for Items
+    func collectionContext(_ context: CollectionListContext, cellForItem item: Item) -> UICollectionViewCell {
+        return context.elementsCellForItem()
+    }
+    
+    func collectionContext(_ context: CollectionListContext, viewForSupplementaryElementOfKind kind: SupplementaryViewType, item: Item) -> UICollectionReusableView? {
+        return context.elementsViewForSupplementaryElementOfKind(kind: kind)
+    }
+}
+
+public extension CollectionContext where Snapshot: ListSnapshot, Snapshot.Element: CollectionDataSource {
+    func elementsCellForItem() -> UICollectionViewCell {
+        return element.collectionContext(elementsContext(), cellForItem: elementsItem)
+    }
+    
+    func elementsViewForSupplementaryElementOfKind(kind: SupplementaryViewType) -> UICollectionReusableView? {
+        return element.collectionContext(elementsContext(), viewForSupplementaryElementOfKind: kind, item: elementsItem)
+    }
+}

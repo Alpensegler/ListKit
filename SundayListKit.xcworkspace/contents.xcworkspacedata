@@ -2,7 +2,7 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:SundayListKitDemo/SundayListKitDemo.xcodeproj">
+      location = "group:SundayListKitDemo.xcodeproj">
    </FileRef>
    <FileRef
       location = "group:SundayListKit.xcodeproj">

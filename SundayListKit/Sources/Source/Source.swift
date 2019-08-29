@@ -27,29 +27,41 @@ public extension Source where SubSource: Collection {
 public protocol SnapshotType {
     func numbersOfSections() -> Int
     func numbersOfItems(in section: Int) -> Int
+    var isSectioned: Bool { get }
 }
 
 public protocol CollectionSnapshotType: SnapshotType {
     associatedtype Element
-    var elements: [Element] { get set }
+    var elements: [Element] { get }
 }
 
 protocol SubSourceContainSnapshot: SnapshotType {
-    var subSource: [Any] { get set }
-    var subSnapshots: [SnapshotType] { get set }
+    var subSource: [Any] { get }
+    var subSnapshots: [SnapshotType] { get }
     
-    var subSourceIndices: [[Int]] { get set }
-    var subSourceOffsets: [IndexPath] { get set }
+    var subSourceIndices: [[Int]] { get }
+    var subSourceOffsets: [IndexPath] { get }
+    
+    mutating func updateSubSource(with snapshot: SnapshotType, at index: Int)
+    mutating func removeSubSource(at index: Int)
 }
 
-public struct Snapshot<SubSource, Item> {
+public struct Snapshot<SubSource, Item>: CustomStringConvertible {
+    public let isSectioned: Bool
     var source: SubSource
     var subSource: [Any]
     var subSnapshots: [SnapshotType]
-    var isSectioned = true
     
-    var subSourceIndices: [[Int]]
-    var subSourceOffsets: [IndexPath]
+    var subSourceIndices: [[Int]] = []
+    var subSourceOffsets: [IndexPath] = []
+    
+    public var description: String {
+        if subSnapshots.isEmpty {
+            return "\(source)"
+        } else {
+            return "\(source), \(subSnapshots), \(subSourceIndices)"
+        }
+    }
 }
 
 extension Snapshot: SnapshotType {
@@ -65,7 +77,6 @@ extension Snapshot: SnapshotType {
 extension Snapshot: CollectionSnapshotType where SubSource: Collection {
     public typealias Element = SubSource.Element
     public var elements: [Element] {
-        get { return subSource as! [Element] }
-        set { subSource = newValue }
+        return subSource as! [Element]
     }
 }

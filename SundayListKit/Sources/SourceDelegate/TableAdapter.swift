@@ -70,9 +70,9 @@ public protocol TableAdapter: TableDataSource, ScrollViewDelegate {
     func tableContext(_ context: TableListContext, targetIndexPathForMoveFromItem item: Item, toProposedIndexPath proposedDestinationIndexPath: IndexPath) -> IndexPath
     
     //Tracking the Removal of Views
-    func tableContext(_ context: TableListContext, didEndDisplaying cell: UITableViewCell, forItem item: Item)
-    func tableContext(_ context: TableListContext, didEndDisplayingHeaderView view: UIView, forSection section: Int)
-    func tableContext(_ context: TableListContext, didEndDisplayingFooterView view: UIView, forSection section: Int)
+    func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath)
+    func tableView(_ tableView: UITableView, didEndDisplayingHeaderView view: UIView, forSection section: Int)
+    func tableView(_ tableView: UITableView, didEndDisplayingFooterView view: UIView, forSection section: Int)
     
     //Managing Table View Focus
     func tableContext(_ context: TableListContext, canFocusItem item: Item) -> Bool
@@ -145,9 +145,9 @@ public extension TableAdapter {
     func tableContext(_ context: TableListContext, targetIndexPathForMoveFromItem item: Item, toProposedIndexPath proposedDestinationIndexPath: IndexPath) -> IndexPath { return proposedDestinationIndexPath }
     
     //Tracking the Removal of Views
-    func tableContext(_ context: TableListContext, didEndDisplaying cell: UITableViewCell, forItem item: Item) { }
-    func tableContext(_ context: TableListContext, didEndDisplayingHeaderView view: UIView, forSection section: Int) { }
-    func tableContext(_ context: TableListContext, didEndDisplayingFooterView view: UIView, forSection section: Int) { }
+    func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) { }
+    func tableView(_ tableView: UITableView, didEndDisplayingHeaderView view: UIView, forSection section: Int) { }
+    func tableView(_ tableView: UITableView, didEndDisplayingFooterView view: UIView, forSection section: Int) { }
     
     //Managing Table View Focus
     func tableContext(_ context: TableListContext, canFocusItem item: Item) -> Bool { return true }
@@ -156,3 +156,106 @@ public extension TableAdapter {
     func indexPathForPreferredFocusedView(in context: TableListContext) -> IndexPath? { return nil }
 }
 
+public extension TableAdapter where SourceSnapshot: ListSnapshot, SourceSnapshot.Element: TableAdapter {
+    //Configuring Rows for the Table View
+    func tableContext(_ context: TableListContext, willDisplay cell: UITableViewCell, forItem item: Item) { context.elementWillDisplay(cell: cell) }
+    
+    //Responding to Row Selections
+    func tableContext(_ context: TableListContext, willSelectItem item: Item) -> IndexPath? { return context.elementWillSelectItem() }
+    func tableContext(_ context: TableListContext, willDeselectItem item: Item) -> IndexPath? { return context.elementWillDeselectItem() }
+    func tableContext(_ context: TableListContext, didSelectItem item: Item) { context.elementDidSelectItem() }
+    func tableContext(_ context: TableListContext, didDeselectItem item: Item) { context.elementDidDeselectItem() }
+    
+    //Providing Custom Header and Footer Views
+    func tableContext(_ context: TableListContext, viewForHeaderInSection section: Int) -> UIView? { return context.elementViewForHeaderInSection() }
+    func tableContext(_ context: TableListContext, viewForFooterInSection section: Int) -> UIView? { return context.elementViewForFooterInSection() }
+    func tableContext(_ context: TableListContext, willDisplayHeaderView view: UIView, forSection section: Int) { context.elementWillDisplayHeaderView(view: view) }
+    func tableContext(_ context: TableListContext, willDisplayFooterView view: UIView, forSection section: Int) { context.elementWillDisplayFooterView(view: view) }
+    
+    //Providing Header, Footer, and Row Heights
+    func tableContext(_ context: TableListContext, heightForItem item: Item) -> CGFloat { return context.elementHeightForItem() }
+    func tableContext(_ context: TableListContext, heightForHeaderInSection section: Int) -> CGFloat { return context.elementHeightForHeader() }
+    func tableContext(_ context: TableListContext, heightForFooterInSection section: Int) -> CGFloat { return context.elementHeightForFooter() }
+    
+    //Estimating Heights for the Table's Content
+    func tableContext(_ context: TableListContext, estimatedHeightForItem item: Item) -> CGFloat { return context.elementEstimatedHeightForItem() }
+    func tableContext(_ context: TableListContext, estimatedHeightForHeaderInSection section: Int) -> CGFloat { return context.elementEstimatedHeightForHeaderInSection(section) }
+    func tableContext(_ context: TableListContext, estimatedHeightForFooterInSection section: Int) -> CGFloat { return context.elementEstimatedHeightForFooterInSection(section) }
+}
+
+public extension TableContext where Snapshot: ListSnapshot, Snapshot.Element: TableAdapter  {
+    //Configuring Rows for the Table View
+    func elementWillDisplay(cell: UITableViewCell) {
+        element.tableContext(elementsContext(), willDisplay: cell, forItem: elementsItem)
+    }
+    
+    //Responding to Row Selections
+    func elementWillSelectItem() -> IndexPath? {
+        let context = elementsContext()
+        return element.tableContext(context, willSelectItem: elementsItem)?.addingOffset(context.offset)
+    }
+    
+    func elementWillDeselectItem() -> IndexPath? {
+        let context = elementsContext()
+        return element.tableContext(context, willDeselectItem: elementsItem)?.addingOffset(context.offset)
+    }
+    
+    func elementDidSelectItem() {
+        element.tableContext(elementsContext(), didSelectItem: elementsItem)
+    }
+    
+    func elementDidDeselectItem() {
+        element.tableContext(elementsContext(), didDeselectItem: elementsItem)
+    }
+    
+    //Providing Custom Header and Footer Views
+    func elementViewForHeaderInSection() -> UIView? {
+        let context = elementsContext()
+        return element.tableContext(context, viewForHeaderInSection: context.section)
+    }
+    
+    func elementViewForFooterInSection() -> UIView? {
+        let context = elementsContext()
+        return element.tableContext(context, viewForFooterInSection: context.section)
+    }
+    
+    func elementWillDisplayHeaderView(view: UIView) {
+        let context = elementsContext()
+        element.tableContext(context, willDisplayHeaderView: view, forSection: context.section)
+    }
+    
+    func elementWillDisplayFooterView(view: UIView) {
+        let context = elementsContext()
+        element.tableContext(context, willDisplayFooterView: view, forSection: context.section)
+    }
+    
+    //Providing Header, Footer, and Row Heights
+    func elementHeightForItem() -> CGFloat {
+        return element.tableContext(elementsContext(), heightForItem: elementsItem)
+    }
+    
+    func elementHeightForHeader() -> CGFloat {
+        let context = elementsContext()
+        return element.tableContext(context, heightForHeaderInSection: context.section)
+    }
+    
+    func elementHeightForFooter() -> CGFloat {
+        let context = elementsContext()
+        return element.tableContext(context, heightForFooterInSection: context.section)
+    }
+    
+    //Estimating Heights for the Table's Content
+    func elementEstimatedHeightForItem() -> CGFloat {
+        return element.tableContext(elementsContext(), estimatedHeightForItem: elementsItem)
+    }
+    
+    func elementEstimatedHeightForHeaderInSection(_ section: Int) -> CGFloat {
+        let context = elementsContext()
+        return element.tableContext(context, estimatedHeightForHeaderInSection: context.section)
+    }
+    
+    func elementEstimatedHeightForFooterInSection(_ section: Int) -> CGFloat {
+        let context = elementsContext()
+        return element.tableContext(context, estimatedHeightForFooterInSection: context.section)
+    }
+}

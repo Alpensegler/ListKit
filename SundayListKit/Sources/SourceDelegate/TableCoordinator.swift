@@ -144,9 +144,9 @@ private class TableDataSourceCoordinator<Snapshot>: TableCoordinator, UITableVie
         let context = ListUpdater.Context(
             offset: .default,
             keyPath: \.tableContexts,
-            update: { $0.tableView($1, willUpdateWith: .reload) },
+            reloadUpdate: { $0.tableView($1, willUpdateWith: .reload) },
             listView: { [weak tableView, weak self] in tableView.flatMap { $0.dataSource === self ? $0 : nil } },
-            snapshotSetter: { _ in }
+            setSnapshot: { _ in }
         )
         addTableContext(context)
     }
@@ -293,9 +293,9 @@ private final class TableAdapterCoordinator<Snapshot>: TableDataSourceCoordinato
     let tableViewTargetIndexPathForMoveFromRowAtToProposedIndexPath: (Snapshot, UITableView, IndexPath, IndexPath) -> IndexPath
 
     //Tracking the Removal of Views
-    let tableViewDidEndDisplayingForRowAt: (Snapshot, UITableView, UITableViewCell, IndexPath) -> Void
-    let tableViewDidEndDisplayingHeaderViewForSection: (Snapshot, UITableView, UIView, Int) -> Void
-    let tableViewDidEndDisplayingFooterViewForSection: (Snapshot, UITableView, UIView, Int) -> Void
+    let tableViewDidEndDisplayingForRowAt: (UITableView, UITableViewCell, IndexPath) -> Void
+    let tableViewDidEndDisplayingHeaderViewForSection: (UITableView, UIView, Int) -> Void
+    let tableViewDidEndDisplayingFooterViewForSection: (UITableView, UIView, Int) -> Void
     
     //Managing Table View Focus
     let tableViewCanFocusRowAt: (Snapshot, UITableView, IndexPath) -> Bool
@@ -328,9 +328,9 @@ private final class TableAdapterCoordinator<Snapshot>: TableDataSourceCoordinato
         tableViewWillDisplayForRowAt = { coordinator().tableContext(.init(listView: $1, indexPath: $3, snapshot: $0), willDisplay: $2, forItem: coordinator().item(for: $0, at: $3)) }
         tableViewWillDisplayHeaderViewForSection = { coordinator().tableContext(.init(listView: $1, indexPath: .init(section: $3), snapshot: $0), willDisplayHeaderView: $2, forSection: $3) }
         tableViewWillDisplayFooterViewForSection = { coordinator().tableContext(.init(listView: $1, indexPath: .init(section: $3), snapshot: $0), willDisplayFooterView: $2, forSection: $3) }
-        tableViewDidEndDisplayingForRowAt = { coordinator().tableContext(.init(listView: $1, indexPath: $3, snapshot: $0), didEndDisplaying: $2, forItem: coordinator().item(for: $0, at: $3)) }
-        tableViewDidEndDisplayingHeaderViewForSection = { coordinator().tableContext(.init(listView: $1, indexPath: .init(section: $3), snapshot: $0), didEndDisplayingHeaderView: $2, forSection: $3) }
-        tableViewDidEndDisplayingFooterViewForSection = { coordinator().tableContext(.init(listView: $1, indexPath: .init(section: $3), snapshot: $0), didEndDisplayingFooterView: $2, forSection: $3) }
+        tableViewDidEndDisplayingForRowAt = { coordinator().tableView($0, didEndDisplaying: $1, forRowAt: $2) }
+        tableViewDidEndDisplayingHeaderViewForSection = { coordinator().tableView($0, didEndDisplayingHeaderView: $1, forSection: $2) }
+        tableViewDidEndDisplayingFooterViewForSection = { coordinator().tableView($0, didEndDisplayingFooterView: $1, forSection: $2) }
         tableViewheightForRowAt = { coordinator().tableContext(.init(listView: $1, indexPath: $2, snapshot: $0), heightForItem: coordinator().item(for: $0, at: $2)) }
         tableViewheightForHeaderInSection = { coordinator().tableContext(.init(listView: $1, indexPath: .init(section: $2), snapshot: $0), heightForHeaderInSection: $2) }
         tableViewheightForFooterInSection = { coordinator().tableContext(.init(listView: $1, indexPath: .init(section: $2), snapshot: $0), heightForFooterInSection: $2) }
@@ -409,15 +409,15 @@ private final class TableAdapterCoordinator<Snapshot>: TableDataSourceCoordinato
     }
     
     func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        tableViewDidEndDisplayingForRowAt(snapshot, tableView, cell, indexPath)
+        tableViewDidEndDisplayingForRowAt(tableView, cell, indexPath)
     }
     
     func tableView(_ tableView: UITableView, didEndDisplayingHeaderView view: UIView, forSection section: Int) {
-        tableViewDidEndDisplayingHeaderViewForSection(snapshot, tableView, view, section)
+        tableViewDidEndDisplayingHeaderViewForSection(tableView, view, section)
     }
     
     func tableView(_ tableView: UITableView, didEndDisplayingFooterView view: UIView, forSection section: Int) {
-        tableViewDidEndDisplayingFooterViewForSection(snapshot, tableView, view, section)
+        tableViewDidEndDisplayingFooterViewForSection(tableView, view, section)
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {

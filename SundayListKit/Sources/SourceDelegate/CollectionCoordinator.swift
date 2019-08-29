@@ -140,9 +140,9 @@ class CollectionDataSourceCoordinator<Snapshot: SnapshotType>: CollectionCoordin
         let context = ListUpdater.Context(
             offset: .default,
             keyPath: \.collectionContexts,
-            update: { $0.collectionView($1, willUpdateWith: .reload) },
+            reloadUpdate: { $0.collectionView($1, willUpdateWith: .reload) },
             listView: { [weak collectionView, weak self] in collectionView.flatMap { $0.dataSource === self ? $0 : nil } },
-            snapshotSetter: { _ in }
+            setSnapshot: { _ in }
         )
         addCollectionContext(context)
     }

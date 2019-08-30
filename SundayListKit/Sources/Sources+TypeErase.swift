@@ -11,7 +11,7 @@ public protocol AnySourceSnapshotType: SnapshotType {
     init(_ base: SnapshotType)
 }
 
-public struct AnySourceSnapshot: AnySourceSnapshotType {
+public struct AnySourceSnapshot: AnySourceSnapshotType, CustomStringConvertible {
     public var base: SnapshotType
     
     public var isSectioned: Bool {
@@ -28,6 +28,10 @@ public struct AnySourceSnapshot: AnySourceSnapshotType {
     
     public func numbersOfItems(in section: Int) -> Int {
         return base.numbersOfItems(in: section)
+    }
+    
+    public var description: String {
+        return "AnySourceSnapshot: \(base)"
     }
 }
 
@@ -58,7 +62,7 @@ extension Sources: SourcesTypeAraser where SubSource == Any, SourceSnapshot: Any
     init<Source, Snapshot, View>(sources: Sources<Source, Item, Snapshot, View>) {
         createSnapshotWith = { .init(sources.createSnapshot(with: $0 as! Source)) }
         itemFor = { sources.item(for: $0.base as! Snapshot, at: $1) }
-        updateContext = { sources.update(context: .init(rawSnapshot: $0.rawSnapshot.base as! Snapshot, snapshot: $0.snapshot.base as! Snapshot)) }
+        updateContext = { sources.update(context: $0.castSnapshotType { $0.base as! Snapshot }) }
         
         sourceClosure = sources.sourceClosure
         sourceStored = sources.sourceStored

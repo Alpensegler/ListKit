@@ -35,7 +35,7 @@ public protocol CollectionSnapshotType: SnapshotType {
     var elements: [Element] { get }
 }
 
-enum SnapshotIndices {
+enum SnapshotIndices: CustomStringConvertible {
     case section(Int, Int)
     case cell([Int])
     
@@ -47,13 +47,20 @@ enum SnapshotIndices {
             return cells.count
         }
     }
+    
+    var description: String {
+        switch self {
+        case let .cell(cells):
+            return "cell \(cells)"
+        case let .section(index, count):
+            return "section \(index), \(count)"
+        }
+    }
 }
 
 protocol SubSourceContainSnapshot: SnapshotType {
     var subSource: [Any] { get }
     var subSnapshots: [SnapshotType] { get }
-    
-    var subSourceIndices: [SnapshotIndices] { get }
     var subSourceOffsets: [IndexPath] { get }
     
     mutating func updateSubSource(with snapshot: SnapshotType?, at index: Int)
@@ -61,7 +68,6 @@ protocol SubSourceContainSnapshot: SnapshotType {
 
 public struct Snapshot<SubSource, Item>: CustomStringConvertible {
     public let isSectioned: Bool
-    var source: SubSource
     var subSource: [Any]
     var subSnapshots: [SnapshotType]
     
@@ -70,9 +76,9 @@ public struct Snapshot<SubSource, Item>: CustomStringConvertible {
     
     public var description: String {
         if subSnapshots.isEmpty {
-            return "\(source)"
+            return "\(subSource)"
         } else {
-            return "\(source), \(subSnapshots), \(subSourceIndices)"
+            return "\(subSource), \(subSnapshots), \(subSourceIndices)"
         }
     }
 }

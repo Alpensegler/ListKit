@@ -17,14 +17,13 @@ extension Snapshot: ItemSnapshot where SubSource == Item {
     
     public init(_ source: SubSource) {
         self.isSectioned = false
-        self.source = source
-        self.subSource = []
+        self.subSource = [source]
         self.subSnapshots = []
-        self.subSourceIndices = []
-        self.subSourceOffsets = []
+        self.subSourceIndices = [.cell([0])]
+        self.subSourceOffsets = [.default]
     }
     
-    public var item: ItemSource { return source }
+    public var item: ItemSource { return subSource[0] as! ItemSource }
 }
 
 public extension Source where SourceSnapshot == Snapshot<Item, Item>, SubSource == Item {

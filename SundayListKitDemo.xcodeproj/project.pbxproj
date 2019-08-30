@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F3DB225C2318623000BEEDC2 /* CompositionalListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3DB225B2318623000BEEDC2 /* CompositionalListViewController.swift */; };
 		F3EAF0922313DFBC0092E289 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3EAF0912313DFBC0092E289 /* AppDelegate.swift */; };
 		F3EAF0972313DFBC0092E289 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F3EAF0952313DFBC0092E289 /* Main.storyboard */; };
 		F3EAF0992313DFBC0092E289 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F3EAF0982313DFBC0092E289 /* Assets.xcassets */; };
@@ -16,6 +17,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		F3DB225B2318623000BEEDC2 /* CompositionalListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompositionalListViewController.swift; sourceTree = "<group>"; };
 		F3EAF08E2313DFBC0092E289 /* SundayListKitDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SundayListKitDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F3EAF0912313DFBC0092E289 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		F3EAF0962313DFBC0092E289 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -60,6 +62,7 @@
 				F3EAF0952313DFBC0092E289 /* Main.storyboard */,
 				F3EAF0A52313E06A0092E289 /* DoubleListViewController.swift */,
 				F3EAF0A42313E06A0092E289 /* SectionedListViewController.swift */,
+				F3DB225B2318623000BEEDC2 /* CompositionalListViewController.swift */,
 			);
 			path = SundayListKitDemo;
 			sourceTree = "<group>";
@@ -146,6 +149,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F3DB225C2318623000BEEDC2 /* CompositionalListViewController.swift in Sources */,
 				F3EAF0A62313E06A0092E289 /* SectionedListViewController.swift in Sources */,
 				F3EAF0922313DFBC0092E289 /* AppDelegate.swift in Sources */,
 				F3EAF0A72313E06A0092E289 /* DoubleListViewController.swift in Sources */,

@@ -125,13 +125,13 @@ extension ListUpdatable where Self: Source {
                     guard assoc == nil else { continue }
                     listView.deleteSections([index])
                 case let .item(indexPath: index, change: .insert(associatedWith: assoc, reload: reload)):
-                    if let assoc = assoc {
+                    if let assoc = assoc, assoc.section == index.section {
                         reload ? listView.reloadItems(at: [index]) : listView.moveItem(at: assoc, to: index)
                     } else {
                         listView.insertItems(at: [index])
                     }
                 case let .item(indexPath: index, change: .delete(associatedWith: assoc, _)):
-                    guard assoc == nil else { continue }
+                    guard assoc == nil || index.section != assoc?.section else { continue }
                     listView.deleteItems(at: [index])
                 case .reload:
                     fatalError("should not contain reload: type here")

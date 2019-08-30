@@ -72,20 +72,43 @@ public enum ListChange: Equatable, IndexPathOffsetable, CustomStringConvertible 
     }
 }
 
-public struct UpdateContext<Snapshot: SnapshotType> {
-    class SectionChanges {
-        var change: Change<Int>?
-        var values: [Change<IndexPath>?]
+class SectionChanges: CustomStringConvertible {
+    struct Item: CustomStringConvertible {
+        var change: Change<IndexPath>
+        var isListItem: Bool
         
-        init(change: Change<Int>?, values: [Change<IndexPath>?]) {
-            self.change = change
-            self.values = values
+        func addingOffset(_ offset: IndexPath) -> Item {
+            return .init(change: change.addingOffset(offset), isListItem: isListItem)
         }
         
-        func addingOffset(_ offset: IndexPath) -> SectionChanges {
-            return .init(change: change?.addingOffset(offset), values: values.map { $0?.addingOffset(offset) })
+        var description: String {
+            return change.description + " \(isListItem)"
         }
     }
+    
+    var change: Change<Int>?
+    var values: [Item?]
+    
+    var isAllListChange: Bool {
+        guard !values.isEmpty else { return false }
+        return values.allSatisfy { $0?.isListItem == true }
+    }
+    
+    init(change: Change<Int>?, values: [Item?]) {
+        self.change = change
+        self.values = values
+    }
+    
+    func addingOffset(_ offset: IndexPath) -> SectionChanges {
+        return .init(change: change?.addingOffset(offset), values: values.map { $0.map { ($0.addingOffset(offset)) } })
+    }
+    
+    var description: String {
+        return "\(change?.description ?? "noChange") \(values.map { $0?.description ?? "noChange" })"
+    }
+}
+
+public struct UpdateContext<Snapshot: SnapshotType> {
     
     public let rawSnapshot: Snapshot
     public let snapshot: Snapshot
@@ -109,6 +132,18 @@ public struct UpdateContext<Snapshot: SnapshotType> {
             fatalError("should not change from sectioned source to non sectioned source")
         }
     }
+    
+    init(rawSnapshot: Snapshot, snapshot: Snapshot, isSectioned: Bool, rawSnapshotChanges: [SectionChanges], snapshotChanges: [SectionChanges]) {
+        self.rawSnapshot = rawSnapshot
+        self.snapshot = snapshot
+        self.isSectioned = isSectioned
+        self.rawSnapshotChanges = rawSnapshotChanges
+        self.snapshotChanges = snapshotChanges
+    }
+    
+    func castSnapshotType<Type: SnapshotType>(cast: (Snapshot) -> Type) -> UpdateContext<Type> {
+        return .init(rawSnapshot: cast(rawSnapshot), snapshot: cast(snapshot), isSectioned: isSectioned, rawSnapshotChanges: rawSnapshotChanges, snapshotChanges: snapshotChanges)
+    }
 }
 
 extension UpdateContext {
@@ -121,22 +156,33 @@ extension UpdateContext {
         for sectionIndex in rawSnapshotChanges.indices.reversed() {
             let section = rawSnapshotChanges[sectionIndex]
             var moveIndex: Int?
+            var isAllListItemDelete = !section.values.isEmpty
             if let change = section.change, case let .delete(associatedWith: index, reload: reload) = change {
+                isAllListItemDelete = false
                 sectionDelete.append(.section(index: sectionIndex, change: change))
-                if reload { continue }
-                if let index = index {
-                    moveIndex = index
-                    sectionMoveIndex[index] = (false, sectionDelete.count - 1)
-                }
+                guard let index = index, !reload else { continue }
+                moveIndex = index
+                sectionMoveIndex[index] = (false, sectionDelete.count - 1)
             }
+            
+            var deletes = [ListChange]()
             for itemIndex in section.values.indices.reversed() {
-                guard let change = section.values[itemIndex] else { continue }
+                guard let change = section.values[itemIndex] else {
+                    isAllListItemDelete = false
+                    continue
+                }
                 if let moveIndex = moveIndex {
                     sectionDelete[sectionDelete.count - 1] = .section(index: sectionIndex, change: .delete)
                     sectionMoveIndex[moveIndex] = (true, sectionDelete.count - 1)
                     break
                 }
-                itemsDelete.append(.item(indexPath: IndexPath(item: itemIndex, section: sectionIndex), change: change))
+                isAllListItemDelete = isAllListItemDelete && change.isListItem
+                deletes.append(.item(indexPath: IndexPath(item: itemIndex, section: sectionIndex), change: change.change))
+            }
+            if isAllListItemDelete {
+                sectionDelete.append(.section(index: sectionIndex, change: .delete))
+            } else {
+                itemsDelete += deletes
             }
         }
         var sectionInsert = [ListChange]()
@@ -144,27 +190,36 @@ extension UpdateContext {
         for sectionIndex in snapshotChanges.indices {
             let section = snapshotChanges[sectionIndex]
             var moveIndex: Int?
+            var isAllListItemInsert = !section.values.isEmpty
             if let change = section.change, case let .insert(associatedWith: index, reload: reload) = change {
+                isAllListItemInsert = false
                 sectionInsert.append(.section(index: sectionIndex, change: change))
-                if reload { continue }
-                print(sectionIndex, "before", index as Any, sectionInsert, sectionDelete, sectionMoveIndex)
-                if let index = index {
-                    if let move = sectionMoveIndex[sectionIndex], move.changed {
-                        sectionInsert[sectionInsert.count - 1] = .section(index: sectionIndex, change: .insert)
-                        continue
-                    }
-                    moveIndex = index
+                guard let index = index, !reload else { continue }
+                if let move = sectionMoveIndex[sectionIndex], move.changed {
+                    sectionInsert[sectionInsert.count - 1] = .section(index: sectionIndex, change: .insert)
+                    continue
                 }
+                moveIndex = index
             }
+            
+            var inserts = [ListChange]()
             for itemIndex in section.values.indices {
-                guard let change = section.values[itemIndex] else { continue }
+                guard let change = section.values[itemIndex] else {
+                    isAllListItemInsert = false
+                    continue
+                }
                 if let moveIndex = moveIndex {
                     sectionInsert[sectionInsert.count - 1] = .section(index: sectionIndex, change: .insert)
                     sectionMoveIndex[sectionIndex].map { sectionDelete[$0.at] = .section(index: moveIndex, change: .delete) }
-                    print(sectionIndex, "after", sectionInsert, sectionDelete)
                     break
                 }
-                itemsInsert.append(.item(indexPath: IndexPath(item: itemIndex, section: sectionIndex), change: change))
+                isAllListItemInsert = isAllListItemInsert && change.isListItem
+                inserts.append(.item(indexPath: IndexPath(item: itemIndex, section: sectionIndex), change: change.change))
+            }
+            if isAllListItemInsert {
+                sectionInsert.append(.section(index: sectionIndex, change: .insert))
+            } else {
+                itemsInsert += inserts
             }
         }
         return sectionDelete + sectionInsert + itemsDelete + itemsInsert
@@ -205,22 +260,22 @@ public extension UpdateContext {
 
 extension UpdateContext {
     
-    func insertItem(at indexPath: IndexPath) {
-        snapshotChanges[indexPath.section].values[indexPath.item] = .insert
+    func insertItem(at indexPath: IndexPath, isListItem: Bool = false) {
+        snapshotChanges[indexPath.section].values[indexPath.item] = .init(change: .insert, isListItem: isListItem)
     }
     
-    func deleteItem(at indexPath: IndexPath) {
-        rawSnapshotChanges[indexPath.section].values[indexPath.item] = .delete
+    func deleteItem(at indexPath: IndexPath, isListItem: Bool = false) {
+        rawSnapshotChanges[indexPath.section].values[indexPath.item] = .init(change: .delete, isListItem: isListItem)
     }
     
-    func reloadItem(at indexPath: IndexPath) {
-        rawSnapshotChanges[indexPath.section].values[indexPath.item] = .delete(associatedWith: indexPath, reload: true)
-        snapshotChanges[indexPath.section].values[indexPath.item] = .insert(associatedWith: indexPath, reload: true)
+    func reloadItem(at indexPath: IndexPath, isListItem: Bool = false) {
+        rawSnapshotChanges[indexPath.section].values[indexPath.item] = .init(change: .delete(associatedWith: indexPath, reload: true), isListItem: isListItem)
+        snapshotChanges[indexPath.section].values[indexPath.item] = .init(change: .insert(associatedWith: indexPath, reload: true), isListItem: isListItem)
     }
     
-    func moveItem(at indexPath: IndexPath, to newIndexPath: IndexPath) {
-        rawSnapshotChanges[indexPath.section].values[indexPath.item] = .delete(associatedWith: newIndexPath, reload: false)
-        snapshotChanges[newIndexPath.section].values[newIndexPath.item] = .insert(associatedWith: indexPath, reload: false)
+    func moveItem(at indexPath: IndexPath, to newIndexPath: IndexPath, isListItem: Bool = false) {
+        rawSnapshotChanges[indexPath.section].values[indexPath.item] = .init(change: .delete(associatedWith: newIndexPath, reload: false), isListItem: isListItem)
+        snapshotChanges[newIndexPath.section].values[newIndexPath.item] = .init(change: .insert(associatedWith: indexPath, reload: false), isListItem: isListItem)
     }
     
     func insertSection(_ section: Int) {
@@ -239,10 +294,5 @@ extension UpdateContext {
     func moveSection(_ section: Int, toSection newSection: Int) {
         rawSnapshotChanges[section].change = .delete(associatedWith: newSection, reload: false)
         snapshotChanges[newSection].change = .insert(associatedWith: section, reload: false)
-    }
-    
-    func moveAndReloadSection(_ section: Int, toSection newSection: Int) {
-        rawSnapshotChanges[section].change = .delete(associatedWith: newSection, reload: true)
-        snapshotChanges[newSection].change = .insert(associatedWith: section, reload: true)
     }
 }

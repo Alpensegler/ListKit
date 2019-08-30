@@ -6,6 +6,12 @@
 //  Copyright © 2019 Frain. All rights reserved.
 //
 
+extension Sources: CustomStringConvertible {
+    public var description: String {
+        return "\(source)" // "Sources<\(SubSource.self), \(Item.self), \(SourceSnapshot.self), \(UIViewType.self)> \(source)"
+    }
+}
+
 extension Sources: Identifiable {
     public typealias ID = AnyHashable
     
@@ -94,7 +100,7 @@ struct AnyDiffable: Identifiable, Equatable {
     
     init(_ id: AnyHashable) {
         _id = { id }
-        _base = nil
+        _base = { EquatableBox(id) }
     }
     
     init<T: Identifiable>(_ identifiable: @escaping () -> T) {

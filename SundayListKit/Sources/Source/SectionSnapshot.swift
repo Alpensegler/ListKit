@@ -19,7 +19,6 @@ public protocol SectionSnapshot: CollectionSnapshotType {
 
 extension Snapshot: SectionSnapshot where SubSource: Collection, SubSource.Element == Item {
     public init(_ source: SubSource) {
-        self.source = source
         self.subSource = Array(source)
         self.subSnapshots = []
         self.isSectioned = true

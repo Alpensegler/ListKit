@@ -45,7 +45,6 @@ extension Snapshot: ListSnapshot where SubSource: Collection, Element: Source, I
 
 public extension Snapshot where SubSource: Collection, SubSource.Element: Source, SubSource.Element.Item == Item {
     init(_ source: SubSource) {
-        self.source = source
         self.subSource = []
         self.subSnapshots = []
         self.subSourceIndices = []
@@ -146,7 +145,8 @@ extension Snapshot: SubSourceContainSnapshot where SubSource: Collection, Elemen
                 cells.append(contentsOf: Array(repeating: subSnapshots.count, count: cellCount))
                 subSourceIndices[subSourceIndices.lastIndex] = .cell(cells)
             case .section?:
-                offset = IndexPath(item: 0, section: offset.section + 1)
+                let sectionCount = subSnapshots[subSnapshots.lastIndex].numbersOfSections()
+                offset = IndexPath(item: 0, section: offset.section + max(sectionCount, 1))
                 fallthrough
             case .none:
                 subSourceIndices.append(.cell(Array(repeating: subSnapshots.count, count: cellCount)))
@@ -173,20 +173,20 @@ public extension UpdateContext where Snapshot: ListSnapshot {
     func insertElement(at index: Int) {
         let subSnapshot = snapshot.elementsSnapshots[index]
         let offset = snapshot.elementsOffsets[index]
-        if snapshot.isSectioned {
+        if subSnapshot.isSectioned {
             (0..<subSnapshot.numbersOfSections()).forEach { insertSection($0 + offset.section) }
         } else {
-            (0..<subSnapshot.numbersOfItems(in: 0)).forEach { insertItem(at: IndexPath(item: $0).addingOffset(offset)) }
+            (0..<subSnapshot.numbersOfItems(in: 0)).forEach { insertItem(at: IndexPath(item: $0).addingOffset(offset), isListItem: true) }
         }
     }
     
     func deleteElement(at index: Int) {
         let subSnapshot = rawSnapshot.elementsSnapshots[index]
         let offset = rawSnapshot.elementsOffsets[index]
-        if snapshot.isSectioned {
+        if subSnapshot.isSectioned {
             (0..<subSnapshot.numbersOfSections()).forEach { deleteSection($0 + offset.section) }
         } else {
-            (0..<subSnapshot.numbersOfItems(in: 0)).forEach { deleteItem(at: IndexPath(item: $0).addingOffset(offset)) }
+            (0..<subSnapshot.numbersOfItems(in: 0)).forEach { deleteItem(at: IndexPath(item: $0).addingOffset(offset), isListItem: true) }
         }
     }
     
@@ -195,7 +195,7 @@ public extension UpdateContext where Snapshot: ListSnapshot {
         let offset = snapshot.elementsOffsets[index]
         let rawSubSnapshot = rawSnapshot.elementsSnapshots[index]
         let (numbersOfSection, rawNumbersOfSection) = (subSnapshot.numbersOfSections(), rawSubSnapshot.numbersOfSections())
-        if snapshot.isSectioned, rawSnapshot.isSectioned {
+        if subSnapshot.isSectioned, rawSubSnapshot.isSectioned {
             if numbersOfSection > rawNumbersOfSection {
                 let start = rawNumbersOfSection - 1
                 (start..<start + numbersOfSection - rawNumbersOfSection).forEach { insertSection($0 + offset.section) }
@@ -207,7 +207,7 @@ public extension UpdateContext where Snapshot: ListSnapshot {
             } else {
                 (0..<numbersOfSection).forEach { reloadSection($0 + offset.section) }
             }
-        } else if !snapshot.isSectioned, !rawSnapshot.isSectioned {
+        } else if !subSnapshot.isSectioned, !rawSubSnapshot.isSectioned {
             let (numbersOfItem, rawNumbersOfItem) = (subSnapshot.numbersOfItems(in: 0), rawSubSnapshot.numbersOfItems(in: 0))
             if numbersOfItem > rawNumbersOfItem {
                 let start = rawNumbersOfItem - 1
@@ -231,7 +231,7 @@ public extension UpdateContext where Snapshot: ListSnapshot {
         let rawSubSnapshot = rawSnapshot.elementsSnapshots[index]
         let rawOffset = rawSnapshot.elementsOffsets[index]
         let (numbersOfSection, rawNumbersOfSection) = (subSnapshot.numbersOfSections(), rawSubSnapshot.numbersOfSections())
-        if snapshot.isSectioned, rawSnapshot.isSectioned {
+        if subSnapshot.isSectioned, rawSubSnapshot.isSectioned {
             if numbersOfSection > rawNumbersOfSection {
                 let start = rawNumbersOfSection - 1
                 (start..<start + numbersOfSection - rawNumbersOfSection).forEach { insertSection($0 + offset.section) }
@@ -249,7 +249,7 @@ public extension UpdateContext where Snapshot: ListSnapshot {
                     moveSection(i + rawOffset.section, toSection: i + offset.section)
                 }
             }
-        } else if !snapshot.isSectioned, !rawSnapshot.isSectioned {
+        } else if !subSnapshot.isSectioned, !rawSubSnapshot.isSectioned {
             let (numbersOfItem, rawNumbersOfItem) = (subSnapshot.numbersOfItems(in: 0), rawSubSnapshot.numbersOfItems(in: 0))
             if numbersOfItem > rawNumbersOfItem {
                 let start = rawNumbersOfItem - 1
@@ -322,7 +322,9 @@ public extension UpdateContext where Snapshot: ListSnapshot, Snapshot.Element: D
         var rawChanges: [Change<Int>?] = (0..<rawSnapshot.elements.count).map { _ in nil }
         var changes: [Change<Int>?] = (0..<snapshot.elements.count).map { _ in nil }
         
+        print("---diff:")
         for change in diff {
+            print(change)
             switch change {
             case .insert(offset: let newIndex, element: let element, associatedWith: let assoc):
                 if let oldIndex = assoc {
@@ -354,14 +356,25 @@ public extension UpdateContext where Snapshot: ListSnapshot, Snapshot.Element: D
         }
         
         update(with: rawChanges, changes: changes)
+        print("--- merge finished")
+        print("rawSectionChanges", rawSnapshotChanges)
+        print("sectionChanges", snapshotChanges)
+        print("merge finished ---")
     }
 }
 
 private extension UpdateContext where Snapshot: ListSnapshot, Snapshot.Element: Identifiable {
     func update(with rawChanges: [Change<Int>?], changes: [Change<Int>?]) {
+        print("--- before merge:")
+        print("rawChanges", rawChanges)
+        print("changes", changes)
         let rawUnchangedElement = rawChanges.enumerated().compactMap { $0.element == nil ? $0.offset : nil }
         let unchangedElement = changes.enumerated().compactMap { $0.element == nil ? $0.offset : nil }
+        print("rawUnchangedElement", rawUnchangedElement)
+        print("unchangedElement", unchangedElement)
         for (rawIndex, index) in zip(rawUnchangedElement, unchangedElement) {
+            print("- merge normal:")
+            print("rawUnchangedIndex \(rawIndex)", "unchangedIndex \(index)")
             let offset = snapshot.elementsOffsets[index]
             let rawOffset = rawSnapshot.elementsOffsets[rawIndex]
             let updateContext = UpdateContext<Snapshot.Element.SourceSnapshot>(
@@ -369,10 +382,16 @@ private extension UpdateContext where Snapshot: ListSnapshot, Snapshot.Element: 
                 snapshot: snapshot.elementsSnapshots[index]
             )
             snapshot.elements[index].update(context: updateContext)
+            print("rawUnchangedIndex \(rawIndex)", "unchangedIndex \(index) - sub snapshot finish, start merge")
             merge(context: updateContext, rawOffset: rawOffset, offset: offset)
+            print("rawUnchangedIndex \(rawIndex)", "unchangedIndex \(index) - merge complete")
+            print("rawSectionChanges", rawSnapshotChanges)
+            print("sectionChanges", snapshotChanges)
         }
         
         for case let (index, .insert(rawIndex?, false)?) in changes.enumerated().lazy.compactMap({ $0 }) {
+            print("- merge move:")
+            print("moveIndex \(rawIndex)", "toIndex \(index)")
             let offset = snapshot.elementsOffsets[index]
             let rawOffset = rawSnapshot.elementsOffsets[rawIndex]
             let updateContext = UpdateContext<Snapshot.Element.SourceSnapshot>(
@@ -380,20 +399,25 @@ private extension UpdateContext where Snapshot: ListSnapshot, Snapshot.Element: 
                 snapshot: snapshot.elementsSnapshots[index]
             )
             snapshot.elements[index].update(context: updateContext)
+            print("--moveIndex \(rawIndex)", "toIndex \(index) - sub snapshot finish, start merge")
             merge(context: updateContext, rawOffset: rawOffset, offset: offset, isMove: true)
+            print("moveIndex \(rawIndex)", "toIndex \(index) - merge complete--")
+            print("rawSectionChanges", rawSnapshotChanges)
+            print("sectionChanges", snapshotChanges)
         }
     }
     
     func merge(context: UpdateContext<Snapshot.Element.SourceSnapshot>, rawOffset: IndexPath, offset: IndexPath, isMove: Bool = false) {
+        print("rawSnapshotChanges", context.rawSnapshotChanges)
+        print("snapshotChanges", context.snapshotChanges)
         if context.isSectioned {
             if isMove {
-                let unChangedRawSections = rawSnapshotChanges.enumerated().lazy.compactMap { $0.element.change == nil ? $0 : nil }
-                let unChangedSections = snapshotChanges.enumerated().lazy.compactMap { $0.element.change == nil ? $0 : nil }
-                for (rawArg, arg) in zip(unChangedRawSections, unChangedSections) {
-                    let (rawIndex, rawChange) = rawArg
-                    let (index, change) = arg
-                    rawChange.change = .delete(associatedWith: index, reload: false)
-                    change.change = .insert(associatedWith: rawIndex, reload: false)
+                let unChangedRawSections = context.rawSnapshotChanges.enumerated().lazy.compactMap { $0.element.change == nil && !$0.element.isAllListChange ? $0.offset : nil }
+                let unChangedSections = context.snapshotChanges.enumerated().lazy.compactMap { $0.element.change == nil && !$0.element.isAllListChange ? $0.offset : nil }
+                print(Array(unChangedRawSections), Array(unChangedSections))
+                for (rawIndex, index) in zip(unChangedRawSections, unChangedSections) {
+                    print(rawIndex, index)
+                    context.moveSection(rawIndex, toSection: index)
                 }
             }
             for section in 0..<context.rawSnapshot.numbersOfSections() {
@@ -406,11 +430,10 @@ private extension UpdateContext where Snapshot: ListSnapshot, Snapshot.Element: 
             }
         } else {
             if isMove {
-                let unChangedRawItems = rawSnapshotChanges[0].values.enumerated().lazy.compactMap { $0.element == nil ? $0.offset : nil }
-                let unChangedItems = snapshotChanges[0].values.enumerated().lazy.compactMap { $0.element == nil ? $0.offset : nil }
+                let unChangedRawItems = context.rawSnapshotChanges[0].values.enumerated().lazy.compactMap { $0.element == nil ? $0.offset : nil }
+                let unChangedItems = context.snapshotChanges[0].values.enumerated().lazy.compactMap { $0.element == nil ? $0.offset : nil }
                 for (rawIndex, index) in zip(unChangedRawItems, unChangedItems) {
-                    rawSnapshotChanges[0].values[rawIndex] = .delete(associatedWith: IndexPath(item: index), reload: false)
-                    snapshotChanges[0].values[rawIndex] = .insert(associatedWith: IndexPath(item: rawIndex), reload: false)
+                    context.moveItem(at: IndexPath(item: rawIndex), to: IndexPath(item: index), isListItem: true)
                 }
             }
             
@@ -421,6 +444,7 @@ private extension UpdateContext where Snapshot: ListSnapshot, Snapshot.Element: 
                 snapshotChanges[offset.section].values[offset.item + index] = context.snapshotChanges[0].values[index]?.addingOffset(rawOffset)
             }
         }
+        print("--------")
     }
 }
 

@@ -77,6 +77,26 @@
                                             <segue destination="MYe-Cl-Zdx" kind="show" id="SPu-DT-K9t"/>
                                         </connections>
                                     </tableViewCell>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" textLabel="Uib-vh-ZIq" style="IBUITableViewCellStyleDefault" id="L2g-Fh-a6r">
+                                        <rect key="frame" x="0.0" y="88" width="414" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="L2g-Fh-a6r" id="o5M-Sl-ms9">
+                                            <rect key="frame" x="0.0" y="0.0" width="414" height="43.5"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="Compositional List View" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="Uib-vh-ZIq">
+                                                    <rect key="frame" x="20" y="0.0" width="374" height="43.5"/>
+                                                    <autoresizingMask key="autoresizingMask"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                        </tableViewCellContentView>
+                                        <connections>
+                                            <segue destination="pS6-dR-Myc" kind="show" id="QaK-5V-kbN"/>
+                                        </connections>
+                                    </tableViewCell>
                                 </cells>
                             </tableViewSection>
                         </sections>
@@ -182,6 +202,43 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="qk3-ZV-HCc" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="290" y="-245"/>
+        </scene>
+        <!--Compositional List View Controller-->
+        <scene sceneID="WD7-za-vfL">
+            <objects>
+                <viewController id="pS6-dR-Myc" customClass="CompositionalListViewController" customModule="SundayListKitDemo" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Zyj-cC-4nz">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="30" estimatedSectionHeaderHeight="30" sectionFooterHeight="1" translatesAutoresizingMaskIntoConstraints="NO" id="bVm-Yf-pGb">
+                                <rect key="frame" x="0.0" y="88" width="414" height="808"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </tableView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="bVm-Yf-pGb" firstAttribute="leading" secondItem="yBC-Aj-qMg" secondAttribute="leading" id="1Dp-DF-MN1"/>
+                            <constraint firstAttribute="bottom" secondItem="bVm-Yf-pGb" secondAttribute="bottom" id="Rc8-nC-NxA"/>
+                            <constraint firstItem="bVm-Yf-pGb" firstAttribute="top" secondItem="yBC-Aj-qMg" secondAttribute="top" id="XPg-h9-RfF"/>
+                            <constraint firstItem="bVm-Yf-pGb" firstAttribute="trailing" secondItem="yBC-Aj-qMg" secondAttribute="trailing" id="aJW-NV-fiN"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="yBC-Aj-qMg"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="1ui-QF-i30">
+                        <barButtonItem key="rightBarButtonItem" title="Refresh" id="QfJ-ZF-0Y5">
+                            <connections>
+                                <action selector="onRefresh:" destination="pS6-dR-Myc" id="DRf-sW-TbO"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                    <connections>
+                        <outlet property="tableView" destination="bVm-Yf-pGb" id="25N-Wq-3l9"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="W2u-oK-HpE" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-597" y="821"/>
         </scene>
     </scenes>
 </document>

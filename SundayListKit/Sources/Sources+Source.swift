@@ -30,42 +30,42 @@ extension Sources: Source, ListUpdatable {
 
 public extension Source {
     func eraseToSources() -> Sources<SubSource, Item, SourceSnapshot, Never> {
-        return .init { self }
+        return .init(self)
     }
 }
 
 public extension Source where Self: Identifiable {
     func eraseToSources() -> Sources<SubSource, Item, SourceSnapshot, Never> {
-        return .init { self }
+        return .init(self)
     }
 }
 
 public extension Source where Self: Diffable {
     func eraseToSources() -> Sources<SubSource, Item, SourceSnapshot, Never> {
-        return .init { self }
+        return .init(self)
     }
 }
 
 public extension Source where Self: ListUpdatable {
     func eraseToSources() -> Sources<SubSource, Item, SourceSnapshot, Never> {
-        return .init { self }
+        return .init(self)
     }
 }
 
 public extension Source where Self: Identifiable, Self: ListUpdatable {
     func eraseToSources() -> Sources<SubSource, Item, SourceSnapshot, Never> {
-        return .init { self }
+        return .init(self)
     }
 }
 
 public extension Source where Self: Diffable, Self: ListUpdatable {
     func eraseToSources() -> Sources<SubSource, Item, SourceSnapshot, Never> {
-        return .init { self }
+        return .init(self)
     }
 }
 
 public extension Sources {
-    private init<Value: Source>(_source:  @escaping () -> Value)
+    private init<Value: Source>(_source: @escaping () -> Value)
     where
         Value.SubSource == SubSource,
         Value.Item == Item,
@@ -79,7 +79,7 @@ public extension Sources {
         sourceStored = nil
     }
     
-    private init<Value: Source & ListUpdatable>(_source:  @escaping () -> Value)
+    private init<Value: Source & ListUpdatable>(_source: @escaping () -> Value)
     where
         Value.SubSource == SubSource,
         Value.Item == Item,
@@ -94,7 +94,7 @@ public extension Sources {
         sourceStored = nil
     }
     
-    init<Value: Source>(_ source: @escaping () -> Value)
+    init<Value: Source>(_ source: @escaping @autoclosure () -> Value)
     where
         Value.SubSource == SubSource,
         Value.Item == Item,
@@ -103,17 +103,7 @@ public extension Sources {
         self.init(_source: source)
     }
     
-    init<Value: Source & Identifiable>(_ source: @escaping () -> Value)
-    where
-        Value.SubSource == SubSource,
-        Value.Item == Item,
-        Value.SourceSnapshot == SourceSnapshot
-    {
-        self.init(_source: source)
-        diffable = .init(source)
-    }
-    
-    init<Value: Source & Diffable>(_ source: @escaping () -> Value)
+    init<Value: Source & Identifiable>(_ source: @escaping @autoclosure () -> Value)
     where
         Value.SubSource == SubSource,
         Value.Item == Item,
@@ -123,16 +113,7 @@ public extension Sources {
         diffable = .init(source)
     }
     
-    init<Value: Source & ListUpdatable>(_ source: @escaping () -> Value)
-    where
-        Value.SubSource == SubSource,
-        Value.Item == Item,
-        Value.SourceSnapshot == SourceSnapshot
-    {
-        self.init(_source: source)
-    }
-    
-    init<Value: Source & Identifiable & ListUpdatable>(_ source: @escaping () -> Value)
+    init<Value: Source & Diffable>(_ source: @escaping @autoclosure () -> Value)
     where
         Value.SubSource == SubSource,
         Value.Item == Item,
@@ -142,7 +123,26 @@ public extension Sources {
         diffable = .init(source)
     }
     
-    init<Value: Source & Diffable & ListUpdatable>(_ source: @escaping () -> Value)
+    init<Value: Source & ListUpdatable>(_ source: @escaping @autoclosure () -> Value)
+    where
+        Value.SubSource == SubSource,
+        Value.Item == Item,
+        Value.SourceSnapshot == SourceSnapshot
+    {
+        self.init(_source: source)
+    }
+    
+    init<Value: Source & Identifiable & ListUpdatable>(_ source: @escaping @autoclosure () -> Value)
+    where
+        Value.SubSource == SubSource,
+        Value.Item == Item,
+        Value.SourceSnapshot == SourceSnapshot
+    {
+        self.init(_source: source)
+        diffable = .init(source)
+    }
+    
+    init<Value: Source & Diffable & ListUpdatable>(_ source: @escaping @autoclosure () -> Value)
     where
         Value.SubSource == SubSource,
         Value.Item == Item,

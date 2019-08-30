@@ -53,38 +53,35 @@ where
     UIViewType == Never
 {
     
-    private init(_ sources: [SubSource.Element]) {
+    private init(id: AnyHashable, _ sources: [SubSource.Element]) {
         var _sources = SubSource()
         _sources.append(contentsOf: sources)
         createSnapshotWith = { .init($0) }
         itemFor = { $0.item(at: $1) }
         updateContext = { $0.diffUpdate() }
+        diffable = .init(id)
         
         sourceClosure = nil
         sourceStored = _sources
     }
     
-    init<S: Source>(source: S?) where S.Item == Item {
-        self.init(source.map { [.init($0)] } ?? [])
-    }
-    
-    init<S0: Source, S1: Source>(_ s0: S0?, _ s1: S1?) where S0.Item == Item, S1.Item == Item {
-        self.init([
+    init<S0: Source, S1: Source>(id: AnyHashable = UUID(), _ s0: S0?, _ s1: S1?) where S0.Item == Item, S1.Item == Item {
+        self.init(id: id, [
             s0.map(SubSource.Element.init),
             s1.map(SubSource.Element.init),
         ].compactMap { $0 })
     }
     
-    init<S0: Source, S1: Source, S2: Source>(_ s0: S0?, _ s1: S1?, _ s2: S2?) where S0.Item == Item, S1.Item == Item, S2.Item == Item {
-        self.init([
+    init<S0: Source, S1: Source, S2: Source>(id: AnyHashable = UUID(), _ s0: S0?, _ s1: S1?, _ s2: S2?) where S0.Item == Item, S1.Item == Item, S2.Item == Item {
+        self.init(id: id, [
             s0.map(SubSource.Element.init),
             s1.map(SubSource.Element.init),
             s2.map(SubSource.Element.init),
         ].compactMap { $0 })
     }
     
-    init<S0: Source, S1: Source, S2: Source, S3: Source>(_ s0: S0?, _ s1: S1?, _ s2: S2?, _ s3: S3?) where S0.Item == Item, S1.Item == Item, S2.Item == Item, S3.Item == Item {
-        self.init([
+    init<S0: Source, S1: Source, S2: Source, S3: Source>(id: AnyHashable = UUID(), _ s0: S0?, _ s1: S1?, _ s2: S2?, _ s3: S3?) where S0.Item == Item, S1.Item == Item, S2.Item == Item, S3.Item == Item {
+        self.init(id: id, [
             s0.map(SubSource.Element.init),
             s1.map(SubSource.Element.init),
             s2.map(SubSource.Element.init),
@@ -92,8 +89,8 @@ where
         ].compactMap { $0 })
     }
     
-    init<S0: Source, S1: Source, S2: Source, S3: Source, S4: Source>(_ s0: S0?, _ s1: S1?, _ s2: S2?, _ s3: S3?, _ s4: S4?) where S0.Item == Item, S1.Item == Item, S2.Item == Item, S3.Item == Item, S4.Item == Item {
-        self.init([
+    init<S0: Source, S1: Source, S2: Source, S3: Source, S4: Source>(id: AnyHashable = UUID(), _ s0: S0?, _ s1: S1?, _ s2: S2?, _ s3: S3?, _ s4: S4?) where S0.Item == Item, S1.Item == Item, S2.Item == Item, S3.Item == Item, S4.Item == Item {
+        self.init(id: id, [
             s0.map(SubSource.Element.init),
             s1.map(SubSource.Element.init),
             s2.map(SubSource.Element.init),
@@ -102,8 +99,8 @@ where
         ].compactMap { $0 })
     }
     
-    init<S0: Source, S1: Source, S2: Source, S3: Source, S4: Source, S5: Source>(_ s0: S0?, _ s1: S1?, _ s2: S2?, _ s3: S3?, _ s4: S4?, _ s5: S5?) where S0.Item == Item, S1.Item == Item, S2.Item == Item, S3.Item == Item, S4.Item == Item, S5.Item == Item {
-        self.init([
+    init<S0: Source, S1: Source, S2: Source, S3: Source, S4: Source, S5: Source>(id: AnyHashable = UUID(), _ s0: S0?, _ s1: S1?, _ s2: S2?, _ s3: S3?, _ s4: S4?, _ s5: S5?) where S0.Item == Item, S1.Item == Item, S2.Item == Item, S3.Item == Item, S4.Item == Item, S5.Item == Item {
+        self.init(id: id, [
             s0.map(SubSource.Element.init),
             s1.map(SubSource.Element.init),
             s2.map(SubSource.Element.init),
@@ -113,8 +110,8 @@ where
         ].compactMap { $0 })
     }
     
-    init<S0: Source, S1: Source, S2: Source, S3: Source, S4: Source, S5: Source, S6: Source>(_ s0: S0?, _ s1: S1?, _ s2: S2?, _ s3: S3?, _ s4: S4?, _ s5: S5?, _ s6: S6?) where S0.Item == Item, S1.Item == Item, S2.Item == Item, S3.Item == Item, S4.Item == Item, S5.Item == Item, S6.Item == Item {
-        self.init([
+    init<S0: Source, S1: Source, S2: Source, S3: Source, S4: Source, S5: Source, S6: Source>(id: AnyHashable = UUID(), _ s0: S0?, _ s1: S1?, _ s2: S2?, _ s3: S3?, _ s4: S4?, _ s5: S5?, _ s6: S6?) where S0.Item == Item, S1.Item == Item, S2.Item == Item, S3.Item == Item, S4.Item == Item, S5.Item == Item, S6.Item == Item {
+        self.init(id: id, [
             s0.map(SubSource.Element.init),
             s1.map(SubSource.Element.init),
             s2.map(SubSource.Element.init),
@@ -125,8 +122,8 @@ where
         ].compactMap { $0 })
     }
     
-    init<S0: Source, S1: Source, S2: Source, S3: Source, S4: Source, S5: Source, S6: Source, S7: Source>(_ s0: S0?, _ s1: S1?, _ s2: S2?, _ s3: S3?, _ s4: S4?, _ s5: S5?, _ s6: S6?, _ s7: S7?) where S0.Item == Item, S1.Item == Item, S2.Item == Item, S3.Item == Item, S4.Item == Item, S5.Item == Item, S7.Item == Item, S6.Item == Item {
-        self.init([
+    init<S0: Source, S1: Source, S2: Source, S3: Source, S4: Source, S5: Source, S6: Source, S7: Source>(id: AnyHashable = UUID(), _ s0: S0?, _ s1: S1?, _ s2: S2?, _ s3: S3?, _ s4: S4?, _ s5: S5?, _ s6: S6?, _ s7: S7?) where S0.Item == Item, S1.Item == Item, S2.Item == Item, S3.Item == Item, S4.Item == Item, S5.Item == Item, S7.Item == Item, S6.Item == Item {
+        self.init(id: id, [
             s0.map(SubSource.Element.init),
             s1.map(SubSource.Element.init),
             s2.map(SubSource.Element.init),

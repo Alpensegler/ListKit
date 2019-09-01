@@ -42,9 +42,9 @@ public struct Sources<SubSource, Item, SourceSnapshot: SnapshotType, UIViewType>
     var diffable = AnyDiffable()
     
     //MARK: - Source
-    var createSnapshotWith: ((SubSource) -> SourceSnapshot)!
-    var itemFor: ((SourceSnapshot, IndexPath) -> Item)!
-    var updateContext: ((UpdateContext<SourceSnapshot>) -> Void)!
+    var createSnapshotWith: (SubSource) -> SourceSnapshot
+    var itemFor: (SourceSnapshot, IndexPath) -> Item
+    var updateContext: (UpdateContext<SourceSnapshot>) -> Void
     var performUpdate: (Sources<SubSource, Item, SourceSnapshot, UIViewType>) -> Void = { $0.performUpdate() }
     
     //MARK: - collection adapter

@@ -6,6 +6,50 @@
 //  Copyright © 2019 Frain. All rights reserved.
 //
 
+protocol SomeP {
+    var value: Int { get }
+}
+
+protocol SomeP2: SomeP {
+    var p2Value: Int { get }
+}
+
+@_functionBuilder
+struct SomePBuilder {
+    public static func buildBlock<S0: SomeP>(_ content: S0...) -> [Int] {
+        return content.map { $0.value }
+    }
+}
+
+@_functionBuilder
+struct SomeP2Builder {
+    public static func buildBlock<S0: SomeP2>(_ content: S0...) -> [Int] {
+        return content.map { $0.p2Value }
+    }
+}
+
+extension Int: SomeP {
+    var value: Int { return self }
+}
+
+extension Double: SomeP2 {
+    var p2Value: Int {
+        return Int(self)
+    }
+    
+    var value: Int {
+        return Int(self)
+    }
+}
+
+func foo(@SomePBuilder build: () -> [Int]) {
+    
+}
+
+func foo(@SomeP2Builder buildp2: () -> [Int]) {
+    
+}
+
 @_functionBuilder
 public struct SourceBuilder {
     public static func buildBlock<S0: Source>(_ content: S0) -> [AnySources<S0.Item>] {
@@ -100,10 +144,6 @@ public extension SourceBuilder {
 }
 
 public extension Sources where SubSource == [AnySources<Item>], SourceSnapshot == Snapshot<[AnySources<Item>], Item>, UIViewType == Never {
-    init<ID: Hashable>(id: ID, @SourceBuilder sources: () -> [AnySources<Item>]) {
-        self.init(id: id, sources())
-    }
-
     init(@SourceBuilder sources: () -> [AnySources<Item>]) {
         self.init(sources())
     }

@@ -10,15 +10,20 @@ public struct Sources<SubSource, Item, SourceSnapshot: SnapshotType, UIViewType>
     public internal(set) var listUpdater = ListUpdater()
     public var source: SubSource {
         get { return sourceClosure?() ?? sourceStored }
-        set {
+        nonmutating set {
             if sourceClosure != nil { return }
             sourceStored = newValue
-            performUpdate()
         }
     }
     
     let sourceClosure: (() -> SubSource)!
-    var sourceStored: SubSource!
+    var sourceStored: SubSource! {
+        get { return listUpdater.sourceValue as? SubSource }
+        nonmutating set {
+            listUpdater.sourceValue = newValue
+            performUpdate(self)
+        }
+    }
     
     var diffable = AnyDiffable()
     
@@ -26,6 +31,7 @@ public struct Sources<SubSource, Item, SourceSnapshot: SnapshotType, UIViewType>
     var createSnapshotWith: (SubSource) -> SourceSnapshot
     var itemFor: (SourceSnapshot, IndexPath) -> Item
     var updateContext: (UpdateContext<SourceSnapshot>) -> Void
+    var performUpdate: (Sources<SubSource, Item, SourceSnapshot, UIViewType>) -> Void = { $0.performUpdate() }
     
     //MARK: - collection adapter
     var collectionView: (() -> UICollectionView)? = nil

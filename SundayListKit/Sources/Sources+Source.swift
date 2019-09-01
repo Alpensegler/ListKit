@@ -110,7 +110,7 @@ public extension Sources {
         Value.SourceSnapshot == SourceSnapshot
     {
         self.init(_source: source)
-        diffable = .init(source)
+        diffable = .init(source())
     }
     
     init<Value: Source & Diffable>(_ source: @escaping @autoclosure () -> Value)
@@ -120,7 +120,7 @@ public extension Sources {
         Value.SourceSnapshot == SourceSnapshot
     {
         self.init(_source: source)
-        diffable = .init(source)
+        diffable = .init(source())
     }
     
     init<Value: Source & ListUpdatable>(_ source: @escaping @autoclosure () -> Value)
@@ -139,7 +139,7 @@ public extension Sources {
         Value.SourceSnapshot == SourceSnapshot
     {
         self.init(_source: source)
-        diffable = .init(source)
+        diffable = .init(source())
     }
     
     init<Value: Source & Diffable & ListUpdatable>(_ source: @escaping @autoclosure () -> Value)
@@ -149,6 +149,6 @@ public extension Sources {
         Value.SourceSnapshot == SourceSnapshot
     {
         self.init(_source: source)
-        diffable = .init(source)
+        diffable = .init(source())
     }
 }

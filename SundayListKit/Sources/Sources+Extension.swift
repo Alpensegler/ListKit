@@ -92,23 +92,17 @@ struct AnyDiffable: Identifiable, Equatable {
     var id: AnyHashable { return _id() }
     var base: AnyEquatableBox? { return _base?() }
     
-    init() {
-        let uuid = UUID()
-        _id = { uuid }
-        _base = nil
-    }
-    
-    init(_ id: AnyHashable) {
+    init(_ id: AnyHashable = UUID()) {
         _id = { id }
         _base = { EquatableBox(id) }
     }
     
-    init<T: Identifiable>(_ identifiable: @escaping () -> T) {
+    init<T: Identifiable>(_ identifiable: @escaping @autoclosure () -> T) {
         self._id = { identifiable().id }
         self._base = { EquatableBox(identifiable().id) }
     }
     
-    init<T: Identifiable & Equatable>(_ identifiable: @escaping () -> T) {
+    init<T: Identifiable & Equatable>(_ identifiable: @escaping @autoclosure () -> T) {
         self._id = { identifiable().id }
         self._base = { EquatableBox(identifiable()) }
     }

@@ -7,7 +7,7 @@
 //
 
 public protocol CollectionDataSource: Source {
-    typealias CollectionListContext = CollectionContext<SourceSnapshot>
+    typealias CollectionListContext = CollectionContext<SubSource, Item>
     
     func eraseToAnyCollectionSources() -> AnyCollectionSources
     
@@ -38,7 +38,7 @@ public extension CollectionDataSource {
     func collectionContext(_ context: CollectionListContext, indexPathForIndexTitle title: String, at index: Int) -> IndexPath { return IndexPath(section: index) }
 }
 
-public extension CollectionDataSource where SourceSnapshot: ListSnapshot, SourceSnapshot.Element: CollectionDataSource {
+public extension CollectionDataSource where SubSource: Collection, SubSource.Element: CollectionAdapter, Item == SubSource.Element.Item {
     //Getting Views for Items
     func collectionContext(_ context: CollectionListContext, cellForItem item: Item) -> UICollectionViewCell {
         return context.elementsCellForItem()
@@ -49,7 +49,7 @@ public extension CollectionDataSource where SourceSnapshot: ListSnapshot, Source
     }
 }
 
-public extension CollectionContext where Snapshot: ListSnapshot, Snapshot.Element: CollectionDataSource {
+public extension CollectionContext where SubSource: Collection, SubSource.Element: CollectionAdapter, Item == SubSource.Element.Item {
     func elementsCellForItem() -> UICollectionViewCell {
         return element.collectionContext(elementsContext(), cellForItem: elementsItem)
     }

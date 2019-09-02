@@ -8,7 +8,7 @@
 
 extension Sources: CustomStringConvertible {
     public var description: String {
-        return "\(source)" // "Sources<\(SubSource.self), \(Item.self), \(SourceSnapshot.self), \(UIViewType.self)> \(source)"
+        return "\(source)" // "Sources<\(SubSource.self), \(Item.self), \(Snapshot<SubSource, Item>.self), \(UIViewType.self)> \(source)"
     }
 }
 
@@ -21,7 +21,7 @@ extension Sources: Identifiable {
 }
 
 extension Sources: Equatable {
-    public static func == (lhs: Sources<SubSource, Item, SourceSnapshot, UIViewType>, rhs: Sources<SubSource, Item, SourceSnapshot, UIViewType>) -> Bool {
+    public static func == (lhs: Sources<SubSource, Item, UIViewType>, rhs: Sources<SubSource, Item, UIViewType>) -> Bool {
         return lhs.diffable == rhs.diffable
     }
 }

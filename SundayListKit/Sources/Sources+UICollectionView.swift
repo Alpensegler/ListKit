@@ -6,8 +6,8 @@
 //  Copyright © 2019 Frain. All rights reserved.
 //
 
-public typealias CollectionSources<SubSource, Item, Snapshot: SnapshotType> = Sources<SubSource, Item, Snapshot, UICollectionView>
-public typealias AnyCollectionSources = CollectionSources<Any, Any, AnySourceSnapshot>
+public typealias CollectionSources<SubSource, Item> = Sources<SubSource, Item, UICollectionView>
+public typealias AnyCollectionSources = CollectionSources<Any, Any>
 
 public extension CollectionDataSource {
     func eraseToAnyCollectionSources() -> AnyCollectionSources {
@@ -15,16 +15,16 @@ public extension CollectionDataSource {
     }
 }
 
-public extension Sources where SubSource == Any, Item == Any, SourceSnapshot: AnySourceSnapshotType, UIViewType == UICollectionView {
+public extension Sources where SubSource == Any, Item == Any, UIViewType == UICollectionView {
     private init<Value: CollectionDataSource>(_source: @escaping () -> Value) {
         sourceClosure = { _source().source }
         createSnapshotWith = { .init(_source().createSnapshot(with: $0 as! Value.SubSource)) }
-        itemFor = { _source().item(for: $0.base as! Value.SourceSnapshot, at: $1) }
-        updateContext = { _source().update(context: .init(rawSnapshot: $0.rawSnapshot.base as! Value.SourceSnapshot, snapshot: $0.snapshot.base as! Value.SourceSnapshot)) }
+        itemFor = { _source().item(for: $0.castToSnapshot(), at: $1) }
+        updateContext = { _source().update(context: $0.castSnapshotType()) }
         
         sourceStored = nil
-        collectionCellForItem = { _source().collectionContext(.init($0), cellForItem: $1 as! Value.Item) }
-        collectionSupplementaryView = { (_source().collectionContext(.init($0), viewForSupplementaryElementOfKind: $1, item: $2 as! Value.Item)) }
+        collectionCellForItem = { _source().collectionContext($0.castSnapshotType(), cellForItem: $1 as! Value.Item) }
+        collectionSupplementaryView = { (_source().collectionContext($0.castSnapshotType(), viewForSupplementaryElementOfKind: $1, item: $2 as! Value.Item)) }
     }
     
     init<Value: CollectionDataSource>(_ source: @escaping () -> Value) {
@@ -33,13 +33,13 @@ public extension Sources where SubSource == Any, Item == Any, SourceSnapshot: An
 }
 
 public extension Sources where UIViewType == Never {
-    func provideCollectionCell(_ provider: @escaping (CollectionContext<SourceSnapshot>, Item) -> UICollectionViewCell) -> Sources<SubSource, Item, SourceSnapshot, UICollectionView> {
+    func provideCollectionCell(_ provider: @escaping (CollectionContext<SubSource, Item>, Item) -> UICollectionViewCell) -> Sources<SubSource, Item, UICollectionView> {
         return .init(self, cellProvider: provider)
     }
 }
 
 public extension Sources where UIViewType == UICollectionView {
-    init(_ sources: Sources<SubSource, Item, SourceSnapshot, Never>, cellProvider: @escaping (CollectionContext<SourceSnapshot>, Item) -> UICollectionViewCell) {
+    init(_ sources: Sources<SubSource, Item, Never>, cellProvider: @escaping (CollectionContext<SubSource, Item>, Item) -> UICollectionViewCell) {
         createSnapshotWith = sources.createSnapshotWith
         itemFor = sources.itemFor
         updateContext = sources.updateContext
@@ -52,49 +52,49 @@ public extension Sources where UIViewType == UICollectionView {
         diffable = sources.diffable
     }
     
-    func observeOnCollectionViewUpdate(_ provider: @escaping (UICollectionView, ListChange) -> Void) -> Sources<SubSource, Item, SourceSnapshot, UIViewType> {
+    func observeOnCollectionViewUpdate(_ provider: @escaping (UICollectionView, ListChange) -> Void) -> Sources<SubSource, Item, UIViewType> {
         var sources = self
         sources.collectionViewWillUpdate = provider
         return sources
     }
     
-    func provideCollectionView(_ provider: @escaping () -> UICollectionView) -> Sources<SubSource, Item, SourceSnapshot, UIViewType> {
+    func provideCollectionView(_ provider: @escaping () -> UICollectionView) -> Sources<SubSource, Item, UIViewType> {
         var sources = self
         sources.collectionView = provider
         return sources
     }
     
-    func provideSupplementaryView(_ provider: @escaping (CollectionContext<SourceSnapshot>, SupplementaryViewType, Item) -> UICollectionReusableView) -> Sources<SubSource, Item, SourceSnapshot, UIViewType> {
+    func provideSupplementaryView(_ provider: @escaping (CollectionContext<SubSource, Item>, SupplementaryViewType, Item) -> UICollectionReusableView) -> Sources<SubSource, Item, UIViewType> {
         var sources = self
         sources.collectionSupplementaryView = provider
         return sources
     }
     
-    func onSelectItem(_ selection: @escaping (CollectionContext<SourceSnapshot>, Item) -> Void) -> Sources<SubSource, Item, SourceSnapshot, UIViewType> {
+    func onSelectItem(_ selection: @escaping (CollectionContext<SubSource, Item>, Item) -> Void) -> Sources<SubSource, Item, UIViewType> {
         var sources = self
         sources.collectionDidSelectItem = selection
         return sources
     }
     
-    func onWillDisplayItem(_ display: @escaping (CollectionContext<SourceSnapshot>, UICollectionViewCell, Item) -> Void) -> Sources<SubSource, Item, SourceSnapshot, UIViewType> {
+    func onWillDisplayItem(_ display: @escaping (CollectionContext<SubSource, Item>, UICollectionViewCell, Item) -> Void) -> Sources<SubSource, Item, UIViewType> {
         var sources = self
         sources.collectionWillDisplayItem = display
         return sources
     }
     
-    func provideSizeForItem(_ provider: @escaping (CollectionContext<SourceSnapshot>, UICollectionViewLayout, Item) -> CGSize) -> Sources<SubSource, Item, SourceSnapshot, UIViewType> {
+    func provideSizeForItem(_ provider: @escaping (CollectionContext<SubSource, Item>, UICollectionViewLayout, Item) -> CGSize) -> Sources<SubSource, Item, UIViewType> {
         var sources = self
         sources.collectionSizeForItem = provider
         return sources
     }
     
-    func provideSizeForHeader(_ provider: @escaping (CollectionContext<SourceSnapshot>, UICollectionViewLayout, Int) -> CGSize) -> Sources<SubSource, Item, SourceSnapshot, UIViewType> {
+    func provideSizeForHeader(_ provider: @escaping (CollectionContext<SubSource, Item>, UICollectionViewLayout, Int) -> CGSize) -> Sources<SubSource, Item, UIViewType> {
         var sources = self
         sources.collectionSizeForHeader = provider
         return sources
     }
     
-    func provideSizeForFooter(_ provider: @escaping (CollectionContext<SourceSnapshot>, UICollectionViewLayout, Int) -> CGSize) -> Sources<SubSource, Item, SourceSnapshot, UIViewType> {
+    func provideSizeForFooter(_ provider: @escaping (CollectionContext<SubSource, Item>, UICollectionViewLayout, Int) -> CGSize) -> Sources<SubSource, Item, UIViewType> {
         var sources = self
         sources.collectionSizeForFooter = provider
         return sources
@@ -157,12 +157,3 @@ public extension Sources where UIViewType == UICollectionView {
 }
 
 #endif
-
-fileprivate extension CollectionContext {
-    init<AnySourceSnapshot: AnySourceSnapshotType>(_ context: CollectionContext<AnySourceSnapshot>) {
-        snapshot = context.snapshot.base as! Snapshot
-        indexPath = context.indexPath
-        offset = context.offset
-        listView = context.listView
-    }
-}

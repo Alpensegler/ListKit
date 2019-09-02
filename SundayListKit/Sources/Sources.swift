@@ -6,7 +6,7 @@
 //  Copyright © 2019 Frain. All rights reserved.
 //
 
-public struct Sources<SubSource, Item, SourceSnapshot: SnapshotType, UIViewType> {
+public struct Sources<SubSource, Item, UIViewType> {
     public internal(set) var listUpdater = ListUpdater()
     public var source: SubSource {
         get { return sourceClosure?() ?? sourceStored }
@@ -28,36 +28,36 @@ public struct Sources<SubSource, Item, SourceSnapshot: SnapshotType, UIViewType>
     var diffable = AnyDiffable()
     
     //MARK: - Source
-    var createSnapshotWith: (SubSource) -> SourceSnapshot
-    var itemFor: (SourceSnapshot, IndexPath) -> Item
-    var updateContext: (UpdateContext<SourceSnapshot>) -> Void
-    var performUpdate: (Sources<SubSource, Item, SourceSnapshot, UIViewType>) -> Void = { $0.performUpdate() }
+    var createSnapshotWith: (SubSource) -> Snapshot<SubSource, Item>
+    var itemFor: (Snapshot<SubSource, Item>, IndexPath) -> Item
+    var updateContext: (UpdateContext<SubSource, Item>) -> Void
+    var performUpdate: (Sources<SubSource, Item, UIViewType>) -> Void = { $0.performUpdate() }
     
     //MARK: - collection adapter
     var collectionView: (() -> UICollectionView)? = nil
     var collectionViewWillUpdate: ((UICollectionView, ListChange) -> Void)? = nil
     
-    var collectionCellForItem: ((CollectionContext<SourceSnapshot>, Item) -> UICollectionViewCell)! = nil
-    var collectionSupplementaryView: ((CollectionContext<SourceSnapshot>, SupplementaryViewType, Item) -> UICollectionReusableView?)? = nil
+    var collectionCellForItem: ((CollectionContext<SubSource, Item>, Item) -> UICollectionViewCell)! = nil
+    var collectionSupplementaryView: ((CollectionContext<SubSource, Item>, SupplementaryViewType, Item) -> UICollectionReusableView?)? = nil
     
-    var collectionDidSelectItem: ((CollectionContext<SourceSnapshot>, Item) -> Void)? = nil
-    var collectionWillDisplayItem: ((CollectionContext<SourceSnapshot>, UICollectionViewCell, Item) -> Void)? = nil
+    var collectionDidSelectItem: ((CollectionContext<SubSource, Item>, Item) -> Void)? = nil
+    var collectionWillDisplayItem: ((CollectionContext<SubSource, Item>, UICollectionViewCell, Item) -> Void)? = nil
     
-    var collectionSizeForItem: ((CollectionContext<SourceSnapshot>, UICollectionViewLayout, Item) -> CGSize)? = nil
-    var collectionSizeForHeader: ((CollectionContext<SourceSnapshot>, UICollectionViewLayout, Int) -> CGSize)? = nil
-    var collectionSizeForFooter: ((CollectionContext<SourceSnapshot>, UICollectionViewLayout, Int) -> CGSize)? = nil
+    var collectionSizeForItem: ((CollectionContext<SubSource, Item>, UICollectionViewLayout, Item) -> CGSize)? = nil
+    var collectionSizeForHeader: ((CollectionContext<SubSource, Item>, UICollectionViewLayout, Int) -> CGSize)? = nil
+    var collectionSizeForFooter: ((CollectionContext<SubSource, Item>, UICollectionViewLayout, Int) -> CGSize)? = nil
     
     //MARK: - table adapter
     var tableViewWillUpdate: ((UITableView, ListChange) -> Void)? = nil
     
-    var tableCellForItem: ((TableContext<SourceSnapshot>, Item) -> UITableViewCell)! = nil
-    var tableHeader: ((TableContext<SourceSnapshot>, Int) -> UIView?)? = nil
-    var tableFooter: ((TableContext<SourceSnapshot>, Int) -> UIView?)? = nil
+    var tableCellForItem: ((TableContext<SubSource, Item>, Item) -> UITableViewCell)! = nil
+    var tableHeader: ((TableContext<SubSource, Item>, Int) -> UIView?)? = nil
+    var tableFooter: ((TableContext<SubSource, Item>, Int) -> UIView?)? = nil
     
-    var tableDidSelectItem: ((TableContext<SourceSnapshot>, Item) -> Void)? = nil
-    var tableWillDisplayItem: ((TableContext<SourceSnapshot>, UITableViewCell, Item) -> Void)? = nil
+    var tableDidSelectItem: ((TableContext<SubSource, Item>, Item) -> Void)? = nil
+    var tableWillDisplayItem: ((TableContext<SubSource, Item>, UITableViewCell, Item) -> Void)? = nil
     
-    var tableHeightForItem: ((TableContext<SourceSnapshot>, Item) -> CGFloat)? = nil
-    var tableHeightForHeader: ((TableContext<SourceSnapshot>, Int) -> CGFloat)? = nil
-    var tableHeightForFooter: ((TableContext<SourceSnapshot>, Int) -> CGFloat)? = nil
+    var tableHeightForItem: ((TableContext<SubSource, Item>, Item) -> CGFloat)? = nil
+    var tableHeightForHeader: ((TableContext<SubSource, Item>, Int) -> CGFloat)? = nil
+    var tableHeightForFooter: ((TableContext<SubSource, Item>, Int) -> CGFloat)? = nil
 }

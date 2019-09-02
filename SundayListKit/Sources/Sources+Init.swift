@@ -8,16 +8,14 @@
 
 //MARK: - List
 
-public typealias ListSources<Item> = Sources<[AnySources<Item>], Item, Snapshot<[AnySources<Item>], Item>, Never>
+public typealias ListSources<Item> = Sources<[AnySources<Item>], Item, Never>
 
 public extension Sources
 where
+    SubSource: Collection,
     SubSource.Element: SourcesTypeAraser,
     SubSource.Element: Diffable,
     SubSource.Element.Item == Item,
-    SourceSnapshot: ListSnapshot,
-    SourceSnapshot.SubSource == SubSource,
-    SourceSnapshot.Element == SubSource.Element,
     UIViewType == Never
 {
     init(id: AnyHashable = UUID(), _ sources: SubSource) {
@@ -38,9 +36,6 @@ where
     SubSource.Element: SourcesTypeAraser,
     SubSource.Element: Diffable,
     SubSource.Element.Item == Item,
-    SourceSnapshot: ListSnapshot,
-    SourceSnapshot.SubSource == SubSource,
-    SourceSnapshot.Element == SubSource.Element,
     UIViewType == Never
 {
     
@@ -129,17 +124,15 @@ where
 
 //MARK: - Section
 
-public typealias SectionSources<Item> = Sources<[Item], Item, Snapshot<[Item], Item>, Never>
+public typealias SectionSources<Item> = Sources<[Item], Item, Never>
 
 public extension Sources
 where
+    SubSource: Collection,
     SubSource.Element == Item,
-    SourceSnapshot: SectionSnapshot,
-    SourceSnapshot.SubSource == SubSource,
-    SourceSnapshot.Item == Item,
     UIViewType == Never
 {
-    private init(id: AnyHashable, _items: SubSource, customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.reloadCurrent() }) {
+    private init(id: AnyHashable, _items: SubSource, customUpdate: @escaping (UpdateContext<SubSource, Item>) -> Void = { $0.reloadCurrent() }) {
         itemFor = { $0.item(at: $1) }
         createSnapshotWith = { .init($0) }
         updateContext = customUpdate
@@ -149,7 +142,7 @@ where
         diffable = .init(id)
     }
     
-    init(id: AnyHashable = UUID(), items: SubSource, customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.reloadCurrent() }) {
+    init(id: AnyHashable = UUID(), items: SubSource, customUpdate: @escaping (UpdateContext<SubSource, Item>) -> Void = { $0.reloadCurrent() }) {
         self.init(id: id, _items: items, customUpdate: customUpdate)
     }
 }
@@ -158,12 +151,9 @@ public extension Sources
 where
     SubSource: RangeReplaceableCollection,
     SubSource.Element == Item,
-    SourceSnapshot: SectionSnapshot,
-    SourceSnapshot.SubSource == SubSource,
-    SourceSnapshot.Item == Item,
     UIViewType == Never
 {
-    init(id: AnyHashable = UUID(), customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.reloadCurrent() }) {
+    init(id: AnyHashable = UUID(), customUpdate: @escaping (UpdateContext<SubSource, Item>) -> Void = { $0.reloadCurrent() }) {
         self.init(id: id, _items: .init(), customUpdate: customUpdate)
     }
 }
@@ -171,15 +161,13 @@ where
 //MARK: Equatable
 public extension Sources
 where
+    SubSource: Collection,
     SubSource.Element == Item,
-    SourceSnapshot: SectionSnapshot,
-    SourceSnapshot.SubSource == SubSource,
-    SourceSnapshot.Item == Item,
     UIViewType == Never,
     Item: Equatable
 {
     
-    init(id: AnyHashable = UUID(), items: SubSource, customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.diffUpdate() }) {
+    init(id: AnyHashable = UUID(), items: SubSource, customUpdate: @escaping (UpdateContext<SubSource, Item>) -> Void = { $0.diffUpdate() }) {
         self.init(id: id, _items: items, customUpdate: customUpdate)
     }
 }
@@ -188,13 +176,10 @@ public extension Sources
 where
     SubSource: RangeReplaceableCollection,
     SubSource.Element == Item,
-    SourceSnapshot: SectionSnapshot,
-    SourceSnapshot.SubSource == SubSource,
-    SourceSnapshot.Item == Item,
     UIViewType == Never,
     Item: Equatable
 {
-    init(id: AnyHashable = UUID(), customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.diffUpdate() }) {
+    init(id: AnyHashable = UUID(), customUpdate: @escaping (UpdateContext<SubSource, Item>) -> Void = { $0.diffUpdate() }) {
         self.init(id: id, _items: .init(), customUpdate: customUpdate)
     }
 }
@@ -202,15 +187,13 @@ where
 //MARK: Hashable
 public extension Sources
 where
+    SubSource: Collection,
     SubSource.Element == Item,
-    SourceSnapshot: SectionSnapshot,
-    SourceSnapshot.SubSource == SubSource,
-    SourceSnapshot.Item == Item,
     UIViewType == Never,
     Item: Hashable
 {
     
-    init(id: AnyHashable = UUID(), items: SubSource, customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.diffUpdate() }) {
+    init(id: AnyHashable = UUID(), items: SubSource, customUpdate: @escaping (UpdateContext<SubSource, Item>) -> Void = { $0.diffUpdate() }) {
         self.init(id: id, _items: items, customUpdate: customUpdate)
     }
 }
@@ -219,13 +202,10 @@ public extension Sources
 where
     SubSource: RangeReplaceableCollection,
     SubSource.Element == Item,
-    SourceSnapshot: SectionSnapshot,
-    SourceSnapshot.SubSource == SubSource,
-    SourceSnapshot.Item == Item,
     UIViewType == Never,
     Item: Hashable
 {
-    init(id: AnyHashable = UUID(), customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.diffUpdate() }) {
+    init(id: AnyHashable = UUID(), customUpdate: @escaping (UpdateContext<SubSource, Item>) -> Void = { $0.diffUpdate() }) {
         self.init(id: id, _items: .init(), customUpdate: customUpdate)
     }
 }
@@ -233,15 +213,13 @@ where
 //MARK: Identifiable
 public extension Sources
 where
+    SubSource: Collection,
     SubSource.Element == Item,
-    SourceSnapshot: SectionSnapshot,
-    SourceSnapshot.SubSource == SubSource,
-    SourceSnapshot.Item == Item,
     UIViewType == Never,
     Item: Identifiable
 {
     
-    init(id: AnyHashable = UUID(), items: SubSource, customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.diffUpdate() }) {
+    init(id: AnyHashable = UUID(), items: SubSource, customUpdate: @escaping (UpdateContext<SubSource, Item>) -> Void = { $0.diffUpdate() }) {
         self.init(id: id, _items: items, customUpdate: customUpdate)
     }
 }
@@ -250,13 +228,10 @@ public extension Sources
 where
     SubSource: RangeReplaceableCollection,
     SubSource.Element == Item,
-    SourceSnapshot: SectionSnapshot,
-    SourceSnapshot.SubSource == SubSource,
-    SourceSnapshot.Item == Item,
     UIViewType == Never,
     Item: Identifiable
 {
-    init(id: AnyHashable = UUID(), customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.diffUpdate() }) {
+    init(id: AnyHashable = UUID(), customUpdate: @escaping (UpdateContext<SubSource, Item>) -> Void = { $0.diffUpdate() }) {
         self.init(id: id, _items: .init(), customUpdate: customUpdate)
     }
 }
@@ -264,15 +239,13 @@ where
 //MARK: Diffable
 public extension Sources
 where
+    SubSource: Collection,
     SubSource.Element == Item,
-    SourceSnapshot: SectionSnapshot,
-    SourceSnapshot.SubSource == SubSource,
-    SourceSnapshot.Item == Item,
     UIViewType == Never,
     Item: Diffable
 {
     
-    init(id: AnyHashable = UUID(), items: SubSource, customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.diffUpdate() }) {
+    init(id: AnyHashable = UUID(), items: SubSource, customUpdate: @escaping (UpdateContext<SubSource, Item>) -> Void = { $0.diffUpdate() }) {
         self.init(id: id, _items: items, customUpdate: customUpdate)
     }
 }
@@ -281,13 +254,10 @@ public extension Sources
 where
     SubSource: RangeReplaceableCollection,
     SubSource.Element == Item,
-    SourceSnapshot: SectionSnapshot,
-    SourceSnapshot.SubSource == SubSource,
-    SourceSnapshot.Item == Item,
     UIViewType == Never,
     Item: Diffable
 {
-    init(id: AnyHashable = UUID(), customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.diffUpdate() }) {
+    init(id: AnyHashable = UUID(), customUpdate: @escaping (UpdateContext<SubSource, Item>) -> Void = { $0.diffUpdate() }) {
         self.init(id: id, _items: .init(), customUpdate: customUpdate)
     }
 }
@@ -295,16 +265,14 @@ where
 //MARK: Identifiable + Hashable
 public extension Sources
 where
+    SubSource: Collection,
     SubSource.Element == Item,
-    SourceSnapshot: SectionSnapshot,
-    SourceSnapshot.SubSource == SubSource,
-    SourceSnapshot.Item == Item,
     UIViewType == Never,
     Item: Identifiable,
     Item: Hashable
 {
     
-    init(id: AnyHashable = UUID(), items: SubSource, customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.diffUpdate() }) {
+    init(id: AnyHashable = UUID(), items: SubSource, customUpdate: @escaping (UpdateContext<SubSource, Item>) -> Void = { $0.diffUpdate() }) {
         self.init(id: id, _items: items, customUpdate: customUpdate)
     }
 }
@@ -313,30 +281,21 @@ public extension Sources
 where
     SubSource: RangeReplaceableCollection,
     SubSource.Element == Item,
-    SourceSnapshot: SectionSnapshot,
-    SourceSnapshot.SubSource == SubSource,
-    SourceSnapshot.Item == Item,
     UIViewType == Never,
     Item: Identifiable,
     Item: Hashable
 {
-    init(id: AnyHashable = UUID(), customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.diffUpdate() }) {
+    init(id: AnyHashable = UUID(), customUpdate: @escaping (UpdateContext<SubSource, Item>) -> Void = { $0.diffUpdate() }) {
         self.init(id: id, items: .init(), customUpdate: customUpdate)
     }
 }
 
 //MARK: - Item
 
-public typealias ItemSources<Item> = Sources<Item, Item, Snapshot<Item, Item>, Never>
+public typealias ItemSources<Item> = Sources<Item, Item, Never>
 
-public extension Sources
-where
-    SubSource == Item,
-    SourceSnapshot: ItemSnapshot,
-    SourceSnapshot.Item == Item,
-    UIViewType == Never
-{
-    private init(id: AnyHashable, _item: Item, customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.reloadCurrent() }) {
+public extension Sources where SubSource == Item, UIViewType == Never {
+    private init(id: AnyHashable, _item: Item, customUpdate: @escaping (UpdateContext<SubSource, Item>) -> Void = { $0.reloadCurrent() }) {
         itemFor = { (snapshot, _) in snapshot.item }
         createSnapshotWith = { .init($0) }
         updateContext = customUpdate
@@ -346,82 +305,46 @@ where
         diffable = .init(id)
     }
     
-    init(id: AnyHashable = UUID(), item: Item, customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.reloadCurrent() }) {
+    init(id: AnyHashable = UUID(), item: Item, customUpdate: @escaping (UpdateContext<SubSource, Item>) -> Void = { $0.reloadCurrent() }) {
         self.init(id: id, _item: item, customUpdate: customUpdate)
     }
 }
 
 //MARK: Equatable
-public extension Sources
-where
-    SubSource == Item,
-    SourceSnapshot: ItemSnapshot,
-    SourceSnapshot.Item == Item,
-    UIViewType == Never,
-    Item: Equatable
-{
-    init(id: AnyHashable = UUID(), item: Item, customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.diffUpdate() }) {
+public extension Sources where SubSource == Item, UIViewType == Never, Item: Equatable {
+    init(id: AnyHashable = UUID(), item: Item, customUpdate: @escaping (UpdateContext<SubSource, Item>) -> Void = { $0.diffUpdate() }) {
         self.init(id: id, _item: item, customUpdate: customUpdate)
     }
 }
 
 //MARK: Hashable
 
-public extension Sources
-where
-    SubSource == Item,
-    SourceSnapshot: ItemSnapshot,
-    SourceSnapshot.Item == Item,
-    UIViewType == Never,
-    Item: Hashable
-{
-    init(id: AnyHashable = UUID(), item: Item, customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.diffUpdate() }) {
+public extension Sources where SubSource == Item, UIViewType == Never, Item: Hashable {
+    init(id: AnyHashable = UUID(), item: Item, customUpdate: @escaping (UpdateContext<SubSource, Item>) -> Void = { $0.diffUpdate() }) {
         self.init(id: id, _item: item, customUpdate: customUpdate)
         if id is UUID { diffable = .init(item) }
     }
 }
 
 //MARK: Identifiable
-public extension Sources
-where
-    SubSource == Item,
-    SourceSnapshot: ItemSnapshot,
-    SourceSnapshot.Item == Item,
-    UIViewType == Never,
-    Item: Identifiable
-{
-    init(id: AnyHashable = UUID(), item: Item, customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.diffUpdate() }) {
+public extension Sources where SubSource == Item, UIViewType == Never, Item: Identifiable {
+    init(id: AnyHashable = UUID(), item: Item, customUpdate: @escaping (UpdateContext<SubSource, Item>) -> Void = { $0.diffUpdate() }) {
         self.init(id: id, _item: item, customUpdate: customUpdate)
         if id is UUID { diffable = .init(item) }
     }
 }
 
 //MARK: Diffable
-public extension Sources
-where
-    SubSource == Item,
-    SourceSnapshot: ItemSnapshot,
-    SourceSnapshot.Item == Item,
-    UIViewType == Never,
-    Item: Diffable
-{
-    init(id: AnyHashable = UUID(), item: Item, customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.diffUpdate() }) {
+public extension Sources where SubSource == Item, UIViewType == Never, Item: Diffable {
+    init(id: AnyHashable = UUID(), item: Item, customUpdate: @escaping (UpdateContext<SubSource, Item>) -> Void = { $0.diffUpdate() }) {
         self.init(id: id, _item: item, customUpdate: customUpdate)
         if id is UUID { diffable = .init(item) }
     }
 }
 
 //MARK: Identifiable + Hashable
-public extension Sources
-where
-    SubSource == Item,
-    SourceSnapshot: ItemSnapshot,
-    SourceSnapshot.Item == Item,
-    UIViewType == Never,
-    Item: Identifiable,
-    Item: Hashable
-{
-    init(id: AnyHashable = UUID(), item: Item, customUpdate: @escaping (UpdateContext<SourceSnapshot>) -> Void = { $0.diffUpdate() }) {
+public extension Sources where SubSource == Item, UIViewType == Never, Item: Identifiable, Item: Hashable {
+    init(id: AnyHashable = UUID(), item: Item, customUpdate: @escaping (UpdateContext<SubSource, Item>) -> Void = { $0.diffUpdate() }) {
         self.init(id: id, _item: item, customUpdate: customUpdate)
         if id is UUID { diffable = .init(item) }
     }

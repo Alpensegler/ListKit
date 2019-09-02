@@ -156,7 +156,7 @@ public extension TableAdapter {
     func indexPathForPreferredFocusedView(in context: TableListContext) -> IndexPath? { return nil }
 }
 
-public extension TableAdapter where SourceSnapshot: ListSnapshot, SourceSnapshot.Element: TableAdapter {
+public extension TableAdapter where SubSource: Collection, SubSource.Element: TableAdapter, Item == SubSource.Element.Item {
     //Configuring Rows for the Table View
     func tableContext(_ context: TableListContext, willDisplay cell: UITableViewCell, forItem item: Item) { context.elementWillDisplay(cell: cell) }
     
@@ -183,7 +183,7 @@ public extension TableAdapter where SourceSnapshot: ListSnapshot, SourceSnapshot
     func tableContext(_ context: TableListContext, estimatedHeightForFooterInSection section: Int) -> CGFloat { return context.elementEstimatedHeightForFooterInSection(section) }
 }
 
-public extension TableContext where Snapshot: ListSnapshot, Snapshot.Element: TableAdapter  {
+public extension TableContext where SubSource: Collection, SubSource.Element: TableAdapter, Item == SubSource.Element.Item  {
     //Configuring Rows for the Table View
     func elementWillDisplay(cell: UITableViewCell) {
         element.tableContext(elementsContext(), willDisplay: cell, forItem: elementsItem)

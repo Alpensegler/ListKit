@@ -8,10 +8,11 @@
 
 public protocol Context {
     associatedtype List: ListView
-    associatedtype Snapshot
+    associatedtype SubSource
+    associatedtype Item
     
     var listView: List { get }
-    var snapshot: Snapshot { get }
+    var snapshot: Snapshot<SubSource, Item> { get }
     var indexPath: IndexPath { get }
     var offset: IndexPath { get }
 }
@@ -34,35 +35,39 @@ public extension Context {
     }
 }
 
-public extension Context where Snapshot: ListSnapshot {
-    var elementsItem: Snapshot.Element.Item {
+public extension Context where SubSource: Collection, SubSource.Element: Source, Item == SubSource.Element.Item {
+    var elementsItem: SubSource.Element.Item {
         return snapshot.item(at: indexPath)
     }
     
-    var element: Snapshot.Element {
+    var element: SubSource.Element {
         let index = snapshot.index(of: indexPath)
         return snapshot.elements[index]
     }
 }
 
-public struct CollectionContext<Snapshot>: Context {
+public struct CollectionContext<SubSource, Item>: Context {
     public typealias List = UICollectionView
     
-    public let snapshot: Snapshot
+    public let snapshot: Snapshot<SubSource, Item>
     public let indexPath: IndexPath
     public let offset: IndexPath
     public let listView: List
     
-    init(listView: List, indexPath: IndexPath, offset: IndexPath = .default, snapshot: Snapshot) {
+    init(listView: List, indexPath: IndexPath, offset: IndexPath = .default, snapshot: Snapshot<SubSource, Item>) {
         self.snapshot = snapshot
         self.indexPath = indexPath
         self.offset = offset
         self.listView = listView
     }
+    
+    func castSnapshotType<SubSource, Item>() -> CollectionContext<SubSource, Item> {
+        return .init(listView: listView, indexPath: indexPath, offset: offset, snapshot: snapshot.castToSnapshot())
+    }
 }
 
-public extension CollectionContext where Snapshot: ListSnapshot {
-    func elementsContext() -> CollectionContext<Snapshot.Element.SourceSnapshot> {
+public extension CollectionContext where SubSource: Collection, SubSource.Element: Source, Item == SubSource.Element.Item {
+    func elementsContext() -> CollectionContext<SubSource.Element.SubSource, SubSource.Element.Item> {
         let index = snapshot.index(of: indexPath)
         let subSnapshot = snapshot.elementsSnapshots[index]
         let subOffset = snapshot.elementsOffsets[index]
@@ -71,15 +76,15 @@ public extension CollectionContext where Snapshot: ListSnapshot {
     }
 }
 
-public struct TableContext<Snapshot>: Context {
+public struct TableContext<SubSource, Item>: Context {
     public typealias List = UITableView
     
-    public var snapshot: Snapshot
+    public var snapshot: Snapshot<SubSource, Item>
     public var indexPath: IndexPath
     public var offset: IndexPath
     public var listView: UITableView
     
-    init(listView: List, indexPath: IndexPath, offset: IndexPath = .default, snapshot: Snapshot) {
+    init(listView: List, indexPath: IndexPath, offset: IndexPath = .default, snapshot: Snapshot<SubSource, Item>) {
         self.snapshot = snapshot
         self.indexPath = indexPath
         self.offset = offset
@@ -87,8 +92,8 @@ public struct TableContext<Snapshot>: Context {
     }
 }
 
-public extension TableContext where Snapshot: ListSnapshot {
-    func elementsContext() -> TableContext<Snapshot.Element.SourceSnapshot> {
+public extension TableContext where SubSource: Collection, SubSource.Element: Source, Item == SubSource.Element.Item {
+    func elementsContext() -> TableContext<SubSource.Element.SubSource, SubSource.Element.Item> {
         let index = snapshot.index(of: indexPath)
         let subSnapshot = snapshot.elementsSnapshots[index]
         let subOffset = snapshot.elementsOffsets[index]

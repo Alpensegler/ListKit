@@ -114,26 +114,26 @@ public extension CollectionAdapter where Self: AnyObject, Self: ListUpdatable, S
 
 #endif
 
-class CollectionDataSourceCoordinator<Snapshot: SnapshotType>: CollectionCoordinator, UICollectionViewDataSource {
-    var snapshot: Snapshot { return getSnapshot() }
-    let getSnapshot: () -> Snapshot
+class CollectionDataSourceCoordinator<SubSource, Item>: CollectionCoordinator, UICollectionViewDataSource {
+    var snapshot: Snapshot<SubSource, Item> { return getSnapshot() }
+    let getSnapshot: () -> Snapshot<SubSource, Item>
     let addCollectionContext: (ListUpdater.Context<UICollectionView>) -> Void
 
     //Getting Item and Section Metrics
-    let collectionViewNumberOfItemsInSection: (Snapshot, Int) -> Int
-    let numberOfSectionsIn: (Snapshot) -> Int
+    let collectionViewNumberOfItemsInSection: (Snapshot<SubSource, Item>, Int) -> Int
+    let numberOfSectionsIn: (Snapshot<SubSource, Item>) -> Int
 
     //Getting Views for Items
-    let collectionViewCellForItemAt: (Snapshot, UICollectionView, IndexPath) -> UICollectionViewCell
-    let collectionViewViewForSupplementaryElementOfKindAt: (Snapshot, UICollectionView, String, IndexPath) -> UICollectionReusableView
+    let collectionViewCellForItemAt: (Snapshot<SubSource, Item>, UICollectionView, IndexPath) -> UICollectionViewCell
+    let collectionViewViewForSupplementaryElementOfKindAt: (Snapshot<SubSource, Item>, UICollectionView, String, IndexPath) -> UICollectionReusableView
 
     //Reordering Items
-    let collectionViewCanMoveItemAt: (Snapshot, UICollectionView, IndexPath) -> Bool
-    let collectionViewMoveItemAtTo: (Snapshot, UICollectionView, IndexPath, IndexPath) -> Void
+    let collectionViewCanMoveItemAt: (Snapshot<SubSource, Item>, UICollectionView, IndexPath) -> Bool
+    let collectionViewMoveItemAtTo: (Snapshot<SubSource, Item>, UICollectionView, IndexPath, IndexPath) -> Void
     
     //Configuring an Index
-    let indexTitles: (Snapshot, UICollectionView) -> [String]?
-    let collectionViewIndexPathForIndexTitleAt: (Snapshot, UICollectionView, String, Int) -> IndexPath
+    let indexTitles: (Snapshot<SubSource, Item>, UICollectionView) -> [String]?
+    let collectionViewIndexPathForIndexTitleAt: (Snapshot<SubSource, Item>, UICollectionView, String, Int) -> IndexPath
     
     override func setListView(_ collectionView: UICollectionView) {
         collectionView.dataSource = self
@@ -147,7 +147,7 @@ class CollectionDataSourceCoordinator<Snapshot: SnapshotType>: CollectionCoordin
         addCollectionContext(context)
     }
     
-    init<Coordinator: CollectionDataSource & ListUpdatable>(_ coordinator: @escaping () -> Coordinator) where Coordinator.SourceSnapshot == Snapshot {
+    init<Coordinator: CollectionDataSource & ListUpdatable>(_ coordinator: @escaping () -> Coordinator) where Coordinator.SubSource == SubSource, Coordinator.Item == Item {
         getSnapshot = { coordinator().snapshot }
         addCollectionContext = { coordinator().addCollectionContext($0) }
         
@@ -197,55 +197,55 @@ class CollectionDataSourceCoordinator<Snapshot: SnapshotType>: CollectionCoordin
     }
 }
 
-final class CollectionAdapterCoordinator<Snapshot: SnapshotType>: CollectionDataSourceCoordinator<Snapshot>, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
+final class CollectionAdapterCoordinator<SubSource, Item>: CollectionDataSourceCoordinator<SubSource, Item>, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     //Managing the Selected Cells
-    let collectionViewShouldSelectItemAt:  (Snapshot, UICollectionView, IndexPath) -> Bool
-    let collectionViewDidSelectItemAt: (Snapshot, UICollectionView, IndexPath) -> Void
-    let collectionViewShouldDeselectItemAt:  (Snapshot, UICollectionView, IndexPath) -> Bool
-    let collectionViewDidDeselectItemAt: (Snapshot, UICollectionView, IndexPath) -> Void
+    let collectionViewShouldSelectItemAt:  (Snapshot<SubSource, Item>, UICollectionView, IndexPath) -> Bool
+    let collectionViewDidSelectItemAt: (Snapshot<SubSource, Item>, UICollectionView, IndexPath) -> Void
+    let collectionViewShouldDeselectItemAt:  (Snapshot<SubSource, Item>, UICollectionView, IndexPath) -> Bool
+    let collectionViewDidDeselectItemAt: (Snapshot<SubSource, Item>, UICollectionView, IndexPath) -> Void
     
     //Managing Cell Highlighting
-    let collectionViewShouldHighlightItemAt: (Snapshot, UICollectionView, IndexPath) -> Bool
-    let collectionViewDidHighlightItemAt: (Snapshot, UICollectionView, IndexPath) -> Void
-    let collectionViewDidUnhighlightItemAt: (Snapshot, UICollectionView, IndexPath) -> Void
+    let collectionViewShouldHighlightItemAt: (Snapshot<SubSource, Item>, UICollectionView, IndexPath) -> Bool
+    let collectionViewDidHighlightItemAt: (Snapshot<SubSource, Item>, UICollectionView, IndexPath) -> Void
+    let collectionViewDidUnhighlightItemAt: (Snapshot<SubSource, Item>, UICollectionView, IndexPath) -> Void
 
     //Tracking the Addition and Removal of Views
-    let collectionViewWillDisplayForItemAt: (Snapshot, UICollectionView, UICollectionViewCell, IndexPath) -> Void
-    let collectionViewWillDisplaySupplementaryViewForElementKindAt: (Snapshot, UICollectionView, UICollectionReusableView, String, IndexPath) -> Void
-    let collectionViewDidEndDisplayingForItemAt: (Snapshot, UICollectionView, UICollectionViewCell, IndexPath) -> Void
-    let collectionViewDidEndDisplayingSupplementaryViewForElementOfKindAt: (Snapshot, UICollectionView, UICollectionReusableView, String, IndexPath) -> Void
+    let collectionViewWillDisplayForItemAt: (Snapshot<SubSource, Item>, UICollectionView, UICollectionViewCell, IndexPath) -> Void
+    let collectionViewWillDisplaySupplementaryViewForElementKindAt: (Snapshot<SubSource, Item>, UICollectionView, UICollectionReusableView, String, IndexPath) -> Void
+    let collectionViewDidEndDisplayingForItemAt: (Snapshot<SubSource, Item>, UICollectionView, UICollectionViewCell, IndexPath) -> Void
+    let collectionViewDidEndDisplayingSupplementaryViewForElementOfKindAt: (Snapshot<SubSource, Item>, UICollectionView, UICollectionReusableView, String, IndexPath) -> Void
     
     //Handling Layout Changes
-    let collectionViewTransitionLayoutForOldLayoutNewLayout: (Snapshot, UICollectionView, UICollectionViewLayout, UICollectionViewLayout) -> UICollectionViewTransitionLayout
-    let collectionViewTargetContentOffsetForProposedContentOffset: (Snapshot, UICollectionView, CGPoint) -> CGPoint
-    let collectionViewTargetIndexPathForMoveFromItemAtToProposedIndexPath: (Snapshot, UICollectionView, IndexPath, IndexPath) -> IndexPath
+    let collectionViewTransitionLayoutForOldLayoutNewLayout: (Snapshot<SubSource, Item>, UICollectionView, UICollectionViewLayout, UICollectionViewLayout) -> UICollectionViewTransitionLayout
+    let collectionViewTargetContentOffsetForProposedContentOffset: (Snapshot<SubSource, Item>, UICollectionView, CGPoint) -> CGPoint
+    let collectionViewTargetIndexPathForMoveFromItemAtToProposedIndexPath: (Snapshot<SubSource, Item>, UICollectionView, IndexPath, IndexPath) -> IndexPath
     
     //Managing Actions for Cells
-    let collectionViewShouldShowMenuForItemAt: (Snapshot, UICollectionView, IndexPath) -> Bool
-    let collectionViewCanPerformActionForItemAtWithSender: (Snapshot, UICollectionView, Selector, IndexPath, Any?) -> Bool
-    let collectionViewPerformActionForItemAtWithSender: (Snapshot, UICollectionView, Selector, IndexPath, Any?) -> Void
+    let collectionViewShouldShowMenuForItemAt: (Snapshot<SubSource, Item>, UICollectionView, IndexPath) -> Bool
+    let collectionViewCanPerformActionForItemAtWithSender: (Snapshot<SubSource, Item>, UICollectionView, Selector, IndexPath, Any?) -> Bool
+    let collectionViewPerformActionForItemAtWithSender: (Snapshot<SubSource, Item>, UICollectionView, Selector, IndexPath, Any?) -> Void
     
     //Managing Focus in a Collection View
-    let collectionViewCanFocusItemAt: (Snapshot, UICollectionView, IndexPath) -> Bool
-    let collectionViewShouldUpdateFocusIn: (Snapshot, UICollectionView, UICollectionViewFocusUpdateContext) -> Bool
-    let collectionViewDidUpdateFocusInWith: (Snapshot, UICollectionView, UICollectionViewFocusUpdateContext, UIFocusAnimationCoordinator) -> Void
-    let indexPathForPreferredFocusedView: (Snapshot, UICollectionView) -> IndexPath?
+    let collectionViewCanFocusItemAt: (Snapshot<SubSource, Item>, UICollectionView, IndexPath) -> Bool
+    let collectionViewShouldUpdateFocusIn: (Snapshot<SubSource, Item>, UICollectionView, UICollectionViewFocusUpdateContext) -> Bool
+    let collectionViewDidUpdateFocusInWith: (Snapshot<SubSource, Item>, UICollectionView, UICollectionViewFocusUpdateContext, UIFocusAnimationCoordinator) -> Void
+    let indexPathForPreferredFocusedView: (Snapshot<SubSource, Item>, UICollectionView) -> IndexPath?
 
     //Controlling the Spring-Loading Behavior
     let anyCollectionViewShouldSpringLoadItemAtWith: Any?
     
     @available(iOS 11.0, *)
-    var collectionViewShouldSpringLoadItemAtWith: ((Snapshot, UICollectionView, IndexPath, UISpringLoadedInteractionContext) -> Bool)? {
-        return anyCollectionViewShouldSpringLoadItemAtWith as? (Snapshot, UICollectionView, IndexPath, UISpringLoadedInteractionContext) -> Bool
+    var collectionViewShouldSpringLoadItemAtWith: ((Snapshot<SubSource, Item>, UICollectionView, IndexPath, UISpringLoadedInteractionContext) -> Bool)? {
+        return anyCollectionViewShouldSpringLoadItemAtWith as? (Snapshot<SubSource, Item>, UICollectionView, IndexPath, UISpringLoadedInteractionContext) -> Bool
     }
     
     //Flow layout
-    let collectionViewLayoutSizeForItemAt: (Snapshot, UICollectionView, UICollectionViewLayout, IndexPath) -> CGSize
-    let collectionViewLayoutInsetForSectionAt: (Snapshot, UICollectionView, UICollectionViewLayout, Int) -> UIEdgeInsets
-    let collectionViewLayoutMinimumLineSpacingForSectionAt: (Snapshot, UICollectionView, UICollectionViewLayout, Int) -> CGFloat
-    let collectionViewLayoutMinimumInteritemSpacingForSectionAt: (Snapshot, UICollectionView, UICollectionViewLayout, Int) -> CGFloat
-    let collectionViewLayoutReferenceSizeForHeaderInSection: (Snapshot, UICollectionView, UICollectionViewLayout, Int) -> CGSize
-    let collectionViewLayoutReferenceSizeForFooterInSection: (Snapshot, UICollectionView, UICollectionViewLayout, Int) -> CGSize
+    let collectionViewLayoutSizeForItemAt: (Snapshot<SubSource, Item>, UICollectionView, UICollectionViewLayout, IndexPath) -> CGSize
+    let collectionViewLayoutInsetForSectionAt: (Snapshot<SubSource, Item>, UICollectionView, UICollectionViewLayout, Int) -> UIEdgeInsets
+    let collectionViewLayoutMinimumLineSpacingForSectionAt: (Snapshot<SubSource, Item>, UICollectionView, UICollectionViewLayout, Int) -> CGFloat
+    let collectionViewLayoutMinimumInteritemSpacingForSectionAt: (Snapshot<SubSource, Item>, UICollectionView, UICollectionViewLayout, Int) -> CGFloat
+    let collectionViewLayoutReferenceSizeForHeaderInSection: (Snapshot<SubSource, Item>, UICollectionView, UICollectionViewLayout, Int) -> CGSize
+    let collectionViewLayoutReferenceSizeForFooterInSection: (Snapshot<SubSource, Item>, UICollectionView, UICollectionViewLayout, Int) -> CGSize
     
     //ScrollView Delegate
     let scrollViewDidScroll: (UIScrollView) -> Void
@@ -268,7 +268,7 @@ final class CollectionAdapterCoordinator<Snapshot: SnapshotType>: CollectionData
         super.setListView(collectionView)
     }
     
-    override init<Coordinator: CollectionAdapter & ListUpdatable>(_ coordinator: @escaping () -> Coordinator) where Coordinator.SourceSnapshot == Snapshot {
+    override init<Coordinator: CollectionAdapter & ListUpdatable>(_ coordinator: @escaping () -> Coordinator) where SubSource == Coordinator.SubSource, Item == Coordinator.Item {
         collectionViewShouldHighlightItemAt = { coordinator().collectionContext(.init(listView: $1, indexPath: $2, snapshot: $0), shouldHighlightItem: coordinator().item(for: $0, at: $2)) }
         collectionViewDidHighlightItemAt = { coordinator().collectionContext(.init(listView: $1, indexPath: $2, snapshot: $0), didHighlightItem: coordinator().item(for: $0, at: $2)) }
         collectionViewDidUnhighlightItemAt = { coordinator().collectionContext(.init(listView: $1, indexPath: $2, snapshot: $0), didUnhighlightItem: coordinator().item(for: $0, at: $2)) }

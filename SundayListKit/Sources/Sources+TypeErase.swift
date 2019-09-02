@@ -6,37 +6,8 @@
 //  Copyright © 2019 Frain. All rights reserved.
 //
 
-public protocol AnySourceSnapshotType: SnapshotType {
-    var base: SnapshotType { get }
-    init(_ base: SnapshotType)
-}
-
-public struct AnySourceSnapshot: AnySourceSnapshotType, CustomStringConvertible {
-    public var base: SnapshotType
-    
-    public var isSectioned: Bool {
-        return base.isSectioned
-    }
-    
-    public init(_ base: SnapshotType) {
-        self.base = base
-    }
-    
-    public func numbersOfSections() -> Int {
-        return base.numbersOfSections()
-    }
-    
-    public func numbersOfItems(in section: Int) -> Int {
-        return base.numbersOfItems(in: section)
-    }
-    
-    public var description: String {
-        return "AnySourceSnapshot: \(base)"
-    }
-}
-
-public typealias AnyListSources<Item, UIViewType> = Sources<Any, Item, AnySourceSnapshot, UIViewType>
-public typealias AnySources<Item> = Sources<Any, Item, AnySourceSnapshot, Never>
+public typealias AnyListSources<Item, UIViewType> = Sources<Any, Item, UIViewType>
+public typealias AnySources<Item> = Sources<Any, Item, Never>
 
 extension Source {
     func eraseToAnySources() -> AnySources<Item> {
@@ -50,19 +21,19 @@ extension Sources {
     }
 }
 
-public protocol SourcesTypeAraser: Source where SubSource == Any, SourceSnapshot: AnySourceSnapshotType {
+public protocol SourcesTypeAraser: Source where SubSource == Any {
     init<Value: Source>(_ source: Value) where Value.Item == Item
 }
 
-extension Sources: SourcesTypeAraser where SubSource == Any, SourceSnapshot: AnySourceSnapshotType, UIViewType == Never {
+extension Sources: SourcesTypeAraser where SubSource == Any, UIViewType == Never {
     public init<Value: Source>(_ source: Value) where Item == Value.Item {
         self.init(sources: source.eraseToSources())
     }
     
-    init<Source, Snapshot, View>(sources: Sources<Source, Item, Snapshot, View>) {
-        createSnapshotWith = { .init(sources.createSnapshot(with: $0 as! Source)) }
-        itemFor = { sources.item(for: $0.base as! Snapshot, at: $1) }
-        updateContext = { sources.update(context: $0.castSnapshotType { $0.base as! Snapshot }) }
+    init<Source, View>(sources: Sources<Source, Item, View>) {
+        createSnapshotWith = { sources.createSnapshot(with: $0 as! Source).castToSnapshot() }
+        itemFor = { sources.item(for: $0.castToSnapshot(), at: $1) }
+        updateContext = { sources.update(context: $0.castSnapshotType()) }
         
         sourceClosure = sources.sourceClosure
         sourceStored = sources.sourceStored

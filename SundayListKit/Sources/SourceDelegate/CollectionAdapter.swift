@@ -108,7 +108,7 @@ public extension CollectionAdapter {
     func collectionContext(_ context: CollectionListContext, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize { return (collectionViewLayout as? UICollectionViewFlowLayout)?.footerReferenceSize ?? .zero }
 }
 
-public extension CollectionAdapter where SourceSnapshot: ListSnapshot, SourceSnapshot.Element: CollectionAdapter {
+public extension CollectionAdapter where SubSource: Collection, SubSource.Element: CollectionAdapter, Item == SubSource.Element.Item {
     //Managing the Selected Cells
     func collectionContext(_ context: CollectionListContext, shouldSelectItem item: Item) -> Bool {
         return context.elementShouldSelectItem()
@@ -158,7 +158,7 @@ public extension CollectionAdapter where SourceSnapshot: ListSnapshot, SourceSna
     }
 }
 
-public extension CollectionContext where Snapshot: ListSnapshot, Snapshot.Element: CollectionAdapter {
+public extension CollectionContext where SubSource: Collection, SubSource.Element: CollectionAdapter, Item == SubSource.Element.Item {
     //Managing the Selected Cells
     func elementShouldSelectItem() -> Bool {
         return element.collectionContext(elementsContext(), shouldSelectItem: elementsItem)

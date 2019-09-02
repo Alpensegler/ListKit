@@ -6,31 +6,18 @@
 //  Copyright © 2019 Frain. All rights reserved.
 //
 
-public protocol DataSource: Source {
+public protocol DataSource: Source where SubSource == Void {
     func item(at indexPath: IndexPath) -> Item
     func numbersOfSections() -> Int
     func numbersOfItems(in section: Int) -> Int
 }
 
-public struct DataSourceSnapshot {
-    let indices: [Int]
-    
-    public init<Value: DataSource>(_ source: Value) {
-        indices = (0..<source.numbersOfSections()).map { source.numbersOfItems(in: $0) }
-    }
-}
-
-extension DataSourceSnapshot: SnapshotType {
-    public var isSectioned: Bool {
-        return true
-    }
-    
-    public func numbersOfSections() -> Int {
-        return indices.count
-    }
-    
-    public func numbersOfItems(in section: Int) -> Int {
-        return indices[safe: section] ?? 0
+public extension Snapshot where SubSource == Void {
+    init<S: DataSource>(_ source: S) {
+        isSectioned = true
+        subSource = []
+        subSnapshots = []
+        subSourceIndices = (0..<source.numbersOfSections()).map { SnapshotIndices.section(0, source.numbersOfItems(in: $0)) }
     }
 }
 
@@ -43,15 +30,15 @@ public extension DataSource {
         return 1
     }
     
-    func item(for snapshot: SourceSnapshot, at indexPath: IndexPath) -> Item {
+    func item(for snapshot: Snapshot<SubSource, Item>, at indexPath: IndexPath) -> Item {
         return item(at: indexPath)
     }
     
-    func createSnapshot(with source: Void) -> DataSourceSnapshot {
+    func createSnapshot(with source: Void) -> Snapshot<SubSource, Item> {
         return .init(self)
     }
     
-    func update(context: UpdateContext<SourceSnapshot>) {
+    func update(context: UpdateContext<SubSource, Item>) {
         context.reloadCurrent()
     }
 }

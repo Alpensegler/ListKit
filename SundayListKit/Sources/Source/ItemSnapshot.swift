@@ -6,15 +6,7 @@
 //  Copyright © 2019 Frain. All rights reserved.
 //
 
-public protocol ItemSnapshot {
-    associatedtype Item
-    var item: Item { get }
-    init(_ source: Item)
-}
-
-extension Snapshot: ItemSnapshot where SubSource == Item {
-    public typealias ItemSource = SubSource
-    
+extension Snapshot where SubSource == Item {
     public init(_ source: SubSource) {
         self.isSectioned = false
         self.subSource = [source]
@@ -23,37 +15,37 @@ extension Snapshot: ItemSnapshot where SubSource == Item {
         self.subSourceOffsets = [.default]
     }
     
-    public var item: ItemSource { return subSource[0] as! ItemSource }
+    public var item: SubSource { return subSource[0] as! SubSource }
 }
 
-public extension Source where SourceSnapshot == Snapshot<Item, Item>, SubSource == Item {
-    func createSnapshot(with source: SubSource) -> SourceSnapshot { return .init(source) }
-    func item(for snapshot: SourceSnapshot, at indexPath: IndexPath) -> Item {
+public extension Source where SubSource == Item {
+    func createSnapshot(with source: SubSource) -> Snapshot<SubSource, Item> { return .init(source) }
+    func item(for snapshot: Snapshot<SubSource, Item>, at indexPath: IndexPath) -> Item {
         return snapshot.item
     }
 }
 
-public extension Source where SourceSnapshot: ItemSnapshot, Item == SourceSnapshot.Item, Item: Equatable {
-    func update(context: UpdateContext<SourceSnapshot>) {
+public extension Source where SubSource == Item, Item: Equatable {
+    func update(context: UpdateContext<SubSource, Item>) {
         context.diffUpdate()
     }
 }
 
-public extension UpdateContext where Snapshot: ItemSnapshot, Snapshot.Item: Equatable {
+public extension UpdateContext where SubSource == Item, Item: Equatable {
     func diffUpdate() {
         if rawSnapshot.item == snapshot.item { return }
         reloadCurrent()
     }
 }
 
-public extension UpdateContext where Snapshot: ItemSnapshot, Snapshot.Item: Identifiable {
+public extension UpdateContext where SubSource == Item, Item: Identifiable {
     func diffUpdate() {
         if rawSnapshot.item.id == snapshot.item.id { return }
         reloadCurrent()
     }
 }
 
-public extension UpdateContext where Snapshot: ItemSnapshot, Snapshot.Item: Diffable {
+public extension UpdateContext where SubSource == Item, Item: Diffable {
     func diffUpdate() {
         if rawSnapshot.item == snapshot.item { return }
         reloadCurrent()

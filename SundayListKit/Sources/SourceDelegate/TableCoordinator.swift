@@ -113,31 +113,31 @@ public extension TableAdapter where Self: AnyObject, Self: ListUpdatable, Self: 
 
 #endif
 
-private class TableDataSourceCoordinator<Snapshot>: TableCoordinator, UITableViewDataSource {
-    var snapshot: Snapshot { return getSnapshot() }
-    let getSnapshot: () -> Snapshot
+private class TableDataSourceCoordinator<SubSource, Item>: TableCoordinator, UITableViewDataSource {
+    var snapshot: Snapshot<SubSource, Item> { return getSnapshot() }
+    let getSnapshot: () -> Snapshot<SubSource, Item>
     let addTableContext: (ListUpdater.Context<UITableView>) -> ()
     
     // Providing the Number of Rows and Sections
-    let tableViewNumberOfRowsInSection: (Snapshot, Int) -> Int
-    let numberOfSections: (Snapshot) -> Int
+    let tableViewNumberOfRowsInSection: (Snapshot<SubSource, Item>, Int) -> Int
+    let numberOfSections: (Snapshot<SubSource, Item>) -> Int
     
     //Providing Cells, Headers, and Footers
-    let tableViewCellForRowAt: (Snapshot, UITableView, IndexPath) -> UITableViewCell
-    let tableViewTitleForHeaderInSection: (Snapshot, UITableView, Int) -> String?
-    let tableViewTitleForFooterInSection: (Snapshot, UITableView, Int) -> String?
+    let tableViewCellForRowAt: (Snapshot<SubSource, Item>, UITableView, IndexPath) -> UITableViewCell
+    let tableViewTitleForHeaderInSection: (Snapshot<SubSource, Item>, UITableView, Int) -> String?
+    let tableViewTitleForFooterInSection: (Snapshot<SubSource, Item>, UITableView, Int) -> String?
     
     //Inserting or Deleting Table Rows
-    let tableViewCommitforRowAt: (Snapshot, UITableView, UITableViewCell.EditingStyle, IndexPath) -> Void
-    let tableViewCanEditRowAt: (Snapshot, UITableView, IndexPath) -> Bool
+    let tableViewCommitforRowAt: (Snapshot<SubSource, Item>, UITableView, UITableViewCell.EditingStyle, IndexPath) -> Void
+    let tableViewCanEditRowAt: (Snapshot<SubSource, Item>, UITableView, IndexPath) -> Bool
     
     //Reordering Table Rows
-    let tableViewCanMoveRowAt: (Snapshot, UITableView, IndexPath) -> Bool
-    let tableViewMoveRowAtTo: (Snapshot, UITableView, IndexPath, IndexPath) -> Void
+    let tableViewCanMoveRowAt: (Snapshot<SubSource, Item>, UITableView, IndexPath) -> Bool
+    let tableViewMoveRowAtTo: (Snapshot<SubSource, Item>, UITableView, IndexPath, IndexPath) -> Void
 
     //Configuring an Index
-    let sectionIndexTitles: (Snapshot, UITableView) -> [String]?
-    let tableViewSectionForSectionIndexTitleAt: (Snapshot, UITableView, String, Int) -> Int
+    let sectionIndexTitles: (Snapshot<SubSource, Item>, UITableView) -> [String]?
+    let tableViewSectionForSectionIndexTitleAt: (Snapshot<SubSource, Item>, UITableView, String, Int) -> Int
     
     override func setListView(_ tableView: UITableView) {
         tableView.dataSource = self
@@ -151,7 +151,7 @@ private class TableDataSourceCoordinator<Snapshot>: TableCoordinator, UITableVie
         addTableContext(context)
     }
     
-    init<Coordinator: TableDataSource & ListUpdatable>(_ coordinator: @escaping () -> Coordinator) where Coordinator.SourceSnapshot == Snapshot {
+    init<Coordinator: TableDataSource & ListUpdatable>(_ coordinator: @escaping () -> Coordinator) where Coordinator.SubSource == SubSource, Coordinator.Item == Item {
         getSnapshot = { coordinator().snapshot }
         addTableContext = { coordinator().addTableContext($0) }
         
@@ -217,80 +217,80 @@ private class TableDataSourceCoordinator<Snapshot>: TableCoordinator, UITableVie
     }
 }
 
-private final class TableAdapterCoordinator<Snapshot>: TableDataSourceCoordinator<Snapshot>, UITableViewDelegate {
+private final class TableAdapterCoordinator<SubSource, Item>: TableDataSourceCoordinator<SubSource, Item>, UITableViewDelegate {
     //Configuring Rows for the Table View
-    let tableViewWillDisplayForRowAt: (Snapshot, UITableView, UITableViewCell, IndexPath) -> Void
-    let tableViewIndentationLevelForRowAt: (Snapshot, UITableView, IndexPath) -> Int
+    let tableViewWillDisplayForRowAt: (Snapshot<SubSource, Item>, UITableView, UITableViewCell, IndexPath) -> Void
+    let tableViewIndentationLevelForRowAt: (Snapshot<SubSource, Item>, UITableView, IndexPath) -> Int
     let anyTableViewShouldSpringLoadRowAtWith: Any?
     
     @available(iOS 11.0, *)
-    var tableViewShouldSpringLoadRowAtWith: ((Snapshot, UITableView, IndexPath, UISpringLoadedInteractionContext) -> Bool)? {
-        return anyTableViewShouldSpringLoadRowAtWith as? (Snapshot, UITableView, IndexPath, UISpringLoadedInteractionContext) -> Bool
+    var tableViewShouldSpringLoadRowAtWith: ((Snapshot<SubSource, Item>, UITableView, IndexPath, UISpringLoadedInteractionContext) -> Bool)? {
+        return anyTableViewShouldSpringLoadRowAtWith as? (Snapshot<SubSource, Item>, UITableView, IndexPath, UISpringLoadedInteractionContext) -> Bool
     }
 
     //Responding to Row Selections
-    let tableViewWillSelectRowAt: (Snapshot, UITableView, IndexPath) -> IndexPath?
-    let tableViewWillDeselectRowAt: (Snapshot, UITableView, IndexPath) -> IndexPath?
-    let tableViewDidSelectRowAt: (Snapshot, UITableView, IndexPath) -> Void
-    let tableViewDidDeselectRowAt: (Snapshot, UITableView, IndexPath) -> Void
+    let tableViewWillSelectRowAt: (Snapshot<SubSource, Item>, UITableView, IndexPath) -> IndexPath?
+    let tableViewWillDeselectRowAt: (Snapshot<SubSource, Item>, UITableView, IndexPath) -> IndexPath?
+    let tableViewDidSelectRowAt: (Snapshot<SubSource, Item>, UITableView, IndexPath) -> Void
+    let tableViewDidDeselectRowAt: (Snapshot<SubSource, Item>, UITableView, IndexPath) -> Void
 
     //Providing Custom Header and Footer Views
-    let tableViewViewForHeaderInSection: (Snapshot, UITableView, Int) -> UIView?
-    let tableViewViewForFooterInSection: (Snapshot, UITableView, Int) -> UIView?
-    let tableViewWillDisplayHeaderViewForSection: (Snapshot, UITableView, UIView, Int) -> Void
-    let tableViewWillDisplayFooterViewForSection: (Snapshot, UITableView, UIView, Int) -> Void
+    let tableViewViewForHeaderInSection: (Snapshot<SubSource, Item>, UITableView, Int) -> UIView?
+    let tableViewViewForFooterInSection: (Snapshot<SubSource, Item>, UITableView, Int) -> UIView?
+    let tableViewWillDisplayHeaderViewForSection: (Snapshot<SubSource, Item>, UITableView, UIView, Int) -> Void
+    let tableViewWillDisplayFooterViewForSection: (Snapshot<SubSource, Item>, UITableView, UIView, Int) -> Void
     
     //Providing Header, Footer, and Row Heights
-    let tableViewheightForRowAt: (Snapshot, UITableView, IndexPath) -> CGFloat
-    let tableViewheightForHeaderInSection: (Snapshot, UITableView, Int) -> CGFloat
-    let tableViewheightForFooterInSection: (Snapshot, UITableView, Int) -> CGFloat
+    let tableViewheightForRowAt: (Snapshot<SubSource, Item>, UITableView, IndexPath) -> CGFloat
+    let tableViewheightForHeaderInSection: (Snapshot<SubSource, Item>, UITableView, Int) -> CGFloat
+    let tableViewheightForFooterInSection: (Snapshot<SubSource, Item>, UITableView, Int) -> CGFloat
 
     //Estimating Heights for the Table's Content
-    let tableViewEstimatedHeightForRowAt: (Snapshot, UITableView, IndexPath) -> CGFloat
-    let tableViewEstimatedHeightForHeaderInSection: (Snapshot, UITableView, Int) -> CGFloat
-    let tableViewEstimatedHeightForFooterInSection: (Snapshot, UITableView, Int) -> CGFloat
+    let tableViewEstimatedHeightForRowAt: (Snapshot<SubSource, Item>, UITableView, IndexPath) -> CGFloat
+    let tableViewEstimatedHeightForHeaderInSection: (Snapshot<SubSource, Item>, UITableView, Int) -> CGFloat
+    let tableViewEstimatedHeightForFooterInSection: (Snapshot<SubSource, Item>, UITableView, Int) -> CGFloat
     
     //Managing Accessory Views
-    let tableViewAccessoryButtonTappedForRowWith: (Snapshot, UITableView, IndexPath) -> Void
+    let tableViewAccessoryButtonTappedForRowWith: (Snapshot<SubSource, Item>, UITableView, IndexPath) -> Void
 
     //Responding to Row Actions
     let anyTableViewLeadingSwipeActionsConfigurationForRowAt: Any?
     
     @available(iOS 11.0, *)
-    var tableViewLeadingSwipeActionsConfigurationForRowAt: ((Snapshot, UITableView, IndexPath) -> UISwipeActionsConfiguration?)? {
-        return anyTableViewLeadingSwipeActionsConfigurationForRowAt as? (Snapshot, UITableView, IndexPath) -> UISwipeActionsConfiguration?
+    var tableViewLeadingSwipeActionsConfigurationForRowAt: ((Snapshot<SubSource, Item>, UITableView, IndexPath) -> UISwipeActionsConfiguration?)? {
+        return anyTableViewLeadingSwipeActionsConfigurationForRowAt as? (Snapshot<SubSource, Item>, UITableView, IndexPath) -> UISwipeActionsConfiguration?
     }
     
     let anyTableViewTrailingSwipeActionsConfigurationForRowAt: Any?
     
     @available(iOS 11.0, *)
-    var tableViewTrailingSwipeActionsConfigurationForRowAt: ((Snapshot, UITableView, IndexPath) -> UISwipeActionsConfiguration?)? {
-        return anyTableViewTrailingSwipeActionsConfigurationForRowAt as? (Snapshot, UITableView, IndexPath) -> UISwipeActionsConfiguration?
+    var tableViewTrailingSwipeActionsConfigurationForRowAt: ((Snapshot<SubSource, Item>, UITableView, IndexPath) -> UISwipeActionsConfiguration?)? {
+        return anyTableViewTrailingSwipeActionsConfigurationForRowAt as? (Snapshot<SubSource, Item>, UITableView, IndexPath) -> UISwipeActionsConfiguration?
     }
     
     #if iOS13
     
     #else
-    let tableViewShouldShowMenuForRowAt: (Snapshot, UITableView, IndexPath) -> Bool
-    let tableViewCanPerformActionForRowAtWithSender: (Snapshot, UITableView, Selector, IndexPath, Any?) -> Bool
-    let tableViewPerformActionForRowAtWithSender: (Snapshot, UITableView, Selector, IndexPath, Any?) -> Void
-    let tableViewEditActionsForRowAt: (Snapshot, UITableView, IndexPath) -> [UITableViewRowAction]?
+    let tableViewShouldShowMenuForRowAt: (Snapshot<SubSource, Item>, UITableView, IndexPath) -> Bool
+    let tableViewCanPerformActionForRowAtWithSender: (Snapshot<SubSource, Item>, UITableView, Selector, IndexPath, Any?) -> Bool
+    let tableViewPerformActionForRowAtWithSender: (Snapshot<SubSource, Item>, UITableView, Selector, IndexPath, Any?) -> Void
+    let tableViewEditActionsForRowAt: (Snapshot<SubSource, Item>, UITableView, IndexPath) -> [UITableViewRowAction]?
     #endif
     
     //Managing Table View Highlights
-    let tableViewShouldHighlightRowAt: (Snapshot, UITableView, IndexPath) -> Bool
-    let tableViewDidHighlightRowAt: (Snapshot, UITableView, IndexPath) -> Void
-    let tableViewDidUnhighlightRowAt: (Snapshot, UITableView, IndexPath) -> Void
+    let tableViewShouldHighlightRowAt: (Snapshot<SubSource, Item>, UITableView, IndexPath) -> Bool
+    let tableViewDidHighlightRowAt: (Snapshot<SubSource, Item>, UITableView, IndexPath) -> Void
+    let tableViewDidUnhighlightRowAt: (Snapshot<SubSource, Item>, UITableView, IndexPath) -> Void
 
     //Editing Table Rows
-    let tableViewWillBeginEditingRowAt: (Snapshot, UITableView, IndexPath) -> Void
-    let tableViewDidEndEditingRowAt: (Snapshot, UITableView, IndexPath?) -> Void
-    let tableViewEditingStyleForRowAt: (Snapshot, UITableView, IndexPath) -> UITableViewCell.EditingStyle
-    let tableViewTitleForDeleteConfirmationButtonForRowAt: (Snapshot, UITableView, IndexPath) -> String?
-    let tableViewShouldIndentWhileEditingRowAt: (Snapshot, UITableView, IndexPath) -> Bool
+    let tableViewWillBeginEditingRowAt: (Snapshot<SubSource, Item>, UITableView, IndexPath) -> Void
+    let tableViewDidEndEditingRowAt: (Snapshot<SubSource, Item>, UITableView, IndexPath?) -> Void
+    let tableViewEditingStyleForRowAt: (Snapshot<SubSource, Item>, UITableView, IndexPath) -> UITableViewCell.EditingStyle
+    let tableViewTitleForDeleteConfirmationButtonForRowAt: (Snapshot<SubSource, Item>, UITableView, IndexPath) -> String?
+    let tableViewShouldIndentWhileEditingRowAt: (Snapshot<SubSource, Item>, UITableView, IndexPath) -> Bool
 
     //Reordering Table Rows
-    let tableViewTargetIndexPathForMoveFromRowAtToProposedIndexPath: (Snapshot, UITableView, IndexPath, IndexPath) -> IndexPath
+    let tableViewTargetIndexPathForMoveFromRowAtToProposedIndexPath: (Snapshot<SubSource, Item>, UITableView, IndexPath, IndexPath) -> IndexPath
 
     //Tracking the Removal of Views
     let tableViewDidEndDisplayingForRowAt: (UITableView, UITableViewCell, IndexPath) -> Void
@@ -298,10 +298,10 @@ private final class TableAdapterCoordinator<Snapshot>: TableDataSourceCoordinato
     let tableViewDidEndDisplayingFooterViewForSection: (UITableView, UIView, Int) -> Void
     
     //Managing Table View Focus
-    let tableViewCanFocusRowAt: (Snapshot, UITableView, IndexPath) -> Bool
-    let tableViewShouldUpdateFocusIn: (Snapshot, UITableView, UITableViewFocusUpdateContext) -> Bool
-    let tableViewDidUpdateFocusInWith: (Snapshot, UITableView, UITableViewFocusUpdateContext, UIFocusAnimationCoordinator) -> Void
-    let indexPathForPreferredFocusedView: (Snapshot, UITableView) -> IndexPath?
+    let tableViewCanFocusRowAt: (Snapshot<SubSource, Item>, UITableView, IndexPath) -> Bool
+    let tableViewShouldUpdateFocusIn: (Snapshot<SubSource, Item>, UITableView, UITableViewFocusUpdateContext) -> Bool
+    let tableViewDidUpdateFocusInWith: (Snapshot<SubSource, Item>, UITableView, UITableViewFocusUpdateContext, UIFocusAnimationCoordinator) -> Void
+    let indexPathForPreferredFocusedView: (Snapshot<SubSource, Item>, UITableView) -> IndexPath?
 
     //ScrollView Delegate
     let scrollViewDidScroll: (UIScrollView) -> Void
@@ -324,7 +324,7 @@ private final class TableAdapterCoordinator<Snapshot>: TableDataSourceCoordinato
         super.setListView(tableView)
     }
     
-    override init<Coordinator: TableAdapter & ListUpdatable>(_ coordinator: @escaping () -> Coordinator) where Coordinator.SourceSnapshot == Snapshot {
+    override init<Coordinator: TableAdapter & ListUpdatable>(_ coordinator: @escaping () -> Coordinator) where Coordinator.SubSource == SubSource, Coordinator.Item == Item {
         tableViewWillDisplayForRowAt = { coordinator().tableContext(.init(listView: $1, indexPath: $3, snapshot: $0), willDisplay: $2, forItem: coordinator().item(for: $0, at: $3)) }
         tableViewWillDisplayHeaderViewForSection = { coordinator().tableContext(.init(listView: $1, indexPath: .init(section: $3), snapshot: $0), willDisplayHeaderView: $2, forSection: $3) }
         tableViewWillDisplayFooterViewForSection = { coordinator().tableContext(.init(listView: $1, indexPath: .init(section: $3), snapshot: $0), willDisplayFooterView: $2, forSection: $3) }

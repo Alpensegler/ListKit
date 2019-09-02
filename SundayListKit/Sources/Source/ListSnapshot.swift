@@ -6,24 +6,13 @@
 //  Copyright © 2019 Frain. All rights reserved.
 //
 
-public protocol ListSnapshot: CollectionSnapshotType where Element: Source {
-    associatedtype SubSource: Collection where SubSource.Element == Element
-    
-    var elementsSnapshots: [Element.SourceSnapshot] { get }
-    var elementsOffsets: [IndexPath] { get }
-    func index(of indexPath: IndexPath) -> Int
-    func item(at indexPath: IndexPath) -> Element.Item
-    
-    init(_ source: SubSource)
-}
-
-extension Snapshot: ListSnapshot where SubSource: Collection, Element: Source, Item == Element.Item {
+extension Snapshot where SubSource: Collection, SubSource.Element: Source, Item == SubSource.Element.Item {
     public var elementsOffsets: [IndexPath] {
         return subSourceOffsets
     }
     
-    public var elementsSnapshots: [Element.SourceSnapshot] {
-        return subSnapshots as! [SubSource.Element.SourceSnapshot]
+    public var elementsSnapshots: [Snapshot<Element.SubSource, Element.Item>] {
+        return subSnapshots as! [Snapshot<Element.SubSource, Element.Item>]
     }
     
     public func index(of indexPath: IndexPath) -> Int {
@@ -53,9 +42,9 @@ public extension Snapshot where SubSource: Collection, SubSource.Element: Source
         var offset = IndexPath(item: 0, section: 0)
         
         for source in source {
-            let snapshot: SubSource.Element.SourceSnapshot
+            let snapshot: Snapshot<Element.SubSource, Element.Item>
             if let updater = (source as? ListUpdatable)?.listUpdater {
-                snapshot = updater.snapshotValue as? SubSource.Element.SourceSnapshot ?? {
+                snapshot = updater.snapshotValue as? Snapshot<SubSource.Element.SubSource, SubSource.Element.Item> ?? {
                     let snapshot = source.createSnapshot(with: source.source)
                     updater.snapshotValue = snapshot
                     return snapshot
@@ -157,19 +146,19 @@ extension Snapshot: SubSourceContainSnapshot where SubSource: Collection, Elemen
     }
 }
 
-public extension Source where SubSource: Collection, SourceSnapshot == Snapshot<SubSource, Item>, Element: Source, Element.Item == Item {
-    func createSnapshot(with source: SubSource) -> SourceSnapshot { return .init(source) }
-    func item(for snapshot: SourceSnapshot, at indexPath: IndexPath) -> Item {
+public extension Source where SubSource: Collection, Element: Source, Element.Item == Item {
+    func createSnapshot(with source: SubSource) -> Snapshot<SubSource, Item> { return .init(source) }
+    func item(for snapshot: Snapshot<SubSource, Item>, at indexPath: IndexPath) -> Item {
         return snapshot.item(at: indexPath)
     }
 }
 
-public extension Source where Self: ListUpdatable, SubSource: Collection, SourceSnapshot == Snapshot<SubSource, Item>, Element: Source, Element.Item == Item {
+public extension Source where Self: ListUpdatable, SubSource: Collection, Element: Source, Element.Item == Item {
     
 }
 
 
-public extension UpdateContext where Snapshot: ListSnapshot {
+public extension UpdateContext where SubSource: Collection, SubSource.Element: Source, Item == SubSource.Element.Item {
     func insertElement(at index: Int) {
         let subSnapshot = snapshot.elementsSnapshots[index]
         let offset = snapshot.elementsOffsets[index]
@@ -275,13 +264,13 @@ public extension UpdateContext where Snapshot: ListSnapshot {
 }
 
 //Identifiable
-public extension Source where SourceSnapshot: ListSnapshot, SourceSnapshot.Element: Identifiable {
-    func update(context: UpdateContext<SourceSnapshot>) {
+public extension Source where SubSource: Collection, SubSource.Element: Source, Item == SubSource.Element.Item, SubSource.Element: Identifiable {
+    func update(context: UpdateContext<SubSource, Item>) {
         context.diffUpdate()
     }
 }
 
-public extension UpdateContext where Snapshot: ListSnapshot, Snapshot.Element: Identifiable {
+public extension UpdateContext where SubSource: Collection, SubSource.Element: Source, Item == SubSource.Element.Item, SubSource.Element: Identifiable {
     func diffUpdate() {
         let diff = snapshot.elements.difference(from: rawSnapshot.elements).inferringMoves()
         var rawChanges: [Change<Int>?] = (0..<rawSnapshot.elements.count).map { _ in nil }
@@ -310,13 +299,13 @@ public extension UpdateContext where Snapshot: ListSnapshot, Snapshot.Element: I
 
 //Identifiable + Equatable {
 
-public extension Source where SourceSnapshot: ListSnapshot, SourceSnapshot.Element: Diffable {
-    func update(context: UpdateContext<SourceSnapshot>) {
+public extension Source where SubSource: Collection, SubSource.Element: Source, Item == SubSource.Element.Item, SubSource.Element: Diffable {
+    func update(context: UpdateContext<SubSource, Item>) {
         context.diffUpdate()
     }
 }
 
-public extension UpdateContext where Snapshot: ListSnapshot, Snapshot.Element: Diffable {
+public extension UpdateContext where SubSource: Collection, SubSource.Element: Source, Item == SubSource.Element.Item, SubSource.Element: Diffable {
     func diffUpdate() {
         let diff = snapshot.elements.difference(from: rawSnapshot.elements).inferringMoves()
         var rawChanges: [Change<Int>?] = (0..<rawSnapshot.elements.count).map { _ in nil }
@@ -363,7 +352,7 @@ public extension UpdateContext where Snapshot: ListSnapshot, Snapshot.Element: D
     }
 }
 
-private extension UpdateContext where Snapshot: ListSnapshot, Snapshot.Element: Identifiable {
+private extension UpdateContext where SubSource: Collection, SubSource.Element: Source, Item == SubSource.Element.Item, SubSource.Element: Identifiable {
     func update(with rawChanges: [Change<Int>?], changes: [Change<Int>?]) {
         print("--- before merge:")
         print("rawChanges", rawChanges)
@@ -377,7 +366,7 @@ private extension UpdateContext where Snapshot: ListSnapshot, Snapshot.Element: 
             print("rawUnchangedIndex \(rawIndex)", "unchangedIndex \(index)")
             let offset = snapshot.elementsOffsets[index]
             let rawOffset = rawSnapshot.elementsOffsets[rawIndex]
-            let updateContext = UpdateContext<Snapshot.Element.SourceSnapshot>(
+            let updateContext = UpdateContext<SubSource.Element.SubSource, SubSource.Element.Item>(
                 rawSnapshot: rawSnapshot.elementsSnapshots[rawIndex],
                 snapshot: snapshot.elementsSnapshots[index]
             )
@@ -394,7 +383,7 @@ private extension UpdateContext where Snapshot: ListSnapshot, Snapshot.Element: 
             print("moveIndex \(rawIndex)", "toIndex \(index)")
             let offset = snapshot.elementsOffsets[index]
             let rawOffset = rawSnapshot.elementsOffsets[rawIndex]
-            let updateContext = UpdateContext<Snapshot.Element.SourceSnapshot>(
+            let updateContext = UpdateContext<SubSource.Element.SubSource, SubSource.Element.Item>(
                 rawSnapshot: rawSnapshot.elementsSnapshots[rawIndex],
                 snapshot: snapshot.elementsSnapshots[index]
             )
@@ -407,7 +396,7 @@ private extension UpdateContext where Snapshot: ListSnapshot, Snapshot.Element: 
         }
     }
     
-    func merge(context: UpdateContext<Snapshot.Element.SourceSnapshot>, rawOffset: IndexPath, offset: IndexPath, isMove: Bool = false) {
+    func merge(context: UpdateContext<SubSource.Element.SubSource, SubSource.Element.Item>, rawOffset: IndexPath, offset: IndexPath, isMove: Bool = false) {
         print("rawSnapshotChanges", context.rawSnapshotChanges)
         print("snapshotChanges", context.snapshotChanges)
         if context.isSectioned {

@@ -13,9 +13,9 @@ public protocol ListUpdatable {
 }
 
 public extension ListUpdatable where Self: Source {
-    var snapshot: SourceSnapshot {
+    var snapshot: Snapshot<SubSource, Item> {
         get {
-            return listUpdater.snapshotValue as? SourceSnapshot ?? {
+            return listUpdater.snapshotValue as? Snapshot<SubSource, Item> ?? {
                 let snapshot = createSnapshot(with: source)
                 listUpdater.snapshotValue = snapshot
                 listUpdater.updateAllSnapshotSubSource()
@@ -46,20 +46,20 @@ public extension ListUpdatable where Self: Source {
     func tableView(_ tableView: UITableView, willUpdateWith change: ListChange) { }
     
     func startUpdate() {
-        guard listUpdater.updateContextValue as? ListUpdater.Update<SourceSnapshot> == nil else { return }
-        listUpdater.updateContextValue = ListUpdater.Update<SourceSnapshot>()
+        guard listUpdater.updateContextValue as? ListUpdater.Update<SubSource, Item> == nil else { return }
+        listUpdater.updateContextValue = ListUpdater.Update<SubSource, Item>()
     }
     
     func endUpdate(animated: Bool = true, completion: ((Bool) -> Void)? = nil) {
-        guard let update = listUpdater.updateContextValue as? ListUpdater.Update<SourceSnapshot> else { return }
+        guard let update = listUpdater.updateContextValue as? ListUpdater.Update<SubSource, Item> else { return }
         perform(animated: animated, completion: completion, snapshotUpdate: update.snapshot, contextUpdate: update.context)
         listUpdater.updateContextValue = nil
     }
 }
 
 extension ListUpdatable where Self: Source {
-    func updateOrAddToContext(snapshotUpdate: [(inout SourceSnapshot) -> Void] = [], contextUpdate: [(UpdateContext<SourceSnapshot>) -> Void] = []) {
-        if let update = listUpdater.updateContextValue as? ListUpdater.Update<SourceSnapshot> {
+    func updateOrAddToContext(snapshotUpdate: [(inout Snapshot<SubSource, Item>) -> Void] = [], contextUpdate: [(UpdateContext<SubSource, Item>) -> Void] = []) {
+        if let update = listUpdater.updateContextValue as? ListUpdater.Update<SubSource, Item> {
             update.snapshot += snapshotUpdate
             update.context += contextUpdate
         } else {
@@ -67,16 +67,16 @@ extension ListUpdatable where Self: Source {
         }
     }
     
-    func reloadWith<List>(context: ListUpdater.Context<List>, with snapshot: SourceSnapshot, completion: ((Bool) -> Void)? = nil) {
+    func reloadWith<List>(context: ListUpdater.Context<List>, with snapshot: Snapshot<SubSource, Item>, completion: ((Bool) -> Void)? = nil) {
         guard let listView = context.listView() else { return }
         context.setSnapshot(snapshot)
         context.reloadUpdate(self, listView)
         listView.reloadSynchronously(completion: completion)
     }
     
-    func perform(animated: Bool = true, completion: ((Bool) -> Void)? = nil, snapshotUpdate: [(inout SourceSnapshot) -> Void] = [], contextUpdate: [(UpdateContext<SourceSnapshot>) -> Void]) {
+    func perform(animated: Bool = true, completion: ((Bool) -> Void)? = nil, snapshotUpdate: [(inout Snapshot<SubSource, Item>) -> Void] = [], contextUpdate: [(UpdateContext<SubSource, Item>) -> Void]) {
         let rawSnapshot = snapshot
-        let snapshot: SourceSnapshot
+        let snapshot: Snapshot<SubSource, Item>
         if !snapshotUpdate.isEmpty {
             var rawSnapshot = rawSnapshot
             snapshotUpdate.forEach { $0(&rawSnapshot) }
@@ -95,7 +95,7 @@ extension ListUpdatable where Self: Source {
         updateWith(updateContext: updateContext, animated: animated, completion: completion)
     }
     
-    func updateWith(updateContext: UpdateContext<SourceSnapshot>, animated: Bool, completion: ((Bool) -> Void)?) {
+    func updateWith(updateContext: UpdateContext<SubSource, Item>, animated: Bool, completion: ((Bool) -> Void)?) {
         let changes = updateContext.getChanges()
         func update<List: ListView>(context: ListUpdater.Context<List>, updates: (List, ListChange) -> Void) {
             perform(changes: changes, from: updateContext.rawSnapshot, to: updateContext.snapshot, for: context, animated: animated, completion: completion, updates: updates)
@@ -105,7 +105,7 @@ extension ListUpdatable where Self: Source {
         listUpdater.tableContexts.forEach { update(context: $0) { tableView($0, willUpdateWith: $1) } }
     }
     
-    func perform<List: ListView>(changes: [ListChange], from rawSnapshot: SourceSnapshot, to snapshot: SourceSnapshot, for context: ListUpdater.Context<List>, animated: Bool, completion: ((Bool) -> Void)?, updates: (List, ListChange) -> Void) {
+    func perform<List: ListView>(changes: [ListChange], from rawSnapshot: Snapshot<SubSource, Item>, to snapshot: Snapshot<SubSource, Item>, for context: ListUpdater.Context<List>, animated: Bool, completion: ((Bool) -> Void)?, updates: (List, ListChange) -> Void) {
         guard let listView = context.listView() else { return }
         self.snapshot = rawSnapshot
         listView.perform(update: {
@@ -166,9 +166,9 @@ public class ListUpdater {
         let setSnapshot: (SnapshotType?) -> Void
     }
     
-    class Update<T: SnapshotType> {
-        var context = [(UpdateContext<T>) -> Void]()
-        var snapshot = [(inout T) -> Void]()
+    class Update<SubSource, Item> {
+        var context = [(UpdateContext<SubSource, Item>) -> Void]()
+        var snapshot = [(inout Snapshot<SubSource, Item>) -> Void]()
     }
     
     var tableContexts = [Context<UITableView>]()

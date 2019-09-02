@@ -7,7 +7,7 @@
 //
 
 public protocol TableDataSource: Source {
-    typealias TableListContext = TableContext<SourceSnapshot>
+    typealias TableListContext = TableContext<SubSource, Item>
     
     //Providing Cells, Headers, and Footers
     func tableContext(_ context:  TableListContext, cellForItem item: Item) -> UITableViewCell
@@ -46,7 +46,7 @@ public extension TableDataSource {
     func tableContext(_ context:  TableListContext, sectionForSectionIndexTitle title: String, at index: Int) -> Int { return index }
 }
 
-public extension TableDataSource where SourceSnapshot: ListSnapshot, SourceSnapshot.Element: TableDataSource {
+public extension TableDataSource where SubSource: Collection, SubSource.Element: TableDataSource, Item == SubSource.Element.Item {
     //Providing Cells, Headers, and Footers
     func tableContext(_ context:  TableListContext, cellForItem item: Item) -> UITableViewCell {
         return context.elementCellForItem()
@@ -61,7 +61,7 @@ public extension TableDataSource where SourceSnapshot: ListSnapshot, SourceSnaps
     }
 }
 
-public extension TableContext where Snapshot: ListSnapshot, Snapshot.Element: TableDataSource  {
+public extension TableContext where SubSource: Collection, SubSource.Element: TableDataSource, Item == SubSource.Element.Item  {
     func elementCellForItem() -> UITableViewCell {
         return element.tableContext(elementsContext(), cellForItem: elementsItem)
     }

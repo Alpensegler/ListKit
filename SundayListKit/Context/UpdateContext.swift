@@ -108,15 +108,15 @@ class SectionChanges: CustomStringConvertible {
     }
 }
 
-public struct UpdateContext<Snapshot: SnapshotType> {
+public struct UpdateContext<SubSource, Item> {
     
-    public let rawSnapshot: Snapshot
-    public let snapshot: Snapshot
+    public let rawSnapshot: Snapshot<SubSource, Item>
+    public let snapshot: Snapshot<SubSource, Item>
     let isSectioned: Bool
     let rawSnapshotChanges: [SectionChanges]
     let snapshotChanges: [SectionChanges]
     
-    init(rawSnapshot: Snapshot, snapshot: Snapshot) {
+    init(rawSnapshot: Snapshot<SubSource, Item>, snapshot: Snapshot<SubSource, Item>) {
         self.rawSnapshot = rawSnapshot
         self.snapshot = snapshot
         switch (rawSnapshot.isSectioned, snapshot.isSectioned) {
@@ -133,7 +133,7 @@ public struct UpdateContext<Snapshot: SnapshotType> {
         }
     }
     
-    init(rawSnapshot: Snapshot, snapshot: Snapshot, isSectioned: Bool, rawSnapshotChanges: [SectionChanges], snapshotChanges: [SectionChanges]) {
+    init(rawSnapshot: Snapshot<SubSource, Item>, snapshot: Snapshot<SubSource, Item>, isSectioned: Bool, rawSnapshotChanges: [SectionChanges], snapshotChanges: [SectionChanges]) {
         self.rawSnapshot = rawSnapshot
         self.snapshot = snapshot
         self.isSectioned = isSectioned
@@ -141,8 +141,8 @@ public struct UpdateContext<Snapshot: SnapshotType> {
         self.snapshotChanges = snapshotChanges
     }
     
-    func castSnapshotType<Type: SnapshotType>(cast: (Snapshot) -> Type) -> UpdateContext<Type> {
-        return .init(rawSnapshot: cast(rawSnapshot), snapshot: cast(snapshot), isSectioned: isSectioned, rawSnapshotChanges: rawSnapshotChanges, snapshotChanges: snapshotChanges)
+    func castSnapshotType<SubSource, Item>() -> UpdateContext<SubSource, Item> {
+        return .init(rawSnapshot: rawSnapshot.castToSnapshot(), snapshot: snapshot.castToSnapshot(), isSectioned: isSectioned, rawSnapshotChanges: rawSnapshotChanges, snapshotChanges: snapshotChanges)
     }
 }
 

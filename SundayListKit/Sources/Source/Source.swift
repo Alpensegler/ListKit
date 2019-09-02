@@ -9,30 +9,24 @@
 public protocol Source {
     associatedtype Item
     associatedtype SubSource = [Item]
-    associatedtype SourceSnapshot: SnapshotType = Snapshot<SubSource, Item>
     
     var source: SubSource { get }
-    func createSnapshot(with source: SubSource) -> SourceSnapshot
+    func createSnapshot(with source: SubSource) -> Snapshot<SubSource, Item>
     
-    func item(for snapshot: SourceSnapshot, at indexPath: IndexPath) -> Item
+    func item(for snapshot: Snapshot<SubSource, Item>, at indexPath: IndexPath) -> Item
     
-    func update(context: UpdateContext<SourceSnapshot>)
-    func eraseToSources() -> Sources<SubSource, Item, SourceSnapshot, Never>
+    func update(context: UpdateContext<SubSource, Item>)
+    func eraseToSources() -> Sources<SubSource, Item, Never>
 }
 
 public extension Source where SubSource: Collection {
     typealias Element = SubSource.Element
 }
 
-public protocol SnapshotType {
+protocol SnapshotType {
     func numbersOfSections() -> Int
     func numbersOfItems(in section: Int) -> Int
     var isSectioned: Bool { get }
-}
-
-public protocol CollectionSnapshotType: SnapshotType {
-    associatedtype Element
-    var elements: [Element] { get }
 }
 
 enum SnapshotIndices: CustomStringConvertible {
@@ -67,7 +61,7 @@ protocol SubSourceContainSnapshot: SnapshotType {
 }
 
 public struct Snapshot<SubSource, Item>: CustomStringConvertible {
-    public let isSectioned: Bool
+    let isSectioned: Bool
     var subSource: [Any]
     var subSnapshots: [SnapshotType]
     
@@ -81,19 +75,29 @@ public struct Snapshot<SubSource, Item>: CustomStringConvertible {
             return "\(subSource), \(subSnapshots), \(subSourceIndices)"
         }
     }
+    
+    func castToSnapshot<SubSource, Item>() -> Snapshot<SubSource, Item> {
+        return .init(
+            isSectioned: isSectioned,
+            subSource: subSource,
+            subSnapshots: subSnapshots,
+            subSourceIndices: subSourceIndices,
+            subSourceOffsets: subSourceOffsets
+        )
+    }
 }
 
 extension Snapshot: SnapshotType {
-    public func numbersOfItems(in section: Int) -> Int {
+    func numbersOfItems(in section: Int) -> Int {
         return subSourceIndices[safe: section]?.count ?? 0
     }
     
-    public func numbersOfSections() -> Int {
+    func numbersOfSections() -> Int {
         return isSectioned ? subSourceIndices.count : 0
     }
 }
 
-extension Snapshot: CollectionSnapshotType where SubSource: Collection {
+extension Snapshot where SubSource: Collection {
     public typealias Element = SubSource.Element
     public var elements: [Element] {
         return subSource as! [Element]

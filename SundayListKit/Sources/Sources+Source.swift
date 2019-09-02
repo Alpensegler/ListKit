@@ -7,15 +7,15 @@
 //
 
 extension Sources: Source, ListUpdatable {
-    public func createSnapshot(with source: SubSource) -> SourceSnapshot {
+    public func createSnapshot(with source: SubSource) -> Snapshot<SubSource, Item> {
         return createSnapshotWith(source)
     }
     
-    public func item(for snapshot: SourceSnapshot, at indexPath: IndexPath) -> Item {
+    public func item(for snapshot: Snapshot<SubSource, Item>, at indexPath: IndexPath) -> Item {
         return itemFor(snapshot, indexPath)
     }
     
-    public func update(context: UpdateContext<SourceSnapshot>) {
+    public func update(context: UpdateContext<SubSource, Item>) {
         updateContext(context)
     }
     
@@ -29,37 +29,37 @@ extension Sources: Source, ListUpdatable {
 }
 
 public extension Source {
-    func eraseToSources() -> Sources<SubSource, Item, SourceSnapshot, Never> {
+    func eraseToSources() -> Sources<SubSource, Item, Never> {
         return .init(self)
     }
 }
 
 public extension Source where Self: Identifiable {
-    func eraseToSources() -> Sources<SubSource, Item, SourceSnapshot, Never> {
+    func eraseToSources() -> Sources<SubSource, Item, Never> {
         return .init(self)
     }
 }
 
 public extension Source where Self: Diffable {
-    func eraseToSources() -> Sources<SubSource, Item, SourceSnapshot, Never> {
+    func eraseToSources() -> Sources<SubSource, Item, Never> {
         return .init(self)
     }
 }
 
 public extension Source where Self: ListUpdatable {
-    func eraseToSources() -> Sources<SubSource, Item, SourceSnapshot, Never> {
+    func eraseToSources() -> Sources<SubSource, Item, Never> {
         return .init(self)
     }
 }
 
 public extension Source where Self: Identifiable, Self: ListUpdatable {
-    func eraseToSources() -> Sources<SubSource, Item, SourceSnapshot, Never> {
+    func eraseToSources() -> Sources<SubSource, Item, Never> {
         return .init(self)
     }
 }
 
 public extension Source where Self: Diffable, Self: ListUpdatable {
-    func eraseToSources() -> Sources<SubSource, Item, SourceSnapshot, Never> {
+    func eraseToSources() -> Sources<SubSource, Item, Never> {
         return .init(self)
     }
 }
@@ -68,8 +68,7 @@ public extension Sources {
     private init<Value: Source>(_source: @escaping () -> Value)
     where
         Value.SubSource == SubSource,
-        Value.Item == Item,
-        Value.SourceSnapshot == SourceSnapshot
+        Value.Item == Item
     {
         sourceClosure = { _source().source }
         createSnapshotWith = { _source().createSnapshot(with: $0) }
@@ -82,8 +81,7 @@ public extension Sources {
     private init<Value: Source & ListUpdatable>(_source: @escaping () -> Value)
     where
         Value.SubSource == SubSource,
-        Value.Item == Item,
-        Value.SourceSnapshot == SourceSnapshot
+        Value.Item == Item
     {
         listUpdater = _source().listUpdater
         sourceClosure = { _source().source }
@@ -97,8 +95,7 @@ public extension Sources {
     init<Value: Source>(_ source: @escaping @autoclosure () -> Value)
     where
         Value.SubSource == SubSource,
-        Value.Item == Item,
-        Value.SourceSnapshot == SourceSnapshot
+        Value.Item == Item
     {
         self.init(_source: source)
     }
@@ -106,8 +103,7 @@ public extension Sources {
     init<Value: Source & Identifiable>(_ source: @escaping @autoclosure () -> Value)
     where
         Value.SubSource == SubSource,
-        Value.Item == Item,
-        Value.SourceSnapshot == SourceSnapshot
+        Value.Item == Item
     {
         self.init(_source: source)
         diffable = .init(source())
@@ -116,8 +112,7 @@ public extension Sources {
     init<Value: Source & Diffable>(_ source: @escaping @autoclosure () -> Value)
     where
         Value.SubSource == SubSource,
-        Value.Item == Item,
-        Value.SourceSnapshot == SourceSnapshot
+        Value.Item == Item
     {
         self.init(_source: source)
         diffable = .init(source())
@@ -126,8 +121,7 @@ public extension Sources {
     init<Value: Source & ListUpdatable>(_ source: @escaping @autoclosure () -> Value)
     where
         Value.SubSource == SubSource,
-        Value.Item == Item,
-        Value.SourceSnapshot == SourceSnapshot
+        Value.Item == Item
     {
         self.init(_source: source)
     }
@@ -135,8 +129,7 @@ public extension Sources {
     init<Value: Source & Identifiable & ListUpdatable>(_ source: @escaping @autoclosure () -> Value)
     where
         Value.SubSource == SubSource,
-        Value.Item == Item,
-        Value.SourceSnapshot == SourceSnapshot
+        Value.Item == Item
     {
         self.init(_source: source)
         diffable = .init(source())
@@ -145,8 +138,7 @@ public extension Sources {
     init<Value: Source & Diffable & ListUpdatable>(_ source: @escaping @autoclosure () -> Value)
     where
         Value.SubSource == SubSource,
-        Value.Item == Item,
-        Value.SourceSnapshot == SourceSnapshot
+        Value.Item == Item
     {
         self.init(_source: source)
         diffable = .init(source())

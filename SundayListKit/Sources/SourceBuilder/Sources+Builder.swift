@@ -143,7 +143,7 @@ public extension SourceBuilder {
     }
 }
 
-public extension Sources where SubSource == [AnySources<Item>], SourceSnapshot == Snapshot<[AnySources<Item>], Item>, UIViewType == Never {
+public extension Sources where SubSource == [AnySources<Item>], UIViewType == Never {
     init(@SourceBuilder sources: () -> [AnySources<Item>]) {
         self.init(sources())
     }

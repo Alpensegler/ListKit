@@ -6,52 +6,52 @@
 //  Copyright © 2019 Frain. All rights reserved.
 //
 
-public typealias TableSources<SubSource, Item, Snapshot: SnapshotType> = Sources<SubSource, Item, Snapshot, UITableView>
+public typealias TableSources<SubSource, Item> = Sources<SubSource, Item, UITableView>
 
 public extension Sources where UIViewType == UITableView {
-    func observeOnTableViewUpdate(_ provider: @escaping (UITableView, ListChange) -> Void) -> Sources<SubSource, Item, SourceSnapshot, UIViewType> {
+    func observeOnTableViewUpdate(_ provider: @escaping (UITableView, ListChange) -> Void) -> Sources<SubSource, Item, UIViewType> {
         var sources = self
         sources.tableViewWillUpdate = provider
         return sources
     }
     
-    func provideHeader(_ provider: @escaping (TableContext<SourceSnapshot>, Int) -> UIView?) -> Sources<SubSource, Item, SourceSnapshot, UIViewType> {
+    func provideHeader(_ provider: @escaping (TableContext<SubSource, Item>, Int) -> UIView?) -> Sources<SubSource, Item, UIViewType> {
         var sources = self
         sources.tableHeader = provider
         return sources
     }
     
-    func provideFooter(_ provider: @escaping (TableContext<SourceSnapshot>, Int) -> UIView?) -> Sources<SubSource, Item, SourceSnapshot, UIViewType> {
+    func provideFooter(_ provider: @escaping (TableContext<SubSource, Item>, Int) -> UIView?) -> Sources<SubSource, Item, UIViewType> {
         var sources = self
         sources.tableFooter = provider
         return sources
     }
     
-    func onSelectItem(_ selection: @escaping (TableContext<SourceSnapshot>, Item) -> Void) -> Sources<SubSource, Item, SourceSnapshot, UIViewType> {
+    func onSelectItem(_ selection: @escaping (TableContext<SubSource, Item>, Item) -> Void) -> Sources<SubSource, Item, UIViewType> {
         var sources = self
         sources.tableDidSelectItem = selection
         return sources
     }
     
-    func onWillDisplayItem(_ display: @escaping (TableContext<SourceSnapshot>, UITableViewCell, Item) -> Void) -> Sources<SubSource, Item, SourceSnapshot, UIViewType> {
+    func onWillDisplayItem(_ display: @escaping (TableContext<SubSource, Item>, UITableViewCell, Item) -> Void) -> Sources<SubSource, Item, UIViewType> {
         var sources = self
         sources.tableWillDisplayItem = display
         return sources
     }
     
-    func provideHeightOfItem(_ provider: @escaping (TableContext<SourceSnapshot>, Item) -> CGFloat) -> Sources<SubSource, Item, SourceSnapshot, UIViewType> {
+    func provideHeightOfItem(_ provider: @escaping (TableContext<SubSource, Item>, Item) -> CGFloat) -> Sources<SubSource, Item, UIViewType> {
         var sources = self
         sources.tableHeightForItem = provider
         return sources
     }
     
-    func provideHeightForHeader(_ provider: @escaping (TableContext<SourceSnapshot>, Int) -> CGFloat) -> Sources<SubSource, Item, SourceSnapshot, UIViewType> {
+    func provideHeightForHeader(_ provider: @escaping (TableContext<SubSource, Item>, Int) -> CGFloat) -> Sources<SubSource, Item, UIViewType> {
         var sources = self
         sources.tableHeightForHeader = provider
         return sources
     }
     
-    func provideHeightForFooter(_ provider: @escaping (TableContext<SourceSnapshot>, Int) -> CGFloat) -> Sources<SubSource, Item, SourceSnapshot, UIViewType> {
+    func provideHeightForFooter(_ provider: @escaping (TableContext<SubSource, Item>, Int) -> CGFloat) -> Sources<SubSource, Item, UIViewType> {
         var sources = self
         sources.tableHeightForFooter = provider
         return sources

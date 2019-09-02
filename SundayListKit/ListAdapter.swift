@@ -12,5 +12,5 @@ public protocol CollectionListDataSource: CollectionDataSource, ListUpdatable { 
 public protocol TableListAdapter: TableAdapter, ListUpdatable { }
 public protocol CollectionListAdapter: CollectionAdapter, ListUpdatable { }
 
-public typealias CollectionSectionSources<Item> = CollectionSources<[Item], Item, Snapshot<[Item], Item>>
-public typealias TableSectionSources<Item> = TableSources<[Item], Item, Snapshot<[Item], Item>>
+public typealias CollectionSectionSources<Item> = CollectionSources<[Item], Item>
+public typealias TableSectionSources<Item> = TableSources<[Item], Item>

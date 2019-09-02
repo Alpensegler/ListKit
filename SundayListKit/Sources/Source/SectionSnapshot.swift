@@ -1,23 +1,12 @@
 //
-//  SourceSnapshot.swift
+//  Snapshot<SubSource, Item>.swift
 //  SundayListKit
 //
 //  Created by Frain on 2019/8/1.
 //  Copyright © 2019 Frain. All rights reserved.
 //
 
-public protocol SectionSnapshot: CollectionSnapshotType {
-    associatedtype SubSource: Collection where SubSource.Element == Element
-    typealias Item = Element
-    func item(at indexPath: IndexPath) -> Item
-    init(_ source: SubSource)
-    
-    mutating func deleteItem(at index: Int)
-    mutating func insertItem(_ item: Item, at index: Int)
-    mutating func reloadItem(_ item: Item, at index: Int)
-}
-
-extension Snapshot: SectionSnapshot where SubSource: Collection, SubSource.Element == Item {
+extension Snapshot where SubSource: Collection, SubSource.Element == Item {
     public init(_ source: SubSource) {
         self.subSource = Array(source)
         self.subSnapshots = []
@@ -50,21 +39,21 @@ extension Snapshot: SectionSnapshot where SubSource: Collection, SubSource.Eleme
     }
 }
 
-public extension UpdateContext where Snapshot: SectionSnapshot {
+public extension UpdateContext where SubSource: Collection, SubSource.Element == Item {
     func insertItem(at index: Int) { insertItem(at: IndexPath(item: index)) }
     func deleteItem(at index: Int) { deleteItem(at: IndexPath(item: index)) }
     func reloadItem(at index: Int) { reloadItem(at: IndexPath(item: index)) }
     func moveItem(at index: Int, to newIndex: Int) { moveItem(at: IndexPath(item: index), to: IndexPath(item: newIndex)) }
 }
 
-public extension Source where SubSource: Collection, SourceSnapshot == Snapshot<SubSource, Item>, Element == Item {
-    func createSnapshot(with source: SubSource) -> SourceSnapshot { return .init(source) }
-    func item(for snapshot: SourceSnapshot, at indexPath: IndexPath) -> Item {
+public extension Source where SubSource: Collection, SubSource.Element == Item {
+    func createSnapshot(with source: SubSource) -> Snapshot<SubSource, Item> { return .init(source) }
+    func item(for snapshot: Snapshot<SubSource, Item>, at indexPath: IndexPath) -> Item {
         return snapshot.item(at: indexPath)
     }
 }
 
-public extension Source where SourceSnapshot: SectionSnapshot, Item == SourceSnapshot.Item, Self: ListUpdatable {
+public extension Source where SubSource: Collection, SubSource.Element == Item, Self: ListUpdatable {
     func insert(item: Item, at index: Int) {
         updateOrAddToContext(snapshotUpdate: [{ $0.insertItem(item, at: index) }], contextUpdate: [{ $0.insertItem(at: index) }])
     }
@@ -82,8 +71,8 @@ public extension Source where SourceSnapshot: SectionSnapshot, Item == SourceSna
 
 //ElementEquatable
 
-public extension UpdateContext where Snapshot: SectionSnapshot {
-    func diffUpdate(by areEquivalent: (Snapshot.SubSource.Element, Snapshot.SubSource.Element) -> Bool) {
+public extension UpdateContext where SubSource: Collection, SubSource.Element == Item {
+    func diffUpdate(by areEquivalent: (SubSource.Element, SubSource.Element) -> Bool) {
         #if iOS13
         let diff = snapshot.elements.difference(from: rawSnapshot.elements, by: areEquivalent)
         #else
@@ -99,11 +88,11 @@ public extension UpdateContext where Snapshot: SectionSnapshot {
         }
     }
     
-    func diffUpdate<ID: Hashable>(idBy key: KeyPath<Snapshot.SubSource.Element, ID>) {
+    func diffUpdate<ID: Hashable>(idBy key: KeyPath<SubSource.Element, ID>) {
         diffUpdate(getID: { $0[keyPath: key] })
     }
     
-    func diffUpdate<ID: Hashable>(getID key: (Snapshot.SubSource.Element) -> ID) {
+    func diffUpdate<ID: Hashable>(getID key: (SubSource.Element) -> ID) {
         #if iOS13
         let diff = snapshot.elements.difference(from: rawSnapshot.elements) { key($0) == key($1) }.inferrringMoves(by: key)
         #else
@@ -125,11 +114,11 @@ public extension UpdateContext where Snapshot: SectionSnapshot {
         }
     }
     
-    func diffUpdate<ID: Hashable>(idBy key: KeyPath<Snapshot.SubSource.Element, ID>, by areEquivalent: (Snapshot.SubSource.Element, Snapshot.SubSource.Element) -> Bool) {
+    func diffUpdate<ID: Hashable>(idBy key: KeyPath<SubSource.Element, ID>, by areEquivalent: (SubSource.Element, SubSource.Element) -> Bool) {
         diffUpdate(getID: { $0[keyPath: key] }, by: areEquivalent)
     }
     
-    func diffUpdate<ID: Hashable>(getID key: (Snapshot.SubSource.Element) -> ID, by areEquivalent: (Snapshot.SubSource.Element, Snapshot.SubSource.Element) -> Bool) {
+    func diffUpdate<ID: Hashable>(getID key: (SubSource.Element) -> ID, by areEquivalent: (SubSource.Element, SubSource.Element) -> Bool) {
         #if iOS13
         let diff = snapshot.elements.difference(from: rawSnapshot.elements) { key($0) == key($1) && areEquivalent($0, $1) }.inferrringMoves(by: key)
         #else
@@ -160,13 +149,13 @@ public extension UpdateContext where Snapshot: SectionSnapshot {
 }
 
 
-public extension Source where SourceSnapshot: SectionSnapshot, Item == SourceSnapshot.Item, Item: Equatable {
-    func update(context: UpdateContext<SourceSnapshot>) {
+public extension Source where SubSource: Collection, SubSource.Element == Item, Item: Equatable {
+    func update(context: UpdateContext<SubSource, Item>) {
         context.diffUpdate()
     }
 }
 
-public extension UpdateContext where Snapshot: SectionSnapshot, Snapshot.Item: Equatable {
+public extension UpdateContext where SubSource: Collection, SubSource.Element == Item, Item: Equatable {
     func diffUpdate() {
         #if iOS13
         let diff = snapshot.elements.difference(from: rawSnapshot.elements)
@@ -185,13 +174,13 @@ public extension UpdateContext where Snapshot: SectionSnapshot, Snapshot.Item: E
 }
 
 //ElementHashable
-public extension Source where SourceSnapshot: SectionSnapshot, Item == SourceSnapshot.Item, Item: Hashable {
-    func update(context: UpdateContext<SourceSnapshot>) {
+public extension Source where SubSource: Collection, SubSource.Element == Item, Item: Hashable {
+    func update(context: UpdateContext<SubSource, Item>) {
         context.diffUpdate()
     }
 }
 
-public extension UpdateContext where Snapshot: SectionSnapshot, Snapshot.Item: Hashable {
+public extension UpdateContext where SubSource: Collection, SubSource.Element == Item, Item: Hashable {
     func diffUpdate() {
         #if iOS13
         let diff = snapshot.elements.difference(from: rawSnapshot.elements).inferringMoves()
@@ -218,14 +207,14 @@ public extension UpdateContext where Snapshot: SectionSnapshot, Snapshot.Item: H
 
 
 //ElementIdentifiable
-public extension Source where SourceSnapshot: SectionSnapshot, Item == SourceSnapshot.Item, Item: Identifiable {
-    func update(context: UpdateContext<SourceSnapshot>) {
+public extension Source where SubSource: Collection, SubSource.Element == Item, Item: Identifiable {
+    func update(context: UpdateContext<SubSource, Item>) {
         context.diffUpdate()
     }
 }
 
 
-public extension UpdateContext where Snapshot: SectionSnapshot, Snapshot.Item: Identifiable {
+public extension UpdateContext where SubSource: Collection, SubSource.Element == Item, Item: Identifiable {
     func diffUpdate() {
         let diff = snapshot.elements.difference(from: rawSnapshot.elements).inferringMoves()
         for change in diff {
@@ -246,13 +235,13 @@ public extension UpdateContext where Snapshot: SectionSnapshot, Snapshot.Item: I
 }
 
 //ElementDiffable
-public extension Source where SourceSnapshot: SectionSnapshot, Item == SourceSnapshot.Item, Item: Diffable {
-    func update(context: UpdateContext<SourceSnapshot>) {
+public extension Source where SubSource: Collection, SubSource.Element == Item, Item: Diffable {
+    func update(context: UpdateContext<SubSource, Item>) {
         context.diffUpdate()
     }
 }
 
-public extension UpdateContext where Snapshot: SectionSnapshot, Snapshot.Item: Diffable {
+public extension UpdateContext where SubSource: Collection, SubSource.Element == Item, Item: Diffable {
     func diffUpdate() {
         _diffUpdate()
     }
@@ -284,13 +273,13 @@ public extension UpdateContext where Snapshot: SectionSnapshot, Snapshot.Item: D
 }
 
 //ElementIdentifiable + Hashable
-public extension Source where SourceSnapshot: SectionSnapshot, Item == SourceSnapshot.Item, Item: Identifiable, Item: Hashable {
-    func update(context: UpdateContext<SourceSnapshot>) {
+public extension Source where SubSource: Collection, SubSource.Element == Item, Item: Identifiable, Item: Hashable {
+    func update(context: UpdateContext<SubSource, Item>) {
         context.diffUpdate()
     }
 }
 
-public extension UpdateContext where Snapshot: SectionSnapshot, Snapshot.Item: Identifiable, Snapshot.Item: Hashable {
+public extension UpdateContext where SubSource: Collection, SubSource.Element == Item, Item: Identifiable, Item: Hashable {
     
     func diffUpdate() {
         _diffUpdate()

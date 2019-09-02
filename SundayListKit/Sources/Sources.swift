@@ -7,7 +7,6 @@
 //
 
 public struct Sources<SubSource, Item, UIViewType> {
-    public internal(set) var listUpdater = ListUpdater()
     public var source: SubSource {
         get { return sourceClosure?() ?? sourceStored }
         nonmutating set {
@@ -16,16 +15,22 @@ public struct Sources<SubSource, Item, UIViewType> {
         }
     }
     
+    public internal(set) var listUpdater = ListUpdater()
+    var diffable = AnyDiffable()
+    
     let sourceClosure: (() -> SubSource)!
-    var sourceStored: SubSource! {
+    var _sourceStored: SubSource! {
         get { return listUpdater.sourceValue as? SubSource }
+        nonmutating set { listUpdater.sourceValue = newValue }
+    }
+    
+    var sourceStored: SubSource! {
+        get { return _sourceStored }
         nonmutating set {
-            listUpdater.sourceValue = newValue
+            _sourceStored = newValue
             performUpdate(self)
         }
     }
-    
-    var diffable = AnyDiffable()
     
     //MARK: - Source
     var createSnapshotWith: (SubSource) -> Snapshot<SubSource, Item>
@@ -41,6 +46,7 @@ public struct Sources<SubSource, Item, UIViewType> {
     var collectionSupplementaryView: ((CollectionContext<SubSource, Item>, SupplementaryViewType, Item) -> UICollectionReusableView?)? = nil
     
     var collectionDidSelectItem: ((CollectionContext<SubSource, Item>, Item) -> Void)? = nil
+    var collectionDidDeselectItem: ((CollectionContext<SubSource, Item>, Item) -> Void)? = nil
     var collectionWillDisplayItem: ((CollectionContext<SubSource, Item>, UICollectionViewCell, Item) -> Void)? = nil
     
     var collectionSizeForItem: ((CollectionContext<SubSource, Item>, UICollectionViewLayout, Item) -> CGSize)? = nil
@@ -51,13 +57,60 @@ public struct Sources<SubSource, Item, UIViewType> {
     var tableViewWillUpdate: ((UITableView, ListChange) -> Void)? = nil
     
     var tableCellForItem: ((TableContext<SubSource, Item>, Item) -> UITableViewCell)! = nil
+    var tableTitleForHeader: ((TableContext<SubSource, Item>, Int) -> String?)? = nil
+    var tableTitleForFooter: ((TableContext<SubSource, Item>, Int) -> String?)? = nil
+    
     var tableHeader: ((TableContext<SubSource, Item>, Int) -> UIView?)? = nil
     var tableFooter: ((TableContext<SubSource, Item>, Int) -> UIView?)? = nil
+    var tableWillDisplayHeaderView: ((TableContext<SubSource, Item>, UIView, Int) -> Void)? = nil
+    var tableWillDisplayFooterView: ((TableContext<SubSource, Item>, UIView, Int) -> Void)? = nil
     
     var tableDidSelectItem: ((TableContext<SubSource, Item>, Item) -> Void)? = nil
+    var tableDidDeselectItem: ((TableContext<SubSource, Item>, Item) -> Void)? = nil
     var tableWillDisplayItem: ((TableContext<SubSource, Item>, UITableViewCell, Item) -> Void)? = nil
+    
+    var tableViewDidHighlightItem: ((TableContext<SubSource, Item>, Item) -> Void)? = nil
+    var tableViewDidUnhighlightItem: ((TableContext<SubSource, Item>, Item) -> Void)? = nil
     
     var tableHeightForItem: ((TableContext<SubSource, Item>, Item) -> CGFloat)? = nil
     var tableHeightForHeader: ((TableContext<SubSource, Item>, Int) -> CGFloat)? = nil
     var tableHeightForFooter: ((TableContext<SubSource, Item>, Int) -> CGFloat)? = nil
+    
+    func castViewType<ViewType>() -> Sources<SubSource, Item, ViewType> {
+        return .init(
+            listUpdater: listUpdater,
+            diffable: diffable,
+            sourceClosure: sourceClosure,
+            createSnapshotWith: createSnapshotWith,
+            itemFor: itemFor,
+            updateContext: updateContext,
+            performUpdate: { [performUpdate] in performUpdate($0.castViewType()) },
+            collectionView: collectionView,
+            collectionViewWillUpdate: collectionViewWillUpdate,
+            collectionCellForItem: collectionCellForItem,
+            collectionSupplementaryView: collectionSupplementaryView,
+            collectionDidSelectItem: collectionDidSelectItem,
+            collectionDidDeselectItem: collectionDidDeselectItem,
+            collectionWillDisplayItem: collectionWillDisplayItem,
+            collectionSizeForItem: collectionSizeForItem,
+            collectionSizeForHeader: collectionSizeForHeader,
+            collectionSizeForFooter: collectionSizeForFooter,
+            tableViewWillUpdate: tableViewWillUpdate,
+            tableCellForItem: tableCellForItem,
+            tableTitleForHeader: tableTitleForHeader,
+            tableTitleForFooter: tableTitleForFooter,
+            tableHeader: tableHeader,
+            tableFooter: tableFooter,
+            tableWillDisplayHeaderView: tableWillDisplayHeaderView,
+            tableWillDisplayFooterView: tableWillDisplayFooterView,
+            tableDidSelectItem: tableDidSelectItem,
+            tableDidDeselectItem: tableDidDeselectItem,
+            tableWillDisplayItem: tableWillDisplayItem,
+            tableViewDidHighlightItem: tableViewDidHighlightItem,
+            tableViewDidUnhighlightItem: tableViewDidUnhighlightItem,
+            tableHeightForItem: tableHeightForItem,
+            tableHeightForHeader: tableHeightForHeader,
+            tableHeightForFooter: tableHeightForFooter
+        )
+    }
 }

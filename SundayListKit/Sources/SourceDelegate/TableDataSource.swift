@@ -9,6 +9,8 @@
 public protocol TableDataSource: Source {
     typealias TableListContext = TableContext<SubSource, Item>
     
+    func eraseToTableSources() -> TableSources<SubSource, Item>
+    
     //Providing Cells, Headers, and Footers
     func tableContext(_ context:  TableListContext, cellForItem item: Item) -> UITableViewCell
     func tableContext(_ context:  TableListContext, titleForHeaderInSection section: Int) -> String?

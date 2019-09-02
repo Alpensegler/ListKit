@@ -21,24 +21,85 @@ extension Sources {
     }
 }
 
-public protocol SourcesTypeAraser: Source where SubSource == Any {
+public protocol SourcesTypeEraser: Source where SubSource == Any {
     init<Value: Source>(_ source: Value) where Value.Item == Item
 }
 
-extension Sources: SourcesTypeAraser where SubSource == Any, UIViewType == Never {
+public protocol CollectionDataSourcesTypeEraser: Source where SubSource == Any, Item == Any {
+    init<Value: CollectionDataSource>(_ source: Value)
+}
+
+public protocol TableDataSourcesTypeEraser: Source where SubSource == Any, Item == Any {
+    init<Value: TableDataSource>(_ source: Value)
+}
+
+extension Sources: SourcesTypeEraser where SubSource == Any, UIViewType == Never {
     public init<Value: Source>(_ source: Value) where Item == Value.Item {
         self.init(sources: source.eraseToSources())
     }
-    
-    init<Source, View>(sources: Sources<Source, Item, View>) {
-        createSnapshotWith = { sources.createSnapshot(with: $0 as! Source).castToSnapshot() }
-        itemFor = { sources.item(for: $0.castToSnapshot(), at: $1) }
-        updateContext = { sources.update(context: $0.castSnapshotType()) }
-        
-        sourceClosure = sources.sourceClosure
-        sourceStored = sources.sourceStored
-        
+}
+
+extension Sources: CollectionDataSourcesTypeEraser where SubSource == Any, Item == Any, UIViewType == UICollectionView {
+    public init<Value: CollectionDataSource>(_ source: Value) {
+        self.init(sources: source.eraseToCollectionSources())
+    }
+}
+
+extension Sources: TableDataSourcesTypeEraser where SubSource == Any, Item == Any, UIViewType == UITableView {
+    public init<Value: TableDataSource>(_ source: Value) {
+        self.init(sources: source.eraseToTableSources())
+    }
+}
+
+extension Sources {
+    init<OtherSource, OtherItem, View>(sources: Sources<OtherSource, OtherItem, View>) {
         listUpdater = sources.listUpdater
         diffable = sources.diffable
+        
+        sourceClosure = sources.sourceClosure.map { closure in { closure() as! SubSource } }
+
+        //MARK: - Source
+        createSnapshotWith = { sources.createSnapshot(with: $0 as! OtherSource).castType() }
+        itemFor = { [itemFor = sources.itemFor] in itemFor($0.castType(), $1) as! Item }
+        updateContext = { [updateContext = sources.updateContext] in updateContext($0.castSnapshotType()) }
+        performUpdate = { [performUpdate = sources.performUpdate] in performUpdate(.init(sources: $0)) }
+
+        //MARK: - collection adapter
+        collectionView = sources.collectionView
+        collectionViewWillUpdate = sources.collectionViewWillUpdate
+        
+        collectionCellForItem = sources.collectionCellForItem.map { closure in { closure($0.castSnapshotType(), $1 as! OtherItem) } }
+        collectionSupplementaryView = sources.collectionSupplementaryView.map { closure in { closure($0.castSnapshotType(), $1, $2 as! OtherItem) } }
+        
+        collectionDidSelectItem = sources.collectionDidSelectItem.map { closure in { closure($0.castSnapshotType(), $1 as! OtherItem) } }
+        collectionDidDeselectItem = sources.collectionDidDeselectItem.map { closure in { closure($0.castSnapshotType(), $1 as! OtherItem) } }
+        collectionWillDisplayItem = sources.collectionWillDisplayItem.map { closure in { closure($0.castSnapshotType(), $1, $2 as! OtherItem) } }
+        
+        collectionSizeForItem = sources.collectionSizeForItem.map { closure in { closure($0.castSnapshotType(), $1, $2 as! OtherItem) } }
+        collectionSizeForHeader = sources.collectionSizeForHeader.map { closure in { closure($0.castSnapshotType(), $1, $2) } }
+        collectionSizeForFooter = sources.collectionSizeForFooter.map { closure in { closure($0.castSnapshotType(), $1, $2) } }
+
+        //MARK: - table adapter
+        tableViewWillUpdate = sources.tableViewWillUpdate
+        tableCellForItem = sources.tableCellForItem.map { closure in { closure($0.castSnapshotType(), $1 as! OtherItem) } }
+        tableTitleForHeader = sources.tableTitleForHeader.map { closure in { closure($0.castSnapshotType(), $1) } }
+        tableTitleForFooter = sources.tableTitleForFooter.map { closure in { closure($0.castSnapshotType(), $1) } }
+        
+        tableHeader = sources.tableHeader.map { closure in { closure($0.castSnapshotType(), $1) } }
+        tableFooter = sources.tableFooter.map { closure in { closure($0.castSnapshotType(), $1) } }
+        
+        tableWillDisplayHeaderView = sources.tableWillDisplayHeaderView.map { closure in { closure($0.castSnapshotType(), $1, $2) } }
+        tableWillDisplayFooterView = sources.tableWillDisplayFooterView.map { closure in { closure($0.castSnapshotType(), $1, $2) } }
+        
+        tableDidSelectItem = sources.tableDidSelectItem.map { closure in { closure($0.castSnapshotType(), $1 as! OtherItem) } }
+        tableDidDeselectItem = sources.tableDidDeselectItem.map { closure in { closure($0.castSnapshotType(), $1 as! OtherItem) } }
+        tableWillDisplayItem = sources.tableWillDisplayItem.map { closure in { closure($0.castSnapshotType(), $1, $2 as! OtherItem) } }
+        
+        tableViewDidHighlightItem = sources.tableViewDidHighlightItem.map { closure in { closure($0.castSnapshotType(), $1 as! OtherItem) } }
+        tableViewDidUnhighlightItem = sources.tableViewDidUnhighlightItem.map { closure in { closure($0.castSnapshotType(), $1 as! OtherItem) } }
+        
+        tableHeightForItem = sources.tableHeightForItem.map { closure in { closure($0.castSnapshotType(), $1 as! OtherItem) } }
+        tableHeightForHeader = sources.tableHeightForHeader.map { closure in { closure($0.castSnapshotType(), $1) } }
+        tableHeightForFooter = sources.tableHeightForFooter.map { closure in { closure($0.castSnapshotType(), $1) } }
     }
 }

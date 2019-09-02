@@ -9,7 +9,7 @@
 public protocol CollectionDataSource: Source {
     typealias CollectionListContext = CollectionContext<SubSource, Item>
     
-    func eraseToAnyCollectionSources() -> AnyCollectionSources
+    func eraseToCollectionSources() -> CollectionSources<SubSource, Item>
     
     //Getting Views for Items
     func collectionContext(_ context: CollectionListContext, cellForItem item: Item) -> UICollectionViewCell

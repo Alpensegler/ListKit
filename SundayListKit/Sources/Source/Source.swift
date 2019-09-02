@@ -76,7 +76,7 @@ public struct Snapshot<SubSource, Item>: CustomStringConvertible {
         }
     }
     
-    func castToSnapshot<SubSource, Item>() -> Snapshot<SubSource, Item> {
+    func castType<SubSource, Item>() -> Snapshot<SubSource, Item> {
         return .init(
             isSectioned: isSectioned,
             subSource: subSource,

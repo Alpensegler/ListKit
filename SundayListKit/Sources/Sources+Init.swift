@@ -13,7 +13,7 @@ public typealias ListSources<Item> = Sources<[AnySources<Item>], Item, Never>
 public extension Sources
 where
     SubSource: Collection,
-    SubSource.Element: SourcesTypeAraser,
+    SubSource.Element: SourcesTypeEraser,
     SubSource.Element: Diffable,
     SubSource.Element.Item == Item,
     UIViewType == Never
@@ -24,7 +24,7 @@ where
         updateContext = { $0.diffUpdate() }
         
         sourceClosure = nil
-        sourceStored = sources
+        _sourceStored = sources
         
         diffable = AnyDiffable(id)
     }
@@ -33,7 +33,7 @@ where
 public extension Sources
 where
     SubSource: RangeReplaceableCollection,
-    SubSource.Element: SourcesTypeAraser,
+    SubSource.Element: SourcesTypeEraser,
     SubSource.Element: Diffable,
     SubSource.Element.Item == Item,
     UIViewType == Never
@@ -48,7 +48,7 @@ where
         diffable = .init(id)
         
         sourceClosure = nil
-        sourceStored = _sources
+        _sourceStored = _sources
     }
     
     init<S0: Source, S1: Source>(id: AnyHashable = UUID(), _ s0: S0?, _ s1: S1?) where S0.Item == Item, S1.Item == Item {
@@ -138,7 +138,7 @@ where
         updateContext = customUpdate
         
         sourceClosure = nil
-        sourceStored = _items
+        _sourceStored = _items
         diffable = .init(id)
     }
     
@@ -301,7 +301,7 @@ public extension Sources where SubSource == Item, UIViewType == Never {
         updateContext = customUpdate
         
         sourceClosure = nil
-        sourceStored = _item
+        _sourceStored = _item
         diffable = .init(id)
     }
     

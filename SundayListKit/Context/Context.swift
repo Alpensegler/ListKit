@@ -62,7 +62,7 @@ public struct CollectionContext<SubSource, Item>: Context {
     }
     
     func castSnapshotType<SubSource, Item>() -> CollectionContext<SubSource, Item> {
-        return .init(listView: listView, indexPath: indexPath, offset: offset, snapshot: snapshot.castToSnapshot())
+        return .init(listView: listView, indexPath: indexPath, offset: offset, snapshot: snapshot.castType())
     }
 }
 
@@ -89,6 +89,10 @@ public struct TableContext<SubSource, Item>: Context {
         self.indexPath = indexPath
         self.offset = offset
         self.listView = listView
+    }
+    
+    func castSnapshotType<SubSource, Item>() -> TableContext<SubSource, Item> {
+        return .init(listView: listView, indexPath: indexPath, offset: offset, snapshot: snapshot.castType())
     }
 }
 

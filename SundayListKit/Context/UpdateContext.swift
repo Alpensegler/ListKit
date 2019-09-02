@@ -142,7 +142,7 @@ public struct UpdateContext<SubSource, Item> {
     }
     
     func castSnapshotType<SubSource, Item>() -> UpdateContext<SubSource, Item> {
-        return .init(rawSnapshot: rawSnapshot.castToSnapshot(), snapshot: snapshot.castToSnapshot(), isSectioned: isSectioned, rawSnapshotChanges: rawSnapshotChanges, snapshotChanges: snapshotChanges)
+        return .init(rawSnapshot: rawSnapshot.castType(), snapshot: snapshot.castType(), isSectioned: isSectioned, rawSnapshotChanges: rawSnapshotChanges, snapshotChanges: snapshotChanges)
     }
 }
 

@@ -14,3 +14,6 @@ public protocol CollectionListAdapter: CollectionAdapter, ListUpdatable { }
 
 public typealias CollectionSectionSources<Item> = CollectionSources<[Item], Item>
 public typealias TableSectionSources<Item> = TableSources<[Item], Item>
+
+public typealias CollectionItemSources<Item> = CollectionSources<Item, Item>
+public typealias TableItemSources<Item> = TableSources<Item, Item>

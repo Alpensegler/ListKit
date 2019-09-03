@@ -156,6 +156,8 @@ extension Sources {
         Value.Item == Item
     {
         listUpdater = _source().listUpdater
+        collectionViewWillUpdate = { _source().collectionView($0, willUpdateWith: $1) }
+        tableViewWillUpdate = { _source().tableView($0, willUpdateWith: $1) }
         sourceClosure = { _source().source }
         createSnapshotWith = { _source().createSnapshot(with: $0) }
         itemFor = { _source().item(for: $0, at: $1) }

@@ -14,6 +14,7 @@ public protocol ListView: UIScrollView {
     associatedtype Animation: ListViewAnimationOption
     associatedtype Size
     associatedtype Coordinator: ListViewCoordinator where Coordinator.List == Self
+    associatedtype ScrollPosition
     
     func reloadSynchronously(completion: ((Bool) -> Void)?)
     func perform(update: () -> Void, animation: Animation, completion: ((Bool) -> Void)?)
@@ -35,6 +36,9 @@ public protocol ListView: UIScrollView {
     func deleteSections(_ sections: IndexSet)
     func reloadSections(_ sections: IndexSet)
     func moveSection(_ section: Int, toSection newSection: Int)
+    
+    func selectItem(at indexPath: IndexPath?, animated: Bool, scrollPosition: ScrollPosition)
+    func deselectItem(at indexPath: IndexPath, animated: Bool)
     
     func defaultSupplementraySize(for type: SupplementaryViewType) -> Size
     var defaultAnimation: Animation { get set }

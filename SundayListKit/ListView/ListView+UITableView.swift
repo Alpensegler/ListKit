@@ -79,6 +79,14 @@ extension UITableView: ListView {
         reloadSections(sections, with: defaultAnimation.reloadSections)
     }
     
+    public func selectItem(at indexPath: IndexPath?, animated: Bool, scrollPosition: UITableView.ScrollPosition) {
+        selectRow(at: indexPath, animated: animated, scrollPosition: scrollPosition)
+    }
+    
+    public func deselectItem(at indexPath: IndexPath, animated: Bool) {
+        deselectRow(at: indexPath, animated: animated)
+    }
+    
     public func register(supplementaryViewType: SupplementaryViewType, _ supplementaryClass: AnyClass?, identifier: String) {
         switch supplementaryViewType {
         case .header: register(supplementaryClass, forHeaderFooterViewReuseIdentifier: identifier)

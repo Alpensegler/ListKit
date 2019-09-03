@@ -181,6 +181,11 @@ public extension TableAdapter where SubSource: Collection, SubSource.Element: Ta
     func tableContext(_ context: TableListContext, estimatedHeightForItem item: Item) -> CGFloat { return context.elementEstimatedHeightForItem() }
     func tableContext(_ context: TableListContext, estimatedHeightForHeaderInSection section: Int) -> CGFloat { return context.elementEstimatedHeightForHeaderInSection(section) }
     func tableContext(_ context: TableListContext, estimatedHeightForFooterInSection section: Int) -> CGFloat { return context.elementEstimatedHeightForFooterInSection(section) }
+    
+    //Managing Table View Highlights
+    func tableContext(_ context: TableListContext, shouldHighlightItem item: Item) -> Bool { return context.elementShouldHighlightItem() }
+    func tableContext(_ context: TableListContext, didHighlightItem item: Item) { context.elementDidHighlightItem() }
+    func tableContext(_ context: TableListContext, didUnhighlightItem item: Item) { context.elementDidUnhighlightItem() }
 }
 
 public extension TableContext where SubSource: Collection, SubSource.Element: TableAdapter, Item == SubSource.Element.Item  {
@@ -257,5 +262,18 @@ public extension TableContext where SubSource: Collection, SubSource.Element: Ta
     func elementEstimatedHeightForFooterInSection(_ section: Int) -> CGFloat {
         let context = elementsContext()
         return element.tableContext(context, estimatedHeightForFooterInSection: context.section)
+    }
+    
+    //Managing Table View Highlights
+    func elementShouldHighlightItem() -> Bool {
+        return element.tableContext(elementsContext(), shouldHighlightItem: elementsItem)
+    }
+    
+    func elementDidHighlightItem() {
+        element.tableContext(elementsContext(), didHighlightItem: elementsItem)
+    }
+    
+    func elementDidUnhighlightItem() {
+        element.tableContext(elementsContext(), didUnhighlightItem: elementsItem)
     }
 }

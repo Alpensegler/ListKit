@@ -88,11 +88,11 @@ public struct Snapshot<SubSource, Item>: CustomStringConvertible {
 }
 
 extension Snapshot: SnapshotType {
-    func numbersOfItems(in section: Int) -> Int {
+    public func numbersOfItems(in section: Int) -> Int {
         return subSourceIndices[safe: section]?.count ?? 0
     }
     
-    func numbersOfSections() -> Int {
+    public func numbersOfSections() -> Int {
         return isSectioned ? subSourceIndices.count : 0
     }
 }

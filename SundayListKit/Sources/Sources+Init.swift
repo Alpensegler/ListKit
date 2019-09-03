@@ -9,6 +9,8 @@
 //MARK: - List
 
 public typealias ListSources<Item> = Sources<[AnySources<Item>], Item, Never>
+public typealias TableListSources = TableSources<[AnyTableSources], Any>
+public typealias CollectionListSources = CollectionSources<[AnyCollectionSources], Any>
 
 public extension Sources
 where
@@ -18,13 +20,30 @@ where
     SubSource.Element.Item == Item,
     UIViewType == Never
 {
-    init(id: AnyHashable = UUID(), _ sources: SubSource) {
+    init(id: AnyHashable = UUID(), sources: SubSource) {
         createSnapshotWith = { .init($0) }
         itemFor = { $0.item(at: $1) }
         updateContext = { $0.diffUpdate() }
         
         sourceClosure = nil
         _sourceStored = sources
+        
+        diffable = AnyDiffable(id)
+    }
+}
+
+public extension Sources
+where
+    SubSource == [AnySources<Item>],
+    UIViewType == Never
+{
+    init<Value: Source>(id: AnyHashable = UUID(), source: Value?...) where Value.Item == Item {
+        createSnapshotWith = { .init($0) }
+        itemFor = { $0.item(at: $1) }
+        updateContext = { $0.diffUpdate() }
+        
+        sourceClosure = nil
+        _sourceStored = source.compactMap { $0?.eraseToAnySources() }
         
         diffable = AnyDiffable(id)
     }
@@ -121,6 +140,230 @@ where
         ].compactMap { $0 })
     }
 }
+
+//MARK: - Sources + CollectionDataSources
+
+public extension Sources
+where
+    Item == Any,
+    SubSource == [AnyCollectionSources],
+    UIViewType == UICollectionView
+{
+    init<Value: CollectionDataSource>(id: AnyHashable = UUID(), sources: Value?...) {
+        createSnapshotWith = { .init($0) }
+        itemFor = { $0.item(at: $1) }
+        updateContext = { $0.diffUpdate() }
+        
+        sourceClosure = nil
+        _sourceStored = sources.compactMap { $0.map { .init($0) } }
+        
+        diffable = AnyDiffable(id)
+    }
+}
+
+public extension Sources
+where
+    SubSource: RangeReplaceableCollection,
+    SubSource.Element: CollectionDataSourcesTypeEraser,
+    SubSource.Element: Diffable,
+    SubSource.Element.Item == Item,
+    UIViewType == UICollectionView
+{
+    
+    private init(id: AnyHashable, _ sources: [SubSource.Element]) {
+        var _sources = SubSource()
+        _sources.append(contentsOf: sources)
+        createSnapshotWith = { .init($0) }
+        itemFor = { $0.item(at: $1) }
+        updateContext = { $0.diffUpdate() }
+        diffable = .init(id)
+        
+        sourceClosure = nil
+        _sourceStored = _sources
+    }
+    
+    init<S0: CollectionDataSource, S1: CollectionDataSource>(id: AnyHashable = UUID(), _ s0: S0?, _ s1: S1?) {
+        self.init(id: id, [
+            s0.map(SubSource.Element.init),
+            s1.map(SubSource.Element.init),
+        ].compactMap { $0 })
+    }
+    
+    init<S0: CollectionDataSource, S1: CollectionDataSource, S2: CollectionDataSource>(id: AnyHashable = UUID(), _ s0: S0?, _ s1: S1?, _ s2: S2?) {
+        self.init(id: id, [
+            s0.map(SubSource.Element.init),
+            s1.map(SubSource.Element.init),
+            s2.map(SubSource.Element.init),
+        ].compactMap { $0 })
+    }
+    
+    init<S0: CollectionDataSource, S1: CollectionDataSource, S2: CollectionDataSource, S3: CollectionDataSource>(id: AnyHashable = UUID(), _ s0: S0?, _ s1: S1?, _ s2: S2?, _ s3: S3?) {
+        self.init(id: id, [
+            s0.map(SubSource.Element.init),
+            s1.map(SubSource.Element.init),
+            s2.map(SubSource.Element.init),
+            s3.map(SubSource.Element.init),
+        ].compactMap { $0 })
+    }
+    
+    init<S0: CollectionDataSource, S1: CollectionDataSource, S2: CollectionDataSource, S3: CollectionDataSource, S4: CollectionDataSource>(id: AnyHashable = UUID(), _ s0: S0?, _ s1: S1?, _ s2: S2?, _ s3: S3?, _ s4: S4?) {
+        self.init(id: id, [
+            s0.map(SubSource.Element.init),
+            s1.map(SubSource.Element.init),
+            s2.map(SubSource.Element.init),
+            s3.map(SubSource.Element.init),
+            s4.map(SubSource.Element.init),
+        ].compactMap { $0 })
+    }
+    
+    init<S0: CollectionDataSource, S1: CollectionDataSource, S2: CollectionDataSource, S3: CollectionDataSource, S4: CollectionDataSource, S5: CollectionDataSource>(id: AnyHashable = UUID(), _ s0: S0?, _ s1: S1?, _ s2: S2?, _ s3: S3?, _ s4: S4?, _ s5: S5?) {
+        self.init(id: id, [
+            s0.map(SubSource.Element.init),
+            s1.map(SubSource.Element.init),
+            s2.map(SubSource.Element.init),
+            s3.map(SubSource.Element.init),
+            s4.map(SubSource.Element.init),
+            s5.map(SubSource.Element.init),
+        ].compactMap { $0 })
+    }
+    
+    init<S0: CollectionDataSource, S1: CollectionDataSource, S2: CollectionDataSource, S3: CollectionDataSource, S4: CollectionDataSource, S5: CollectionDataSource, S6: CollectionDataSource>(id: AnyHashable = UUID(), _ s0: S0?, _ s1: S1?, _ s2: S2?, _ s3: S3?, _ s4: S4?, _ s5: S5?, _ s6: S6?) {
+        self.init(id: id, [
+            s0.map(SubSource.Element.init),
+            s1.map(SubSource.Element.init),
+            s2.map(SubSource.Element.init),
+            s3.map(SubSource.Element.init),
+            s4.map(SubSource.Element.init),
+            s5.map(SubSource.Element.init),
+            s6.map(SubSource.Element.init),
+        ].compactMap { $0 })
+    }
+    
+    init<S0: CollectionDataSource, S1: CollectionDataSource, S2: CollectionDataSource, S3: CollectionDataSource, S4: CollectionDataSource, S5: CollectionDataSource, S6: CollectionDataSource, S7: CollectionDataSource>(id: AnyHashable = UUID(), _ s0: S0?, _ s1: S1?, _ s2: S2?, _ s3: S3?, _ s4: S4?, _ s5: S5?, _ s6: S6?, _ s7: S7?) {
+        self.init(id: id, [
+            s0.map(SubSource.Element.init),
+            s1.map(SubSource.Element.init),
+            s2.map(SubSource.Element.init),
+            s3.map(SubSource.Element.init),
+            s4.map(SubSource.Element.init),
+            s5.map(SubSource.Element.init),
+            s6.map(SubSource.Element.init),
+            s7.map(SubSource.Element.init),
+        ].compactMap { $0 })
+    }
+}
+
+//MARK: - Sources + TableDataSources
+
+public extension Sources
+where
+    Item == Any,
+    SubSource == [AnyTableSources],
+    UIViewType == UITableView
+{
+    init<Value: TableDataSource>(id: AnyHashable = UUID(), sources: Value?...) {
+        createSnapshotWith = { .init($0) }
+        itemFor = { $0.item(at: $1) }
+        updateContext = { $0.diffUpdate() }
+        
+        sourceClosure = nil
+        _sourceStored = sources.compactMap { $0.map { .init($0) } }
+        diffable = .init(id)
+    }
+}
+
+public extension Sources
+where
+    SubSource: RangeReplaceableCollection,
+    SubSource.Element: TableDataSourcesTypeEraser,
+    SubSource.Element: Diffable,
+    SubSource.Element.Item == Item,
+    UIViewType == UITableView
+{
+    
+    private init(id: AnyHashable, _ sources: [SubSource.Element]) {
+        var _sources = SubSource()
+        _sources.append(contentsOf: sources)
+        createSnapshotWith = { .init($0) }
+        itemFor = { $0.item(at: $1) }
+        updateContext = { $0.diffUpdate() }
+        diffable = .init(id)
+        
+        sourceClosure = nil
+        _sourceStored = _sources
+    }
+    
+    init<S0: TableDataSource, S1: TableDataSource>(id: AnyHashable = UUID(), _ s0: S0?, _ s1: S1?) {
+        self.init(id: id, [
+            s0.map(SubSource.Element.init),
+            s1.map(SubSource.Element.init),
+        ].compactMap { $0 })
+    }
+    
+    init<S0: TableDataSource, S1: TableDataSource, S2: TableDataSource>(id: AnyHashable = UUID(), _ s0: S0?, _ s1: S1?, _ s2: S2?) {
+        self.init(id: id, [
+            s0.map(SubSource.Element.init),
+            s1.map(SubSource.Element.init),
+            s2.map(SubSource.Element.init),
+        ].compactMap { $0 })
+    }
+    
+    init<S0: TableDataSource, S1: TableDataSource, S2: TableDataSource, S3: TableDataSource>(id: AnyHashable = UUID(), _ s0: S0?, _ s1: S1?, _ s2: S2?, _ s3: S3?) {
+        self.init(id: id, [
+            s0.map(SubSource.Element.init),
+            s1.map(SubSource.Element.init),
+            s2.map(SubSource.Element.init),
+            s3.map(SubSource.Element.init),
+        ].compactMap { $0 })
+    }
+    
+    init<S0: TableDataSource, S1: TableDataSource, S2: TableDataSource, S3: TableDataSource, S4: TableDataSource>(id: AnyHashable = UUID(), _ s0: S0?, _ s1: S1?, _ s2: S2?, _ s3: S3?, _ s4: S4?) {
+        self.init(id: id, [
+            s0.map(SubSource.Element.init),
+            s1.map(SubSource.Element.init),
+            s2.map(SubSource.Element.init),
+            s3.map(SubSource.Element.init),
+            s4.map(SubSource.Element.init),
+        ].compactMap { $0 })
+    }
+    
+    init<S0: TableDataSource, S1: TableDataSource, S2: TableDataSource, S3: TableDataSource, S4: TableDataSource, S5: TableDataSource>(id: AnyHashable = UUID(), _ s0: S0?, _ s1: S1?, _ s2: S2?, _ s3: S3?, _ s4: S4?, _ s5: S5?) {
+        self.init(id: id, [
+            s0.map(SubSource.Element.init),
+            s1.map(SubSource.Element.init),
+            s2.map(SubSource.Element.init),
+            s3.map(SubSource.Element.init),
+            s4.map(SubSource.Element.init),
+            s5.map(SubSource.Element.init),
+        ].compactMap { $0 })
+    }
+    
+    init<S0: TableDataSource, S1: TableDataSource, S2: TableDataSource, S3: TableDataSource, S4: TableDataSource, S5: TableDataSource, S6: TableDataSource>(id: AnyHashable = UUID(), _ s0: S0?, _ s1: S1?, _ s2: S2?, _ s3: S3?, _ s4: S4?, _ s5: S5?, _ s6: S6?) {
+        self.init(id: id, [
+            s0.map(SubSource.Element.init),
+            s1.map(SubSource.Element.init),
+            s2.map(SubSource.Element.init),
+            s3.map(SubSource.Element.init),
+            s4.map(SubSource.Element.init),
+            s5.map(SubSource.Element.init),
+            s6.map(SubSource.Element.init),
+        ].compactMap { $0 })
+    }
+    
+    init<S0: TableDataSource, S1: TableDataSource, S2: TableDataSource, S3: TableDataSource, S4: TableDataSource, S5: TableDataSource, S6: TableDataSource, S7: TableDataSource>(id: AnyHashable = UUID(), _ s0: S0?, _ s1: S1?, _ s2: S2?, _ s3: S3?, _ s4: S4?, _ s5: S5?, _ s6: S6?, _ s7: S7?) {
+        self.init(id: id, [
+            s0.map(SubSource.Element.init),
+            s1.map(SubSource.Element.init),
+            s2.map(SubSource.Element.init),
+            s3.map(SubSource.Element.init),
+            s4.map(SubSource.Element.init),
+            s5.map(SubSource.Element.init),
+            s6.map(SubSource.Element.init),
+            s7.map(SubSource.Element.init),
+        ].compactMap { $0 })
+    }
+}
+
 
 //MARK: - Section
 

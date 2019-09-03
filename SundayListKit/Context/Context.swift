@@ -33,6 +33,14 @@ public extension Context {
     var listIndexPath: IndexPath {
         return indexPath.addingOffset(offset)
     }
+    
+    func selectItem(animated: Bool, scrollPosition: List.ScrollPosition) {
+        listView.selectItem(at: listIndexPath, animated: animated, scrollPosition: scrollPosition)
+    }
+    
+    func deselectItem(animated: Bool) {
+        listView.deselectItem(at: listIndexPath, animated: animated)
+    }
 }
 
 public extension Context where SubSource: Collection, SubSource.Element: Source, Item == SubSource.Element.Item {

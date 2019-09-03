@@ -10,7 +10,7 @@ extension Sources: ScrollViewDelegate where UIViewType: UIScrollView { }
 
 extension Sources: CustomStringConvertible {
     public var description: String {
-        return "\(source)" // "Sources<\(SubSource.self), \(Item.self), \(Snapshot<SubSource, Item>.self), \(UIViewType.self)> \(source)"
+        return "Sources<\(SubSource.self)>: \(source)"
     }
 }
 

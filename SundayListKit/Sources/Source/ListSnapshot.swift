@@ -311,9 +311,9 @@ public extension UpdateContext where SubSource: Collection, SubSource.Element: S
         var rawChanges: [Change<Int>?] = (0..<rawSnapshot.elements.count).map { _ in nil }
         var changes: [Change<Int>?] = (0..<snapshot.elements.count).map { _ in nil }
         
-        print("---diff:")
+        //print("---diff:")
         for change in diff {
-            print(change)
+            //print(change)
             switch change {
             case .insert(offset: let newIndex, element: let element, associatedWith: let assoc):
                 if let oldIndex = assoc {
@@ -345,25 +345,25 @@ public extension UpdateContext where SubSource: Collection, SubSource.Element: S
         }
         
         update(with: rawChanges, changes: changes)
-        print("--- merge finished")
-        print("rawSectionChanges", rawSnapshotChanges)
-        print("sectionChanges", snapshotChanges)
-        print("merge finished ---")
+        //print("--- merge finished")
+        //print("rawSectionChanges", rawSnapshotChanges)
+        //print("sectionChanges", snapshotChanges)
+        //print("merge finished ---")
     }
 }
 
 private extension UpdateContext where SubSource: Collection, SubSource.Element: Source, Item == SubSource.Element.Item, SubSource.Element: Identifiable {
     func update(with rawChanges: [Change<Int>?], changes: [Change<Int>?]) {
-        print("--- before merge:")
-        print("rawChanges", rawChanges)
-        print("changes", changes)
+        //print("--- before merge:")
+        //print("rawChanges", rawChanges)
+        //print("changes", changes)
         let rawUnchangedElement = rawChanges.enumerated().compactMap { $0.element == nil ? $0.offset : nil }
         let unchangedElement = changes.enumerated().compactMap { $0.element == nil ? $0.offset : nil }
-        print("rawUnchangedElement", rawUnchangedElement)
-        print("unchangedElement", unchangedElement)
+        //print("rawUnchangedElement", rawUnchangedElement)
+        //print("unchangedElement", unchangedElement)
         for (rawIndex, index) in zip(rawUnchangedElement, unchangedElement) {
-            print("- merge normal:")
-            print("rawUnchangedIndex \(rawIndex)", "unchangedIndex \(index)")
+            //print("- merge normal:")
+            //print("rawUnchangedIndex \(rawIndex)", "unchangedIndex \(index)")
             let offset = snapshot.elementsOffsets[index]
             let rawOffset = rawSnapshot.elementsOffsets[rawIndex]
             let updateContext = UpdateContext<SubSource.Element.SubSource, SubSource.Element.Item>(
@@ -371,16 +371,16 @@ private extension UpdateContext where SubSource: Collection, SubSource.Element: 
                 snapshot: snapshot.elementsSnapshots[index]
             )
             snapshot.elements[index].update(context: updateContext)
-            print("rawUnchangedIndex \(rawIndex)", "unchangedIndex \(index) - sub snapshot finish, start merge")
+            //print("rawUnchangedIndex \(rawIndex)", "unchangedIndex \(index) - sub snapshot finish, start merge")
             merge(context: updateContext, rawOffset: rawOffset, offset: offset)
-            print("rawUnchangedIndex \(rawIndex)", "unchangedIndex \(index) - merge complete")
-            print("rawSectionChanges", rawSnapshotChanges)
-            print("sectionChanges", snapshotChanges)
+            //print("rawUnchangedIndex \(rawIndex)", "unchangedIndex \(index) - merge complete")
+            //print("rawSectionChanges", rawSnapshotChanges)
+            //print("sectionChanges", snapshotChanges)
         }
         
         for case let (index, .insert(rawIndex?, false)?) in changes.enumerated().lazy.compactMap({ $0 }) {
-            print("- merge move:")
-            print("moveIndex \(rawIndex)", "toIndex \(index)")
+            //print("- merge move:")
+            //print("moveIndex \(rawIndex)", "toIndex \(index)")
             let offset = snapshot.elementsOffsets[index]
             let rawOffset = rawSnapshot.elementsOffsets[rawIndex]
             let updateContext = UpdateContext<SubSource.Element.SubSource, SubSource.Element.Item>(
@@ -388,24 +388,24 @@ private extension UpdateContext where SubSource: Collection, SubSource.Element: 
                 snapshot: snapshot.elementsSnapshots[index]
             )
             snapshot.elements[index].update(context: updateContext)
-            print("--moveIndex \(rawIndex)", "toIndex \(index) - sub snapshot finish, start merge")
+            //print("--moveIndex \(rawIndex)", "toIndex \(index) - sub snapshot finish, start merge")
             merge(context: updateContext, rawOffset: rawOffset, offset: offset, isMove: true)
-            print("moveIndex \(rawIndex)", "toIndex \(index) - merge complete--")
-            print("rawSectionChanges", rawSnapshotChanges)
-            print("sectionChanges", snapshotChanges)
+            //print("moveIndex \(rawIndex)", "toIndex \(index) - merge complete--")
+            //print("rawSectionChanges", rawSnapshotChanges)
+            //print("sectionChanges", snapshotChanges)
         }
     }
     
     func merge(context: UpdateContext<SubSource.Element.SubSource, SubSource.Element.Item>, rawOffset: IndexPath, offset: IndexPath, isMove: Bool = false) {
-        print("rawSnapshotChanges", context.rawSnapshotChanges)
-        print("snapshotChanges", context.snapshotChanges)
+        //print("rawSnapshotChanges", context.rawSnapshotChanges)
+        //print("snapshotChanges", context.snapshotChanges)
         if context.isSectioned {
             if isMove {
                 let unChangedRawSections = context.rawSnapshotChanges.enumerated().lazy.compactMap { $0.element.change == nil && !$0.element.isAllListChange ? $0.offset : nil }
                 let unChangedSections = context.snapshotChanges.enumerated().lazy.compactMap { $0.element.change == nil && !$0.element.isAllListChange ? $0.offset : nil }
-                print(Array(unChangedRawSections), Array(unChangedSections))
+                //print(Array(unChangedRawSections), Array(unChangedSections))
                 for (rawIndex, index) in zip(unChangedRawSections, unChangedSections) {
-                    print(rawIndex, index)
+                    //print(rawIndex, index)
                     context.moveSection(rawIndex, toSection: index)
                 }
             }
@@ -433,7 +433,7 @@ private extension UpdateContext where SubSource: Collection, SubSource.Element: 
                 snapshotChanges[offset.section].values[offset.item + index] = context.snapshotChanges[0].values[index]?.addingOffset(rawOffset)
             }
         }
-        print("--------")
+        //print("--------")
     }
 }
 

@@ -53,7 +53,7 @@ extension Sources: TableDataSourcesTypeEraser where SubSource == Any, Item == An
 
 extension Sources {
     init<OtherSource, OtherItem, View>(sources: Sources<OtherSource, OtherItem, View>) {
-        listUpdater = sources.listUpdater
+        listUpdater = sources.listUpdater.castSnapshotType(from: OtherSource.self, otherItem: OtherItem.self, to: SubSource.self, item: Item.self)
         diffable = sources.diffable
         
         sourceClosure = sources.sourceClosure.map { closure in { closure() as! SubSource } }

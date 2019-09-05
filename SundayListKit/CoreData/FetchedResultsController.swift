@@ -10,6 +10,34 @@ import CoreData
 
 public protocol FetchedResultControllerDataSource: FetchedResultsControllerDelegate, ListUpdatable, DataSource where Item: NSFetchRequestResult {
     var fetchedResultController: NSFetchedResultsController<Item> { get }
+    
+    func contentChangeDidEnd()
+}
+
+public extension FetchedResultControllerDataSource {
+    func contentChangeDidEnd() { }
+}
+
+public protocol FetchedResultDataSource: FetchedResultControllerDataSource {
+    var fetchRequest: NSFetchRequest<Item> { get }
+    var managedObjectContext: NSManagedObjectContext { get }
+    var sectionNameKeyPath: String? { get }
+    var cacheName: String? { get }
+}
+
+private var fetchedResultControllerKey: Void?
+
+public extension FetchedResultDataSource {
+    var sectionNameKeyPath: String? { return nil }
+    var cacheName: String? { return nil }
+    
+    var fetchedResultController: NSFetchedResultsController<Item> {
+        return Associator.getValue(key: &fetchedResultControllerKey, from: self, initialValue: {
+            let fetchedResultController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: managedObjectContext, sectionNameKeyPath: sectionNameKeyPath, cacheName: cacheName)
+            fetchedResultController.delegate = asNSFetchedResultsControllerDelegate
+            return fetchedResultController
+        }())
+    }
 }
 
 public extension FetchedResultControllerDataSource {
@@ -31,6 +59,7 @@ public extension FetchedResultControllerDataSource {
     
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         endUpdate()
+        contentChangeDidEnd()
     }
     
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange sectionInfo: NSFetchedResultsSectionInfo, atSectionIndex sectionIndex: Int, for type: NSFetchedResultsChangeType) {
@@ -63,7 +92,7 @@ open class FetchedResultsController<FetchResult: NSFetchRequestResult>: FetchedR
         self.fetchedResultController.delegate = asNSFetchedResultsControllerDelegate
     }
 
-    public init(fetchRequest: NSFetchRequest<FetchResult>, managedObjectContext context: NSManagedObjectContext, sectionNameKeyPath: String?, cacheName name: String?) {
+    public init(fetchRequest: NSFetchRequest<FetchResult>, managedObjectContext context: NSManagedObjectContext, sectionNameKeyPath: String? = nil, cacheName name: String? = nil) {
         fetchedResultController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: context, sectionNameKeyPath: sectionNameKeyPath, cacheName: name)
         fetchedResultController.delegate = asNSFetchedResultsControllerDelegate
     }

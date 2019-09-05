@@ -149,7 +149,7 @@ public struct UpdateContext<SubSource, Item> {
 extension UpdateContext {
     
     func getChanges() -> [ListChange] {
-        print("----- get chanes -----")
+        //print("----- get chanes -----")
         var sectionDelete = [ListChange]()
         var itemsDelete = [ListChange]()
         var sectionMoveIndex = [Int: (changed: Bool, at: Int)]()

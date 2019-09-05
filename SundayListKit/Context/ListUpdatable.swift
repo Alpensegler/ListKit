@@ -59,9 +59,10 @@ public extension ListUpdatable where Self: Source {
 
 extension ListUpdatable where Self: Source {
     func updateOrAddToContext(snapshotUpdate: [(inout Snapshot<SubSource, Item>) -> Void] = [], contextUpdate: [(UpdateContext<SubSource, Item>) -> Void] = []) {
-        if let update = listUpdater.updateContextValue as? ListUpdater.Update<SubSource, Item> {
+        if var update = listUpdater.updateContextValue as? ListUpdater.Update<SubSource, Item> {
             update.snapshot += snapshotUpdate
             update.context += contextUpdate
+            listUpdater.updateContextValue = update
         } else {
             perform(snapshotUpdate: snapshotUpdate, contextUpdate: contextUpdate)
         }
@@ -84,14 +85,14 @@ extension ListUpdatable where Self: Source {
         } else {
             snapshot = createSnapshot(with: source)
         }
-        print("\n-------------------------------------------------------------------\n---update from")
-        print("\(rawSnapshot)")
-        print("--update to")
-        print("\(snapshot)\n")
+        //print("\n-------------------------------------------------------------------\n---update from")
+        //print("\(rawSnapshot)")
+        //print("--update to")
+        //print("\(snapshot)\n")
         listUpdater.updateAllSnapshotSubSource(snapshot)
         let updateContext = UpdateContext(rawSnapshot: rawSnapshot, snapshot: snapshot)
         contextUpdate.forEach { $0(updateContext) }
-        print("---updates:")
+        //print("---updates:")
         updateWith(updateContext: updateContext, animated: animated, completion: completion)
     }
     
@@ -112,7 +113,7 @@ extension ListUpdatable where Self: Source {
             self.snapshot = snapshot
             context.setSnapshot(snapshot)
             for change in changes {
-                print(change)
+                //print(change)
                 updates(listView, change)
                 switch change.addingOffset(context.offset) {
                 case let .section(index: index, change: .insert(associatedWith: assoc, reload: reload)):
@@ -166,7 +167,7 @@ public class ListUpdater {
         let setSnapshot: (SnapshotType?) -> Void
     }
     
-    class Update<SubSource, Item> {
+    struct Update<SubSource, Item> {
         var context = [(UpdateContext<SubSource, Item>) -> Void]()
         var snapshot = [(inout Snapshot<SubSource, Item>) -> Void]()
     }
@@ -178,6 +179,34 @@ public class ListUpdater {
     var snapshotValue: Any?
     
     public init() { }
+    
+    func copy() -> ListUpdater {
+        let updater = ListUpdater()
+        updater.tableContexts = tableContexts
+        updater.collectionContexts = collectionContexts
+        updater.sourceValue = sourceValue
+        updater.updateContextValue = updateContextValue
+        updater.snapshotValue = snapshotValue
+        return updater
+    }
+
+    func castSnapshotType<OtherSubSource, OtherItem, SubSource, Item>(from otherSubsource: OtherSubSource.Type, otherItem: OtherItem.Type, to subsource: SubSource.Type, item: Item.Type) -> ListUpdater {
+        let updater = self
+        func castSetSnapshot(_ setSnapshot: @escaping (SnapshotType?) -> Void) -> (SnapshotType?) -> Void {
+            return { (snapshotType) in
+                guard let snapshot = snapshotType as? Snapshot<OtherSubSource, OtherItem> else { return }
+                setSnapshot(snapshot.castType() as Snapshot<SubSource, Item>)
+            }
+        }
+        
+        updater.tableContexts = updater.tableContexts.map { context in
+            Context(offset: context.offset, keyPath: context.keyPath, reloadUpdate: context.reloadUpdate, listView: context.listView, setSnapshot: castSetSnapshot(context.setSnapshot))
+        }
+        updater.collectionContexts = updater.collectionContexts.map { context in
+            Context(offset: context.offset, keyPath: context.keyPath, reloadUpdate: context.reloadUpdate, listView: context.listView, setSnapshot: castSetSnapshot(context.setSnapshot))
+        }
+        return updater
+    }
 }
 
 private extension ListUpdater {

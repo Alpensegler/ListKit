@@ -19,6 +19,12 @@ public protocol Source {
     func eraseToSources() -> Sources<SubSource, Item, Never>
 }
 
+public extension Source {
+    func update(context: UpdateContext<SubSource, Item>) {
+        context.reloadCurrent()
+    }
+}
+
 public extension Source where SubSource: Collection {
     typealias Element = SubSource.Element
 }

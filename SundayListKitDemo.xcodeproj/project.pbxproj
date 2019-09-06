@@ -15,6 +15,7 @@
 		F3EAF09C2313DFBC0092E289 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F3EAF09A2313DFBC0092E289 /* LaunchScreen.storyboard */; };
 		F3EAF0A62313E06A0092E289 /* SectionedListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3EAF0A42313E06A0092E289 /* SectionedListViewController.swift */; };
 		F3EAF0A72313E06A0092E289 /* DoubleListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3EAF0A52313E06A0092E289 /* DoubleListViewController.swift */; };
+		F3EEAC81232167A2007F3CED /* NestedListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3EEAC80232167A2007F3CED /* NestedListViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,6 +29,7 @@
 		F3EAF09D2313DFBC0092E289 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F3EAF0A42313E06A0092E289 /* SectionedListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SectionedListViewController.swift; sourceTree = "<group>"; };
 		F3EAF0A52313E06A0092E289 /* DoubleListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DoubleListViewController.swift; sourceTree = "<group>"; };
+		F3EEAC80232167A2007F3CED /* NestedListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NestedListViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,6 +68,7 @@
 				F3EAF0A42313E06A0092E289 /* SectionedListViewController.swift */,
 				F3DB225B2318623000BEEDC2 /* CompositionalListViewController.swift */,
 				F3AB056B2320D0240063CFD5 /* TableSourcesListViewController.swift */,
+				F3EEAC80232167A2007F3CED /* NestedListViewController.swift */,
 			);
 			path = SundayListKitDemo;
 			sourceTree = "<group>";
@@ -157,6 +160,7 @@
 				F3EAF0922313DFBC0092E289 /* AppDelegate.swift in Sources */,
 				F3AB056C2320D0240063CFD5 /* TableSourcesListViewController.swift in Sources */,
 				F3EAF0A72313E06A0092E289 /* DoubleListViewController.swift in Sources */,
+				F3EEAC81232167A2007F3CED /* NestedListViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

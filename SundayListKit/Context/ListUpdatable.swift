@@ -55,6 +55,30 @@ public extension ListUpdatable where Self: Source {
         perform(animated: animated, completion: completion, snapshotUpdate: update.snapshot, contextUpdate: update.context)
         listUpdater.updateContextValue = nil
     }
+    
+    func setNestedCollectionView<Value: CollectionListDataSource>(_ collectionView: UICollectionView, with sourceKeyPath: KeyPath<Self, Value>) {
+        self[keyPath: sourceKeyPath].listUpdater.snapshotValue = nil
+        _ = self[keyPath: sourceKeyPath].snapshot
+        self[keyPath: sourceKeyPath].setCollectionView(collectionView)
+        listUpdater.setNestedTableContext = { [weak collectionView] in
+            guard let collectionView = collectionView, let old = $0 as? Self, let new = $1 as? Self else { return }
+            new[keyPath: sourceKeyPath].listUpdater.snapshotValue = old[keyPath: sourceKeyPath].listUpdater.snapshotValue
+            new[keyPath: sourceKeyPath].setCollectionView(collectionView, withReload: false)
+            new[keyPath: sourceKeyPath].performUpdate()
+        }
+    }
+    
+    func setNestedTableView<Value: TableListDataSource>(_ tableView: UITableView, with sourceKeyPath: KeyPath<Self, Value>) {
+        self[keyPath: sourceKeyPath].listUpdater.snapshotValue = nil
+        _ = self[keyPath: sourceKeyPath].snapshot
+        self[keyPath: sourceKeyPath].setTableView(tableView)
+        listUpdater.setNestedTableContext = { [weak tableView] in
+            guard let tableView = tableView, let old = $0 as? Self, let new = $1 as? Self else { return }
+            new[keyPath: sourceKeyPath].listUpdater.snapshotValue = old[keyPath: sourceKeyPath].listUpdater.snapshotValue
+            new[keyPath: sourceKeyPath].setTableView(tableView, withReload: false)
+            new[keyPath: sourceKeyPath].performUpdate()
+        }
+    }
 }
 
 extension ListUpdatable where Self: Source {
@@ -145,15 +169,15 @@ extension ListUpdatable where Self: Source {
 
 extension ListUpdatable {
     
-    func addCollectionContext(_ context: ListUpdater.Context<UICollectionView>) {
+    func addCollectionContext(_ context: ListUpdater.Context<UICollectionView>, withReload: Bool) {
         guard let collectionView = context.listView() else { return }
-        listUpdater.add(context: context, listView: collectionView, updatable: self)
+        listUpdater.add(context: context, listView: collectionView, updatable: self, withReload: withReload)
         collectionView.reloadSynchronously()
     }
     
-    func addTableContext(_ context: ListUpdater.Context<UITableView>) {
+    func addTableContext(_ context: ListUpdater.Context<UITableView>, withReload: Bool) {
         guard let tableView = context.listView() else { return }
-        listUpdater.add(context: context, listView: tableView, updatable: self)
+        listUpdater.add(context: context, listView: tableView, updatable: self, withReload: withReload)
         tableView.reloadSynchronously()
     }
 }
@@ -174,6 +198,10 @@ public class ListUpdater {
     
     var tableContexts = [Context<UITableView>]()
     var collectionContexts = [Context<UICollectionView>]()
+    var setNestedCollectionContext: ((Any, Any) -> Void)?
+    var setNestedTableContext: ((Any, Any) -> Void)?
+    var collectionCoordinator: Any?
+    var tableCoordinator: Any?
     var sourceValue: Any?
     var updateContextValue: Any?
     var snapshotValue: Any?
@@ -230,25 +258,34 @@ private extension ListUpdater {
     func updateSnapshotSubSource<List: ListView>(_ context: Context<List>, listView: List, subSourceContainer: SubSourceContainSnapshot, from index: Int) {
         for (index, source) in subSourceContainer.subSource[index...].enumerated().lazy.map({ ($0.offset + index, $0.element)}) {
             guard let updatable = source as? ListUpdatable else { continue }
-            update(context: context, listView: listView, to: updatable, with: subSourceContainer, at: index)
+            update(context: context, listView: listView, to: updatable, with: subSourceContainer, at: index, withReload: false)
         }
     }
     
-    func add<List: ListView>(context: Context<List>, listView: List, updatable: ListUpdatable) {
+    func add<List: ListView>(context: Context<List>, listView: List, updatable: ListUpdatable, withReload: Bool) {
+        add(context: context, listView: listView)
+        if withReload { context.reloadUpdate(updatable, listView) }
+        guard let subSourceContainer = snapshotValue as? SubSourceContainSnapshot else { return }
+        for (index, source) in subSourceContainer.subSource.enumerated() {
+            guard let updatable = source as? ListUpdatable else { continue }
+            update(context: context, listView: listView, to: updatable, with: subSourceContainer, at: index, withReload: withReload)
+        }
+    }
+    
+    func add<List: ListView>(context: Context<List>) {
+        guard let listView = context.listView() else { return }
+        add(context: context, listView: listView)
+    }
+    
+    func add<List: ListView>(context: Context<List>, listView: List) {
         if let index = self[keyPath: context.keyPath].firstIndex(where: { $0.listView() === listView }) {
             self[keyPath: context.keyPath][index] = context
         } else {
             self[keyPath: context.keyPath].append(context)
         }
-        context.reloadUpdate(updatable, listView)
-        guard let subSourceContainer = snapshotValue as? SubSourceContainSnapshot else { return }
-        for (index, source) in subSourceContainer.subSource.enumerated() {
-            guard let updatable = source as? ListUpdatable else { continue }
-            update(context: context, listView: listView, to: updatable, with: subSourceContainer, at: index)
-        }
     }
     
-    func update<List: ListView>(context: Context<List>, listView: List, to subUpdatable: ListUpdatable, with subSourceContainer: SubSourceContainSnapshot, at index: Int) {
+    func update<List: ListView>(context: Context<List>, listView: List, to subUpdatable: ListUpdatable, with subSourceContainer: SubSourceContainSnapshot, at index: Int, withReload: Bool) {
         let offset = subSourceContainer.subSourceOffsets[index]
         let context = ListUpdater.Context(offset: offset, keyPath: context.keyPath, reloadUpdate: context.reloadUpdate, listView: context.listView) { [weak self] snapshot in
             guard let self = self, var subSourceContainer = self.snapshotValue as? SubSourceContainSnapshot else { return }
@@ -256,7 +293,7 @@ private extension ListUpdater {
             self.snapshotValue = subSourceContainer
             self.updateAllSnapshotSubSource(from: index)
         }
-        subUpdatable.listUpdater.add(context: context, listView: listView, updatable: subUpdatable)
+        subUpdatable.listUpdater.add(context: context, listView: listView, updatable: subUpdatable, withReload: withReload)
     }
 }
 

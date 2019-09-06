@@ -21,7 +21,7 @@ public extension ListView {
         configuration: (CustomCell) -> Void = { _ in }
     ) -> Cell {
         assert(CustomCell.isSubclass(of: Cell.self), "TBD")
-        let id = identifierFor(class: CustomCell.self, identifier: identifier)
+        let id = NSStringFromClass(CustomCell.self) + identifier
         if !_storage.registeredCellIdentifiers.contains(id) {
             _storage.registeredCellIdentifiers.insert(id)
             register(CustomCell.self, forCellReuseIdentifier: id)
@@ -69,7 +69,7 @@ public extension ListView {
         configuration: (CustomSupplementaryView) -> Void = { _ in }
     ) -> SupplementaryView {
         assert(CustomSupplementaryView.isSubclass(of: SupplementaryView.self), "TBD")
-        let id = identifierFor(class: CustomSupplementaryView.self, type: type.rawValue, identifier: identifier)
+        let id = NSStringFromClass(CustomSupplementaryView.self) + type.rawValue + identifier
         if _storage.registeredSupplementaryIdentifiers[type]?.contains(id) != true {
             var identifiers = _storage.registeredSupplementaryIdentifiers[type] ?? .init()
             identifiers.insert(id)
@@ -110,11 +110,5 @@ extension ListView {
     var _storage: ListViewStorage {
         get { return Associator.getValue(key: &listViewStorageKey, from: self, initialValue: .init()) }
         set { Associator.set(value: newValue, key: &listViewStorageKey, to: self) }
-    }
-}
-
-private extension ListView {
-    func identifierFor(class: AnyClass, type: String = "", identifier: String) -> String {
-        return NSStringFromClass(Cell.self) + identifier
     }
 }

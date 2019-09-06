@@ -47,7 +47,7 @@ public protocol ListView: UIScrollView {
 
 public protocol ListViewCoordinator: NSObject {
     associatedtype List: ListView
-    func setListView(_ listView: List)
+    func setListView(_ listView: List, withReload: Bool)
 }
 
 public protocol ListViewAnimationOption {

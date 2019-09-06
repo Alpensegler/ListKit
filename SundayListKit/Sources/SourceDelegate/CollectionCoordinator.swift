@@ -8,13 +8,13 @@
 
 public class CollectionCoordinator: NSObject, ListViewCoordinator {
     public typealias List = UICollectionView
-    public func setListView(_ listView: UICollectionView) { }
+    public func setListView(_ listView: UICollectionView, withReload: Bool) { }
 }
 
 public extension CollectionDataSource where Self: ListUpdatable {
     @discardableResult
-    func setCollectionView(_ collectionView: UICollectionView) -> Self {
-        storeCollectionCoordinator(makeCollectionCoordinator(), to: collectionView).setListView(collectionView)
+    func setCollectionView(_ collectionView: UICollectionView, withReload: Bool = true) -> Self {
+        storedCollectionCoordinator(with: makeCollectionCoordinator()).setListView(collectionView, withReload: withReload)
         return self
     }
     
@@ -25,8 +25,8 @@ public extension CollectionDataSource where Self: ListUpdatable {
 
 public extension CollectionAdapter where Self: ListUpdatable {
     @discardableResult
-    func setCollectionView(_ collectionView: UICollectionView) -> Self {
-        storeCollectionCoordinator(makeCollectionCoordinator(), to: collectionView).setListView(collectionView)
+    func setCollectionView(_ collectionView: UICollectionView, withReload: Bool = true) -> Self {
+        storedCollectionCoordinator(with: makeCollectionCoordinator()).setListView(collectionView, withReload: withReload)
         return self
     }
     
@@ -37,8 +37,8 @@ public extension CollectionAdapter where Self: ListUpdatable {
 
 public extension CollectionDataSource where Self: AnyObject, Self: ListUpdatable {
     @discardableResult
-    func setCollectionView(_ collectionView: UICollectionView) -> Self {
-        storedCollectionCoordinator(with: makeCollectionCoordinator()).setListView(collectionView)
+    func setCollectionView(_ collectionView: UICollectionView, withReload: Bool = true) -> Self {
+        storedCollectionCoordinator(with: makeCollectionCoordinator()).setListView(collectionView, withReload: withReload)
         return self
     }
     
@@ -49,8 +49,8 @@ public extension CollectionDataSource where Self: AnyObject, Self: ListUpdatable
 
 public extension CollectionAdapter where Self: AnyObject, Self: ListUpdatable {
     @discardableResult
-    func setCollectionView(_ collectionView: UICollectionView) -> Self {
-        storedCollectionCoordinator(with: makeCollectionCoordinator()).setListView(collectionView)
+    func setCollectionView(_ collectionView: UICollectionView, withReload: Bool = true) -> Self {
+        storedCollectionCoordinator(with: makeCollectionCoordinator()).setListView(collectionView, withReload: withReload)
         return self
     }
     
@@ -61,16 +61,13 @@ public extension CollectionAdapter where Self: AnyObject, Self: ListUpdatable {
 
 private var collectionCoordinatorKey: Void?
 
-private extension CollectionDataSource where Self: AnyObject {
+private extension CollectionDataSource where Self: ListUpdatable {
     func storedCollectionCoordinator(with initialValue: @autoclosure () -> CollectionCoordinator) -> CollectionCoordinator {
-        return Associator.getValue(key: &collectionCoordinatorKey, from: self, initialValue: initialValue())
-    }
-}
-
-private extension CollectionDataSource {
-    func storeCollectionCoordinator(_ coordinator: CollectionCoordinator, to collectionView: UICollectionView) -> CollectionCoordinator {
-        Associator.set(value: coordinator, key: &collectionCoordinatorKey, to: collectionView)
-        return coordinator
+        return listUpdater.collectionCoordinator as? CollectionCoordinator ?? {
+            let coordinator = initialValue()
+            listUpdater.collectionCoordinator = coordinator
+            return coordinator
+        }()
     }
 }
 
@@ -117,7 +114,7 @@ public extension CollectionAdapter where Self: AnyObject, Self: ListUpdatable, S
 class CollectionDataSourceCoordinator<SubSource, Item>: CollectionCoordinator, UICollectionViewDataSource {
     var snapshot: Snapshot<SubSource, Item> { return getSnapshot() }
     let getSnapshot: () -> Snapshot<SubSource, Item>
-    let addCollectionContext: (ListUpdater.Context<UICollectionView>) -> Void
+    let addCollectionContext: (ListUpdater.Context<UICollectionView>, Bool) -> Void
 
     //Getting Item and Section Metrics
     let collectionViewNumberOfItemsInSection: (Snapshot<SubSource, Item>, Int) -> Int
@@ -135,7 +132,7 @@ class CollectionDataSourceCoordinator<SubSource, Item>: CollectionCoordinator, U
     let indexTitles: (Snapshot<SubSource, Item>, UICollectionView) -> [String]?
     let collectionViewIndexPathForIndexTitleAt: (Snapshot<SubSource, Item>, UICollectionView, String, Int) -> IndexPath
     
-    override func setListView(_ collectionView: UICollectionView) {
+    override func setListView(_ collectionView: UICollectionView, withReload: Bool) {
         collectionView.dataSource = self
         let context = ListUpdater.Context(
             offset: .default,
@@ -144,12 +141,12 @@ class CollectionDataSourceCoordinator<SubSource, Item>: CollectionCoordinator, U
             listView: { [weak collectionView, weak self] in collectionView.flatMap { $0.dataSource === self ? $0 : nil } },
             setSnapshot: { _ in }
         )
-        addCollectionContext(context)
+        addCollectionContext(context, withReload)
     }
     
     init<Coordinator: CollectionDataSource & ListUpdatable>(_ coordinator: @escaping () -> Coordinator) where Coordinator.SubSource == SubSource, Coordinator.Item == Item {
         getSnapshot = { coordinator().snapshot }
-        addCollectionContext = { coordinator().addCollectionContext($0) }
+        addCollectionContext = { coordinator().addCollectionContext($0, withReload: $1) }
         
         collectionViewNumberOfItemsInSection = { $0.numbersOfItems(in: $1) }
         numberOfSectionsIn = { $0.numbersOfSections() }
@@ -263,9 +260,9 @@ final class CollectionAdapterCoordinator<SubSource, Item>: CollectionDataSourceC
     let scrollViewDidScrollToTop: (UIScrollView) -> Void
     let scrollViewDidChangeAdjustedContentInset: (UIScrollView) -> Void
     
-    override func setListView(_ collectionView: UICollectionView) {
+    override func setListView(_ collectionView: UICollectionView, withReload: Bool) {
         collectionView.delegate = self
-        super.setListView(collectionView)
+        super.setListView(collectionView, withReload: withReload)
     }
     
     override init<Coordinator: CollectionAdapter & ListUpdatable>(_ coordinator: @escaping () -> Coordinator) where SubSource == Coordinator.SubSource, Item == Coordinator.Item {

@@ -52,6 +52,10 @@ public extension Context where SubSource: Collection, SubSource.Element: Source,
         let index = snapshot.index(of: indexPath)
         return snapshot.elements[index]
     }
+    
+    func elementIndex(at indexPath: IndexPath) -> Int {
+        return snapshot.index(of: indexPath)
+    }
 }
 
 public struct CollectionContext<SubSource, Item>: Context {

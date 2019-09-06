@@ -145,6 +145,8 @@ extension Sources: TableDataSource where UIViewType == UITableView {
     }
 }
 
+extension Sources: TableListDataSource where UIViewType == UITableView { }
+
 extension Sources: TableAdapter where UIViewType == UITableView {
     public func tableContext(_ context: TableListContext, viewForHeaderInSection section: Int) -> UIView? {
         return tableHeader?(context, section)
@@ -194,6 +196,8 @@ extension Sources: TableAdapter where UIViewType == UITableView {
         return tableHeightForFooter?(context, section) ?? context.listView.sectionFooterHeight
     }
 }
+
+extension Sources: TableListAdapter where UIViewType == UITableView { }
 
 
 #if iOS13

@@ -370,9 +370,11 @@ private extension UpdateContext where SubSource: Collection, SubSource.Element: 
                 rawSnapshot: rawSnapshot.elementsSnapshots[rawIndex],
                 snapshot: snapshot.elementsSnapshots[index]
             )
-            snapshot.elements[index].update(context: updateContext)
+            let rawElement = rawSnapshot.elements[rawIndex]
+            let element = snapshot.elements[index]
+            element.update(context: updateContext)
             //print("rawUnchangedIndex \(rawIndex)", "unchangedIndex \(index) - sub snapshot finish, start merge")
-            merge(context: updateContext, rawOffset: rawOffset, offset: offset)
+            merge(context: updateContext, rawOffset: rawOffset, offset: offset, rawElement: rawElement, element: element)
             //print("rawUnchangedIndex \(rawIndex)", "unchangedIndex \(index) - merge complete")
             //print("rawSectionChanges", rawSnapshotChanges)
             //print("sectionChanges", snapshotChanges)
@@ -387,18 +389,30 @@ private extension UpdateContext where SubSource: Collection, SubSource.Element: 
                 rawSnapshot: rawSnapshot.elementsSnapshots[rawIndex],
                 snapshot: snapshot.elementsSnapshots[index]
             )
-            snapshot.elements[index].update(context: updateContext)
+            let rawElement = rawSnapshot.elements[rawIndex]
+            let element = snapshot.elements[index]
+            element.update(context: updateContext)
             //print("--moveIndex \(rawIndex)", "toIndex \(index) - sub snapshot finish, start merge")
-            merge(context: updateContext, rawOffset: rawOffset, offset: offset, isMove: true)
+            merge(context: updateContext, rawOffset: rawOffset, offset: offset, rawElement: rawElement, element: element, isMove: true)
             //print("moveIndex \(rawIndex)", "toIndex \(index) - merge complete--")
             //print("rawSectionChanges", rawSnapshotChanges)
             //print("sectionChanges", snapshotChanges)
         }
     }
     
-    func merge(context: UpdateContext<SubSource.Element.SubSource, SubSource.Element.Item>, rawOffset: IndexPath, offset: IndexPath, isMove: Bool = false) {
+    func merge(context: UpdateContext<SubSource.Element.SubSource, SubSource.Element.Item>, rawOffset: IndexPath, offset: IndexPath, rawElement: SubSource.Element, element: SubSource.Element, isMove: Bool = false) {
         //print("rawSnapshotChanges", context.rawSnapshotChanges)
         //print("snapshotChanges", context.snapshotChanges)
+        if let rawUpdatable = rawElement as? ListUpdatable, let updatable = element as? ListUpdatable {
+            rawUpdatable.listUpdater.setNestedTableContext.map {
+                $0(rawUpdatable, updatable)
+                updatable.listUpdater.setNestedTableContext = $0
+            }
+            rawUpdatable.listUpdater.setNestedCollectionContext.map {
+                $0(rawUpdatable, updatable)
+                updatable.listUpdater.setNestedCollectionContext = $0
+            }
+        }
         if context.isSectioned {
             if isMove {
                 let unChangedRawSections = context.rawSnapshotChanges.enumerated().lazy.compactMap { $0.element.change == nil && !$0.element.isAllListChange ? $0.offset : nil }

@@ -6,11 +6,20 @@
 //  Copyright © 2019 Frain. All rights reserved.
 //
 
-public protocol TableListDataSource: TableDataSource, ListUpdatable { }
-public protocol CollectionListDataSource: CollectionDataSource, ListUpdatable { }
+public protocol TableListDataSource: TableDataSource, ListUpdatable {
+    @discardableResult
+    func setTableView(_ tableView: UITableView, withReload: Bool) -> Self
+    func makeTableCoordinator() -> TableCoordinator
+}
 
-public protocol TableListAdapter: TableAdapter, ListUpdatable { }
-public protocol CollectionListAdapter: CollectionAdapter, ListUpdatable { }
+public protocol CollectionListDataSource: CollectionDataSource, ListUpdatable {
+    @discardableResult
+    func setCollectionView(_ collectionView: UICollectionView, withReload: Bool) -> Self
+    func makeCollectionCoordinator() -> CollectionCoordinator
+}
+
+public protocol TableListAdapter: TableAdapter, TableListDataSource { }
+public protocol CollectionListAdapter: CollectionAdapter, CollectionListDataSource { }
 
 public typealias CollectionSectionSources<Item> = CollectionSources<[Item], Item>
 public typealias TableSectionSources<Item> = TableSources<[Item], Item>

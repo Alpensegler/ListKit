@@ -137,6 +137,8 @@ extension Sources: CollectionDataSource where UIViewType == UICollectionView {
     }
 }
 
+extension Sources: CollectionListDataSource where UIViewType == UICollectionView { }
+
 extension Sources: CollectionAdapter where UIViewType == UICollectionView {
     public func collectionContext(_ context: CollectionListContext, didSelectItem item: Item) {
         collectionDidSelectItem?(context, item)
@@ -168,6 +170,8 @@ extension Sources: CollectionAdapter where UIViewType == UICollectionView {
             ?? .zero
     }
 }
+
+extension Sources: CollectionListAdapter where UIViewType == UICollectionView { }
 
 #if iOS13
 import SwiftUI

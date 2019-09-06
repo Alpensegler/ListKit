@@ -8,13 +8,13 @@
 
 public class TableCoordinator: NSObject, ListViewCoordinator {
     public typealias List = UITableView
-    public func setListView(_ listView: UITableView) { }
+    public func setListView(_ listView: UITableView, withReload: Bool) { }
 }
 
 public extension TableDataSource where Self: ListUpdatable {
     @discardableResult
-    func setTableView(_ tableView: UITableView) -> Self {
-        storeTableCoordinator(makeTableCoordinator(), to: tableView).setListView(tableView)
+    func setTableView(_ tableView: UITableView, withReload: Bool = true) -> Self {
+        storedTableCoordinator(with: makeTableCoordinator()).setListView(tableView, withReload: withReload)
         return self
     }
     
@@ -25,8 +25,8 @@ public extension TableDataSource where Self: ListUpdatable {
 
 public extension TableAdapter where Self: ListUpdatable {
     @discardableResult
-    func setTableView(_ tableView: UITableView) -> Self {
-        storeTableCoordinator(makeTableCoordinator(), to: tableView).setListView(tableView)
+    func setTableView(_ tableView: UITableView, withReload: Bool = true) -> Self {
+        storedTableCoordinator(with: makeTableCoordinator()).setListView(tableView, withReload: withReload)
         return self
     }
     
@@ -37,8 +37,8 @@ public extension TableAdapter where Self: ListUpdatable {
 
 public extension TableDataSource where Self: AnyObject, Self: ListUpdatable {
     @discardableResult
-    func setTableView(_ tableView: UITableView) -> Self {
-        storedTableCoordinator(with: makeTableCoordinator()).setListView(tableView)
+    func setTableView(_ tableView: UITableView, withReload: Bool = true) -> Self {
+        storedTableCoordinator(with: makeTableCoordinator()).setListView(tableView, withReload: withReload)
         return self
     }
     
@@ -49,8 +49,8 @@ public extension TableDataSource where Self: AnyObject, Self: ListUpdatable {
 
 public extension TableAdapter where Self: AnyObject, Self: ListUpdatable {
     @discardableResult
-    func setTableView(_ tableView: UITableView) -> Self {
-        storedTableCoordinator(with: makeTableCoordinator()).setListView(tableView)
+    func setTableView(_ tableView: UITableView, withReload: Bool = true) -> Self {
+        storedTableCoordinator(with: makeTableCoordinator()).setListView(tableView, withReload: withReload)
         return self
     }
     
@@ -61,16 +61,13 @@ public extension TableAdapter where Self: AnyObject, Self: ListUpdatable {
 
 private var tableCoordinatorKey: Void?
 
-private extension TableDataSource where Self: AnyObject {
+private extension TableDataSource where Self: ListUpdatable {
     func storedTableCoordinator(with initialValue: @autoclosure () -> TableCoordinator) -> TableCoordinator {
-        return Associator.getValue(key: &tableCoordinatorKey, from: self, initialValue: initialValue())
-    }
-}
-
-private extension TableDataSource {
-    func storeTableCoordinator(_ coordinator: TableCoordinator, to tableView: UITableView) -> TableCoordinator {
-        Associator.set(value: coordinator, key: &tableCoordinatorKey, to: tableView)
-        return coordinator
+        return listUpdater.tableCoordinator as? TableCoordinator ?? {
+            let coordinator = initialValue()
+            listUpdater.tableCoordinator = coordinator
+            return coordinator
+        }()
     }
 }
 
@@ -116,7 +113,7 @@ public extension TableAdapter where Self: AnyObject, Self: ListUpdatable, Self: 
 private class TableDataSourceCoordinator<SubSource, Item>: TableCoordinator, UITableViewDataSource {
     var snapshot: Snapshot<SubSource, Item> { return getSnapshot() }
     let getSnapshot: () -> Snapshot<SubSource, Item>
-    let addTableContext: (ListUpdater.Context<UITableView>) -> ()
+    let addTableContext: (ListUpdater.Context<UITableView>, Bool) -> ()
     
     // Providing the Number of Rows and Sections
     let tableViewNumberOfRowsInSection: (Snapshot<SubSource, Item>, Int) -> Int
@@ -139,7 +136,7 @@ private class TableDataSourceCoordinator<SubSource, Item>: TableCoordinator, UIT
     let sectionIndexTitles: (Snapshot<SubSource, Item>, UITableView) -> [String]?
     let tableViewSectionForSectionIndexTitleAt: (Snapshot<SubSource, Item>, UITableView, String, Int) -> Int
     
-    override func setListView(_ tableView: UITableView) {
+    override func setListView(_ tableView: UITableView, withReload: Bool) {
         tableView.dataSource = self
         let context = ListUpdater.Context(
             offset: .default,
@@ -148,12 +145,12 @@ private class TableDataSourceCoordinator<SubSource, Item>: TableCoordinator, UIT
             listView: { [weak tableView, weak self] in tableView.flatMap { $0.dataSource === self ? $0 : nil } },
             setSnapshot: { _ in }
         )
-        addTableContext(context)
+        addTableContext(context, withReload)
     }
     
     init<Coordinator: TableDataSource & ListUpdatable>(_ coordinator: @escaping () -> Coordinator) where Coordinator.SubSource == SubSource, Coordinator.Item == Item {
         getSnapshot = { coordinator().snapshot }
-        addTableContext = { coordinator().addTableContext($0) }
+        addTableContext = { coordinator().addTableContext($0, withReload: $1) }
         
         tableViewNumberOfRowsInSection = { $0.numbersOfItems(in: $1) }
         numberOfSections = { $0.numbersOfSections() }
@@ -319,9 +316,9 @@ private final class TableAdapterCoordinator<SubSource, Item>: TableDataSourceCoo
     let scrollViewDidScrollToTop: (UIScrollView) -> Void
     let scrollViewDidChangeAdjustedContentInset: (UIScrollView) -> Void
     
-    override func setListView(_ tableView: UITableView) {
+    override func setListView(_ tableView: UITableView, withReload: Bool) {
         tableView.delegate = self
-        super.setListView(tableView)
+        super.setListView(tableView, withReload: withReload)
     }
     
     override init<Coordinator: TableAdapter & ListUpdatable>(_ coordinator: @escaping () -> Coordinator) where Coordinator.SubSource == SubSource, Coordinator.Item == Item {

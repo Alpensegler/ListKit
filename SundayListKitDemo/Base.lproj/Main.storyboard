@@ -117,6 +117,26 @@
                                             <segue destination="3qZ-E1-3pw" kind="show" id="kNU-qs-vCP"/>
                                         </connections>
                                     </tableViewCell>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" textLabel="GLf-HD-vfg" style="IBUITableViewCellStyleDefault" id="oG5-od-dah">
+                                        <rect key="frame" x="0.0" y="176" width="414" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="oG5-od-dah" id="bJn-BU-1Az">
+                                            <rect key="frame" x="0.0" y="0.0" width="414" height="43.5"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="Nested List View" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="GLf-HD-vfg">
+                                                    <rect key="frame" x="20" y="0.0" width="374" height="43.5"/>
+                                                    <autoresizingMask key="autoresizingMask"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                        </tableViewCellContentView>
+                                        <connections>
+                                            <segue destination="F5I-yT-mUt" kind="show" id="3Ls-rj-YH9"/>
+                                        </connections>
+                                    </tableViewCell>
                                 </cells>
                             </tableViewSection>
                         </sections>
@@ -296,6 +316,43 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="qC9-kd-NOv" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="171" y="76"/>
+        </scene>
+        <!--Nested List View Controller-->
+        <scene sceneID="kdP-V8-J23">
+            <objects>
+                <viewController id="F5I-yT-mUt" customClass="NestedListViewController" customModule="SundayListKitDemo" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="3UY-Ye-nnA">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="30" estimatedSectionHeaderHeight="30" sectionFooterHeight="1" translatesAutoresizingMaskIntoConstraints="NO" id="Aj0-gP-vAp">
+                                <rect key="frame" x="0.0" y="88" width="414" height="808"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </tableView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="Aj0-gP-vAp" firstAttribute="leading" secondItem="geI-cW-mrw" secondAttribute="leading" id="54U-hP-au0"/>
+                            <constraint firstItem="Aj0-gP-vAp" firstAttribute="top" secondItem="geI-cW-mrw" secondAttribute="top" id="HU1-6M-Oqy"/>
+                            <constraint firstItem="Aj0-gP-vAp" firstAttribute="trailing" secondItem="geI-cW-mrw" secondAttribute="trailing" id="qbr-Ey-cGE"/>
+                            <constraint firstAttribute="bottom" secondItem="Aj0-gP-vAp" secondAttribute="bottom" id="x2d-Gc-B0x"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="geI-cW-mrw"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="vpO-Rj-ZaK">
+                        <barButtonItem key="rightBarButtonItem" title="Refresh" id="u82-eN-L3V">
+                            <connections>
+                                <action selector="onRefresh:" destination="F5I-yT-mUt" id="C8I-ae-ReW"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                    <connections>
+                        <outlet property="tableView" destination="Aj0-gP-vAp" id="QED-TX-XoQ"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="apd-7e-Cm3" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-597" y="742"/>
         </scene>
     </scenes>
 </document>

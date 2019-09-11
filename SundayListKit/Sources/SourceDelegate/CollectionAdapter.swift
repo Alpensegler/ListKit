@@ -134,14 +134,6 @@ public extension CollectionAdapter where SubSource: Collection, SubSource.Elemen
     func collectionContext(_ context: CollectionListContext, willDisplaySupplementaryView view: UICollectionReusableView, forElementKind kind: SupplementaryViewType, item: Item) {
         context.elementWillDisplaySupplementaryView(view: view, forElementKind: kind)
     }
-    
-    func collectionContext(_ context: CollectionListContext, didEndDisplaying cell: UICollectionViewCell) {
-        context.elementDidEndDisplaying(cell: cell)
-    }
-    
-    func collectionContext(_ context: CollectionListContext, didEndDisplayingSupplementaryView view: UICollectionReusableView, forElementOfKind kind: SupplementaryViewType) {
-        context.elementDidEndDisplayingSupplementaryView(view: view, forElementOfKind: kind)
-    }
 
     //Getting the Size of Items
     func collectionContext(_ context: CollectionListContext, layout collectionViewLayout: UICollectionViewLayout, sizeForItem item: Item) -> CGSize {
@@ -183,14 +175,6 @@ public extension CollectionContext where SubSource: Collection, SubSource.Elemen
     
     func elementWillDisplaySupplementaryView(view: UICollectionReusableView, forElementKind kind: SupplementaryViewType) {
         element.collectionContext(elementsContext(), willDisplaySupplementaryView: view, forElementKind: kind, item: elementsItem)
-    }
-    
-    func elementDidEndDisplaying(cell: UICollectionViewCell) {
-        element.collectionContext(elementsContext(), didEndDisplaying: cell)
-    }
-    
-    func elementDidEndDisplayingSupplementaryView(view: UICollectionReusableView, forElementOfKind kind: SupplementaryViewType) {
-        element.collectionContext(elementsContext(), didEndDisplayingSupplementaryView: view, forElementOfKind: kind)
     }
 
     //Getting the Size of Items

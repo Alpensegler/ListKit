@@ -30,6 +30,17 @@ extension Snapshot where SubSource: Collection, SubSource.Element: Source, Item 
         let indexPath = IndexPath(item: indexPath.item - offset.item, section: indexPath.section - offset.section)
         return elements[index].item(for: subSnapshot, at: indexPath)
     }
+    
+    public var indexPathsAndItems: [(IndexPath, Element.Item)] {
+        var result = [(IndexPath, Element.Item)]()
+        for section in 0..<numbersOfSections() {
+            for item in (0..<numbersOfItems(in: section)) {
+                let indexPath = IndexPath(item: item, section: section)
+                result.append((indexPath, self.item(at: indexPath)))
+            }
+        }
+        return result
+    }
 }
 
 public extension Snapshot where SubSource: Collection, SubSource.Element: Source, SubSource.Element.Item == Item {

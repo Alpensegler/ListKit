@@ -222,7 +222,7 @@ extension UpdateContext {
                 itemsInsert += inserts
             }
         }
-        return sectionDelete + itemsDelete + sectionInsert + itemsInsert
+        return itemsDelete + sectionDelete + sectionInsert + itemsInsert
     }
 }
 

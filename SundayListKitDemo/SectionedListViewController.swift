@@ -66,6 +66,14 @@ class SectionedListViewControlle: UIViewController, TableListAdapter {
         return source
     }
     
+    @IBAction func onAdd(_ sender: Any) {
+        if Bool.random() {
+            insertElements([CrewSection.allCases.randomElement()!], at: 0)
+        } else {
+            appendElements([CrewSection.allCases.randomElement()!])
+        }
+    }
+    
     @IBAction func onRefresh(_ sender: UIBarButtonItem) {
         performUpdate()
     }

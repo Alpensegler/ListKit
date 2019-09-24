@@ -41,6 +41,24 @@ extension Snapshot where SubSource: Collection, SubSource.Element: Source, Item 
         }
         return result
     }
+    
+    public mutating func insertElements(_ elements: [Element], at index: Int) {
+        subSource.insert(contentsOf: elements, at: index)
+        subSnapshots = []
+        subSourceIndices = []
+        subSourceOffsets = []
+        
+        configSnapshotAndIndices()
+    }
+    
+    public mutating func appendElements(_ elements: [Element]) {
+        subSource.append(contentsOf: elements)
+        subSnapshots = []
+        subSourceIndices = []
+        subSourceOffsets = []
+        
+        configSnapshotAndIndices()
+    }
 }
 
 public extension Snapshot where SubSource: Collection, SubSource.Element: Source, SubSource.Element.Item == Item {
@@ -49,23 +67,10 @@ public extension Snapshot where SubSource: Collection, SubSource.Element: Source
         self.subSnapshots = []
         self.subSourceIndices = []
         self.subSourceOffsets = []
+        self.subSource = Array(source)
         self.isSectioned = true
-        var offset = IndexPath(item: 0, section: 0)
         
-        for source in source {
-            let snapshot: Snapshot<Element.SubSource, Element.Item>
-            if let updater = (source as? ListUpdatable)?.listUpdater {
-                snapshot = updater.snapshotValue as? Snapshot<SubSource.Element.SubSource, SubSource.Element.Item> ?? {
-                    let snapshot = source.createSnapshot(with: source.source)
-                    updater.snapshotValue = snapshot
-                    return snapshot
-                }()
-            } else {
-                snapshot = source.createSnapshot(with: source.source)
-            }
-            add(snapshot: snapshot, offset: &offset)
-            subSource.append(source)
-        }
+        configSnapshotAndIndices()
     }
     
 }
@@ -128,6 +133,24 @@ extension Snapshot: SubSourceContainSnapshot where SubSource: Collection, Elemen
         }
     }
     
+    mutating func configSnapshotAndIndices() {
+        var offset = IndexPath(item: 0, section: 0)
+        
+        for source in elements {
+            let snapshot: Snapshot<Element.SubSource, Element.Item>
+            if let updater = (source as? ListUpdatable)?.listUpdater {
+                snapshot = updater.snapshotValue as? Snapshot<SubSource.Element.SubSource, SubSource.Element.Item> ?? {
+                    let snapshot = source.createSnapshot(with: source.source)
+                    updater.snapshotValue = snapshot
+                    return snapshot
+                }()
+            } else {
+                snapshot = source.createSnapshot(with: source.source)
+            }
+            add(snapshot: snapshot, offset: &offset)
+        }
+    }
+    
     mutating func add(snapshot: SnapshotType, offset: inout IndexPath) {
         if snapshot.isSectioned {
             if subSourceIndices.last != nil {
@@ -165,7 +188,17 @@ public extension Source where SubSource: Collection, Element: Source, Element.It
 }
 
 public extension Source where Self: ListUpdatable, SubSource: Collection, Element: Source, Element.Item == Item {
+    func appendElements(_ elements: [Element], animated: Bool = true, completion: ((Bool) -> Void)? = nil) {
+        perform(animated: animated, completion: completion, snapshotUpdate: [{ $0.appendElements(elements) }], contextUpdate: [{
+            $0.snapshotChanges.suffix(elements.count).forEach { $0.change = .insert }
+        }])
+    }
     
+    func insertElements(_ elements: [Element], at index: Int, animated: Bool = true, completion: ((Bool) -> Void)? = nil) {
+        perform(animated: animated, completion: completion, snapshotUpdate: [{ $0.insertElements(elements, at: index) }], contextUpdate: [{
+            $0.snapshotChanges[index..<index + elements.count].forEach { $0.change = .insert }
+        }])
+    }
 }
 
 

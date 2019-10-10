@@ -7,12 +7,20 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F33FBC3D234F33A70054BA38 /* DataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F33FBC3C234F33A70054BA38 /* DataSource.swift */; };
+		F33FBC41234F36FD0054BA38 /* Snapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = F33FBC40234F36FD0054BA38 /* Snapshot.swift */; };
+		F33FBC43234F3A600054BA38 /* Sources.swift in Sources */ = {isa = PBXBuildFile; fileRef = F33FBC42234F3A600054BA38 /* Sources.swift */; };
+		F33FBC45234F3AB00054BA38 /* Updater.swift in Sources */ = {isa = PBXBuildFile; fileRef = F33FBC44234F3AB00054BA38 /* Updater.swift */; };
 		OBJ_18 /* ListKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_8 /* ListKit.swift */; };
 		OBJ_25 /* Package.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_6 /* Package.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		F33FBC3A234F26B60054BA38 /* ListKitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListKitTests.swift; sourceTree = "<group>"; };
+		F33FBC3C234F33A70054BA38 /* DataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSource.swift; sourceTree = "<group>"; };
+		F33FBC40234F36FD0054BA38 /* Snapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Snapshot.swift; sourceTree = "<group>"; };
+		F33FBC42234F3A600054BA38 /* Sources.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources.swift; sourceTree = "<group>"; };
+		F33FBC44234F3AB00054BA38 /* Updater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Updater.swift; sourceTree = "<group>"; };
 		"ListKit::ListKit::Product" /* ListKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = ListKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		OBJ_12 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		OBJ_6 /* Package.swift */ = {isa = PBXFileReference; explicitFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
@@ -46,6 +54,24 @@
 			path = ListKitTests;
 			sourceTree = "<group>";
 		};
+		F33FBC3B234F29E30054BA38 /* DataSource */ = {
+			isa = PBXGroup;
+			children = (
+				F33FBC3C234F33A70054BA38 /* DataSource.swift */,
+				F33FBC40234F36FD0054BA38 /* Snapshot.swift */,
+				F33FBC44234F3AB00054BA38 /* Updater.swift */,
+			);
+			path = DataSource;
+			sourceTree = "<group>";
+		};
+		F33FBC3F234F36D90054BA38 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				F33FBC42234F3A600054BA38 /* Sources.swift */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
 		OBJ_10 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -54,7 +80,7 @@
 			name = Products;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		OBJ_5 /*  */ = {
+		OBJ_5 = {
 			isa = PBXGroup;
 			children = (
 				OBJ_6 /* Package.swift */,
@@ -63,12 +89,13 @@
 				OBJ_10 /* Products */,
 				OBJ_12 /* README.md */,
 			);
-			name = "";
 			sourceTree = "<group>";
 		};
 		OBJ_7 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				F33FBC3F234F36D90054BA38 /* Sources */,
+				F33FBC3B234F29E30054BA38 /* DataSource */,
 				OBJ_8 /* ListKit.swift */,
 			);
 			path = Sources;
@@ -123,7 +150,7 @@
 			knownRegions = (
 				en,
 			);
-			mainGroup = OBJ_5 /*  */;
+			mainGroup = OBJ_5;
 			productRefGroup = OBJ_10 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -139,7 +166,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 0;
 			files = (
+				F33FBC41234F36FD0054BA38 /* Snapshot.swift in Sources */,
+				F33FBC43234F3A600054BA38 /* Sources.swift in Sources */,
+				F33FBC3D234F33A70054BA38 /* DataSource.swift in Sources */,
 				OBJ_18 /* ListKit.swift in Sources */,
+				F33FBC45234F3AB00054BA38 /* Updater.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

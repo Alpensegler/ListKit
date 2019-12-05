@@ -7,20 +7,112 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F3040D27238904860055E6E7 /* CollectionListAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3040D26238904860055E6E7 /* CollectionListAdapter.swift */; };
+		F3040D81238B21560055E6E7 /* ListCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3040D80238B21560055E6E7 /* ListCoordinator.swift */; };
+		F30433E9239FDF09007BACA9 /* SourceCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F30433E8239FDF09007BACA9 /* SourceCoordinator.swift */; };
+		F30433EB239FE874007BACA9 /* WrapperCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F30433EA239FE874007BACA9 /* WrapperCoordinator.swift */; };
+		F304A6DF239E94CC00133D14 /* Context+UIKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = F304A6DE239E94CC00133D14 /* Context+UIKit.swift */; };
+		F304A6E1239E95DC00133D14 /* ListView+NSCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F304A6E0239E95DB00133D14 /* ListView+NSCollectionView.swift */; };
+		F304A6E3239E95ED00133D14 /* ListView+NSTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F304A6E2239E95ED00133D14 /* ListView+NSTableView.swift */; };
+		F304A6E5239E962300133D14 /* NSListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F304A6E4239E962300133D14 /* NSListView.swift */; };
+		F310D2502351E1DF00ED691C /* BaseCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F310D24F2351E1DF00ED691C /* BaseCoordinator.swift */; };
+		F31250E9239C545200E77969 /* ListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31250E8239C545200E77969 /* ListView.swift */; };
+		F31250EB239C5E0E00E77969 /* ItemTypedCoorinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31250EA239C5E0E00E77969 /* ItemTypedCoorinator.swift */; };
+		F31250EE239C5EB200E77969 /* Coordinator+UICollectionViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31250ED239C5EB200E77969 /* Coordinator+UICollectionViewDelegate.swift */; };
+		F31250F0239C636100E77969 /* Coordinator+UIScrollViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31250EF239C636100E77969 /* Coordinator+UIScrollViewDelegate.swift */; };
+		F31250F2239DB15B00E77969 /* Coordinator+UICollectionViewDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31250F1239DB15B00E77969 /* Coordinator+UICollectionViewDataSource.swift */; };
+		F31250F4239DB57100E77969 /* ClosureDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31250F3239DB57100E77969 /* ClosureDelegate.swift */; };
+		F3125158239E33CA00E77969 /* Coordinator+UITableViewDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3125157239E33CA00E77969 /* Coordinator+UITableViewDataSource.swift */; };
+		F312515A239E347000E77969 /* Coordinator+UIScrollViewDelegateFlowLayouts.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3125159239E347000E77969 /* Coordinator+UIScrollViewDelegateFlowLayouts.swift */; };
+		F312515C239E352100E77969 /* Coordinator+UITableViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F312515B239E352100E77969 /* Coordinator+UITableViewDelegate.swift */; };
 		F33FBC3D234F33A70054BA38 /* DataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F33FBC3C234F33A70054BA38 /* DataSource.swift */; };
-		F33FBC41234F36FD0054BA38 /* Snapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = F33FBC40234F36FD0054BA38 /* Snapshot.swift */; };
 		F33FBC43234F3A600054BA38 /* Sources.swift in Sources */ = {isa = PBXBuildFile; fileRef = F33FBC42234F3A600054BA38 /* Sources.swift */; };
 		F33FBC45234F3AB00054BA38 /* Updater.swift in Sources */ = {isa = PBXBuildFile; fileRef = F33FBC44234F3AB00054BA38 /* Updater.swift */; };
+		F35BBA03239FD05C0024EA7D /* TableContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35BBA02239FD05C0024EA7D /* TableContext.swift */; };
+		F35BBA05239FD0EA0024EA7D /* TableListAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35BBA04239FD0EA0024EA7D /* TableListAdapter.swift */; };
+		F35BBA07239FD1600024EA7D /* TableListAdapter+UIKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35BBA06239FD1600024EA7D /* TableListAdapter+UIKit.swift */; };
+		F37A122A239FC0720001E9EE /* ListAdapter+UIKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = F37A1229239FC0720001E9EE /* ListAdapter+UIKit.swift */; };
+		F37A122E239FC0CB0001E9EE /* CollectionListAdapter+UIKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = F37A122D239FC0CB0001E9EE /* CollectionListAdapter+UIKit.swift */; };
+		F37BF3CA239686470095C419 /* ItemCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F37BF3C9239686470095C419 /* ItemCoordinator.swift */; };
+		F37BF3CC23968B7E0095C419 /* SectionsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F37BF3CB23968B7E0095C419 /* SectionsCoordinator.swift */; };
+		F37BF3CE23969DFD0095C419 /* NSCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F37BF3CD23969DFD0095C419 /* NSCoordinator.swift */; };
+		F383064323506BAC00AE8B97 /* CollectionDifference.swift in Sources */ = {isa = PBXBuildFile; fileRef = F383064023506BAC00AE8B97 /* CollectionDifference.swift */; };
+		F383064423506BAC00AE8B97 /* Differing.swift in Sources */ = {isa = PBXBuildFile; fileRef = F383064123506BAC00AE8B97 /* Differing.swift */; };
+		F383064523506BAC00AE8B97 /* Identifiable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F383064223506BAC00AE8B97 /* Identifiable.swift */; };
+		F3841D5D2355E0DA006386E3 /* Collection+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3841D5C2355E0DA006386E3 /* Collection+Extension.swift */; };
+		F3AD00DD238BC2AF000AF1B3 /* Differ.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3AD00DC238BC2AF000AF1B3 /* Differ.swift */; };
+		F3AD0138238BD75C000AF1B3 /* AnySource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3AD0137238BD75C000AF1B3 /* AnySource.swift */; };
+		F3AD013A238BE6FE000AF1B3 /* ItemsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3AD0139238BE6FE000AF1B3 /* ItemsCoordinator.swift */; };
+		F3AD0680238FF3DA000AF1B3 /* SourcesCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3AD067F238FF3DA000AF1B3 /* SourcesCoordinator.swift */; };
+		F3D785C62398F58000D7A5CD /* DataSource+Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3D785C52398F58000D7A5CD /* DataSource+Coordinator.swift */; };
+		F3D785C82398FC5B00D7A5CD /* UpdatableDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3D785C72398FC5B00D7A5CD /* UpdatableDataSource.swift */; };
+		F3D785CA2398FCA200D7A5CD /* NSDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3D785C92398FCA200D7A5CD /* NSDataSource.swift */; };
+		F3D7862E23991E5100D7A5CD /* ListAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3D7862D23991E5100D7A5CD /* ListAdapter.swift */; };
+		F3D786972399263B00D7A5CD /* CollectionContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3D786962399263B00D7A5CD /* CollectionContext.swift */; };
+		F3D786FC2399318B00D7A5CD /* Associator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3D786FB2399318B00D7A5CD /* Associator.swift */; };
+		F3D786FE239931CE00D7A5CD /* UIListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3D786FD239931CE00D7A5CD /* UIListView.swift */; };
+		F3D787022399327200D7A5CD /* ListView+UITableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3D786FF2399327200D7A5CD /* ListView+UITableView.swift */; };
+		F3D787032399327200D7A5CD /* ListViewStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3D787002399327200D7A5CD /* ListViewStorage.swift */; };
+		F3D787042399327200D7A5CD /* ListView+UIcollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3D787012399327200D7A5CD /* ListView+UIcollectionView.swift */; };
+		F3D7870623993C2200D7A5CD /* Context.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3D7870523993C2200D7A5CD /* Context.swift */; };
+		F3D787082399F4C500D7A5CD /* AnySourcesCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3D787072399F4C500D7A5CD /* AnySourcesCoordinator.swift */; };
+		F3F7795E237DB806008C6B21 /* Change.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3F7795D237DB806008C6B21 /* Change.swift */; };
 		OBJ_18 /* ListKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_8 /* ListKit.swift */; };
 		OBJ_25 /* Package.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_6 /* Package.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		F3040D26238904860055E6E7 /* CollectionListAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionListAdapter.swift; sourceTree = "<group>"; };
+		F3040D80238B21560055E6E7 /* ListCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListCoordinator.swift; sourceTree = "<group>"; };
+		F30433E8239FDF09007BACA9 /* SourceCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourceCoordinator.swift; sourceTree = "<group>"; };
+		F30433EA239FE874007BACA9 /* WrapperCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WrapperCoordinator.swift; sourceTree = "<group>"; };
+		F304A6DE239E94CC00133D14 /* Context+UIKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Context+UIKit.swift"; sourceTree = "<group>"; };
+		F304A6E0239E95DB00133D14 /* ListView+NSCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ListView+NSCollectionView.swift"; sourceTree = "<group>"; };
+		F304A6E2239E95ED00133D14 /* ListView+NSTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ListView+NSTableView.swift"; sourceTree = "<group>"; };
+		F304A6E4239E962300133D14 /* NSListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSListView.swift; sourceTree = "<group>"; };
+		F310D24F2351E1DF00ED691C /* BaseCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseCoordinator.swift; sourceTree = "<group>"; };
+		F31250E8239C545200E77969 /* ListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListView.swift; sourceTree = "<group>"; };
+		F31250EA239C5E0E00E77969 /* ItemTypedCoorinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemTypedCoorinator.swift; sourceTree = "<group>"; };
+		F31250ED239C5EB200E77969 /* Coordinator+UICollectionViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Coordinator+UICollectionViewDelegate.swift"; sourceTree = "<group>"; };
+		F31250EF239C636100E77969 /* Coordinator+UIScrollViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Coordinator+UIScrollViewDelegate.swift"; sourceTree = "<group>"; };
+		F31250F1239DB15B00E77969 /* Coordinator+UICollectionViewDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Coordinator+UICollectionViewDataSource.swift"; sourceTree = "<group>"; };
+		F31250F3239DB57100E77969 /* ClosureDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClosureDelegate.swift; sourceTree = "<group>"; };
+		F3125157239E33CA00E77969 /* Coordinator+UITableViewDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Coordinator+UITableViewDataSource.swift"; sourceTree = "<group>"; };
+		F3125159239E347000E77969 /* Coordinator+UIScrollViewDelegateFlowLayouts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Coordinator+UIScrollViewDelegateFlowLayouts.swift"; sourceTree = "<group>"; };
+		F312515B239E352100E77969 /* Coordinator+UITableViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Coordinator+UITableViewDelegate.swift"; sourceTree = "<group>"; };
 		F33FBC3A234F26B60054BA38 /* ListKitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListKitTests.swift; sourceTree = "<group>"; };
 		F33FBC3C234F33A70054BA38 /* DataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSource.swift; sourceTree = "<group>"; };
-		F33FBC40234F36FD0054BA38 /* Snapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Snapshot.swift; sourceTree = "<group>"; };
 		F33FBC42234F3A600054BA38 /* Sources.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources.swift; sourceTree = "<group>"; };
 		F33FBC44234F3AB00054BA38 /* Updater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Updater.swift; sourceTree = "<group>"; };
+		F35BBA02239FD05C0024EA7D /* TableContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableContext.swift; sourceTree = "<group>"; };
+		F35BBA04239FD0EA0024EA7D /* TableListAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableListAdapter.swift; sourceTree = "<group>"; };
+		F35BBA06239FD1600024EA7D /* TableListAdapter+UIKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TableListAdapter+UIKit.swift"; sourceTree = "<group>"; };
+		F37A1229239FC0720001E9EE /* ListAdapter+UIKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ListAdapter+UIKit.swift"; sourceTree = "<group>"; };
+		F37A122D239FC0CB0001E9EE /* CollectionListAdapter+UIKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CollectionListAdapter+UIKit.swift"; sourceTree = "<group>"; };
+		F37BF3C9239686470095C419 /* ItemCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemCoordinator.swift; sourceTree = "<group>"; };
+		F37BF3CB23968B7E0095C419 /* SectionsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionsCoordinator.swift; sourceTree = "<group>"; };
+		F37BF3CD23969DFD0095C419 /* NSCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSCoordinator.swift; sourceTree = "<group>"; };
+		F383064023506BAC00AE8B97 /* CollectionDifference.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CollectionDifference.swift; sourceTree = "<group>"; };
+		F383064123506BAC00AE8B97 /* Differing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Differing.swift; sourceTree = "<group>"; };
+		F383064223506BAC00AE8B97 /* Identifiable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Identifiable.swift; sourceTree = "<group>"; };
+		F3841D5C2355E0DA006386E3 /* Collection+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Collection+Extension.swift"; sourceTree = "<group>"; };
+		F3AD00DC238BC2AF000AF1B3 /* Differ.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Differ.swift; sourceTree = "<group>"; };
+		F3AD0137238BD75C000AF1B3 /* AnySource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnySource.swift; sourceTree = "<group>"; };
+		F3AD0139238BE6FE000AF1B3 /* ItemsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemsCoordinator.swift; sourceTree = "<group>"; };
+		F3AD067F238FF3DA000AF1B3 /* SourcesCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourcesCoordinator.swift; sourceTree = "<group>"; };
+		F3D785C52398F58000D7A5CD /* DataSource+Coordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataSource+Coordinator.swift"; sourceTree = "<group>"; };
+		F3D785C72398FC5B00D7A5CD /* UpdatableDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdatableDataSource.swift; sourceTree = "<group>"; };
+		F3D785C92398FCA200D7A5CD /* NSDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSDataSource.swift; sourceTree = "<group>"; };
+		F3D7862D23991E5100D7A5CD /* ListAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListAdapter.swift; sourceTree = "<group>"; };
+		F3D786962399263B00D7A5CD /* CollectionContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionContext.swift; sourceTree = "<group>"; };
+		F3D786FB2399318B00D7A5CD /* Associator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Associator.swift; sourceTree = "<group>"; };
+		F3D786FD239931CE00D7A5CD /* UIListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIListView.swift; sourceTree = "<group>"; };
+		F3D786FF2399327200D7A5CD /* ListView+UITableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ListView+UITableView.swift"; sourceTree = "<group>"; };
+		F3D787002399327200D7A5CD /* ListViewStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListViewStorage.swift; sourceTree = "<group>"; };
+		F3D787012399327200D7A5CD /* ListView+UIcollectionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ListView+UIcollectionView.swift"; sourceTree = "<group>"; };
+		F3D7870523993C2200D7A5CD /* Context.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Context.swift; sourceTree = "<group>"; };
+		F3D787072399F4C500D7A5CD /* AnySourcesCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnySourcesCoordinator.swift; sourceTree = "<group>"; };
+		F3F7795D237DB806008C6B21 /* Change.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Change.swift; sourceTree = "<group>"; };
 		"ListKit::ListKit::Product" /* ListKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = ListKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		OBJ_12 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		OBJ_6 /* Package.swift */ = {isa = PBXFileReference; explicitFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
@@ -38,6 +130,50 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		F3040D242389046D0055E6E7 /* ListAdapter */ = {
+			isa = PBXGroup;
+			children = (
+				F37A1228239FC0590001E9EE /* ListAdapter+UIKit */,
+				F3D7862D23991E5100D7A5CD /* ListAdapter.swift */,
+				F3040D26238904860055E6E7 /* CollectionListAdapter.swift */,
+				F35BBA04239FD0EA0024EA7D /* TableListAdapter.swift */,
+			);
+			path = ListAdapter;
+			sourceTree = "<group>";
+		};
+		F310D24E2351E1CC00ED691C /* Coordinator */ = {
+			isa = PBXGroup;
+			children = (
+				F31250EC239C5E9000E77969 /* Coordinator+UIKit */,
+				F310D24F2351E1DF00ED691C /* BaseCoordinator.swift */,
+				F31250EA239C5E0E00E77969 /* ItemTypedCoorinator.swift */,
+				F3040D80238B21560055E6E7 /* ListCoordinator.swift */,
+				F37BF3C9239686470095C419 /* ItemCoordinator.swift */,
+				F3AD0139238BE6FE000AF1B3 /* ItemsCoordinator.swift */,
+				F37BF3CB23968B7E0095C419 /* SectionsCoordinator.swift */,
+				F30433EA239FE874007BACA9 /* WrapperCoordinator.swift */,
+				F30433E8239FDF09007BACA9 /* SourceCoordinator.swift */,
+				F3AD067F238FF3DA000AF1B3 /* SourcesCoordinator.swift */,
+				F3D787072399F4C500D7A5CD /* AnySourcesCoordinator.swift */,
+				F37BF3CD23969DFD0095C419 /* NSCoordinator.swift */,
+				F31250F3239DB57100E77969 /* ClosureDelegate.swift */,
+			);
+			path = Coordinator;
+			sourceTree = "<group>";
+		};
+		F31250EC239C5E9000E77969 /* Coordinator+UIKit */ = {
+			isa = PBXGroup;
+			children = (
+				F31250EF239C636100E77969 /* Coordinator+UIScrollViewDelegate.swift */,
+				F31250F1239DB15B00E77969 /* Coordinator+UICollectionViewDataSource.swift */,
+				F31250ED239C5EB200E77969 /* Coordinator+UICollectionViewDelegate.swift */,
+				F3125159239E347000E77969 /* Coordinator+UIScrollViewDelegateFlowLayouts.swift */,
+				F3125157239E33CA00E77969 /* Coordinator+UITableViewDataSource.swift */,
+				F312515B239E352100E77969 /* Coordinator+UITableViewDelegate.swift */,
+			);
+			path = "Coordinator+UIKit";
+			sourceTree = "<group>";
+		};
 		F33FBC38234F26B60054BA38 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
@@ -58,18 +194,102 @@
 			isa = PBXGroup;
 			children = (
 				F33FBC3C234F33A70054BA38 /* DataSource.swift */,
-				F33FBC40234F36FD0054BA38 /* Snapshot.swift */,
-				F33FBC44234F3AB00054BA38 /* Updater.swift */,
+				F3D785C72398FC5B00D7A5CD /* UpdatableDataSource.swift */,
+				F3D785C92398FCA200D7A5CD /* NSDataSource.swift */,
+				F3D785C52398F58000D7A5CD /* DataSource+Coordinator.swift */,
 			);
 			path = DataSource;
 			sourceTree = "<group>";
 		};
-		F33FBC3F234F36D90054BA38 /* Sources */ = {
+		F33FBC3F234F36D90054BA38 /* Source */ = {
 			isa = PBXGroup;
 			children = (
 				F33FBC42234F3A600054BA38 /* Sources.swift */,
+				F3AD0137238BD75C000AF1B3 /* AnySource.swift */,
 			);
-			path = Sources;
+			path = Source;
+			sourceTree = "<group>";
+		};
+		F37A1228239FC0590001E9EE /* ListAdapter+UIKit */ = {
+			isa = PBXGroup;
+			children = (
+				F37A1229239FC0720001E9EE /* ListAdapter+UIKit.swift */,
+				F37A122D239FC0CB0001E9EE /* CollectionListAdapter+UIKit.swift */,
+				F35BBA06239FD1600024EA7D /* TableListAdapter+UIKit.swift */,
+			);
+			path = "ListAdapter+UIKit";
+			sourceTree = "<group>";
+		};
+		F37A122F239FC3030001E9EE /* ListView+UIKit */ = {
+			isa = PBXGroup;
+			children = (
+				F3D786FD239931CE00D7A5CD /* UIListView.swift */,
+				F3D787012399327200D7A5CD /* ListView+UIcollectionView.swift */,
+				F3D786FF2399327200D7A5CD /* ListView+UITableView.swift */,
+			);
+			path = "ListView+UIKit";
+			sourceTree = "<group>";
+		};
+		F37A1230239FC30D0001E9EE /* ListView+AppKit */ = {
+			isa = PBXGroup;
+			children = (
+				F304A6E4239E962300133D14 /* NSListView.swift */,
+				F304A6E0239E95DB00133D14 /* ListView+NSCollectionView.swift */,
+				F304A6E2239E95ED00133D14 /* ListView+NSTableView.swift */,
+			);
+			path = "ListView+AppKit";
+			sourceTree = "<group>";
+		};
+		F383063F23506BAC00AE8B97 /* Utility */ = {
+			isa = PBXGroup;
+			children = (
+				F3D785C42398F54C00D7A5CD /* Diff */,
+				F383064223506BAC00AE8B97 /* Identifiable.swift */,
+				F33FBC44234F3AB00054BA38 /* Updater.swift */,
+				F3AD00DC238BC2AF000AF1B3 /* Differ.swift */,
+				F3F7795D237DB806008C6B21 /* Change.swift */,
+				F3D786FB2399318B00D7A5CD /* Associator.swift */,
+			);
+			path = Utility;
+			sourceTree = "<group>";
+		};
+		F3841D5B2355E0C4006386E3 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				F3841D5C2355E0DA006386E3 /* Collection+Extension.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		F3D785C42398F54C00D7A5CD /* Diff */ = {
+			isa = PBXGroup;
+			children = (
+				F383064023506BAC00AE8B97 /* CollectionDifference.swift */,
+				F383064123506BAC00AE8B97 /* Differing.swift */,
+			);
+			path = Diff;
+			sourceTree = "<group>";
+		};
+		F3D786952399262A00D7A5CD /* Context */ = {
+			isa = PBXGroup;
+			children = (
+				F3D7870523993C2200D7A5CD /* Context.swift */,
+				F3D786962399263B00D7A5CD /* CollectionContext.swift */,
+				F35BBA02239FD05C0024EA7D /* TableContext.swift */,
+				F304A6DE239E94CC00133D14 /* Context+UIKit.swift */,
+			);
+			path = Context;
+			sourceTree = "<group>";
+		};
+		F3D786FA2399313300D7A5CD /* ListView */ = {
+			isa = PBXGroup;
+			children = (
+				F37A1230239FC30D0001E9EE /* ListView+AppKit */,
+				F37A122F239FC3030001E9EE /* ListView+UIKit */,
+				F31250E8239C545200E77969 /* ListView.swift */,
+				F3D787002399327200D7A5CD /* ListViewStorage.swift */,
+			);
+			path = ListView;
 			sourceTree = "<group>";
 		};
 		OBJ_10 /* Products */ = {
@@ -83,19 +303,25 @@
 		OBJ_5 = {
 			isa = PBXGroup;
 			children = (
+				OBJ_12 /* README.md */,
 				OBJ_6 /* Package.swift */,
 				OBJ_7 /* Sources */,
 				F33FBC38234F26B60054BA38 /* Tests */,
 				OBJ_10 /* Products */,
-				OBJ_12 /* README.md */,
 			);
 			sourceTree = "<group>";
 		};
 		OBJ_7 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				F33FBC3F234F36D90054BA38 /* Sources */,
+				F3D786952399262A00D7A5CD /* Context */,
+				F310D24E2351E1CC00ED691C /* Coordinator */,
+				F33FBC3F234F36D90054BA38 /* Source */,
 				F33FBC3B234F29E30054BA38 /* DataSource */,
+				F3040D242389046D0055E6E7 /* ListAdapter */,
+				F3D786FA2399313300D7A5CD /* ListView */,
+				F383063F23506BAC00AE8B97 /* Utility */,
+				F3841D5B2355E0C4006386E3 /* Extensions */,
 				OBJ_8 /* ListKit.swift */,
 			);
 			path = Sources;
@@ -166,11 +392,57 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 0;
 			files = (
-				F33FBC41234F36FD0054BA38 /* Snapshot.swift in Sources */,
+				F31250F0239C636100E77969 /* Coordinator+UIScrollViewDelegate.swift in Sources */,
+				F31250F2239DB15B00E77969 /* Coordinator+UICollectionViewDataSource.swift in Sources */,
+				F304A6E1239E95DC00133D14 /* ListView+NSCollectionView.swift in Sources */,
+				F3841D5D2355E0DA006386E3 /* Collection+Extension.swift in Sources */,
+				F3D785C82398FC5B00D7A5CD /* UpdatableDataSource.swift in Sources */,
+				F31250F4239DB57100E77969 /* ClosureDelegate.swift in Sources */,
+				F35BBA05239FD0EA0024EA7D /* TableListAdapter.swift in Sources */,
+				F3AD013A238BE6FE000AF1B3 /* ItemsCoordinator.swift in Sources */,
+				F3125158239E33CA00E77969 /* Coordinator+UITableViewDataSource.swift in Sources */,
+				F35BBA03239FD05C0024EA7D /* TableContext.swift in Sources */,
+				F304A6E3239E95ED00133D14 /* ListView+NSTableView.swift in Sources */,
+				F3D786972399263B00D7A5CD /* CollectionContext.swift in Sources */,
+				F3D787022399327200D7A5CD /* ListView+UITableView.swift in Sources */,
+				F383064323506BAC00AE8B97 /* CollectionDifference.swift in Sources */,
+				F3D787082399F4C500D7A5CD /* AnySourcesCoordinator.swift in Sources */,
+				F31250EB239C5E0E00E77969 /* ItemTypedCoorinator.swift in Sources */,
+				F3D7870623993C2200D7A5CD /* Context.swift in Sources */,
+				F31250E9239C545200E77969 /* ListView.swift in Sources */,
+				F3040D27238904860055E6E7 /* CollectionListAdapter.swift in Sources */,
+				F31250EE239C5EB200E77969 /* Coordinator+UICollectionViewDelegate.swift in Sources */,
+				F312515C239E352100E77969 /* Coordinator+UITableViewDelegate.swift in Sources */,
+				F3AD00DD238BC2AF000AF1B3 /* Differ.swift in Sources */,
 				F33FBC43234F3A600054BA38 /* Sources.swift in Sources */,
 				F33FBC3D234F33A70054BA38 /* DataSource.swift in Sources */,
+				F304A6DF239E94CC00133D14 /* Context+UIKit.swift in Sources */,
+				F37BF3CE23969DFD0095C419 /* NSCoordinator.swift in Sources */,
+				F3AD0138238BD75C000AF1B3 /* AnySource.swift in Sources */,
+				F3F7795E237DB806008C6B21 /* Change.swift in Sources */,
+				F37BF3CC23968B7E0095C419 /* SectionsCoordinator.swift in Sources */,
+				F383064423506BAC00AE8B97 /* Differing.swift in Sources */,
+				F3AD0680238FF3DA000AF1B3 /* SourcesCoordinator.swift in Sources */,
+				F37BF3CA239686470095C419 /* ItemCoordinator.swift in Sources */,
+				F3D787032399327200D7A5CD /* ListViewStorage.swift in Sources */,
+				F312515A239E347000E77969 /* Coordinator+UIScrollViewDelegateFlowLayouts.swift in Sources */,
+				F383064523506BAC00AE8B97 /* Identifiable.swift in Sources */,
+				F3D786FE239931CE00D7A5CD /* UIListView.swift in Sources */,
+				F37A122E239FC0CB0001E9EE /* CollectionListAdapter+UIKit.swift in Sources */,
+				F30433E9239FDF09007BACA9 /* SourceCoordinator.swift in Sources */,
+				F35BBA07239FD1600024EA7D /* TableListAdapter+UIKit.swift in Sources */,
+				F30433EB239FE874007BACA9 /* WrapperCoordinator.swift in Sources */,
 				OBJ_18 /* ListKit.swift in Sources */,
+				F3D7862E23991E5100D7A5CD /* ListAdapter.swift in Sources */,
+				F3040D81238B21560055E6E7 /* ListCoordinator.swift in Sources */,
+				F3D787042399327200D7A5CD /* ListView+UIcollectionView.swift in Sources */,
+				F3D786FC2399318B00D7A5CD /* Associator.swift in Sources */,
+				F37A122A239FC0720001E9EE /* ListAdapter+UIKit.swift in Sources */,
+				F3D785C62398F58000D7A5CD /* DataSource+Coordinator.swift in Sources */,
 				F33FBC45234F3AB00054BA38 /* Updater.swift in Sources */,
+				F310D2502351E1DF00ED691C /* BaseCoordinator.swift in Sources */,
+				F3D785CA2398FCA200D7A5CD /* NSDataSource.swift in Sources */,
+				F304A6E5239E962300133D14 /* NSListView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

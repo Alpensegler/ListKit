@@ -1,0 +1,86 @@
+//
+//  SectionCoordinator.swift
+//  ListKit
+//
+//  Created by Frain on 2019/11/25.
+//
+
+class ItemsCoordinator<Source: DataSource>: SourceListCoordinator<Source>
+where Source.Source: Collection, Source.Item == Source.Source.Element {
+    var items = [Item]()
+    override var sourceType: SourceType {
+        didSet {
+            guard sourceType != oldValue else { return }
+            configSourceIndices()
+        }
+    }
+    
+    override func item(at path: Path) -> Item { items[path.item] }
+    override func numbersOfSections() -> Int { sourceType == .section ? 1 : 0 }
+    override func numbersOfItems(in section: Int) -> Int { items.count }
+    
+    override func setup() {
+        items = source.map { $0 }
+        configSourceIndices()
+    }
+    
+    override func anyItemSources<Source: DataSource>(source: Source) -> AnyItemSources {
+        .multiple(.init(source: source, coordinator: self) { self.items })
+    }
+    
+    override func anySectionSources<Source: DataSource>(source: Source) -> AnySectionSources {
+        sourceType == .section
+            ? .other(Other(type: .cellContainer) { [.init(source: source, coordinator: self) { self.items }] })
+            : .single(.init(source: source, coordinator: self) { self.items })
+    }
+    
+    override func itemSources<Source: DataSource>(source: Source) -> ItemSource {
+        .multiple(.init(source: source, coordinator: self) { self.items })
+    }
+    
+    override func sectionSources<Source: DataSource>(source: Source) -> SectionSource {
+        sourceType == .section
+            ? .other(Other(type: .cellContainer) { [.init(source: source, coordinator: self) { self.items }] })
+            : .single(.init(source: source, coordinator: self) { self.items })
+    }
+    
+    func configSourceIndices() {
+        sourceIndices = sourceType == .section
+            ? [.section(index: 0, count: items.count)]
+            : [.cell(indices: items.map { _ in 0 })]
+    }
+}
+
+class RangeReplacableItemsCoordinator<Source: DataSource>: ItemsCoordinator<Source>
+where Source.Source: RangeReplaceableCollection, Source.Source.Element == Source.Item {
+    override func setup() {
+        super.setup()
+        rangeReplacable = true
+    }
+    
+    override func anyItemApplyMultiItem(changes: ValueChanges<Any, Int>) {
+        source.apply(changes, indexTransform: { $0 }, valueTransform: { $0 as! Item })
+        items.apply(changes, indexTransform: { $0 }, valueTransform: { $0 as! Item })
+        configSourceIndices()
+    }
+    
+    override func anySectionApplyItem(changes: [ValueChanges<Any, Int>]) {
+        source.apply(changes[0], indexTransform: { $0 }, valueTransform: { $0 as! Item })
+        items.apply(changes[0], indexTransform: { $0 }, valueTransform: { $0 as! Item })
+        configSourceIndices()
+    }
+    
+    override func itemApplyMultiItem(changes: ValueChanges<Item, Int>) {
+        source.apply(changes, indexTransform: { $0 }, valueTransform: { $0 })
+        items.apply(changes, indexTransform: { $0 }, valueTransform: { $0 })
+        configSourceIndices()
+    }
+    
+    override func sectionApplyItem(changes: [ValueChanges<Item, Int>]) {
+        source.apply(changes[0], indexTransform: { $0 }, valueTransform: { $0 })
+        items.apply(changes[0], indexTransform: { $0 }, valueTransform: { $0 })
+        configSourceIndices()
+    }
+}
+
+

@@ -5,13 +5,43 @@
 //  Created by Frain on 2019/4/8.
 //
 
-protocol DataSource {
+public protocol DataSource {
     associatedtype Item
     associatedtype Source = [Item]
+    associatedtype SourceBase: DataSource = Self
+        where SourceBase.Item == Item, SourceBase.SourceBase == SourceBase
     
     var source: Source { get }
-    var updater: Updater<Source, Item> { get }
+    var sourceBase: SourceBase { get }
+    var updater: Updater<SourceBase> { get }
+    var listCoordinator: ListCoordinator<SourceBase> { get }
     
-    func snapshot(for source: Source) -> Snapshot<Item>
-    func eraseToSources() -> Sources<Source, Item>
+    func makeListCoordinator() -> ListCoordinator<SourceBase>
+}
+
+public extension DataSource where SourceBase == Self {
+    var sourceBase: SourceBase { self }
+}
+
+public extension DataSource {
+    var listCoordinator: ListCoordinator<SourceBase> { makeListCoordinator() }
+    func makeListCoordinator() -> ListCoordinator<SourceBase> {
+        fatalError("unsupported source \(Source.self) item \(Item.self)")
+    }
+}
+
+extension DataSource {
+    var baseCoordinator: BaseCoordinator { listCoordinator }
+    var itemTypedCoordinator: ItemTypedCoorinator<Item> { listCoordinator }
+}
+
+extension Optional: DataSource where Wrapped: DataSource {
+    public typealias Item = Wrapped.Item
+    public typealias Source = Self
+    
+    public var source: Source { self }
+    public var updater: Updater<Self> { .none }
+    
+    public func makeListCoordinator() -> ListCoordinator<Self> { .init() }
+    
 }

@@ -37,6 +37,16 @@ public extension UpdatableDataSource {
     }
 }
 
-extension UpdatableDataSource {
-    
+#if canImport(ObjectiveC)
+import ObjectiveC.runtime
+
+private var coordinatorStorageKey: Void?
+
+public extension UpdatableDataSource where Self: AnyObject {
+    var coordinatorStorage: CoordinatorStorage<SourceBase> {
+        get { Associator.getValue(key: &coordinatorStorageKey, from: self, initialValue: .init()) }
+        set { Associator.set(value: newValue, key: &coordinatorStorageKey, to: self) }
+    }
 }
+
+#endif

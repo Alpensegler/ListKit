@@ -13,7 +13,6 @@ public typealias CollectionView = UICollectionView
 extension UICollectionView: UIListView {
     public typealias Cell = UICollectionViewCell
     public typealias Animation = Bool
-    public typealias SupplementaryView = UICollectionReusableView
     public typealias Size = CGSize
 }
 
@@ -58,9 +57,29 @@ public extension UICollectionView {
     func dequeueReusableCell(withIdentifier identifier: String, for indexPath: IndexPath) -> UICollectionViewCell {
         dequeueReusableCell(withReuseIdentifier: identifier, for: indexPath)
     }
-    
-    func dequeueReusableSupplementaryView(type: SupplementaryViewType, withIdentifier identifier: String, indexPath: IndexPath) -> UICollectionReusableView? {
-        dequeueReusableSupplementaryView(ofKind: kind(for: type), withReuseIdentifier: identifier, for: indexPath)
+}
+
+public extension UICollectionView {
+    enum SupplementaryViewType: Hashable {
+        case header
+        case footer
+        case custom(String)
+        
+        init(_ rawValue: String) {
+            switch rawValue {
+            case UICollectionView.elementKindSectionHeader: self = .header
+            case UICollectionView.elementKindSectionFooter: self = .footer
+            default: self = .custom(rawValue)
+            }
+        }
+        
+        var rawValue: String {
+            switch self {
+            case .header: return UICollectionView.elementKindSectionHeader
+            case .footer: return UICollectionView.elementKindSectionFooter
+            case .custom(let string): return string
+            }
+        }
     }
 }
 

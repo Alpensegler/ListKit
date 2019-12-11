@@ -10,10 +10,10 @@ import UIKit
 
 public protocol UIListView: UIScrollView, ListView {
     associatedtype Cell: UIView
-    associatedtype SupplementaryView: UIView
     associatedtype Animation: ListViewAnimationOption
     associatedtype Size
     associatedtype ScrollPosition
+    associatedtype SupplementaryViewType
     
     func reloadSynchronously(completion: ((Bool) -> Void)?)
     func perform(update: () -> Void, animation: Animation, completion: ((Bool) -> Void)?)
@@ -23,7 +23,6 @@ public protocol UIListView: UIScrollView, ListView {
     func register(supplementaryViewType: SupplementaryViewType, _ supplementaryClass: AnyClass?, identifier: String)
     func register(supplementaryViewType: SupplementaryViewType, _ nib: UINib?, identifier: String)
     func dequeueReusableCell(withIdentifier identifier: String, for indexPath: IndexPath) -> Cell
-    func dequeueReusableSupplementaryView(type: SupplementaryViewType, withIdentifier identifier: String, indexPath: IndexPath) -> SupplementaryView?
     
     func cellForItem(at indexPath: IndexPath) -> Cell?
     
@@ -44,28 +43,6 @@ public protocol UIListView: UIScrollView, ListView {
 
 public protocol ListViewAnimationOption {
     init(animated: Bool)
-}
-
-public enum SupplementaryViewType: Hashable {
-    case header
-    case footer
-    case custom(String)
-    
-    init(_ rawValue: String) {
-        switch rawValue {
-        case UICollectionView.elementKindSectionHeader: self = .header
-        case UICollectionView.elementKindSectionFooter: self = .footer
-        default: self = .custom(rawValue)
-        }
-    }
-    
-    var rawValue: String {
-        switch self {
-        case .header: return UICollectionView.elementKindSectionHeader
-        case .footer: return UICollectionView.elementKindSectionFooter
-        case .custom(let string): return string
-        }
-    }
 }
 
 #endif

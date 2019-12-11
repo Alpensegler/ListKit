@@ -14,7 +14,6 @@ public typealias TableView = UITableView
 
 extension UITableView: UIListView {
     public typealias Cell = UITableViewCell
-    public typealias SupplementaryView = UITableViewHeaderFooterView
     public typealias Size = CGFloat
     
     public var defaultAnimation: Animation {
@@ -68,7 +67,7 @@ extension UITableView: UIListView {
         reloadSections(sections, with: defaultAnimation.reloadSections)
     }
     
-    public func selectItem(at indexPath: IndexPath?, animated: Bool, scrollPosition: UITableView.ScrollPosition) {
+    public func selectItem(at indexPath: IndexPath?, animated: Bool, scrollPosition: ScrollPosition) {
         selectRow(at: indexPath, animated: animated, scrollPosition: scrollPosition)
     }
     
@@ -80,7 +79,6 @@ extension UITableView: UIListView {
         switch supplementaryViewType {
         case .header: register(supplementaryClass, forHeaderFooterViewReuseIdentifier: identifier)
         case .footer: register(supplementaryClass, forHeaderFooterViewReuseIdentifier: identifier)
-        case .custom: fatalError("table view dose not support custom supplementary view type")
         }
     }
     
@@ -88,14 +86,6 @@ extension UITableView: UIListView {
         switch supplementaryViewType {
         case .header: register(nib, forHeaderFooterViewReuseIdentifier: identifier)
         case .footer: register(nib, forHeaderFooterViewReuseIdentifier: identifier)
-        case .custom: fatalError("table view dose not support custom supplementary view type")
-        }
-    }
-    
-    public func dequeueReusableSupplementaryView(type: SupplementaryViewType, withIdentifier identifier: String, indexPath: IndexPath) -> UITableViewHeaderFooterView? {
-        switch type {
-        case .header, .footer: return dequeueReusableHeaderFooterView(withIdentifier: identifier)
-        case .custom: fatalError("table view dose not support custom supplementary view type")
         }
     }
     
@@ -104,8 +94,13 @@ extension UITableView: UIListView {
     }
 }
 
-extension UITableView {
-    public struct Animation: ListViewAnimationOption {
+public extension UITableView {
+    enum SupplementaryViewType: String {
+        case header
+        case footer
+    }
+    
+    struct Animation: ListViewAnimationOption {
         let deleteSections: RowAnimation
         let insertSections: RowAnimation
         let reloadSections: RowAnimation

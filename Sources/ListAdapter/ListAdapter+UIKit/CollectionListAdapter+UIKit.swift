@@ -21,7 +21,7 @@ public extension ListAdapter {
 public extension CollectionListAdapter where Self: UpdatableDataSource {
     @discardableResult
     func collectionViewViewForSupplementary(
-        _ closure: @escaping (CollectionIndexPathContext<SourceBase>, SupplementaryViewType) -> UICollectionReusableView
+        _ closure: @escaping (CollectionIndexPathContext<SourceBase>, CollectionView.SupplementaryViewType) -> UICollectionReusableView
     ) -> Self {
         set(\.collectionViewDataSources.viewForSupplementaryElementOfKindAt) { closure($0.0, .init($0.1.0)) }
     }

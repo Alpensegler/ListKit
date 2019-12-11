@@ -24,6 +24,7 @@
 		F3125158239E33CA00E77969 /* Coordinator+UITableViewDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3125157239E33CA00E77969 /* Coordinator+UITableViewDataSource.swift */; };
 		F312515A239E347000E77969 /* Coordinator+UIScrollViewDelegateFlowLayouts.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3125159239E347000E77969 /* Coordinator+UIScrollViewDelegateFlowLayouts.swift */; };
 		F312515C239E352100E77969 /* Coordinator+UITableViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F312515B239E352100E77969 /* Coordinator+UITableViewDelegate.swift */; };
+		F329598323A10B7D001D6063 /* ListViewStorage+UIKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = F329598223A10B7D001D6063 /* ListViewStorage+UIKit.swift */; };
 		F33FBC3D234F33A70054BA38 /* DataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F33FBC3C234F33A70054BA38 /* DataSource.swift */; };
 		F33FBC43234F3A600054BA38 /* Sources.swift in Sources */ = {isa = PBXBuildFile; fileRef = F33FBC42234F3A600054BA38 /* Sources.swift */; };
 		F33FBC45234F3AB00054BA38 /* Updater.swift in Sources */ = {isa = PBXBuildFile; fileRef = F33FBC44234F3AB00054BA38 /* Updater.swift */; };
@@ -82,6 +83,7 @@
 		F3125157239E33CA00E77969 /* Coordinator+UITableViewDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Coordinator+UITableViewDataSource.swift"; sourceTree = "<group>"; };
 		F3125159239E347000E77969 /* Coordinator+UIScrollViewDelegateFlowLayouts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Coordinator+UIScrollViewDelegateFlowLayouts.swift"; sourceTree = "<group>"; };
 		F312515B239E352100E77969 /* Coordinator+UITableViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Coordinator+UITableViewDelegate.swift"; sourceTree = "<group>"; };
+		F329598223A10B7D001D6063 /* ListViewStorage+UIKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ListViewStorage+UIKit.swift"; sourceTree = "<group>"; };
 		F33FBC3A234F26B60054BA38 /* ListKitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListKitTests.swift; sourceTree = "<group>"; };
 		F33FBC3C234F33A70054BA38 /* DataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSource.swift; sourceTree = "<group>"; };
 		F33FBC42234F3A600054BA38 /* Sources.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources.swift; sourceTree = "<group>"; };
@@ -242,6 +244,7 @@
 				F3D786FD239931CE00D7A5CD /* UIListView.swift */,
 				F3D787012399327200D7A5CD /* ListView+UIcollectionView.swift */,
 				F3D786FF2399327200D7A5CD /* ListView+UITableView.swift */,
+				F329598223A10B7D001D6063 /* ListViewStorage+UIKit.swift */,
 			);
 			path = "ListView+UIKit";
 			sourceTree = "<group>";
@@ -431,6 +434,7 @@
 				F304A6E3239E95ED00133D14 /* ListView+NSTableView.swift in Sources */,
 				F3D786972399263B00D7A5CD /* CollectionContext.swift in Sources */,
 				F3D787022399327200D7A5CD /* ListView+UITableView.swift in Sources */,
+				F329598323A10B7D001D6063 /* ListViewStorage+UIKit.swift in Sources */,
 				F3C9531823A0DD0E0015049A /* AnySourceBuilder.swift in Sources */,
 				F383064323506BAC00AE8B97 /* CollectionDifference.swift in Sources */,
 				F3D787082399F4C500D7A5CD /* AnySourcesCoordinator.swift in Sources */,

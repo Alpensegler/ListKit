@@ -66,13 +66,15 @@ public extension IndexPathContext where List: UIListView {
             configuration: configuration
         )
     }
-    
-    func dequeueReusableSupplementaryView<CustomSupplementaryView: UIView>(
-        type: SupplementaryViewType,
+}
+
+public extension IndexPathContext where List: UICollectionView {
+    func dequeueReusableSupplementaryView<CustomSupplementaryView: UICollectionReusableView>(
+        type: UICollectionView.SupplementaryViewType,
         withSupplementaryClass supplementaryClass: CustomSupplementaryView.Type,
         identifier: String = "",
         configuration: (CustomSupplementaryView) -> Void = { _ in }
-    ) -> List.SupplementaryView {
+    ) -> UICollectionReusableView {
         listView.dequeueReusableSupplementaryView(
             type: type,
             withSupplementaryClass: supplementaryClass,
@@ -82,19 +84,51 @@ public extension IndexPathContext where List: UIListView {
         )
     }
     
-    func dequeueReusableSupplementaryView<CustomSupplementaryView: UIView>(
-        type: SupplementaryViewType,
+    func dequeueReusableSupplementaryView<CustomSupplementaryView: UICollectionReusableView>(
+        type: UICollectionView.SupplementaryViewType,
         withSupplementaryClass cellClass: CustomSupplementaryView.Type,
         nibName: String,
         bundle: Bundle? = nil,
         configuration: (CustomSupplementaryView) -> Void = { _ in }
-    ) -> List.SupplementaryView {
+    ) -> UICollectionReusableView {
         listView.dequeueReusableSupplementaryView(
             type: type,
             withSupplementaryClass: cellClass,
             nibName: nibName,
             bundle: bundle,
             indexPath: listIndexPath,
+            configuration: configuration
+        )
+    }
+}
+
+public extension Context where List: UITableView {
+    func dequeueReusableSupplementaryView<CustomSupplementaryView: UITableViewHeaderFooterView>(
+        type: UITableView.SupplementaryViewType,
+        withSupplementaryClass supplementaryClass: CustomSupplementaryView.Type,
+        identifier: String = "",
+        configuration: (CustomSupplementaryView) -> Void = { _ in }
+    ) -> UITableViewHeaderFooterView? {
+        listView.dequeueReusableSupplementaryView(
+            type: type,
+            withSupplementaryClass: supplementaryClass,
+            identifier: identifier,
+            configuration: configuration
+        )
+    }
+    
+    func dequeueReusableSupplementaryView<CustomSupplementaryView: UITableViewHeaderFooterView>(
+        type: UITableView.SupplementaryViewType,
+        withSupplementaryClass cellClass: CustomSupplementaryView.Type,
+        nibName: String,
+        bundle: Bundle? = nil,
+        configuration: (CustomSupplementaryView) -> Void = { _ in }
+    ) -> UITableViewHeaderFooterView? {
+        listView.dequeueReusableSupplementaryView(
+            type: type,
+            withSupplementaryClass: cellClass,
+            nibName: nibName,
+            bundle: bundle,
             configuration: configuration
         )
     }

@@ -24,6 +24,7 @@ public extension DataSource where SourceBase == Self {
 }
 
 public extension DataSource {
+    var updater: Updater<SourceBase> { .none }
     var listCoordinator: ListCoordinator<SourceBase> { makeListCoordinator() }
     func makeListCoordinator() -> ListCoordinator<SourceBase> {
         fatalError("unsupported source \(Source.self) item \(Item.self)")

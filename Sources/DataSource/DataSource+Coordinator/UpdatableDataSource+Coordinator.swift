@@ -5,7 +5,7 @@
 //  Created by Frain on 2019/12/11.
 //
 
-fileprivate extension UpdatableDataSource {
+extension UpdatableDataSource {
     func addToStorage(_ coordinator: ListCoordinator<SourceBase>) -> ListCoordinator<SourceBase> {
         coordinatorStorage.coordinator = coordinator
         return coordinator

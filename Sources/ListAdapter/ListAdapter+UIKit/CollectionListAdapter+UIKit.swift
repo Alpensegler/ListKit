@@ -8,7 +8,7 @@
 #if os(iOS) || os(tvOS)
 import UIKit
 
-public extension ListAdapter {
+public extension DataSource {
     func collectionViewCellForItem(
         _ closure: @escaping (CollectionIndexPathContext<SourceBase>, Item) -> UICollectionViewCell
     ) -> CollectionList<SourceBase> {

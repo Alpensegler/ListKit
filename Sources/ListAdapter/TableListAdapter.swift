@@ -21,9 +21,11 @@ where Source.SourceBase == Source {
     public var coordinatorStorage: CoordinatorStorage<Source>
     
     public var sourceBase: Source { source }
-    public var wrappedValue: Source { source }
     public var collectionList: TableList<Source> { self }
     public func makeListCoordinator() -> ListCoordinator<Source> { source.makeListCoordinator() }
+    
+    public var wrappedValue: Source { source }
+    public var projectedValue: Source.Source { source.source }
     
     public subscript<Value>(dynamicMember path: KeyPath<Source, Value>) -> Value {
         source[keyPath: path]

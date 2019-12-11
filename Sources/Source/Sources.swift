@@ -5,16 +5,24 @@
 //  Created by Frain on 2019/10/10.
 //
 
+@propertyWrapper
+@dynamicMemberLookup
 public struct Sources<Source, Item>: UpdatableDataSource {
-    public let source: Source
+    let listCoordinatorMaker: (Self) -> ListCoordinator<Self>
+    var id: AnyHashable! = nil
     
-    public var updater: Updater<Self> {
-        fatalError()
-    }
+    public internal(set) var source: Source
+    public internal(set) var updater: Updater<Self>
+    
+    public let coordinatorStorage = CoordinatorStorage<Self>()
+    
+    public var wrappedValue: Source { source }
     
     public func makeListCoordinator() -> ListCoordinator<Self> {
-        fatalError()
+        listCoordinatorMaker(self)
     }
     
-    public var coordinatorStorage = CoordinatorStorage<Self>()
+    public subscript<Value>(dynamicMember keyPath: KeyPath<Source, Value>) -> Value {
+        source[keyPath: keyPath]
+    }
 }

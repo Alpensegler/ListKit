@@ -8,7 +8,7 @@
 import Foundation
 
 public protocol ListView: NSObject {
-    func reloadSynchronously(completion: ((Bool) -> Void)?)
+    func reloadSynchronously()
     func perform(update: () -> Void, animated: Bool, completion: ((Bool) -> Void)?)
     
     func insertItems(at indexPaths: [IndexPath])

@@ -11,7 +11,6 @@ import UIKit
 public protocol UIListView: UIScrollView, ListView {
     associatedtype Cell: UIView
     associatedtype Animation: ListViewAnimationOption
-    associatedtype Size
     associatedtype ScrollPosition
     associatedtype SupplementaryViewType
     

@@ -22,10 +22,9 @@ public extension UICollectionView {
         set { Associator.set(value: newValue, key: &Self.listViewDefaultAnimationKey, to: self) }
     }
     
-    func reloadSynchronously(completion: ((Bool) -> Void)? = nil) {
+    func reloadSynchronously() {
         reloadData()
         layoutIfNeeded()
-        completion?(true)
     }
     
     func perform(update: () -> Void, animated: Bool, completion: ((Bool) -> Void)? = nil) {

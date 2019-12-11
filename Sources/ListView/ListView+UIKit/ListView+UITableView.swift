@@ -14,19 +14,21 @@ public typealias TableView = UITableView
 
 extension UITableView: UIListView {
     public typealias Cell = UITableViewCell
-    public typealias Size = CGFloat
+}
+
+public extension UITableView {
     
-    public var defaultAnimation: Animation {
+    var defaultAnimation: Animation {
         get { return Associator.getValue(key: &listViewDefaultAnimationKey, from: self) ?? .fade }
         set { Associator.set(value: newValue, key: &listViewDefaultAnimationKey, to: self) }
     }
     
-    public func reloadSynchronously(completion: ((Bool) -> Void)? = nil) {
+    func reloadSynchronously() {
         reloadData()
-        completion?(true)
+        layoutIfNeeded()
     }
     
-    public func perform(update: () -> Void, animated: Bool, completion: ((Bool) -> Void)?) {
+    func perform(update: () -> Void, animated: Bool, completion: ((Bool) -> Void)?) {
         func _update() {
             if #available(iOS 11.0, *) {
                 performBatchUpdates(update, completion: completion)
@@ -47,57 +49,57 @@ extension UITableView: UIListView {
         }
     }
     
-    public func insertItems(at indexPaths: [IndexPath]) {
+    func insertItems(at indexPaths: [IndexPath]) {
         insertRows(at: indexPaths, with: defaultAnimation.insertRows)
     }
     
-    public func deleteItems(at indexPaths: [IndexPath]) {
+    func deleteItems(at indexPaths: [IndexPath]) {
         deleteRows(at: indexPaths, with: defaultAnimation.deleteRows)
     }
     
-    public func reloadItems(at indexPaths: [IndexPath]) {
+    func reloadItems(at indexPaths: [IndexPath]) {
         reloadRows(at: indexPaths, with: defaultAnimation.reloadRows)
     }
     
-    public func moveItem(at indexPath: IndexPath, to newIndexPath: IndexPath) {
+    func moveItem(at indexPath: IndexPath, to newIndexPath: IndexPath) {
         moveRow(at: indexPath, to: newIndexPath)
     }
     
-    public func insertSections(_ sections: IndexSet) {
+    func insertSections(_ sections: IndexSet) {
         insertSections(sections, with: defaultAnimation.insertSections)
     }
     
-    public func deleteSections(_ sections: IndexSet) {
+    func deleteSections(_ sections: IndexSet) {
         deleteSections(sections, with: defaultAnimation.deleteSections)
     }
     
-    public func reloadSections(_ sections: IndexSet) {
+    func reloadSections(_ sections: IndexSet) {
         reloadSections(sections, with: defaultAnimation.reloadSections)
     }
     
-    public func selectItem(at indexPath: IndexPath?, animated: Bool, scrollPosition: ScrollPosition) {
+    func selectItem(at indexPath: IndexPath?, animated: Bool, scrollPosition: ScrollPosition) {
         selectRow(at: indexPath, animated: animated, scrollPosition: scrollPosition)
     }
     
-    public func deselectItem(at indexPath: IndexPath, animated: Bool) {
+    func deselectItem(at indexPath: IndexPath, animated: Bool) {
         deselectRow(at: indexPath, animated: animated)
     }
     
-    public func register(supplementaryViewType: SupplementaryViewType, _ supplementaryClass: AnyClass?, identifier: String) {
+    func register(supplementaryViewType: SupplementaryViewType, _ supplementaryClass: AnyClass?, identifier: String) {
         switch supplementaryViewType {
         case .header: register(supplementaryClass, forHeaderFooterViewReuseIdentifier: identifier)
         case .footer: register(supplementaryClass, forHeaderFooterViewReuseIdentifier: identifier)
         }
     }
     
-    public func register(supplementaryViewType: SupplementaryViewType, _ nib: UINib?, identifier: String) {
+    func register(supplementaryViewType: SupplementaryViewType, _ nib: UINib?, identifier: String) {
         switch supplementaryViewType {
         case .header: register(nib, forHeaderFooterViewReuseIdentifier: identifier)
         case .footer: register(nib, forHeaderFooterViewReuseIdentifier: identifier)
         }
     }
     
-    public func cellForItem(at indexPath: IndexPath) -> UITableViewCell? {
+    func cellForItem(at indexPath: IndexPath) -> UITableViewCell? {
         cellForRow(at: indexPath)
     }
 }

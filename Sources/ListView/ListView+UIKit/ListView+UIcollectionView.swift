@@ -28,13 +28,14 @@ public extension UICollectionView {
         completion?(true)
     }
     
-    func perform(update: () -> Void, animation: Bool, completion: ((Bool) -> Void)? = nil) {
-        if animation {
+    func perform(update: () -> Void, animated: Bool, completion: ((Bool) -> Void)? = nil) {
+        if animated {
             performBatchUpdates(update, completion: completion)
         } else {
-            UIView.performWithoutAnimation {
-                performBatchUpdates(update, completion: completion)
-            }
+            CATransaction.begin()
+            CATransaction.setDisableActions(true)
+            performBatchUpdates(update, completion: completion)
+            CATransaction.commit()
         }
     }
     

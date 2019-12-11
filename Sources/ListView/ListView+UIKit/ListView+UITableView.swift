@@ -26,16 +26,24 @@ extension UITableView: UIListView {
         completion?(true)
     }
     
-    public func perform(update: () -> Void, animation: Animation, completion: ((Bool) -> Void)?) {
-        if #available(iOS 11.0, *) {
-            performBatchUpdates(update, completion: completion)
-        } else {
-            beginUpdates()
-            CATransaction.setCompletionBlock {
-                completion?(true)
+    public func perform(update: () -> Void, animated: Bool, completion: ((Bool) -> Void)?) {
+        func _update() {
+            if #available(iOS 11.0, *) {
+                performBatchUpdates(update, completion: completion)
+            } else {
+                beginUpdates()
+                CATransaction.setCompletionBlock { completion?(true) }
+                update()
+                endUpdates()
             }
-            update()
-            endUpdates()
+        }
+        if animated {
+            _update()
+        } else {
+            CATransaction.begin()
+            CATransaction.setDisableActions(true)
+            _update()
+            CATransaction.commit()
         }
     }
     

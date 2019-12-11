@@ -8,7 +8,6 @@
 class NSCoordinator<SourceBase: NSDataSource>: ListCoordinator<SourceBase> {
     let itemClosure: (Int, Int) -> Item
     let configSourceIndices: (NSCoordinator<SourceBase>) -> Void
-    override var source: Void { () }
     
     override func item<Path: PathConvertible>(at path: Path) -> Item {
         itemClosure(path.section, path.item)

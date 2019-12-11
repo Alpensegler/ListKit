@@ -5,29 +5,23 @@
 //  Created by Frain on 2019/12/5.
 //
 
+public protocol UpdatableDataSource: DataSource {
+    var coordinatorStorage: CoordinatorStorage<SourceBase> { get }
+    
+    func performUpdate(animated: Bool, completion: ((Bool) -> Void)?)
+    func performReloadCurrent(animated: Bool, completion: ((Bool) -> Void)?)
+    func performReloadData(_ completion: ((Bool) -> Void)?)
+}
+
 public class CoordinatorStorage<Source: DataSource> {
-    var coordinator: ListCoordinator<Source>! {
-        didSet {
-            coordinator.didUpdateToCoordinator.append { [weak self] (old, new) in
-                self?.coordinator = new as? ListCoordinator<Source>
-            }
-        }
-    }
+    var coordinator: ListCoordinator<Source>!
     
     public init() { }
 }
 
-public protocol UpdatableDataSource: DataSource {
-    var coordinatorStorage: CoordinatorStorage<SourceBase> { get }
-}
-
 public extension UpdatableDataSource {
     var listCoordinator: ListCoordinator<SourceBase> {
-        coordinatorStorage.coordinator ?? {
-            let coordinator = makeListCoordinator()
-            coordinatorStorage.coordinator = coordinator
-            return coordinator
-        }()
+        coordinatorStorage.coordinator ?? makeListCoordinator()
     }
     
     func performUpdate(animated: Bool = true, completion: ((Bool) -> Void)? = nil) {

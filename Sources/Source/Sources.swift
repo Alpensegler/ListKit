@@ -6,7 +6,7 @@
 //
 
 public struct Sources<Source, Item>: UpdatableDataSource {
-    public var source: Source
+    public let source: Source
     
     public var updater: Updater<Self> {
         fatalError()

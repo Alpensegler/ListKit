@@ -23,8 +23,8 @@ public struct AnyItemSourceBuilder<AnyItemSource: AnyItemSourceConvertible> {
         AnyItemSource(Sources(dataSources: [AnyItemSource]()))
     }
     
-    public static func buildBlock<S0: DataSource>(_ s0: S0) -> AnyItemSource {
-        AnyItemSource(Sources(dataSources: [AnyItemSource(s0)]))
+    public static func buildBlock<S: DataSource>(_ content: S) -> AnyItemSource {
+        AnyItemSource(AnyItemSource(content))
     }
     
     public static func buildBlock<S0: DataSource, S1: DataSource>(_ s0: S0, _ s1: S1) -> AnyItemSource {

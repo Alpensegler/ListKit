@@ -19,6 +19,10 @@ extension CollectionList: AnyCollectionListConvertible where SourceBase: AnySour
 
 @_functionBuilder
 public struct AnyCollectionListBuilder<AnyCollectionList: AnyCollectionListConvertible> {
+    public static func buildIf<S: CollectionListAdapter>(_ content: S?) -> AnyCollectionList where S.Item == AnyCollectionList.Item {
+        AnyCollectionList(content)
+    }
+
     public static func buildEither<TrueContent: CollectionListAdapter>(first: TrueContent) -> AnyCollectionList where TrueContent.Item == AnyCollectionList.Item {
         AnyCollectionList(first)
     }
@@ -31,8 +35,8 @@ public struct AnyCollectionListBuilder<AnyCollectionList: AnyCollectionListConve
         AnyCollectionList(Sources(dataSources: [AnyCollectionList]()).toCollectionList())
     }
     
-    public static func buildBlock<S0: CollectionListAdapter>(_ s0: S0) -> AnyCollectionList where S0.Item == AnyCollectionList.Item {
-        AnyCollectionList(Sources(dataSources: [AnyCollectionList(s0)]).toCollectionList())
+    public static func buildBlock<S: CollectionListAdapter>(_ content: S) -> AnyCollectionList where S.Item == AnyCollectionList.Item {
+        AnyCollectionList(AnyCollectionList(content))
     }
     
     public static func buildBlock<S0: CollectionListAdapter, S1: CollectionListAdapter>(_ s0: S0, _ s1: S1) -> AnyCollectionList where S0.Item == AnyCollectionList.Item, S1.Item == AnyCollectionList.Item {

@@ -5,7 +5,7 @@
 //  Created by Frain on 2019/12/10.
 //
 
-public protocol TableListAdapter: ListAdapter {
+public protocol TableListAdapter: ScrollListAdapter {
     var tableList: TableList<SourceBase> { get }
 }
 
@@ -16,10 +16,10 @@ where Source.SourceBase == Source {
     public typealias Item = Source.Item
     public typealias SourceBase = Source
     
-    public internal(set) var source: Source
-    public internal(set) var updater: Updater<Source>
-    public internal(set) var coordinatorStorage = CoordinatorStorage<Source>()
+    public let source: Source
+    public let coordinatorStorage = CoordinatorStorage<Source>()
     
+    public var updater: Updater<Source> { source.updater }
     public var sourceBase: Source { source }
     public var tableList: TableList<Source> { self }
     public func makeListCoordinator() -> ListCoordinator<Source> {
@@ -36,7 +36,7 @@ where Source.SourceBase == Source {
 
 extension DataSource {
     func toTableList() -> TableList<SourceBase> {
-        let tableList = TableList(source: sourceBase, updater: updater)
+        let tableList = TableList(source: sourceBase)
         tableList.coordinatorStorage.coordinator = listCoordinator
         return tableList
     }

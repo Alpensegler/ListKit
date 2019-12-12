@@ -8,7 +8,7 @@
 import Foundation
 import ObjectiveC.runtime
 
-struct ClosureDelegate<Object: AnyObject, Input, Output> {
+struct Delegate<Object: AnyObject, Input, Output> {
     enum Index {
         case index(KeyPath<Input, Int>)
         case indexPath(KeyPath<Input, IndexPath>)
@@ -39,7 +39,7 @@ struct SelectorSets {
     }
     
     mutating func add<Input, Object, Output>(
-        _ closureDelegate: ClosureDelegate<Object, Input, Output>
+        _ closureDelegate: Delegate<Object, Input, Output>
     ) {
         switch (closureDelegate.index) {
         case (.none): value.insert(closureDelegate.selector)
@@ -48,7 +48,7 @@ struct SelectorSets {
         }
     }
     
-    mutating func add<Input, Object>(_ closureDelegate: ClosureDelegate<Object, Input, Void>) {
+    mutating func add<Input, Object>(_ closureDelegate: Delegate<Object, Input, Void>) {
         void.insert(closureDelegate.selector)
     }
 }

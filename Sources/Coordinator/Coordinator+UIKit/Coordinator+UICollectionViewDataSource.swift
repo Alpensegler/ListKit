@@ -8,7 +8,7 @@
 #if os(iOS) || os(tvOS)
 import UIKit
 
-typealias CollectionDataSource<Input, Output> = ClosureDelegate<UICollectionView, Input, Output>
+typealias CollectionDataSource<Input, Output> = Delegate<UICollectionView, Input, Output>
 
 class UICollectionViewDataSources {
     //Getting Views for Items

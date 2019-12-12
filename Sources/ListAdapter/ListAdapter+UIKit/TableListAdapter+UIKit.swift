@@ -16,7 +16,7 @@ public extension DataSource {
             }
         }
     ) -> TableList<SourceBase> {
-        TableList(source: sourceBase).set(\.tableViewDataSources.cellForRowAt) {
+        toTableList().set(\.tableViewDataSources.cellForRowAt) {
             closure($0.0, $0.0.itemValue)
         }
     }
@@ -34,16 +34,24 @@ public extension DataSource {
     }
 }
 
-public extension TableListAdapter where Self: UpdatableDataSource {
+public extension TableListAdapter {
     @discardableResult
     func onTableViewDidSelectItem(
         _ closure: @escaping (TableIndexPathContext<SourceBase>, Item) -> Void
-    ) -> Self {
-        set(\.tableViewDelegates.didSelectRowAt) { closure($0.0, $0.0.itemValue) }
+    ) -> TableList<SourceBase> {
+        tableList.set(\.tableViewDelegates.didSelectRowAt) { closure($0.0, $0.0.itemValue) }
+    }
+    
+    
+    @discardableResult
+    func onTableViewWillDisplayRow(
+        _ closure: @escaping (TableIndexPathContext<SourceBase>, UITableViewCell, Item) -> Void
+    ) -> TableList<SourceBase> {
+        tableList.set(\.tableViewDelegates.willDisplayForRowAt) { closure($0.0, $0.1.0, $0.0.itemValue) }
     }
     
     @discardableResult
-    func apply(by tableView: UITableView) -> Self { self }
+    func apply(by tableView: UITableView) -> TableList<SourceBase> { tableList }
 }
 
 

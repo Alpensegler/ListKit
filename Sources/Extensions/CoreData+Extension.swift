@@ -12,7 +12,7 @@ open class FetchedResultsController<Item>: NSObject, NSFetchedResultsControllerD
 where Item: NSFetchRequestResult {
     open var fetchedResultController: NSFetchedResultsController<Item>
 
-    public init(fetchedResultController: NSFetchedResultsController<Item>) {
+    public init(_ fetchedResultController: NSFetchedResultsController<Item>) {
         self.fetchedResultController = fetchedResultController
         super.init()
         self.fetchedResultController.delegate = self

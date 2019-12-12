@@ -95,7 +95,7 @@ class WrapperCoordinator<SourceBase: DataSource>: ListCoordinator<SourceBase> {
     }
     
     override func apply<Object: AnyObject, Input, Output>(
-        _ keyPath: KeyPath<BaseCoordinator, ClosureDelegate<Object, Input, Output>>,
+        _ keyPath: KeyPath<BaseCoordinator, Delegate<Object, Input, Output>>,
         object: Object,
         with input: Input
     ) -> Output {
@@ -105,7 +105,7 @@ class WrapperCoordinator<SourceBase: DataSource>: ListCoordinator<SourceBase> {
     }
     
     override func apply<Object: AnyObject, Input>(
-        _ keyPath: KeyPath<BaseCoordinator, ClosureDelegate<Object, Input, Void>>,
+        _ keyPath: KeyPath<BaseCoordinator, Delegate<Object, Input, Void>>,
         object: Object,
         with input: Input
     ) {

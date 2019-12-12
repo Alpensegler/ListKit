@@ -116,7 +116,7 @@ public class BaseCoordinator: NSObject {
     
     //Responding
     func apply<Object: AnyObject, Input, Output>(
-        _ keyPath: KeyPath<BaseCoordinator, ClosureDelegate<Object, Input, Output>>,
+        _ keyPath: KeyPath<BaseCoordinator, Delegate<Object, Input, Output>>,
         object: Object,
         with input: Input
     ) -> Output {
@@ -124,7 +124,7 @@ public class BaseCoordinator: NSObject {
     }
     
     func apply<Object: AnyObject, Input>(
-        _ keyPath: KeyPath<BaseCoordinator, ClosureDelegate<Object, Input, Void>>,
+        _ keyPath: KeyPath<BaseCoordinator, Delegate<Object, Input, Void>>,
         object: Object,
         with input: Input
     ) {
@@ -163,21 +163,21 @@ extension BaseCoordinator {
     }
     
     func apply<Object: AnyObject, Output>(
-        _ keyPath: KeyPath<BaseCoordinator, ClosureDelegate<Object, Void, Output>>,
+        _ keyPath: KeyPath<BaseCoordinator, Delegate<Object, Void, Output>>,
         object: Object
     ) -> Output {
         apply(keyPath, object: object, with: ())
     }
     
     func apply<Object: AnyObject>(
-        _ keyPath: KeyPath<BaseCoordinator, ClosureDelegate<Object, Void, Void>>,
+        _ keyPath: KeyPath<BaseCoordinator, Delegate<Object, Void, Void>>,
         object: Object
     ) {
         apply(keyPath, object: object, with: ())
     }
     
     func set<Object: AnyObject, Input, Output>(
-        _ keyPath: ReferenceWritableKeyPath<BaseCoordinator, ClosureDelegate<Object, Input, Output>>,
+        _ keyPath: ReferenceWritableKeyPath<BaseCoordinator, Delegate<Object, Input, Output>>,
         _ closure: @escaping ((Object, Input)) -> Output
     ) {
         self[keyPath: keyPath].closure = { closure(($0, $1)) }
@@ -190,7 +190,7 @@ extension BaseCoordinator {
     }
 
     func set<Object: AnyObject, Input>(
-        _ keyPath: ReferenceWritableKeyPath<BaseCoordinator, ClosureDelegate<Object, Input, Void>>,
+        _ keyPath: ReferenceWritableKeyPath<BaseCoordinator, Delegate<Object, Input, Void>>,
         _ closure: @escaping ((Object, Input)) -> Void
     ) {
         self[keyPath: keyPath].closure = { closure(($0, $1)) }

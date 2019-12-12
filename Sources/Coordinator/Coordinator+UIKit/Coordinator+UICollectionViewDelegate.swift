@@ -9,7 +9,7 @@
 import UIKit
 
 class UICollectionViewDelegates {
-    typealias Delegate<Input, Output> = ClosureDelegate<UICollectionView, Input, Output>
+    typealias Delegate<Input, Output> = ListKit.Delegate<UICollectionView, Input, Output>
     
     //Managing the Selected Cells
     var shouldSelectItemAt = Delegate<IndexPath, Bool>(

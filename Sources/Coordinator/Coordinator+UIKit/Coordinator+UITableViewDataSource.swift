@@ -9,7 +9,7 @@
 import UIKit
 
 class UITableViewDataSources {
-    typealias Delegate<Input, Output> = ClosureDelegate<UITableView, Input, Output>
+    typealias Delegate<Input, Output> = ListKit.Delegate<UITableView, Input, Output>
 
     //Providing Cells, Headers, and Footers
     var cellForRowAt = Delegate<IndexPath, UITableViewCell>(

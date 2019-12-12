@@ -9,7 +9,7 @@
 import UIKit
 
 class UIScrollViewDelegates {
-    typealias Delegate<Input, Output> = ClosureDelegate<UIScrollView, Input, Output>
+    typealias Delegate<Input, Output> = ListKit.Delegate<UIScrollView, Input, Output>
     
     var didScroll = Delegate<Void, Void>(
         #selector(UIScrollViewDelegate.scrollViewDidScroll(_:))

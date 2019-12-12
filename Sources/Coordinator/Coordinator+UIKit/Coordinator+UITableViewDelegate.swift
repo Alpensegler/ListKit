@@ -9,7 +9,7 @@
 import UIKit
 
 class UITableViewDelegates {
-    typealias Delegate<Input, Output> = ClosureDelegate<UITableView, Input, Output>
+    typealias Delegate<Input, Output> = ListKit.Delegate<UITableView, Input, Output>
     
     //Configuring Rows for the Table View
     var willDisplayForRowAt = Delegate<(UITableViewCell, IndexPath), Void>(

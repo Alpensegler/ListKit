@@ -9,7 +9,7 @@ public protocol ListAdapter: DataSource { }
 
 extension ListAdapter {
     func set<Object: AnyObject, Input, Output>(
-        _ keyPath: ReferenceWritableKeyPath<BaseCoordinator, ClosureDelegate<Object, Input, Output>>,
+        _ keyPath: ReferenceWritableKeyPath<BaseCoordinator, Delegate<Object, Input, Output>>,
         _ closure: @escaping ((Object, Input)) -> Output
     ) -> Self {
         listCoordinator.set(keyPath, closure)
@@ -17,7 +17,7 @@ extension ListAdapter {
     }
 
     func set<Object: AnyObject, Input>(
-        _ keyPath: ReferenceWritableKeyPath<BaseCoordinator, ClosureDelegate<Object, Input, Void>>,
+        _ keyPath: ReferenceWritableKeyPath<BaseCoordinator, Delegate<Object, Input, Void>>,
         _ closure: @escaping ((Object, Input)) -> Void
     ) -> Self {
         listCoordinator.set(keyPath, closure)

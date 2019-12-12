@@ -9,7 +9,7 @@
 import UIKit
 
 class UICollectionViewDelegateFlowLayouts {
-    typealias Delegate<Input, Output> = ClosureDelegate<UICollectionView, Input, Output>
+    typealias Delegate<Input, Output> = ListKit.Delegate<UICollectionView, Input, Output>
     
     //Getting the Size of Items
     var layoutSizeForItemAt = Delegate<(UICollectionViewLayout, IndexPath), CGSize>(

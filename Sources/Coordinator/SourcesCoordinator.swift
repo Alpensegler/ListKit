@@ -91,7 +91,7 @@ where
     }
     
     override func apply<Object: AnyObject, Input, Output>(
-        _ keyPath: KeyPath<BaseCoordinator, ClosureDelegate<Object, Input, Output>>,
+        _ keyPath: KeyPath<BaseCoordinator, Delegate<Object, Input, Output>>,
         object: Object,
         with input: Input
     ) -> Output {
@@ -102,7 +102,7 @@ where
     }
     
     override func apply<Object: AnyObject, Input>(
-        _ keyPath: KeyPath<BaseCoordinator, ClosureDelegate<Object, Input, Void>>,
+        _ keyPath: KeyPath<BaseCoordinator, Delegate<Object, Input, Void>>,
         object: Object,
         with input: Input
     ) {
@@ -174,7 +174,7 @@ where
     }
     
     func subcoordinator<Object: AnyObject, Input, Output>(
-        for closureDelegate: ClosureDelegate<Object, Input, Output>,
+        for closureDelegate: Delegate<Object, Input, Output>,
         object: Object,
         with input: Input
     ) -> BaseCoordinator? {

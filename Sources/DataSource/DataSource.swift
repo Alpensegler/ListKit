@@ -35,14 +35,3 @@ extension DataSource {
     var baseCoordinator: BaseCoordinator { listCoordinator }
     var itemTypedCoordinator: ItemTypedCoorinator<Item> { listCoordinator }
 }
-
-extension Optional: DataSource where Wrapped: DataSource {
-    public typealias Item = Wrapped.Item
-    public typealias Source = Self
-    
-    public var source: Source { self }
-    public var updater: Updater<Self> { .none }
-    
-    public func makeListCoordinator() -> ListCoordinator<Self> { .init() }
-    
-}

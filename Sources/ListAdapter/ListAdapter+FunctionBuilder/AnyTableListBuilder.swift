@@ -19,6 +19,10 @@ extension TableList: AnyTableListConvertible where SourceBase: AnySourceConverti
 
 @_functionBuilder
 public struct AnyTableListBuilder<AnyTableList: AnyTableListConvertible> {
+    public static func buildIf<S: TableListAdapter>(_ content: S?) -> AnyTableList where S.Item == AnyTableList.Item {
+        AnyTableList(content)
+    }
+
     public static func buildEither<TrueContent: TableListAdapter>(first: TrueContent) -> AnyTableList where TrueContent.Item == AnyTableList.Item {
         AnyTableList(first)
     }
@@ -31,8 +35,8 @@ public struct AnyTableListBuilder<AnyTableList: AnyTableListConvertible> {
         AnyTableList(Sources(dataSources: [AnyTableList]()).toTableList())
     }
     
-    public static func buildBlock<S0: TableListAdapter>(_ s0: S0) -> AnyTableList where S0.Item == AnyTableList.Item {
-        AnyTableList(Sources(dataSources: [AnyTableList(s0)]).toTableList())
+    public static func buildBlock<S: TableListAdapter>(_ content: S) -> AnyTableList where S.Item == AnyTableList.Item {
+        AnyTableList(AnyTableList(content))
     }
     
     public static func buildBlock<S0: TableListAdapter, S1: TableListAdapter>(_ s0: S0, _ s1: S1) -> AnyTableList where S0.Item == AnyTableList.Item, S1.Item == AnyTableList.Item {

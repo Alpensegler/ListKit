@@ -5,7 +5,7 @@
 //  Created by Frain on 2019/11/23.
 //
 
-public protocol CollectionListAdapter: ListAdapter {
+public protocol CollectionListAdapter: ScrollListAdapter {
     var collectionList: CollectionList<SourceBase> { get }
 }
 
@@ -16,10 +16,10 @@ where Source.SourceBase == Source {
     public typealias Item = Source.Item
     public typealias SourceBase = Source
     
-    public internal(set) var source: Source
-    public internal(set) var updater: Updater<Source>
-    public internal(set) var coordinatorStorage = CoordinatorStorage<Source>()
+    public let source: Source
+    public let coordinatorStorage = CoordinatorStorage<Source>()
     
+    public var updater: Updater<Source> { source.updater }
     public var sourceBase: Source { source }
     public var collectionList: CollectionList<Source> { self }
     public func makeListCoordinator() -> ListCoordinator<Source> {
@@ -36,7 +36,7 @@ where Source.SourceBase == Source {
 
 extension DataSource {
     func toCollectionList() -> CollectionList<SourceBase> {
-        let collectionList = CollectionList(source: sourceBase, updater: updater)
+        let collectionList = CollectionList(source: sourceBase)
         collectionList.coordinatorStorage.coordinator = listCoordinator
         return collectionList
     }

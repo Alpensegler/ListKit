@@ -15,7 +15,7 @@ extension Optional: DataSource where Wrapped: DataSource {
     public func makeListCoordinator() -> ListCoordinator<Self> { .init() }
 }
 
-extension Optional: ListAdapter where Wrapped: ListAdapter { }
+extension Optional: ScrollListAdapter where Wrapped: ScrollListAdapter { }
 extension Optional: TableListAdapter where Wrapped: TableListAdapter {
     public var tableList: TableList<Self> { toTableList() }
 }

@@ -10,7 +10,7 @@ import UIKit
 
 public extension DataSource {
     func provideTableViewCell(
-        _ closure: @escaping (TableIndexPathContext<SourceBase>, Item) -> UITableViewCell = { (context, item) in
+        _ closure: @escaping (TableItemContext<SourceBase>, Item) -> UITableViewCell = { (context, item) in
             context.dequeueReusableCell(UITableViewCell.self) {
                 $0.textLabel?.text = "\(item)"
             }
@@ -24,7 +24,7 @@ public extension DataSource {
     func provideTableViewCell<Cell: UITableViewCell>(
         _ cellClass: Cell.Type,
         identifier: String = "",
-        _ closure: @escaping (Cell, TableIndexPathContext<SourceBase>, Item) -> Void
+        _ closure: @escaping (Cell, TableItemContext<SourceBase>, Item) -> Void
     ) -> TableList<SourceBase> {
         provideTableViewCell { (context, item) in
             context.dequeueReusableCell(cellClass, identifier: identifier) {
@@ -48,14 +48,14 @@ public extension TableListAdapter {
     //Providing Cells, Headers, and Footers
     @discardableResult
     func provideTableViewHeaderTitle(
-        _ closure: @escaping (TableIndexContext<SourceBase>) -> String?
+        _ closure: @escaping (TableSectionContext<SourceBase>) -> String?
     ) -> TableList<SourceBase> {
         set(\.tableViewDataSources.titleForHeaderInSection) { closure($0.0) }
     }
     
     @discardableResult
     func provideTableViewFooterTitle(
-        _ closure: @escaping (TableIndexContext<SourceBase>) -> String?
+        _ closure: @escaping (TableSectionContext<SourceBase>) -> String?
     ) -> TableList<SourceBase> {
         set(\.tableViewDataSources.titleForFooterInSection) { closure($0.0) }
     }
@@ -63,14 +63,14 @@ public extension TableListAdapter {
     //Inserting or Deleting Table Rows
     @discardableResult
     func tableViewCommitEdittingStyleForItem(
-        _ closure: @escaping (TableIndexPathContext<SourceBase>, UITableViewCell.EditingStyle, Item) -> Void
+        _ closure: @escaping (TableItemContext<SourceBase>, UITableViewCell.EditingStyle, Item) -> Void
     ) -> TableList<SourceBase> {
         set(\.tableViewDataSources.commitForRowAt) { closure($0.0, $0.1.0, $0.0.itemValue) }
     }
     
     @discardableResult
     func tableViewCanEditItem(
-        _ closure: @escaping (TableIndexPathContext<SourceBase>, Item) -> Bool
+        _ closure: @escaping (TableItemContext<SourceBase>, Item) -> Bool
     ) -> TableList<SourceBase> {
         set(\.tableViewDataSources.canEditRowAt) { closure($0.0, $0.0.itemValue) }
     }
@@ -78,7 +78,7 @@ public extension TableListAdapter {
     //Reordering Table Rows
     @discardableResult
     func tableViewCanMoveItem(
-        _ closure: @escaping (TableIndexPathContext<SourceBase>, Item) -> Bool
+        _ closure: @escaping (TableItemContext<SourceBase>, Item) -> Bool
     ) -> TableList<SourceBase> {
         set(\.tableViewDataSources.canMoveRowAt) { closure($0.0, $0.0.itemValue) }
     }
@@ -111,14 +111,14 @@ public extension TableListAdapter {
     //Configuring Rows for the Table View
     @discardableResult
     func tableViewWillDisplayItem(
-        _ closure: @escaping (TableIndexPathContext<SourceBase>, UITableViewCell, Item) -> Void
+        _ closure: @escaping (TableItemContext<SourceBase>, UITableViewCell, Item) -> Void
     ) -> TableList<SourceBase> {
         set(\.tableViewDelegates.willDisplayForRowAt) { closure($0.0, $0.1.0, $0.0.itemValue) }
     }
     
     @discardableResult
     func tableViewIndentationLevelForItem(
-        _ closure: @escaping (TableIndexPathContext<SourceBase>, Item) -> Int
+        _ closure: @escaping (TableItemContext<SourceBase>, Item) -> Int
     ) -> TableList<SourceBase> {
         set(\.tableViewDelegates.indentationLevelForRowAt) { closure($0.0, $0.0.itemValue) }
     }
@@ -126,7 +126,7 @@ public extension TableListAdapter {
     @available(iOS 11.0, *)
     @discardableResult
     func tableViewShouldSpringLoadItem(
-        _ closure: @escaping (TableIndexPathContext<SourceBase>, UISpringLoadedInteractionContext, Item) -> Bool
+        _ closure: @escaping (TableItemContext<SourceBase>, UISpringLoadedInteractionContext, Item) -> Bool
     ) -> TableList<SourceBase> {
         set(\.tableViewDelegates.springLoadRowAtWith) { closure($0.0, $0.1.1, $0.0.itemValue) }
     }
@@ -134,28 +134,28 @@ public extension TableListAdapter {
     //Responding to Row Selections
     @discardableResult
     func tableViewWillSelectItem(
-        _ closure: @escaping (TableIndexPathContext<SourceBase>, Item) -> IndexPath?
+        _ closure: @escaping (TableItemContext<SourceBase>, Item) -> IndexPath?
     ) -> TableList<SourceBase> {
         set(\.tableViewDelegates.willSelectRowAt) { closure($0.0, $0.0.itemValue) }
     }
     
     @discardableResult
     func tableViewDidSelectItem(
-        _ closure: @escaping (TableIndexPathContext<SourceBase>, Item) -> Void
+        _ closure: @escaping (TableItemContext<SourceBase>, Item) -> Void
     ) -> TableList<SourceBase> {
         set(\.tableViewDelegates.didSelectRowAt) { closure($0.0, $0.0.itemValue) }
     }
     
     @discardableResult
     func tableViewWillDeselectItem(
-        _ closure: @escaping (TableIndexPathContext<SourceBase>, Item) -> IndexPath?
+        _ closure: @escaping (TableItemContext<SourceBase>, Item) -> IndexPath?
     ) -> TableList<SourceBase> {
         set(\.tableViewDelegates.willDeselectRowAt) { closure($0.0, $0.0.itemValue) }
     }
     
     @discardableResult
     func tableViewDidDeselectItem(
-        _ closure: @escaping (TableIndexPathContext<SourceBase>, Item) -> Void
+        _ closure: @escaping (TableItemContext<SourceBase>, Item) -> Void
     ) -> TableList<SourceBase> {
         set(\.tableViewDelegates.didDeselectRowAt) { closure($0.0, $0.0.itemValue) }
     }
@@ -163,7 +163,7 @@ public extension TableListAdapter {
     @available(iOS 13.0, *)
     @discardableResult
     func tableViewShouldBeginMultipleSelectionInteraction(
-        _ closure: @escaping (TableIndexPathContext<SourceBase>, Item) -> Bool
+        _ closure: @escaping (TableItemContext<SourceBase>, Item) -> Bool
     ) -> TableList<SourceBase> {
         set(\.tableViewDelegates.shouldBeginMultipleSelectionInteractionAt) { closure($0.0, $0.0.itemValue) }
     }
@@ -171,7 +171,7 @@ public extension TableListAdapter {
     @available(iOS 13.0, *)
     @discardableResult
     func tableViewDidBeginMultipleSelectionInteraction(
-        _ closure: @escaping (TableIndexPathContext<SourceBase>, Item) -> Void
+        _ closure: @escaping (TableItemContext<SourceBase>, Item) -> Void
     ) -> TableList<SourceBase> {
         set(\.tableViewDelegates.didBeginMultipleSelectionInteractionAt) { closure($0.0, $0.0.itemValue) }
     }
@@ -187,28 +187,28 @@ public extension TableListAdapter {
     //Providing Custom Header and Footer Views
     @discardableResult
     func provideTableViewViewHeader(
-        _ closure: @escaping (TableIndexContext<SourceBase>) -> UIView?
+        _ closure: @escaping (TableSectionContext<SourceBase>) -> UIView?
     ) -> TableList<SourceBase> {
         set(\.tableViewDelegates.viewForHeaderInSection) { closure($0.0) }
     }
     
     @discardableResult
     func provideTableViewViewFooter(
-        _ closure: @escaping (TableIndexContext<SourceBase>) -> UIView?
+        _ closure: @escaping (TableSectionContext<SourceBase>) -> UIView?
     ) -> TableList<SourceBase> {
         set(\.tableViewDelegates.viewForFooterInSection) { closure($0.0) }
     }
     
     @discardableResult
     func tableViewWillDisplayHeaderView(
-        _ closure: @escaping (TableIndexContext<SourceBase>, UIView) -> Void
+        _ closure: @escaping (TableSectionContext<SourceBase>, UIView) -> Void
     ) -> TableList<SourceBase> {
         set(\.tableViewDelegates.willDisplayHeaderViewForSection) { closure($0.0, $0.1.0) }
     }
     
     @discardableResult
     func tableViewWillDisplayFooterView(
-        _ closure: @escaping (TableIndexContext<SourceBase>, UIView) -> Void
+        _ closure: @escaping (TableSectionContext<SourceBase>, UIView) -> Void
     ) -> TableList<SourceBase> {
         set(\.tableViewDelegates.willDisplayFooterViewForSection) { closure($0.0, $0.1.0) }
     }
@@ -216,21 +216,21 @@ public extension TableListAdapter {
     //Providing Header, Footer, and Row Heights
     @discardableResult
     func tableViewHeightForItem(
-        _ closure: @escaping (TableIndexPathContext<SourceBase>, Item) -> CGFloat
+        _ closure: @escaping (TableItemContext<SourceBase>, Item) -> CGFloat
     ) -> TableList<SourceBase> {
         set(\.tableViewDelegates.heightForRowAt) { closure($0.0, $0.0.itemValue) }
     }
     
     @discardableResult
     func tableViewHeightForHeader(
-        _ closure: @escaping (TableIndexContext<SourceBase>) -> CGFloat
+        _ closure: @escaping (TableSectionContext<SourceBase>) -> CGFloat
     ) -> TableList<SourceBase> {
         set(\.tableViewDelegates.heightForHeaderInSection) { closure($0.0) }
     }
     
     @discardableResult
     func tableViewHeightForFooter(
-        _ closure: @escaping (TableIndexContext<SourceBase>) -> CGFloat
+        _ closure: @escaping (TableSectionContext<SourceBase>) -> CGFloat
     ) -> TableList<SourceBase> {
         set(\.tableViewDelegates.heightForFooterInSection) { closure($0.0) }
     }
@@ -238,21 +238,21 @@ public extension TableListAdapter {
     //Estimating Heights for the Table's Content
     @discardableResult
     func tableViewEstimatedHeightForItem(
-        _ closure: @escaping (TableIndexPathContext<SourceBase>, Item) -> CGFloat
+        _ closure: @escaping (TableItemContext<SourceBase>, Item) -> CGFloat
     ) -> TableList<SourceBase> {
         set(\.tableViewDelegates.estimatedHeightForRowAt) { closure($0.0, $0.0.itemValue) }
     }
     
     @discardableResult
     func tableViewEstimatedHeightForHeader(
-        _ closure: @escaping (TableIndexContext<SourceBase>) -> CGFloat
+        _ closure: @escaping (TableSectionContext<SourceBase>) -> CGFloat
     ) -> TableList<SourceBase> {
         set(\.tableViewDelegates.estimatedHeightForHeaderInSection) { closure($0.0) }
     }
     
     @discardableResult
     func tableViewEstimatedHeightForFooter(
-        _ closure: @escaping (TableIndexContext<SourceBase>) -> CGFloat
+        _ closure: @escaping (TableSectionContext<SourceBase>) -> CGFloat
     ) -> TableList<SourceBase> {
         set(\.tableViewDelegates.estimatedHeightForFooterInSection) { closure($0.0) }
     }
@@ -260,7 +260,7 @@ public extension TableListAdapter {
     //Managing Accessory Views
     @discardableResult
     func tableViewAccessoryButtonTapped(
-        _ closure: @escaping (TableIndexPathContext<SourceBase>, Item) -> Void
+        _ closure: @escaping (TableItemContext<SourceBase>, Item) -> Void
     ) -> TableList<SourceBase> {
         set(\.tableViewDelegates.accessoryButtonTappedForRowWith) { closure($0.0, $0.0.itemValue) }
     }
@@ -269,7 +269,7 @@ public extension TableListAdapter {
     @available(iOS 11.0, *)
     @discardableResult
     func tableViewLeadingSwipeActionsConfiguration(
-        _ closure: @escaping (TableIndexPathContext<SourceBase>, Item) -> UISwipeActionsConfiguration
+        _ closure: @escaping (TableItemContext<SourceBase>, Item) -> UISwipeActionsConfiguration
     ) -> TableList<SourceBase> {
         set(\.tableViewDelegates.leadingSwipeActionsConfigurationForRowAt) { closure($0.0, $0.0.itemValue) }
     }
@@ -277,35 +277,35 @@ public extension TableListAdapter {
     @available(iOS 11.0, *)
     @discardableResult
     func tableViewTrailingSwipeActionsConfiguration(
-        _ closure: @escaping (TableIndexPathContext<SourceBase>, Item) -> UISwipeActionsConfiguration
+        _ closure: @escaping (TableItemContext<SourceBase>, Item) -> UISwipeActionsConfiguration
     ) -> TableList<SourceBase> {
         set(\.tableViewDelegates.trailingSwipeActionsConfigurationForRowAt) { closure($0.0, $0.0.itemValue) }
     }
     
     @discardableResult
     func tableViewShouldShowMenuForItem(
-        _ closure: @escaping (TableIndexPathContext<SourceBase>, Item) -> Bool
+        _ closure: @escaping (TableItemContext<SourceBase>, Item) -> Bool
     ) -> TableList<SourceBase> {
         set(\.tableViewDelegates.shouldShowMenuForRowAt) { closure($0.0, $0.0.itemValue) }
     }
     
     @discardableResult
     func tableViewCanPerformActionWithSender(
-        _ closure: @escaping (TableIndexPathContext<SourceBase>, Selector, Any?, Item) -> Bool
+        _ closure: @escaping (TableItemContext<SourceBase>, Selector, Any?, Item) -> Bool
     ) -> TableList<SourceBase> {
         set(\.tableViewDelegates.canPerformActionForRowAtWithSender) { closure($0.0, $0.1.0, $0.1.2, $0.0.itemValue) }
     }
     
     @discardableResult
     func tableViewPerformActionWithSender(
-        _ closure: @escaping (TableIndexPathContext<SourceBase>, Selector, Any?, Item) -> Void
+        _ closure: @escaping (TableItemContext<SourceBase>, Selector, Any?, Item) -> Void
     ) -> TableList<SourceBase> {
         set(\.tableViewDelegates.performActionForRowAtWithSender) { closure($0.0, $0.1.0, $0.1.2, $0.0.itemValue) }
     }
     
     @discardableResult
     func tableViewEditActionsForItem(
-        _ closure: @escaping (TableIndexPathContext<SourceBase>, Item) -> [UITableViewRowAction]?
+        _ closure: @escaping (TableItemContext<SourceBase>, Item) -> [UITableViewRowAction]?
     ) -> TableList<SourceBase> {
         set(\.tableViewDelegates.editActionsForRowAt) { closure($0.0, $0.0.itemValue) }
     }
@@ -313,21 +313,21 @@ public extension TableListAdapter {
     //Managing Table View Highlights
     @discardableResult
     func tableViewShouldHighlight(
-        _ closure: @escaping (TableIndexPathContext<SourceBase>, Item) -> Bool
+        _ closure: @escaping (TableItemContext<SourceBase>, Item) -> Bool
     ) -> TableList<SourceBase> {
         set(\.tableViewDelegates.shouldHighlightRowAt) { closure($0.0, $0.0.itemValue) }
     }
     
     @discardableResult
     func tableViewDidHighlight(
-        _ closure: @escaping (TableIndexPathContext<SourceBase>, Item) -> Void
+        _ closure: @escaping (TableItemContext<SourceBase>, Item) -> Void
     ) -> TableList<SourceBase> {
         set(\.tableViewDelegates.didHighlightRowAt) { closure($0.0, $0.0.itemValue) }
     }
     
     @discardableResult
     func tableViewDidUnhighlight(
-        _ closure: @escaping (TableIndexPathContext<SourceBase>, Item) -> Void
+        _ closure: @escaping (TableItemContext<SourceBase>, Item) -> Void
     ) -> TableList<SourceBase> {
         set(\.tableViewDelegates.didUnhighlightRowAt) { closure($0.0, $0.0.itemValue) }
     }
@@ -335,7 +335,7 @@ public extension TableListAdapter {
     //Editing Table Rows
     @discardableResult
     func tableViewWillBeginEditing(
-        _ closure: @escaping (TableIndexPathContext<SourceBase>, Item) -> Void
+        _ closure: @escaping (TableItemContext<SourceBase>, Item) -> Void
     ) -> TableList<SourceBase> {
         set(\.tableViewDelegates.willBeginEditingRowAt) { closure($0.0, $0.0.itemValue) }
     }
@@ -349,21 +349,21 @@ public extension TableListAdapter {
     
     @discardableResult
     func tableViewEditingStyle(
-        _ closure: @escaping (TableIndexPathContext<SourceBase>, Item) -> UITableViewCell.EditingStyle
+        _ closure: @escaping (TableItemContext<SourceBase>, Item) -> UITableViewCell.EditingStyle
     ) -> TableList<SourceBase> {
         set(\.tableViewDelegates.editingStyleForRowAt) { closure($0.0, $0.0.itemValue) }
     }
     
     @discardableResult
     func tableViewTitleForDeleteConfirmationButton(
-        _ closure: @escaping (TableIndexPathContext<SourceBase>, Item) -> String?
+        _ closure: @escaping (TableItemContext<SourceBase>, Item) -> String?
     ) -> TableList<SourceBase> {
         set(\.tableViewDelegates.titleForDeleteConfirmationButtonForRowAt) { closure($0.0, $0.0.itemValue) }
     }
     
     @discardableResult
     func tableViewShouldIndentWhileEditing(
-        _ closure: @escaping (TableIndexPathContext<SourceBase>, Item) -> Bool
+        _ closure: @escaping (TableItemContext<SourceBase>, Item) -> Bool
     ) -> TableList<SourceBase> {
         set(\.tableViewDelegates.shouldIndentWhileEditingRowAt) { closure($0.0, $0.0.itemValue) }
     }
@@ -401,7 +401,7 @@ public extension TableListAdapter {
     //Managing Table View Focus
     @discardableResult
     func tableViewCanFocusItem(
-        _ closure: @escaping (TableIndexPathContext<SourceBase>, Item) -> Bool
+        _ closure: @escaping (TableItemContext<SourceBase>, Item) -> Bool
     ) -> TableList<SourceBase> {
         set(\.tableViewDelegates.canFocusRowAt) { closure($0.0, $0.0.itemValue) }
     }
@@ -431,7 +431,7 @@ public extension TableListAdapter {
     @available(iOS 13.0, *)
     @discardableResult
     func tableViewContextMenuConfigurationForItem(
-        _ closure: @escaping (TableIndexPathContext<SourceBase>, CGPoint, Item) -> UIContextMenuConfiguration
+        _ closure: @escaping (TableItemContext<SourceBase>, CGPoint, Item) -> UIContextMenuConfiguration
     ) -> TableList<SourceBase> {
         set(\.tableViewDelegates.contextMenuConfigurationForRowAtPoint) { closure($0.0, $0.1.1, $0.0.itemValue) }
     }

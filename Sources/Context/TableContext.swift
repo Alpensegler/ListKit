@@ -15,7 +15,7 @@ public struct TableContext<Source: DataSource>: Context where Source.SourceBase 
     }
 }
 
-public struct TableIndexContext<Source: DataSource>: IndexContext
+public struct TableSectionContext<Source: DataSource>: SectionContext
 where Source.SourceBase == Source {
     public let listView: TableView
     public let coordinator: ListCoordinator<Source>
@@ -35,7 +35,7 @@ where Source.SourceBase == Source {
     }
 }
 
-public struct TableIndexPathContext<Source: DataSource>: IndexPathContext
+public struct TableItemContext<Source: DataSource>: ItemContext
 where Source.SourceBase == Source {
     public let listView: TableView
     public let coordinator: ListCoordinator<Source>

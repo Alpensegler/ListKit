@@ -69,7 +69,7 @@ extension TableListAdapter {
     
     func set<Input, Output>(
         _ keyPath: ReferenceWritableKeyPath<BaseCoordinator, Delegate<TableView, Input, Output>>,
-        _ closure: @escaping ((TableIndexContext<SourceBase>, Input)) -> Output
+        _ closure: @escaping ((TableSectionContext<SourceBase>, Input)) -> Output
     ) -> TableList<SourceBase> {
         let tableList = self.tableList
         let coordinator = tableList.listCoordinator
@@ -82,7 +82,7 @@ extension TableListAdapter {
     
     func set<Input>(
         _ keyPath: ReferenceWritableKeyPath<BaseCoordinator, Delegate<TableView, Input, Void>>,
-        _ closure: @escaping ((TableIndexContext<SourceBase>, Input)) -> Void
+        _ closure: @escaping ((TableSectionContext<SourceBase>, Input)) -> Void
     ) -> TableList<SourceBase> {
         let tableList = self.tableList
         let coordinator = tableList.listCoordinator
@@ -95,7 +95,7 @@ extension TableListAdapter {
     
     func set<Input, Output>(
         _ keyPath: ReferenceWritableKeyPath<BaseCoordinator, Delegate<TableView, Input, Output>>,
-        _ closure: @escaping ((TableIndexPathContext<SourceBase>, Input)) -> Output
+        _ closure: @escaping ((TableItemContext<SourceBase>, Input)) -> Output
     ) -> TableList<SourceBase> {
         let tableList = self.tableList
         let coordinator = tableList.listCoordinator
@@ -108,7 +108,7 @@ extension TableListAdapter {
     
     func set<Input>(
         _ keyPath: ReferenceWritableKeyPath<BaseCoordinator, Delegate<TableView, Input, Void>>,
-        _ closure: @escaping ((TableIndexPathContext<SourceBase>, Input)) -> Void
+        _ closure: @escaping ((TableItemContext<SourceBase>, Input)) -> Void
     ) -> TableList<SourceBase> {
         let tableList = self.tableList
         let coordinator = tableList.listCoordinator

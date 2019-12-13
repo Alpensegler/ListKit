@@ -69,7 +69,7 @@ extension CollectionListAdapter {
     
     func set<Input, Output>(
         _ keyPath: ReferenceWritableKeyPath<BaseCoordinator, Delegate<CollectionView, Input, Output>>,
-        _ closure: @escaping ((CollectionIndexContext<SourceBase>, Input)) -> Output
+        _ closure: @escaping ((CollectionSectionContext<SourceBase>, Input)) -> Output
     ) -> CollectionList<SourceBase> {
         let collectionList = self.collectionList
         let coordinator = collectionList.listCoordinator
@@ -82,7 +82,7 @@ extension CollectionListAdapter {
     
     func set<Input>(
         _ keyPath: ReferenceWritableKeyPath<BaseCoordinator, Delegate<CollectionView, Input, Void>>,
-        _ closure: @escaping ((CollectionIndexContext<SourceBase>, Input)) -> Void
+        _ closure: @escaping ((CollectionSectionContext<SourceBase>, Input)) -> Void
     ) -> CollectionList<SourceBase> {
         let collectionList = self.collectionList
         let coordinator = collectionList.listCoordinator
@@ -95,7 +95,7 @@ extension CollectionListAdapter {
     
     func set<Input, Output>(
         _ keyPath: ReferenceWritableKeyPath<BaseCoordinator, Delegate<CollectionView, Input, Output>>,
-        _ closure: @escaping ((CollectionIndexPathContext<SourceBase>, Input)) -> Output
+        _ closure: @escaping ((CollectionItemContext<SourceBase>, Input)) -> Output
     ) -> CollectionList<SourceBase> {
         let collectionList = self.collectionList
         let coordinator = collectionList.listCoordinator
@@ -108,7 +108,7 @@ extension CollectionListAdapter {
     
     func set<Input>(
         _ keyPath: ReferenceWritableKeyPath<BaseCoordinator, Delegate<CollectionView, Input, Void>>,
-        _ closure: @escaping ((CollectionIndexPathContext<SourceBase>, Input)) -> Void
+        _ closure: @escaping ((CollectionItemContext<SourceBase>, Input)) -> Void
     ) -> CollectionList<SourceBase> {
         let collectionList = self.collectionList
         let coordinator = collectionList.listCoordinator

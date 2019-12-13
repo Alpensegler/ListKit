@@ -5,18 +5,14 @@
 //  Created by Frain on 2019/12/11.
 //
 
-public protocol AnyItemSourceConvertible: DataSource {
-    init<Source: DataSource>(_ dataSource: Source)
-}
-
-public struct AnyItemSource: UpdatableDataSource, AnyItemSourceConvertible {
+public struct AnySources: UpdatableDataSource {
     public typealias Item = Any
-    var coordinatorMaker: (Self) -> ListCoordinator<AnyItemSource>
+    var coordinatorMaker: (Self) -> ListCoordinator<AnySources>
     
     public let source: Any
     public let updater: Updater<Self>
-    public let coordinatorStorage = CoordinatorStorage<AnyItemSource>()
-    public func makeListCoordinator() -> ListCoordinator<AnyItemSource> { coordinatorMaker(self) }
+    public var coordinatorStorage = CoordinatorStorage<AnySources>()
+    public func makeListCoordinator() -> ListCoordinator<AnySources> { coordinatorMaker(self) }
     
     public init<Source: DataSource>(_ dataSource: Source) {
         let updater = dataSource.updater

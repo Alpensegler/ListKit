@@ -9,11 +9,11 @@ class ItemsCoordinator<SourceBase: DataSource>: SourceStoredListCoordinator<Sour
 where SourceBase.Source: Collection, SourceBase.Item == SourceBase.Source.Element {
     var items = [Item]()
     override var sourceType: SourceType {
-        didSet {
-            guard sourceType != oldValue else { return }
-            configSourceIndices()
-        }
+        get { selectorSets.hasIndex ? .section : .cell }
+        set { fatalError() }
     }
+    
+    override var isEmpty: Bool { sourceType == .cell && items.isEmpty }
     
     override func item<Path: PathConvertible>(at path: Path) -> Item { items[path.item] }
     

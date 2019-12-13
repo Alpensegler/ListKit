@@ -74,7 +74,6 @@ extension CollectionListAdapter {
         let collectionList = self.collectionList
         let coordinator = collectionList.listCoordinator
         guard case let .index(path) = coordinator[keyPath: keyPath].index else { fatalError() }
-        coordinator.changeToSectionSource()
         coordinator.set(keyPath) { [unowned coordinator] in
             closure((.init($0.0, coordinator, section: $0.1[keyPath: path]), $0.1))
         }
@@ -88,7 +87,6 @@ extension CollectionListAdapter {
         let collectionList = self.collectionList
         let coordinator = collectionList.listCoordinator
         guard case let .index(path) = coordinator[keyPath: keyPath].index else { fatalError() }
-        coordinator.changeToSectionSource()
         coordinator.set(keyPath) { [unowned coordinator] in
             closure((.init($0.0, coordinator, section: $0.1[keyPath: path]), $0.1))
         }

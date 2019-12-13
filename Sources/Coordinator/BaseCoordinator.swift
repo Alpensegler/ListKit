@@ -95,6 +95,7 @@ public class BaseCoordinator: NSObject {
     var sourceType = SourceType.cell
     var sourceIndices = [SourceIndices]()
     var rangeReplacable = false
+    var isEmpty: Bool { false }
     
     var anySource: Any { fatalError() }
     
@@ -111,7 +112,16 @@ public class BaseCoordinator: NSObject {
     
     func anySourceUpdate(to sources: [AnyDiffableSourceValue]) { fatalError() }
     
-    func changeToSectionSource() { sourceType = .section }
+    func addToSelectorSet(_ subselectorSets: inout SelectorSets, isAll: Bool = false) {
+        guard !isAll else {
+            subselectorSets = selectorSets
+            return
+        }
+        if sourceType == .section {
+            subselectorSets.withIndex.formUnion(selectorSets.withIndex)
+        }
+        subselectorSets.withIndexPath.formUnion(selectorSets.withIndexPath)
+    }
     
     func applyBy(listView: ListView) {
         listView.setupWith(coordinator: self)
@@ -169,8 +179,9 @@ extension BaseCoordinator {
         return (context.sectionOffset, context.itemOffset)
     }
     
-    func initialSelectorSets() -> SelectorSets {
+    func initialSelectorSets(withoutIndex: Bool = false) -> SelectorSets {
         var selectorSets = SelectorSets()
+        selectorSets.withoutIndex = withoutIndex
         
         #if os(iOS) || os(tvOS)
         scrollViewDelegates.add(by: &selectorSets)
@@ -203,11 +214,11 @@ extension BaseCoordinator {
         _ closure: @escaping ((Object, Input)) -> Output
     ) {
         self[keyPath: keyPath].closure = { closure(($0, $1)) }
-        let closure = self[keyPath: keyPath]
-        switch closure.index {
-        case .none: selectorSets.value.remove(closure.selector)
-        case .index: selectorSets.withIndex.remove(closure.selector)
-        case .indexPath: selectorSets.withIndexPath.remove(closure.selector)
+        let delegate = self[keyPath: keyPath]
+        switch delegate.index {
+        case .none: selectorSets.value.remove(delegate.selector)
+        case .index: selectorSets.withIndex.remove(delegate.selector)
+        case .indexPath: selectorSets.withIndexPath.remove(delegate.selector)
         }
     }
 
@@ -216,8 +227,8 @@ extension BaseCoordinator {
         _ closure: @escaping ((Object, Input)) -> Void
     ) {
         self[keyPath: keyPath].closure = { closure(($0, $1)) }
-        let closure = self[keyPath: keyPath]
-        selectorSets.void.remove(closure.selector)
+        let delegate = self[keyPath: keyPath]
+        selectorSets.void.remove(delegate.selector)
     }
 }
 

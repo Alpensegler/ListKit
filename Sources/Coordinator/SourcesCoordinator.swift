@@ -16,12 +16,17 @@ where
     var subsources = [SourceBase.Source.Element]()
     var subitemCoordinators = [ItemTypedCoorinator<Item>]()
     var anysubCoordinators: [BaseCoordinator] { subitemCoordinators }
-    var sectionedSourceIndices = [SourceIndices]()
     var subsourcesHasSectioned = false
+    override var sourceType: SourceType {
+        get { subsourcesHasSectioned || selectorSets.hasIndex ? .section : .cell }
+        set { fatalError() }
+    }
     
-    lazy var subselectorSets = initialSelectorSets()
+    lazy var subselectorSets = initialSelectorSets(withoutIndex: true)
     
     var offsets = [Path]()
+    
+    override var isEmpty: Bool { sourceIndices.isEmpty }
     
     override func item<Path: PathConvertible>(at path: Path) -> Item {
         let indexAt = index(of: path)
@@ -119,6 +124,7 @@ where
     override func setup() {
         setupCoordinators()
         configIndicesAndOffsets()
+        configSubselectorSets()
         rangeReplacable = true
     }
     
@@ -126,7 +132,13 @@ where
         offsets.removeAll(keepingCapacity: true)
         sourceIndices.removeAll(keepingCapacity: true)
         subsourcesHasSectioned = false
+        reconfigSubselectorSets()
         configIndicesAndOffsets()
+    }
+    
+    func reconfigSubselectorSets() {
+        subselectorSets = initialSelectorSets(withoutIndex: true)
+        configSubselectorSets()
     }
     
     func setupCoordinators() {
@@ -153,23 +165,41 @@ where
         for subcoordinator in anysubCoordinators {
             switch (subcoordinator.sourceType, sourceIndices.last) {
             case (.section, _):
-                subsourcesHasSectioned = true
-                offset = Path(section: sourceIndices.count)
                 let sections = subcoordinator.sourceIndices.sections(with: offsets.count)
+                guard !sections.isEmpty else { break }
+                offset = Path(section: sourceIndices.count)
+                subsourcesHasSectioned = true
                 sourceIndices.append(contentsOf: sections)
             case (.cell, .cell(var cells)?):
-                offset.item = cells.count
                 let cellCounts = subcoordinator.numbersOfItems(in: 0)
+                guard cellCounts != 0 else { break }
+                offset.item = cells.count
                 cells.append(contentsOf: repeatElement(offsets.count, count: cellCounts))
                 sourceIndices[sourceIndices.lastIndex] = .cell(indices: cells)
             case (.cell, _):
-                offset = Path(section: sourceIndices.count)
                 let cellCounts = subcoordinator.numbersOfItems(in: 0)
+                guard cellCounts != 0 else { break }
+                offset = Path(section: sourceIndices.count)
                 let indices = Array(repeating: offset.section, count: cellCounts)
                 sourceIndices.append(.cell(indices: indices))
             }
 
             offsets.append(offset)
+        }
+    }
+    
+    func configSubselectorSets() {
+        guard !isEmpty else {
+            subselectorSets = initialSelectorSets()
+            return
+        }
+        let notEmptySubcoordinator = anysubCoordinators.filter { !$0.isEmpty }
+        if notEmptySubcoordinator.count == 1, notEmptySubcoordinator[0].sourceType == sourceType {
+            notEmptySubcoordinator[0].addToSelectorSet(&subselectorSets, isAll: true)
+            return
+        }
+        for coordinator in notEmptySubcoordinator {
+            coordinator.addToSelectorSet(&subselectorSets)
         }
     }
     

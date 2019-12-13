@@ -30,6 +30,8 @@ struct SelectorSets {
     var value = Set<Selector>()
     var withIndex = Set<Selector>()
     var withIndexPath = Set<Selector>()
+    var withoutIndex = false
+    var hasIndex = false
     
     func contains(_ selector: Selector) -> Bool {
         withIndexPath.contains(selector)
@@ -41,14 +43,18 @@ struct SelectorSets {
     mutating func add<Input, Object, Output>(
         _ closureDelegate: Delegate<Object, Input, Output>
     ) {
-        switch (closureDelegate.index) {
-        case (.none): value.insert(closureDelegate.selector)
-        case (.index): withIndex.insert(closureDelegate.selector)
-        case (.indexPath): withIndexPath.insert(closureDelegate.selector)
+        switch (closureDelegate.index, withoutIndex) {
+        case (.none, _): value.insert(closureDelegate.selector)
+        case (.indexPath, false): withIndexPath.insert(closureDelegate.selector)
+        case (.index, false):
+            withIndex.insert(closureDelegate.selector)
+            hasIndex = true
+        default: break
         }
     }
     
     mutating func add<Input, Object>(_ closureDelegate: Delegate<Object, Input, Void>) {
         void.insert(closureDelegate.selector)
+        if case .index = closureDelegate.index { hasIndex = true }
     }
 }

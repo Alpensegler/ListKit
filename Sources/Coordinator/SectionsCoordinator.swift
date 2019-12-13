@@ -15,6 +15,8 @@ where
     
     override func item<Path: PathConvertible>(at path: Path) -> Item { sections[path] }
     
+    override var isEmpty: Bool { sections.isEmpty }
+    
     override func setup() {
         sections = source.map { $0.map { $0 } }
         sourceType = .section

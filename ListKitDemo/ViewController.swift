@@ -12,16 +12,14 @@ import ListKit
 class ViewController: UIViewController, TableListAdapter, UpdatableDataSource {
     @IBOutlet weak var tableView: UITableView! { didSet { apply(by: tableView) } }
     
-    typealias Item = Int
-    var source: AnyTableList<Item> {
-        AnySource {
-            AnySource {
-                Sources(item: 1)
-                Sources(items: 0..<10)
-            }
-            Sources(item: 1)
-            Sources(items: 0..<10)
-        }.provideTableViewCell()
+    typealias Item = Any
+    var source: AnyItemTableList {
+        AnyItemTableList {
+            Sources(items: ["a", "b", "c"])
+                .provideTableViewCell()
+            Sources(items: [1, 2, 3])
+                .provideTableViewCell()
+        }
     }
 }
 

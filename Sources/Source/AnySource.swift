@@ -22,7 +22,7 @@ public struct AnySource<Item>: UpdatableDataSource, AnySourceConvertible {
         let differ = Differ<Self>(differ: updater.source) { (($0.source) as? Source)?.sourceBase }
         self.source = dataSource
         self.updater = Updater(source: differ, item: updater.item)
-        coordinatorMaker = { AnyItemSourceCoordinator(dataSource, coordinator: dataSource.makeListCoordinator()) }
+        coordinatorMaker = { AnyItemSourceCoordinator(dataSource, coordinator: dataSource.listCoordinator) }
         coordinatorStorage.coordinator = AnyItemSourceCoordinator(dataSource, coordinator: dataSource.listCoordinator)
     }
 }

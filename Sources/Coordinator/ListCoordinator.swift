@@ -118,13 +118,30 @@ class WrapperCoordinator<SourceBase: DataSource>: ListCoordinator<SourceBase> {
         super.apply(keyPath, object: object, with: input)
     }
     
-    override func changeToSectionSource() {
-        wrappedCoodinator.changeToSectionSource()
+    override func addToSelectorSet(_ subselectorSets: inout SelectorSets, isAll: Bool = false) {
+        guard !isAll else {
+            subselectorSets = allSelectorSets()
+            return
+        }
+        if sourceType == .section {
+            subselectorSets.withIndex.formUnion(selectorSets.withIndex.intersection(wrappedCoodinator.selectorSets.withIndex))
+        }
+        subselectorSets.withIndexPath.formUnion(selectorSets.withIndexPath.intersection(wrappedCoodinator.selectorSets.withIndexPath))
     }
     
     override func applyBy(listView: ListView, sectionOffset: Int, itemOffset: Int) {
         super.applyBy(listView: listView, sectionOffset: sectionOffset, itemOffset: itemOffset)
         wrappedCoodinator.applyBy(listView: listView, sectionOffset: sectionOffset, itemOffset: itemOffset)
+    }
+    
+    func allSelectorSets() -> SelectorSets {
+        SelectorSets(
+            void: selectorSets.void.intersection(wrappedCoodinator.selectorSets.void),
+            value: selectorSets.value.intersection(wrappedCoodinator.selectorSets.value),
+            withIndex: selectorSets.withIndex.intersection(wrappedCoodinator.selectorSets.withIndex),
+            withIndexPath: selectorSets.withIndexPath.intersection(wrappedCoodinator.selectorSets.withIndexPath),
+            hasIndex: selectorSets.hasIndex || wrappedCoodinator.selectorSets.hasIndex
+        )
     }
 }
 

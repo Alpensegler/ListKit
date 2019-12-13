@@ -15,7 +15,7 @@ where SourceBase.Source: DataSource, SourceBase.Source.Item == SourceBase.Item {
     
     override init(sourceBase: SourceBase) {
         storedSource = sourceBase.source
-        coodinator = storedSource.makeListCoordinator()
+        coodinator = storedSource.listCoordinator
         
         super.init(sourceBase: sourceBase)
     }

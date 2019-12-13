@@ -13,8 +13,9 @@ public protocol AnyItemTableListConvertible: TableListAdapter {
 
 extension TableList: AnyItemTableListConvertible where SourceBase: AnyItemSourceConvertible {
     public init<Source: TableListAdapter>(_ dataSource: Source) {
-        let source = SourceBase(dataSource)
-        self.init(source: source.sourceBase)
+        let tableList = dataSource.tableList
+        let source = SourceBase(tableList.sourceBase)
+        self.init(source: source)
         coordinatorStorage.coordinator = source.listCoordinator
     }
 }

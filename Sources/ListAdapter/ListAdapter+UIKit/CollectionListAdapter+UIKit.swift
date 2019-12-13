@@ -18,6 +18,16 @@ public extension DataSource {
     }
 }
 
+public extension CollectionListAdapter {
+    @discardableResult
+    func apply(by collectionView: UICollectionView) -> CollectionList<SourceBase> {
+        let collectionList = self.collectionList
+        collectionList.listCoordinator.applyBy(listView: collectionView)
+        return collectionList
+    }
+}
+
+//Collection Data Source
 public extension CollectionListAdapter where Self: UpdatableDataSource {
     @discardableResult
     func collectionViewViewForSupplementary(
@@ -25,6 +35,10 @@ public extension CollectionListAdapter where Self: UpdatableDataSource {
     ) -> CollectionList<SourceBase> {
         set(\.collectionViewDataSources.viewForSupplementaryElementOfKindAt) { closure($0.0, .init($0.1.0)) }
     }
+}
+
+//Collection Delegate
+public extension CollectionListAdapter where Self: UpdatableDataSource {
     
     @discardableResult
     func collectionViewDidSelectItem(
@@ -32,9 +46,6 @@ public extension CollectionListAdapter where Self: UpdatableDataSource {
     ) -> CollectionList<SourceBase> {
         set(\.collectionViewDelegates.didSelectItemAt) { closure($0.0, $0.0.itemValue) }
     }
-    
-    @discardableResult
-    func apply(by collectionView: UICollectionView) -> Self { self }
 }
 
 

@@ -45,6 +45,12 @@ public class BaseCoordinator: NSObject {
         }
     }
     
+    struct ListContext {
+        let sectionOffset: Int
+        let itemOffset: Int
+        let listView: () -> ListView?
+    }
+    
     enum SourceType {
         case cell
         case section
@@ -76,7 +82,7 @@ public class BaseCoordinator: NSObject {
     var tableViewDelegates = UITableViewDelegates()
     #endif
     
-    var contexts = [ObjectIdentifier: (sectionOffset: Int, itemOffset: Int)]()
+    var contexts = [ObjectIdentifier: ListContext]()
     
     //Updating
     var didUpdateToCoordinator = [(BaseCoordinator, BaseCoordinator) -> Void]()
@@ -104,6 +110,21 @@ public class BaseCoordinator: NSObject {
     func anySectionApplyItem(changes: [ValueChanges<Any, Int>]) { fatalError() }
     
     func anySourceUpdate(to sources: [AnyDiffableSourceValue]) { fatalError() }
+    
+    func changeToSectionSource() { sourceType = .section }
+    
+    func applyBy(listView: ListView) {
+        listView.setupWith(coordinator: self)
+        applyBy(listView: listView, sectionOffset: 0, itemOffset: 0)
+        listView.reloadSynchronously()
+    }
+    
+    func applyBy(listView: ListView, sectionOffset: Int, itemOffset: Int) {
+        contexts[ObjectIdentifier(listView)] = ListContext(
+            sectionOffset: sectionOffset,
+            itemOffset: itemOffset
+        ) { [weak listView] in listView }
+    }
     
     func update(
         from coordinator: BaseCoordinator,
@@ -144,7 +165,8 @@ public class BaseCoordinator: NSObject {
 //Responding extension
 extension BaseCoordinator {
     func offsets<Object: AnyObject>(for object: Object) -> (sectionOffset: Int, itemOffset: Int) {
-        contexts[ObjectIdentifier(object)] ?? (0, 0)
+        guard let context = contexts[ObjectIdentifier(object)] else { return (0, 0) }
+        return (context.sectionOffset, context.itemOffset)
     }
     
     func initialSelectorSets() -> SelectorSets {

@@ -1,57 +1,24 @@
 import UIKit
 import ListKit
-import CoreData
+import PlaygroundSupport
 
-class FakeDBItem: NSObject, NSFetchRequestResult { }
-let tableView = UITableView()
-let fakeFetchedResultController = NSFetchedResultsController<FakeDBItem>()
+let tableView = UITableView(frame: CGRect(origin: .zero, size: CGSize(width: 300, height: 500)))
 
-//一行写一个 DataSource
-let sources1 = Sources(items: 0..<10).provideTableViewCell().apply(by: tableView)
-
-//也可以多加点行为，多个 section 也是支持的
-let source2 = Sources(sections: [0..<10, 1..<11])
+let sources = Sources(sections: [[1, 2, 3], [2, 3, 4]])
     .provideTableViewCell()
-    .onTableViewDidSelectItem { (context, item) in print(item) }
-    .onScrollViewDidZoom { scrollView in }
-    .apply(by: tableView)
+    .onTableViewDidSelectItem { (context, item) in
+        context.deselectItem(animated: false)
+        print(item)
+    }
 
-//封装进一个 custom model
-class CustomModel: TableListAdapter {
+struct CustomStruct: TableListAdapter {
     typealias Item = Int
-    var source: [Int] { [2, 3, 4] }
     
-    var tableList: TableList<CustomModel> {
-        provideTableViewCell()
-    }
+    var source = sources
 }
 
-CustomModel().apply(by: tableView)
+let structSource = CustomStruct().apply(by: tableView)
 
-//Core Data 的时候
-class CustomCoreDataModel: TableListAdapter {
-    typealias Item = FakeDBItem
-    var source = FetchedResultsController(fakeFetchedResultController)
-        .provideTableViewCell()
-}
-
-//结构复杂的情况
-struct CustomComplexModel: TableListAdapter {
-    typealias Item = Any
-    var source: AnyItemTableList {
-        .init {
-            AnyItemTableList {
-                Sources(item: "a").provideTableViewCell()
-                sources1
-                    .onTableViewDidSelectItem { (context, item) in print(item) }
-            }.onTableViewWillDisplayRow { (context, cell, item) in }
-            source2
-            CustomModel()
-                .onTableViewWillDisplayRow { (context, cell, item) in }
-            CustomCoreDataModel()
-        }
-    }
-}
-
+PlaygroundPage.current.liveView = tableView
 
 

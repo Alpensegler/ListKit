@@ -91,7 +91,10 @@ class WrapperCoordinator<SourceBase: DataSource>: ListCoordinator<SourceBase> {
     }
     
     override func responds(to aSelector: Selector!) -> Bool {
-        wrappedCoodinator.responds(to: aSelector) || super.responds(to: aSelector)
+        guard aSelector.map(allSelectors.contains) == true else {
+            return superResponds(to: aSelector)
+        }
+        return super.responds(to: aSelector) || wrappedCoodinator.responds(to: aSelector)
     }
     
     override func apply<Object: AnyObject, Input, Output>(
@@ -113,6 +116,15 @@ class WrapperCoordinator<SourceBase: DataSource>: ListCoordinator<SourceBase> {
             wrappedCoodinator.apply(keyPath, object: object, with: input)
         }
         super.apply(keyPath, object: object, with: input)
+    }
+    
+    override func changeToSectionSource() {
+        wrappedCoodinator.changeToSectionSource()
+    }
+    
+    override func applyBy(listView: ListView, sectionOffset: Int, itemOffset: Int) {
+        super.applyBy(listView: listView, sectionOffset: sectionOffset, itemOffset: itemOffset)
+        wrappedCoodinator.applyBy(listView: listView, sectionOffset: sectionOffset, itemOffset: itemOffset)
     }
 }
 

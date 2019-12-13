@@ -113,7 +113,7 @@ where
     }
     
     override func responds(to aSelector: Selector!) -> Bool {
-        superResponds(to: aSelector) || aSelector.map(subselectorSets.contains) != true
+        super.responds(to: aSelector) || aSelector.map(subselectorSets.contains) != true
     }
     
     override func setup() {
@@ -138,8 +138,8 @@ where
     
     func index<Path: PathConvertible>(of path: Path) -> Int {
         switch sourceIndices[path.section] {
-        case let .section(_, count: count): return count
-        case let .cell(indices: indices): return indices.count
+        case let .section(offset, _): return offset
+        case let .cell(indices: indices): return indices[path.item]
         }
     }
     

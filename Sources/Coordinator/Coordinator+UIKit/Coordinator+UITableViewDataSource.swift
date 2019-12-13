@@ -28,7 +28,7 @@ class UITableViewDataSources {
     )
     
     //Inserting or Deleting Table Rows
-    var commitforRowAt = Delegate<(UITableViewCell.EditingStyle, IndexPath), Void>(
+    var commitForRowAt = Delegate<(UITableViewCell.EditingStyle, IndexPath), Void>(
         index: .indexPath(\.1),
         #selector(UITableViewDataSource.tableView(_:commit:forRowAt:))
     )
@@ -64,7 +64,7 @@ class UITableViewDataSources {
         selectorSets.add(titleForFooterInSection)
         
         //Inserting or Deleting Table Rows
-        selectorSets.add(commitforRowAt)
+        selectorSets.add(commitForRowAt)
         selectorSets.add(canEditRowAt)
         
         //Reordering Table Rows
@@ -104,7 +104,7 @@ public extension BaseCoordinator {
 
     //Inserting or Deleting Table Rows
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        apply(\.tableViewDataSources.commitforRowAt, object: tableView, with: (editingStyle, indexPath))
+        apply(\.tableViewDataSources.commitForRowAt, object: tableView, with: (editingStyle, indexPath))
     }
 
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {

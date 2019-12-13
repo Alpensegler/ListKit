@@ -22,7 +22,7 @@
 		F31250F2239DB15B00E77969 /* Coordinator+UICollectionViewDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31250F1239DB15B00E77969 /* Coordinator+UICollectionViewDataSource.swift */; };
 		F31250F4239DB57100E77969 /* Delegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31250F3239DB57100E77969 /* Delegate.swift */; };
 		F3125158239E33CA00E77969 /* Coordinator+UITableViewDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3125157239E33CA00E77969 /* Coordinator+UITableViewDataSource.swift */; };
-		F312515A239E347000E77969 /* Coordinator+UIScrollViewDelegateFlowLayouts.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3125159239E347000E77969 /* Coordinator+UIScrollViewDelegateFlowLayouts.swift */; };
+		F312515A239E347000E77969 /* Coordinator+UICollectionViewDelegateFlowLayouts.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3125159239E347000E77969 /* Coordinator+UICollectionViewDelegateFlowLayouts.swift */; };
 		F312515C239E352100E77969 /* Coordinator+UITableViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F312515B239E352100E77969 /* Coordinator+UITableViewDelegate.swift */; };
 		F329598323A10B7D001D6063 /* ListViewStorage+UIKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = F329598223A10B7D001D6063 /* ListViewStorage+UIKit.swift */; };
 		F32959E423A11AF7001D6063 /* AnyCollectionListBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F32959E323A11AF7001D6063 /* AnyCollectionListBuilder.swift */; };
@@ -93,7 +93,7 @@
 		F31250F1239DB15B00E77969 /* Coordinator+UICollectionViewDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Coordinator+UICollectionViewDataSource.swift"; sourceTree = "<group>"; };
 		F31250F3239DB57100E77969 /* Delegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Delegate.swift; sourceTree = "<group>"; };
 		F3125157239E33CA00E77969 /* Coordinator+UITableViewDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Coordinator+UITableViewDataSource.swift"; sourceTree = "<group>"; };
-		F3125159239E347000E77969 /* Coordinator+UIScrollViewDelegateFlowLayouts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Coordinator+UIScrollViewDelegateFlowLayouts.swift"; sourceTree = "<group>"; };
+		F3125159239E347000E77969 /* Coordinator+UICollectionViewDelegateFlowLayouts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Coordinator+UICollectionViewDelegateFlowLayouts.swift"; sourceTree = "<group>"; };
 		F312515B239E352100E77969 /* Coordinator+UITableViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Coordinator+UITableViewDelegate.swift"; sourceTree = "<group>"; };
 		F329598223A10B7D001D6063 /* ListViewStorage+UIKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ListViewStorage+UIKit.swift"; sourceTree = "<group>"; };
 		F32959E323A11AF7001D6063 /* AnyCollectionListBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyCollectionListBuilder.swift; sourceTree = "<group>"; };
@@ -200,7 +200,7 @@
 				F31250EF239C636100E77969 /* Coordinator+UIScrollViewDelegate.swift */,
 				F31250F1239DB15B00E77969 /* Coordinator+UICollectionViewDataSource.swift */,
 				F31250ED239C5EB200E77969 /* Coordinator+UICollectionViewDelegate.swift */,
-				F3125159239E347000E77969 /* Coordinator+UIScrollViewDelegateFlowLayouts.swift */,
+				F3125159239E347000E77969 /* Coordinator+UICollectionViewDelegateFlowLayouts.swift */,
 				F3125157239E33CA00E77969 /* Coordinator+UITableViewDataSource.swift */,
 				F312515B239E352100E77969 /* Coordinator+UITableViewDelegate.swift */,
 			);
@@ -523,7 +523,7 @@
 				F3AD0680238FF3DA000AF1B3 /* SourcesCoordinator.swift in Sources */,
 				F37BF3CA239686470095C419 /* ItemCoordinator.swift in Sources */,
 				F3D787032399327200D7A5CD /* ListViewStorage.swift in Sources */,
-				F312515A239E347000E77969 /* Coordinator+UIScrollViewDelegateFlowLayouts.swift in Sources */,
+				F312515A239E347000E77969 /* Coordinator+UICollectionViewDelegateFlowLayouts.swift in Sources */,
 				F383064523506BAC00AE8B97 /* Identifiable.swift in Sources */,
 				F32959E423A11AF7001D6063 /* AnyCollectionListBuilder.swift in Sources */,
 				F32959E623A11CF5001D6063 /* AnyItemCollectionListBuilder.swift in Sources */,

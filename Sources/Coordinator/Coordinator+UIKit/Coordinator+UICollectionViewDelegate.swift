@@ -73,7 +73,6 @@ class UICollectionViewDelegates {
         set { anyDidEndMultipleSelectionInteraction = newValue }
     }
     
-    
     //Managing Cell Highlighting
     var shouldHighlightItemAt = Delegate<IndexPath, Bool>(
         index: .indexPath(\.self),
@@ -89,7 +88,6 @@ class UICollectionViewDelegates {
         index: .indexPath(\.self),
         #selector(UICollectionViewDelegate.collectionView(_:didUnhighlightItemAt:))
     )
-    
 
     //Tracking the Addition and Removal of Views
     var willDisplayForItemAt = Delegate<(UICollectionViewCell, IndexPath), Void>(
@@ -111,7 +109,6 @@ class UICollectionViewDelegates {
         index: .indexPath(\.2),
         #selector(UICollectionViewDelegate.collectionView(_:didEndDisplayingSupplementaryView:forElementOfKind:at:))
     )
-
     
     //Handling Layout Changes
     var transitionLayoutForOldLayoutNewLayout = Delegate<(UICollectionViewLayout, UICollectionViewLayout), UICollectionViewTransitionLayout>(
@@ -123,10 +120,8 @@ class UICollectionViewDelegates {
     )
     
     var targetIndexPathForMoveFromItemAtToProposedIndexPath = Delegate<(IndexPath, IndexPath), IndexPath>(
-        index: .indexPath(\.0),
         #selector(UICollectionViewDelegate.collectionView(_:targetIndexPathForMoveFromItemAt:toProposedIndexPath:))
     )
-    
     
     //Managing Actions for Cells
     var shouldShowMenuForItemAt = Delegate<IndexPath, Bool>(
@@ -143,7 +138,6 @@ class UICollectionViewDelegates {
         index: .indexPath(\.1),
         #selector(UICollectionViewDelegate.collectionView(_:performAction:forItemAt:withSender:))
     )
-    
     
     //Managing Focus in a Collection View
     var canFocusItemAt = Delegate<IndexPath, Bool>(
@@ -162,10 +156,9 @@ class UICollectionViewDelegates {
     var didUpdateFocusInWith = Delegate<(UICollectionViewFocusUpdateContext, UIFocusAnimationCoordinator), Void>(
         #selector(UICollectionViewDelegate.collectionView(_:didUpdateFocusIn:with:))
     )
-    
 
     //Controlling the Spring-Loading Behavior
-    var anyShouldSpringLoadItemAtWith: Any = {
+    private var anyShouldSpringLoadItemAtWith: Any = {
         guard #available(iOS 13.0, *) else { return () }
         return Delegate<(IndexPath, UISpringLoadedInteractionContext), Bool>(
             index: .indexPath(\.0),

@@ -1,5 +1,5 @@
 //
-//  Coordinator+UIScrollViewDelegateFlowLayout.swift
+//  Coordinator+UICollectionViewDelegateFlowLayout.swift
 //  ListKit
 //
 //  Created by Frain on 2019/12/9.

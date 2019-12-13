@@ -13,8 +13,8 @@ class ViewController: UIViewController, TableListAdapter, UpdatableDataSource {
     @IBOutlet weak var tableView: UITableView! { didSet { apply(by: tableView) } }
     
     typealias Item = Any
-    var source: AnyItemTableList {
-        AnyItemTableList {
+    var source: AnyTableSources {
+        AnyTableSources {
             Sources(items: ["a", "b", "c"])
                 .provideTableViewCell()
             Sources(items: [1, 2, 3])

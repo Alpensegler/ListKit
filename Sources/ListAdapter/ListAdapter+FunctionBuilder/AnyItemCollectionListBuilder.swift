@@ -13,8 +13,9 @@ public protocol AnyItemCollectionListConvertible: CollectionListAdapter {
 
 extension CollectionList: AnyItemCollectionListConvertible where SourceBase: AnyItemSourceConvertible {
     public init<Source: CollectionListAdapter>(_ dataSource: Source) {
-        let source = SourceBase(dataSource)
-        self.init(source: source.sourceBase)
+        let collectionList = dataSource.collectionList
+        let source = SourceBase(collectionList.sourceBase)
+        self.init(source: source)
         coordinatorStorage.coordinator = source.listCoordinator
     }
 }

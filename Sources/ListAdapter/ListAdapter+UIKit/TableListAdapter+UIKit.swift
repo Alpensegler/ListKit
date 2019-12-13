@@ -36,10 +36,35 @@ public extension DataSource {
 
 public extension TableListAdapter {
     @discardableResult
+    func apply(by tableView: UITableView) -> TableList<SourceBase> {
+        let tableList = self.tableList
+        tableView.setupWith(coordinator: tableList.listCoordinator)
+        return tableList
+    }
+}
+
+//TableView DataSource
+public extension TableListAdapter {
+    func provideTableViewHeaderTitle(
+        _ closure: @escaping (TableIndexContext<SourceBase>) -> String?
+    ) -> TableList<SourceBase> {
+        set(\.tableViewDataSources.titleForHeaderInSection) { closure($0.0) }
+    }
+    
+    func provideTableViewFooterTitle(
+        _ closure: @escaping (TableIndexContext<SourceBase>) -> String?
+    ) -> TableList<SourceBase> {
+        set(\.tableViewDataSources.titleForFooterInSection) { closure($0.0) }
+    }
+}
+
+//TableView Delegate
+public extension TableListAdapter {
+    @discardableResult
     func onTableViewDidSelectItem(
         _ closure: @escaping (TableIndexPathContext<SourceBase>, Item) -> Void
     ) -> TableList<SourceBase> {
-        tableList.set(\.tableViewDelegates.didSelectRowAt) { closure($0.0, $0.0.itemValue) }
+        set(\.tableViewDelegates.didSelectRowAt) { closure($0.0, $0.0.itemValue) }
     }
     
     
@@ -47,11 +72,8 @@ public extension TableListAdapter {
     func onTableViewWillDisplayRow(
         _ closure: @escaping (TableIndexPathContext<SourceBase>, UITableViewCell, Item) -> Void
     ) -> TableList<SourceBase> {
-        tableList.set(\.tableViewDelegates.willDisplayForRowAt) { closure($0.0, $0.1.0, $0.0.itemValue) }
+        set(\.tableViewDelegates.willDisplayForRowAt) { closure($0.0, $0.1.0, $0.0.itemValue) }
     }
-    
-    @discardableResult
-    func apply(by tableView: UITableView) -> TableList<SourceBase> { tableList }
 }
 
 

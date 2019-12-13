@@ -22,6 +22,11 @@ public extension UICollectionView {
         set { Associator.set(value: newValue, key: &Self.listViewDefaultAnimationKey, to: self) }
     }
     
+    func setupWith(coordinator: BaseCoordinator) {
+        dataSource = coordinator
+        delegate = coordinator
+    }
+    
     func reloadSynchronously() {
         reloadData()
         layoutIfNeeded()

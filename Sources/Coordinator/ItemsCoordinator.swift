@@ -16,8 +16,6 @@ where SourceBase.Source: Collection, SourceBase.Item == SourceBase.Source.Elemen
     }
     
     override func item<Path: PathConvertible>(at path: Path) -> Item { items[path.item] }
-    override func numbersOfSections() -> Int { sourceType == .section ? 1 : 0 }
-    override func numbersOfItems(in section: Int) -> Int { items.count }
     
     override func setup() {
         items = source.map { $0 }

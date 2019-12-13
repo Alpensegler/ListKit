@@ -18,6 +18,7 @@ where
     override func setup() {
         sections = source.map { $0.map { $0 } }
         sourceType = .section
+        configSourceIndices()
     }
     
     override func anySectionSources<Source: DataSource>(source: Source) -> AnySectionSources {

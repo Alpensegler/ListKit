@@ -15,7 +15,7 @@ public struct CollectionContext<Source: DataSource>: Context where Source.Source
     }
 }
 
-public struct CollectionIndexContext<Source: DataSource>: IndexContext
+public struct CollectionSectionContext<Source: DataSource>: SectionContext
 where Source.SourceBase == Source {
     public let listView: CollectionView
     public let coordinator: ListCoordinator<Source>
@@ -35,7 +35,7 @@ where Source.SourceBase == Source {
     }
 }
 
-public struct CollectionIndexPathContext<Source: DataSource>: IndexPathContext
+public struct CollectionItemContext<Source: DataSource>: ItemContext
 where Source.SourceBase == Source {
     public let listView: CollectionView
     public let coordinator: ListCoordinator<Source>

@@ -14,12 +14,12 @@ public protocol Context {
     var listView: List { get }
 }
 
-public protocol IndexContext: Context {
+public protocol SectionContext: Context {
     var section: Int { get }
     var sectionOffset: Int { get }
 }
 
-public protocol IndexPathContext: IndexContext {
+public protocol ItemContext: SectionContext {
     var item: Int { get }
     var itemOffset: Int { get }
 }
@@ -32,6 +32,6 @@ public extension Context {
     }
 }
 
-extension IndexPathContext {
+extension ItemContext {
     var itemValue: Source.Item { coordinator.item(at: Path(section: section, item: item)) }
 }

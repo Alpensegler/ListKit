@@ -8,7 +8,7 @@
 #if os(iOS) || os(tvOS)
 import UIKit
 
-public extension IndexPathContext where List: UIListView {
+public extension ItemContext where List: UIListView {
     var listIndexPath: IndexPath {
         IndexPath(item: itemOffset + item, section: sectionOffset + section)
     }
@@ -68,7 +68,7 @@ public extension IndexPathContext where List: UIListView {
     }
 }
 
-public extension IndexPathContext where List: UICollectionView {
+public extension ItemContext where List: UICollectionView {
     func dequeueReusableSupplementaryView<CustomSupplementaryView: UICollectionReusableView>(
         type: UICollectionView.SupplementaryViewType,
         _ supplementaryClass: CustomSupplementaryView.Type,

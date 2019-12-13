@@ -23,7 +23,7 @@ where Source.SourceBase == Source {
     public var sourceBase: Source { source }
     public var collectionList: CollectionList<Source> { self }
     public func makeListCoordinator() -> ListCoordinator<Source> {
-        addToStorage(source.makeListCoordinator())
+        addToStorage(source.listCoordinator)
     }
     
     public var wrappedValue: Source { source }

@@ -18,9 +18,9 @@ where SourceBase.Source == Any {
         set { wrappedCoodinator.selfType = newValue }
     }
     
-    init(_ source: Any, coordinator: ItemTypedCoorinator<Item>) {
-        self.coordinator = coordinator
-        self.storedSource = source
+    init<Source: DataSource>(_ dataSource: Source) where Source.Item == SourceBase.Item {
+        self.coordinator = dataSource.itemTypedCoordinator
+        self.storedSource = dataSource
         super.init()
     }
 }
@@ -37,9 +37,9 @@ where SourceBase.Source == Any, SourceBase.Item == Any {
         set { wrappedCoodinator.selfType = newValue }
     }
     
-    init(_ source: Any, coordinator: BaseCoordinator) {
-        self.coordinator = coordinator
-        self.storedSource = source
+    init<Source: DataSource>(_ dataSource: Source) {
+        self.coordinator = dataSource.baseCoordinator
+        self.storedSource = dataSource
         super.init()
     }
 }

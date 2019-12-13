@@ -11,12 +11,12 @@ public protocol AnyItemSourceConvertible: DataSource {
 
 public struct AnyItemSource: UpdatableDataSource, AnyItemSourceConvertible {
     public typealias Item = Any
-    var coordinatorMaker: () -> ListCoordinator<AnyItemSource>
+    var coordinatorMaker: (Self) -> ListCoordinator<AnyItemSource>
     
     public let source: Any
-    public var updater: Updater<Self>
-    public var coordinatorStorage = CoordinatorStorage<AnyItemSource>()
-    public func makeListCoordinator() -> ListCoordinator<AnyItemSource> { coordinatorMaker() }
+    public let updater: Updater<Self>
+    public let coordinatorStorage = CoordinatorStorage<AnyItemSource>()
+    public func makeListCoordinator() -> ListCoordinator<AnyItemSource> { coordinatorMaker(self) }
     
     public init<Source: DataSource>(_ dataSource: Source) {
         let updater = dataSource.updater
@@ -24,7 +24,6 @@ public struct AnyItemSource: UpdatableDataSource, AnyItemSourceConvertible {
         let itemDiffer = Differ<Item>(differ: updater.item)
         self.source = dataSource
         self.updater = Updater(source: differ, item: itemDiffer)
-        coordinatorMaker = { AnySourceCoordinator(dataSource, coordinator: dataSource.listCoordinator) }
-        coordinatorStorage.coordinator = coordinatorMaker()
+        self.coordinatorMaker = { $0.addToStorage(AnySourceCoordinator(dataSource)) }
     }
 }

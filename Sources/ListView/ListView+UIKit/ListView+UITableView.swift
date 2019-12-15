@@ -23,11 +23,6 @@ public extension UITableView {
         set { Associator.set(value: newValue, key: &listViewDefaultAnimationKey, to: self) }
     }
     
-    func setupWith(coordinator: BaseCoordinator) {
-        dataSource = coordinator
-        delegate = coordinator
-    }
-    
     func reloadSynchronously() {
         reloadData()
         layoutIfNeeded()

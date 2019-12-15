@@ -10,7 +10,7 @@ public typealias AnyCollectionSources = CollectionList<AnySources>
 public extension CollectionList where SourceBase == AnySources {
     init<Source: CollectionListAdapter>(_ dataSource: Source) {
         let collectionList = dataSource.collectionList
-        let source = SourceBase(collectionList.sourceBase)
+        let source = AnySources(collectionList.sourceBase)
         self.init(source: source)
         coordinatorStorage.coordinator = source.listCoordinator
     }

@@ -17,13 +17,12 @@
 		F310D2502351E1DF00ED691C /* BaseCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F310D24F2351E1DF00ED691C /* BaseCoordinator.swift */; };
 		F31250E9239C545200E77969 /* ListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31250E8239C545200E77969 /* ListView.swift */; };
 		F31250EB239C5E0E00E77969 /* ItemTypedCoorinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31250EA239C5E0E00E77969 /* ItemTypedCoorinator.swift */; };
-		F31250EE239C5EB200E77969 /* Coordinator+UICollectionViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31250ED239C5EB200E77969 /* Coordinator+UICollectionViewDelegate.swift */; };
-		F31250F0239C636100E77969 /* Coordinator+UIScrollViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31250EF239C636100E77969 /* Coordinator+UIScrollViewDelegate.swift */; };
-		F31250F2239DB15B00E77969 /* Coordinator+UICollectionViewDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31250F1239DB15B00E77969 /* Coordinator+UICollectionViewDataSource.swift */; };
+		F31250EE239C5EB200E77969 /* Delegates+UICollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31250ED239C5EB200E77969 /* Delegates+UICollectionView.swift */; };
+		F31250F0239C636100E77969 /* Delegates+UIScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31250EF239C636100E77969 /* Delegates+UIScrollView.swift */; };
 		F31250F4239DB57100E77969 /* Delegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31250F3239DB57100E77969 /* Delegate.swift */; };
-		F3125158239E33CA00E77969 /* Coordinator+UITableViewDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3125157239E33CA00E77969 /* Coordinator+UITableViewDataSource.swift */; };
-		F312515A239E347000E77969 /* Coordinator+UICollectionViewDelegateFlowLayouts.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3125159239E347000E77969 /* Coordinator+UICollectionViewDelegateFlowLayouts.swift */; };
-		F312515C239E352100E77969 /* Coordinator+UITableViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F312515B239E352100E77969 /* Coordinator+UITableViewDelegate.swift */; };
+		F312515C239E352100E77969 /* Delegates+UITableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F312515B239E352100E77969 /* Delegates+UITableView.swift */; };
+		F314E8E823A62147003C203B /* Delegates.swift in Sources */ = {isa = PBXBuildFile; fileRef = F314E8E723A62147003C203B /* Delegates.swift */; };
+		F314E8EB23A62200003C203B /* SelestorSets.swift in Sources */ = {isa = PBXBuildFile; fileRef = F314E8EA23A62200003C203B /* SelestorSets.swift */; };
 		F329598323A10B7D001D6063 /* ListViewStorage+UIKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = F329598223A10B7D001D6063 /* ListViewStorage+UIKit.swift */; };
 		F32959E623A11CF5001D6063 /* AnyCollectionSourcesBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F32959E523A11CF5001D6063 /* AnyCollectionSourcesBuilder.swift */; };
 		F33FBC3D234F33A70054BA38 /* DataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F33FBC3C234F33A70054BA38 /* DataSource.swift */; };
@@ -43,11 +42,12 @@
 		F383064423506BAC00AE8B97 /* Differing.swift in Sources */ = {isa = PBXBuildFile; fileRef = F383064123506BAC00AE8B97 /* Differing.swift */; };
 		F383064523506BAC00AE8B97 /* Identifiable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F383064223506BAC00AE8B97 /* Identifiable.swift */; };
 		F3841D5D2355E0DA006386E3 /* Collection+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3841D5C2355E0DA006386E3 /* Collection+Extension.swift */; };
-		F38B710523A306860081B842 /* UIKitSelectors.swift in Sources */ = {isa = PBXBuildFile; fileRef = F38B710423A306860081B842 /* UIKitSelectors.swift */; };
+		F38B710523A306860081B842 /* AllSelectors.swift in Sources */ = {isa = PBXBuildFile; fileRef = F38B710423A306860081B842 /* AllSelectors.swift */; };
 		F39A23F323A16B660024F9AF /* AnyTableSourcesBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F39A23F123A16B660024F9AF /* AnyTableSourcesBuilder.swift */; };
 		F39A23F623A16D1F0024F9AF /* CoreData+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = F39A23F523A16D1F0024F9AF /* CoreData+Extension.swift */; };
 		F39A23F923A17FE60024F9AF /* Sources+Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F39A23F823A17FE50024F9AF /* Sources+Coordinator.swift */; };
 		F39A23FB23A180350024F9AF /* Sources+Collection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F39A23FA23A180350024F9AF /* Sources+Collection.swift */; };
+		F3A4933223A6472000809E7F /* ListContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A4933123A6472000809E7F /* ListContext.swift */; };
 		F3AD00DD238BC2AF000AF1B3 /* Differ.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3AD00DC238BC2AF000AF1B3 /* Differ.swift */; };
 		F3AD013A238BE6FE000AF1B3 /* ItemsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3AD0139238BE6FE000AF1B3 /* ItemsCoordinator.swift */; };
 		F3AD0680238FF3DA000AF1B3 /* SourcesCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3AD067F238FF3DA000AF1B3 /* SourcesCoordinator.swift */; };
@@ -84,13 +84,12 @@
 		F310D24F2351E1DF00ED691C /* BaseCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseCoordinator.swift; sourceTree = "<group>"; };
 		F31250E8239C545200E77969 /* ListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListView.swift; sourceTree = "<group>"; };
 		F31250EA239C5E0E00E77969 /* ItemTypedCoorinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemTypedCoorinator.swift; sourceTree = "<group>"; };
-		F31250ED239C5EB200E77969 /* Coordinator+UICollectionViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Coordinator+UICollectionViewDelegate.swift"; sourceTree = "<group>"; };
-		F31250EF239C636100E77969 /* Coordinator+UIScrollViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Coordinator+UIScrollViewDelegate.swift"; sourceTree = "<group>"; };
-		F31250F1239DB15B00E77969 /* Coordinator+UICollectionViewDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Coordinator+UICollectionViewDataSource.swift"; sourceTree = "<group>"; };
+		F31250ED239C5EB200E77969 /* Delegates+UICollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Delegates+UICollectionView.swift"; sourceTree = "<group>"; };
+		F31250EF239C636100E77969 /* Delegates+UIScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Delegates+UIScrollView.swift"; sourceTree = "<group>"; };
 		F31250F3239DB57100E77969 /* Delegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Delegate.swift; sourceTree = "<group>"; };
-		F3125157239E33CA00E77969 /* Coordinator+UITableViewDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Coordinator+UITableViewDataSource.swift"; sourceTree = "<group>"; };
-		F3125159239E347000E77969 /* Coordinator+UICollectionViewDelegateFlowLayouts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Coordinator+UICollectionViewDelegateFlowLayouts.swift"; sourceTree = "<group>"; };
-		F312515B239E352100E77969 /* Coordinator+UITableViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Coordinator+UITableViewDelegate.swift"; sourceTree = "<group>"; };
+		F312515B239E352100E77969 /* Delegates+UITableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Delegates+UITableView.swift"; sourceTree = "<group>"; };
+		F314E8E723A62147003C203B /* Delegates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Delegates.swift; sourceTree = "<group>"; };
+		F314E8EA23A62200003C203B /* SelestorSets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelestorSets.swift; sourceTree = "<group>"; };
 		F329598223A10B7D001D6063 /* ListViewStorage+UIKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ListViewStorage+UIKit.swift"; sourceTree = "<group>"; };
 		F32959E523A11CF5001D6063 /* AnyCollectionSourcesBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyCollectionSourcesBuilder.swift; sourceTree = "<group>"; };
 		F33FBC3A234F26B60054BA38 /* ListKitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListKitTests.swift; sourceTree = "<group>"; };
@@ -111,11 +110,12 @@
 		F383064123506BAC00AE8B97 /* Differing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Differing.swift; sourceTree = "<group>"; };
 		F383064223506BAC00AE8B97 /* Identifiable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Identifiable.swift; sourceTree = "<group>"; };
 		F3841D5C2355E0DA006386E3 /* Collection+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Collection+Extension.swift"; sourceTree = "<group>"; };
-		F38B710423A306860081B842 /* UIKitSelectors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIKitSelectors.swift; sourceTree = "<group>"; };
+		F38B710423A306860081B842 /* AllSelectors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllSelectors.swift; sourceTree = "<group>"; };
 		F39A23F123A16B660024F9AF /* AnyTableSourcesBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnyTableSourcesBuilder.swift; sourceTree = "<group>"; };
 		F39A23F523A16D1F0024F9AF /* CoreData+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CoreData+Extension.swift"; sourceTree = "<group>"; };
 		F39A23F823A17FE50024F9AF /* Sources+Coordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Sources+Coordinator.swift"; sourceTree = "<group>"; };
 		F39A23FA23A180350024F9AF /* Sources+Collection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Sources+Collection.swift"; sourceTree = "<group>"; };
+		F3A4933123A6472000809E7F /* ListContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListContext.swift; sourceTree = "<group>"; };
 		F3AD00DC238BC2AF000AF1B3 /* Differ.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Differ.swift; sourceTree = "<group>"; };
 		F3AD0139238BE6FE000AF1B3 /* ItemsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemsCoordinator.swift; sourceTree = "<group>"; };
 		F3AD067F238FF3DA000AF1B3 /* SourcesCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourcesCoordinator.swift; sourceTree = "<group>"; };
@@ -170,7 +170,6 @@
 		F310D24E2351E1CC00ED691C /* Coordinator */ = {
 			isa = PBXGroup;
 			children = (
-				F31250EC239C5E9000E77969 /* Coordinator+UIKit */,
 				F310D24F2351E1DF00ED691C /* BaseCoordinator.swift */,
 				F31250EA239C5E0E00E77969 /* ItemTypedCoorinator.swift */,
 				F3040D80238B21560055E6E7 /* ListCoordinator.swift */,
@@ -185,18 +184,27 @@
 			path = Coordinator;
 			sourceTree = "<group>";
 		};
-		F31250EC239C5E9000E77969 /* Coordinator+UIKit */ = {
+		F31250EC239C5E9000E77969 /* Delegates+UIKit */ = {
 			isa = PBXGroup;
 			children = (
-				F38B710423A306860081B842 /* UIKitSelectors.swift */,
-				F31250EF239C636100E77969 /* Coordinator+UIScrollViewDelegate.swift */,
-				F31250F1239DB15B00E77969 /* Coordinator+UICollectionViewDataSource.swift */,
-				F31250ED239C5EB200E77969 /* Coordinator+UICollectionViewDelegate.swift */,
-				F3125159239E347000E77969 /* Coordinator+UICollectionViewDelegateFlowLayouts.swift */,
-				F3125157239E33CA00E77969 /* Coordinator+UITableViewDataSource.swift */,
-				F312515B239E352100E77969 /* Coordinator+UITableViewDelegate.swift */,
+				F31250EF239C636100E77969 /* Delegates+UIScrollView.swift */,
+				F31250ED239C5EB200E77969 /* Delegates+UICollectionView.swift */,
+				F312515B239E352100E77969 /* Delegates+UITableView.swift */,
 			);
-			path = "Coordinator+UIKit";
+			path = "Delegates+UIKit";
+			sourceTree = "<group>";
+		};
+		F314E8E923A621D3003C203B /* Delegate */ = {
+			isa = PBXGroup;
+			children = (
+				F31250EC239C5E9000E77969 /* Delegates+UIKit */,
+				F31250F3239DB57100E77969 /* Delegate.swift */,
+				F314E8E723A62147003C203B /* Delegates.swift */,
+				F314E8EA23A62200003C203B /* SelestorSets.swift */,
+				F38B710423A306860081B842 /* AllSelectors.swift */,
+				F3A4933123A6472000809E7F /* ListContext.swift */,
+			);
+			path = Delegate;
 			sourceTree = "<group>";
 		};
 		F32959E223A11ACF001D6063 /* ListAdapter+FunctionBuilder */ = {
@@ -305,7 +313,6 @@
 				F3AD00DC238BC2AF000AF1B3 /* Differ.swift */,
 				F3F7795D237DB806008C6B21 /* Change.swift */,
 				F3D786FB2399318B00D7A5CD /* Associator.swift */,
-				F31250F3239DB57100E77969 /* Delegate.swift */,
 			);
 			path = Utility;
 			sourceTree = "<group>";
@@ -384,6 +391,7 @@
 			children = (
 				F33FBC3B234F29E30054BA38 /* DataSource */,
 				F310D24E2351E1CC00ED691C /* Coordinator */,
+				F314E8E923A621D3003C203B /* Delegate */,
 				F3D786952399262A00D7A5CD /* Context */,
 				F33FBC3F234F36D90054BA38 /* Source */,
 				F3040D242389046D0055E6E7 /* ListAdapter */,
@@ -460,9 +468,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 0;
 			files = (
-				F31250F0239C636100E77969 /* Coordinator+UIScrollViewDelegate.swift in Sources */,
-				F31250F2239DB15B00E77969 /* Coordinator+UICollectionViewDataSource.swift in Sources */,
+				F31250F0239C636100E77969 /* Delegates+UIScrollView.swift in Sources */,
 				F304A6E1239E95DC00133D14 /* ListView+NSCollectionView.swift in Sources */,
+				F314E8E823A62147003C203B /* Delegates.swift in Sources */,
 				F3C9538023A0F7A10015049A /* AnySources.swift in Sources */,
 				F3841D5D2355E0DA006386E3 /* Collection+Extension.swift in Sources */,
 				F3D785C82398FC5B00D7A5CD /* UpdatableDataSource.swift in Sources */,
@@ -471,9 +479,8 @@
 				F3AD013A238BE6FE000AF1B3 /* ItemsCoordinator.swift in Sources */,
 				F37DD4E323A190AE00689CAD /* TableListAdapter+Source.swift in Sources */,
 				F3EB15DC23A2ED1900C9AC5E /* ListAdapters+ListAdapters.swift in Sources */,
-				F3125158239E33CA00E77969 /* Coordinator+UITableViewDataSource.swift in Sources */,
 				F35BBA03239FD05C0024EA7D /* TableContext.swift in Sources */,
-				F38B710523A306860081B842 /* UIKitSelectors.swift in Sources */,
+				F38B710523A306860081B842 /* AllSelectors.swift in Sources */,
 				F3EB15DA23A2CF8D00C9AC5E /* Optional+Extension.swift in Sources */,
 				F304A6E3239E95ED00133D14 /* ListView+NSTableView.swift in Sources */,
 				F3D786972399263B00D7A5CD /* CollectionContext.swift in Sources */,
@@ -486,9 +493,9 @@
 				F3D7870623993C2200D7A5CD /* Context.swift in Sources */,
 				F31250E9239C545200E77969 /* ListView.swift in Sources */,
 				F3040D27238904860055E6E7 /* CollectionListAdapter.swift in Sources */,
-				F31250EE239C5EB200E77969 /* Coordinator+UICollectionViewDelegate.swift in Sources */,
+				F31250EE239C5EB200E77969 /* Delegates+UICollectionView.swift in Sources */,
 				F39A23FB23A180350024F9AF /* Sources+Collection.swift in Sources */,
-				F312515C239E352100E77969 /* Coordinator+UITableViewDelegate.swift in Sources */,
+				F312515C239E352100E77969 /* Delegates+UITableView.swift in Sources */,
 				F3AD00DD238BC2AF000AF1B3 /* Differ.swift in Sources */,
 				F33FBC43234F3A600054BA38 /* Sources.swift in Sources */,
 				F33FBC3D234F33A70054BA38 /* DataSource.swift in Sources */,
@@ -501,10 +508,11 @@
 				F3AD0680238FF3DA000AF1B3 /* SourcesCoordinator.swift in Sources */,
 				F37BF3CA239686470095C419 /* ItemCoordinator.swift in Sources */,
 				F3D787032399327200D7A5CD /* ListViewStorage.swift in Sources */,
-				F312515A239E347000E77969 /* Coordinator+UICollectionViewDelegateFlowLayouts.swift in Sources */,
+				F314E8EB23A62200003C203B /* SelestorSets.swift in Sources */,
 				F383064523506BAC00AE8B97 /* Identifiable.swift in Sources */,
 				F32959E623A11CF5001D6063 /* AnyCollectionSourcesBuilder.swift in Sources */,
 				F3D786FE239931CE00D7A5CD /* UIListView.swift in Sources */,
+				F3A4933223A6472000809E7F /* ListContext.swift in Sources */,
 				F37A122E239FC0CB0001E9EE /* CollectionListAdapter+UIKit.swift in Sources */,
 				F30433E9239FDF09007BACA9 /* SourceCoordinator.swift in Sources */,
 				F35BBA07239FD1600024EA7D /* TableListAdapter+UIKit.swift in Sources */,

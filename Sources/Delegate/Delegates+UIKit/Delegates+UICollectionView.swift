@@ -1,5 +1,5 @@
 //
-//  Coordinator+UICollectionViewDelegate.swift
+//  Delegates+UICollectionView.swift
 //  ListKit
 //
 //  Created by Frain on 2019/12/8.
@@ -10,6 +10,39 @@ import UIKit
 
 class UICollectionViewDelegates {
     typealias Delegate<Input, Output> = ListKit.Delegate<UICollectionView, Input, Output>
+    //MARK - DataSources
+    
+    //Getting Views for Items
+    var cellForItemAt = Delegate<IndexPath, UICollectionViewCell>(
+        index: .indexPath(\.self),
+        #selector(UICollectionViewDataSource.collectionView(_:cellForItemAt:))
+    )
+    
+    var viewForSupplementaryElementOfKindAt = Delegate<(String, IndexPath), UICollectionReusableView>(
+        index: .indexPath(\.1),
+        #selector(UICollectionViewDataSource.collectionView(_:viewForSupplementaryElementOfKind:at:))
+    )
+
+    //Reordering Items
+    var canMoveItemAt = Delegate<IndexPath, Bool>(
+        index: .indexPath(\.self),
+        #selector(UICollectionViewDataSource.collectionView(_:canMoveItemAt:))
+    )
+    
+    var moveItemAtTo = Delegate<(IndexPath, IndexPath), Void>(
+        #selector(UICollectionViewDataSource.collectionView(_:moveItemAt:to:))
+    )
+    
+    //Configuring an Index
+    var indexTitles = Delegate<Void, [String]?>(
+        #selector(UICollectionViewDataSource.indexTitles(for:))
+    )
+    
+    var indexPathForIndexTitleAt = Delegate<(String, Int), IndexPath>(
+        #selector(UICollectionViewDataSource.collectionView(_:indexPathForIndexTitle:at:))
+    )
+    
+    //MARK: - Delegates
     
     //Managing the Selected Cells
     var shouldSelectItemAt = Delegate<IndexPath, Bool>(
@@ -227,7 +260,55 @@ class UICollectionViewDelegates {
         set { anyWillPerformPreviewActionForMenuWithAnimator = newValue }
     }
     
+    //MARK: - FlowLayout
+    //Getting the Size of Items
+    var layoutSizeForItemAt = Delegate<(UICollectionViewLayout, IndexPath), CGSize>(
+        index: .indexPath(\.1),
+        #selector(UICollectionViewDelegateFlowLayout.collectionView(_:layout:sizeForItemAt:))
+    )
+    
+    //Getting the Section Spacing
+    var layoutInsetForSectionAt = Delegate<(UICollectionViewLayout, Int), UIEdgeInsets>(
+        index: .index(\.1),
+        #selector(UICollectionViewDelegateFlowLayout.collectionView(_:layout:insetForSectionAt:))
+    )
+    
+    var layoutMinimumLineSpacingForSectionAt = Delegate<(UICollectionViewLayout, Int), CGFloat>(
+        index: .index(\.1),
+        #selector(UICollectionViewDelegateFlowLayout.collectionView(_:layout:minimumLineSpacingForSectionAt:))
+    )
+    
+    var layoutMinimumInteritemSpacingForSectionAt = Delegate<(UICollectionViewLayout, Int), CGFloat>(
+        index: .index(\.1),
+        #selector(UICollectionViewDelegateFlowLayout.collectionView(_:layout:minimumInteritemSpacingForSectionAt:))
+    )
+    
+    //Getting the Header and Footer Sizes
+    var layoutReferenceSizeForHeaderInSection = Delegate<(UICollectionViewLayout, Int), CGSize>(
+        index: .index(\.1),
+        #selector(UICollectionViewDelegateFlowLayout.collectionView(_:layout:referenceSizeForHeaderInSection:))
+    )
+    
+    var layoutReferenceSizeForFooterInSection = Delegate<(UICollectionViewLayout, Int), CGSize>(
+        index: .index(\.1),
+        #selector(UICollectionViewDelegateFlowLayout.collectionView(_:layout:referenceSizeForFooterInSection:))
+    )
+    
     func add(by selectorSets: inout SelectorSets) {
+        //DataSource
+        //Getting Views for Items
+        selectorSets.add(cellForItemAt)
+        selectorSets.add(viewForSupplementaryElementOfKindAt)
+
+        //Reordering Items
+        selectorSets.add(canMoveItemAt)
+        selectorSets.add(moveItemAtTo)
+
+        //Configuring an Index
+        selectorSets.add(indexTitles)
+        selectorSets.add(indexPathForIndexTitleAt)
+        
+        //Delegate
         //Managing the Selected Cells
         selectorSets.add(shouldSelectItemAt)
         selectorSets.add(didSelectItemAt)
@@ -276,12 +357,61 @@ class UICollectionViewDelegates {
             selectorSets.add(previewForHighlightingContextMenuWithConfiguration)
             selectorSets.add(willPerformPreviewActionForMenuWithAnimator)
         }
+        
+        //FlowLayout
+        //Getting the Size of Items
+        selectorSets.add(layoutSizeForItemAt)
+        
+        //Getting the Section Spacing
+        selectorSets.add(layoutInsetForSectionAt)
+        selectorSets.add(layoutMinimumLineSpacingForSectionAt)
+        selectorSets.add(layoutMinimumInteritemSpacingForSectionAt)
+        
+        //Getting the Header and Footer Sizes
+        selectorSets.add(layoutReferenceSizeForHeaderInSection)
+        selectorSets.add(layoutReferenceSizeForFooterInSection)
     }
 }
 
-extension BaseCoordinator: UICollectionViewDelegate { }
+extension Delegates: UICollectionViewDataSource {
+    //Getting Item and Section Metrics
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        baseCoordinator.numbersOfItems(in: section)
+    }
+    
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        baseCoordinator.numbersOfSections()
+    }
+    
+    //Getting Views for Items
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        apply(\.collectionViewDelegates.cellForItemAt, object: collectionView, with: indexPath)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        apply(\.collectionViewDelegates.viewForSupplementaryElementOfKindAt, object: collectionView, with: (kind, indexPath))
+    }
+    
+    //Reordering Items
+    func collectionView(_ collectionView: UICollectionView, canMoveItemAt indexPath: IndexPath) -> Bool {
+        apply(\.collectionViewDelegates.canMoveItemAt, object: collectionView, with: indexPath)
+    }
 
-public extension BaseCoordinator {
+    func collectionView(_ collectionView: UICollectionView, moveItemAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+        apply(\.collectionViewDelegates.moveItemAtTo, object: collectionView, with: (sourceIndexPath, destinationIndexPath))
+    }
+
+    //Configuring an Index
+    func indexTitles(for collectionView: UICollectionView) -> [String]? {
+        apply(\.collectionViewDelegates.indexTitles, object: collectionView)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, indexPathForIndexTitle title: String, at index: Int) -> IndexPath {
+        apply(\.collectionViewDelegates.indexPathForIndexTitleAt, object: collectionView, with: (title, index))
+    }
+}
+
+extension Delegates: UICollectionViewDelegate {
     
     //Managing the Selected Cells
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
@@ -413,6 +543,35 @@ public extension BaseCoordinator {
     @available(iOS 13.0, *)
     func collectionView(_ collectionView: UICollectionView, willPerformPreviewActionForMenuWith configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionCommitAnimating) {
         apply(\.collectionViewDelegates.willPerformPreviewActionForMenuWithAnimator, object: collectionView, with: (configuration, animator))
+    }
+}
+
+extension Delegates: UICollectionViewDelegateFlowLayout {
+    //Getting the Size of Items
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        apply(\.collectionViewDelegates.layoutSizeForItemAt, object: collectionView, with: (collectionViewLayout, indexPath))
+    }
+
+    //Getting the Section Spacing
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        apply(\.collectionViewDelegates.layoutInsetForSectionAt, object: collectionView, with: (collectionViewLayout, section))
+    }
+
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        apply(\.collectionViewDelegates.layoutMinimumLineSpacingForSectionAt, object: collectionView, with: (collectionViewLayout, section))
+    }
+
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+        apply(\.collectionViewDelegates.layoutMinimumInteritemSpacingForSectionAt, object: collectionView, with: (collectionViewLayout, section))
+    }
+
+    //Getting the Header and Footer Sizes
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        apply(\.collectionViewDelegates.layoutReferenceSizeForHeaderInSection, object: collectionView, with: (collectionViewLayout, section))
+    }
+
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
+        apply(\.collectionViewDelegates.layoutReferenceSizeForFooterInSection, object: collectionView, with: (collectionViewLayout, section))
     }
 }
 

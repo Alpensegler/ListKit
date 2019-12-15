@@ -24,6 +24,8 @@ where Source.SourceBase == Source {
     public typealias Item = Source.Item
     public typealias SourceBase = Source
     
+    var contextSetups = [(ListContext<Source>) -> Void]()
+    
     public let source: Source
     public let coordinatorStorage = CoordinatorStorage<Source>()
     
@@ -41,22 +43,33 @@ where Source.SourceBase == Source {
     }
 }
 
+#if os(iOS) || os(tvOS)
+import UIKit
+
 extension ScrollListAdapter {
     func set<Object: AnyObject, Input, Output>(
-        _ keyPath: ReferenceWritableKeyPath<BaseCoordinator, Delegate<Object, Input, Output>>,
+        _ keyPath: ReferenceWritableKeyPath<UIScrollViewDelegates, Delegate<Object, Input, Output>>,
         _ closure: @escaping ((Object, Input)) -> Output
     ) -> ScrollList<SourceBase> {
-        let scrollList = self.scrollList
-        scrollList.listCoordinator.set(keyPath, closure)
+        var scrollList = self.scrollList
+        scrollList.contextSetups.append {
+            let rootPath = \Delegates.scrollViewDelegates
+            $0.set(rootPath.appending(path: keyPath)) { closure(($1, $2)) }
+        }
         return scrollList
     }
 
     func set<Object: AnyObject, Input>(
-        _ keyPath: ReferenceWritableKeyPath<BaseCoordinator, Delegate<Object, Input, Void>>,
+        _ keyPath: ReferenceWritableKeyPath<UIScrollViewDelegates, Delegate<Object, Input, Void>>,
         _ closure: @escaping ((Object, Input)) -> Void
     ) -> ScrollList<SourceBase> {
-        let scrollList = self.scrollList
-        scrollList.listCoordinator.set(keyPath, closure)
+        var scrollList = self.scrollList
+        scrollList.contextSetups.append {
+            let rootPath = \Delegates.scrollViewDelegates
+            $0.set(rootPath.appending(path: keyPath)) { closure(($1, $2)) }
+        }
         return scrollList
     }
 }
+
+#endif

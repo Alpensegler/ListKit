@@ -1,5 +1,5 @@
 //
-//  Coordinator+UIScrollViewDelegate.swift
+//  Delegates+UIScrollViewDelegate.swift
 //  ListKit
 //
 //  Created by Frain on 2019/12/8.
@@ -97,9 +97,7 @@ class UIScrollViewDelegates {
 }
 
 //MARK: - ScrollView Delegate
-extension BaseCoordinator: UIScrollViewDelegate { }
-
-public extension BaseCoordinator {
+extension Delegates: UIScrollViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         apply(\.scrollViewDelegates.didScroll, object: scrollView)
     }

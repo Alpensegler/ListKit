@@ -9,7 +9,7 @@
 import UIKit
 
 public extension DataSource {
-    func provideCollectionViewCell(
+    func collectionViewCellForItem(
         _ closure: @escaping (CollectionItemContext<SourceBase>, Item) -> UICollectionViewCell
     ) -> CollectionList<SourceBase> {
         CollectionList(self).set(\.cellForItemAt) {
@@ -17,12 +17,12 @@ public extension DataSource {
         }
     }
     
-    func provideCollectionViewCell<Cell: UICollectionViewCell>(
+    func collectionViewCell<Cell: UICollectionViewCell>(
         _ cellClass: Cell.Type,
         identifier: String = "",
         _ closure: @escaping (Cell, CollectionItemContext<SourceBase>, Item) -> Void
     ) -> CollectionList<SourceBase> {
-        provideCollectionViewCell { (context, item) in
+        collectionViewCellForItem { (context, item) in
             context.dequeueReusableCell(cellClass, identifier: identifier) {
                 closure($0, context, item)
             }
@@ -30,20 +30,11 @@ public extension DataSource {
     }
 }
 
-public extension CollectionListAdapter {
-    @discardableResult
-    func apply(by collectionView: UICollectionView) -> CollectionList<SourceBase> {
-        let collectionList = self.collectionList
-        collectionList.listCoordinator.applyBy(listView: collectionView)
-        return collectionList
-    }
-}
-
 //Collection View Data Source
 public extension CollectionListAdapter {
     //Getting Views for Items
     @discardableResult
-    func provideCollectionListSupplementaryView(
+    func collectionViewSupplementaryViewForItem(
         _ closure: @escaping (CollectionItemContext<SourceBase>, CollectionView.SupplementaryViewType) -> UICollectionReusableView
     ) -> CollectionList<SourceBase> {
         collectionList.set(\.viewForSupplementaryElementOfKindAt) { closure($0.0, .init($0.1.0)) }
@@ -113,7 +104,7 @@ public extension CollectionListAdapter {
     
     @available(iOS 13.0, *)
     @discardableResult
-    func collectionViewShouldBeginMultipleSelectionInteraction(
+    func collectionViewShouldBeginMultipleSelectionInteractionForItem(
         _ closure: @escaping (CollectionItemContext<SourceBase>, Item) -> Bool
     ) -> CollectionList<SourceBase> {
         collectionList.set(\.shouldBeginMultipleSelectionInteractionAt) { closure($0.0, $0.0.itemValue) }
@@ -121,7 +112,7 @@ public extension CollectionListAdapter {
     
     @available(iOS 13.0, *)
     @discardableResult
-    func collectionViewDidBeginMultipleSelectionInteractionAt(
+    func collectionViewDidBeginMultipleSelectionInteractionAtForItem(
         _ closure: @escaping (CollectionItemContext<SourceBase>, Item) -> Void
     ) -> CollectionList<SourceBase> {
         collectionList.set(\.didBeginMultipleSelectionInteractionAt) { closure($0.0, $0.0.itemValue) }
@@ -159,7 +150,7 @@ public extension CollectionListAdapter {
     
     //Tracking the Addition and Removal of Views
     @discardableResult
-    func collectionViewWillDisplayForItemAt(
+    func collectionViewWillDisplayForItem(
         _ closure: @escaping (CollectionItemContext<SourceBase>, UICollectionViewCell, Item) -> Void
     ) -> CollectionList<SourceBase> {
         collectionList.set(\.willDisplayForItemAt) { closure($0.0, $0.1.0, $0.0.itemValue) }

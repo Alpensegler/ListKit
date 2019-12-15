@@ -36,16 +36,34 @@ where Source.SourceBase == Source {
     }
 }
 
+public extension TableListAdapter {
+    @discardableResult
+    func apply(by tableView: TableView) -> TableList<SourceBase> {
+        let tableList = self.tableList
+//        tableView.setupWith(coordinator: tableList.listCoordinator)
+        return tableList
+    }
+}
+
+#if os(iOS) || os(tvOS)
+
 extension TableList: ListAdapter {
     static var rootKeyPath: ReferenceWritableKeyPath<Delegates, UITableViewDelegates> {
         \.tableViewDelegates
     }
     
-    static func toContext(_ view: TableView, _ listContext: ListContext<Source>) -> TableContext<Source> {
+    static func toContext(
+        _ view: TableView,
+        _ listContext: ListContext<Source>
+    ) -> TableContext<Source> {
         .init(listView: view, coordinator: listContext.coordinator)
     }
     
-    static func toSectionContext(_ view: TableView, _ listContext: ListContext<Source>, section: Int) -> TableSectionContext<Source> {
+    static func toSectionContext(
+        _ view: TableView,
+        _ listContext: ListContext<Source>,
+        section: Int
+    ) -> TableSectionContext<Source> {
         .init(
             listView: view,
             coordinator: listContext.coordinator,
@@ -54,7 +72,11 @@ extension TableList: ListAdapter {
         )
     }
     
-    static func toItemContext(_ view: TableView, _ listContext: ListContext<Source>, path: PathConvertible) -> TableItemContext<Source> {
+    static func toItemContext(
+        _ view: TableView,
+        _ listContext: ListContext<Source>,
+        path: PathConvertible
+    ) -> TableItemContext<Source> {
         .init(
             listView: view,
             coordinator: listContext.coordinator,
@@ -65,3 +87,5 @@ extension TableList: ListAdapter {
         )
     }
 }
+
+#endif

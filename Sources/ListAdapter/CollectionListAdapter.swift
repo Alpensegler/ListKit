@@ -37,16 +37,34 @@ where Source.SourceBase == Source {
     }
 }
 
+public extension CollectionListAdapter {
+    @discardableResult
+    func apply(by collectionView: CollectionView) -> CollectionList<SourceBase> {
+        let collectionList = self.collectionList
+        collectionList.listCoordinator.applyBy(listView: collectionView)
+        return collectionList
+    }
+}
+
+#if os(iOS) || os(tvOS)
+
 extension CollectionList: ListAdapter {
     static var rootKeyPath: ReferenceWritableKeyPath<Delegates, UICollectionViewDelegates> {
         \.collectionViewDelegates
     }
     
-    static func toContext(_ view: CollectionView, _ listContext: ListContext<Source>) -> CollectionContext<Source> {
+    static func toContext(
+        _ view: CollectionView,
+        _ listContext: ListContext<Source>
+    ) -> CollectionContext<Source> {
         .init(listView: view, coordinator: listContext.coordinator)
     }
     
-    static func toSectionContext(_ view: CollectionView, _ listContext: ListContext<Source>, section: Int) -> CollectionSectionContext<Source> {
+    static func toSectionContext(
+        _ view: CollectionView,
+        _ listContext: ListContext<Source>,
+        section: Int
+    ) -> CollectionSectionContext<Source> {
         .init(
             listView: view,
             coordinator: listContext.coordinator,
@@ -55,7 +73,11 @@ extension CollectionList: ListAdapter {
         )
     }
     
-    static func toItemContext(_ view: CollectionView, _ listContext: ListContext<Source>, path: PathConvertible) -> CollectionItemContext<Source> {
+    static func toItemContext(
+        _ view: CollectionView,
+        _ listContext: ListContext<Source>,
+        path: PathConvertible
+    ) -> CollectionItemContext<Source> {
         .init(
             listView: view,
             coordinator: listContext.coordinator,
@@ -66,3 +88,5 @@ extension CollectionList: ListAdapter {
         )
     }
 }
+
+#endif

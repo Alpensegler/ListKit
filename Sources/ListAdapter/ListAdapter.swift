@@ -16,18 +16,32 @@ protocol ListAdapter: UpdatableDataSource where Source == SourceBase {
     static var rootKeyPath: ReferenceWritableKeyPath<Delegates, Value> { get }
     
     static func toContext(_ view: View, _ listContext: ListContext<Source>) -> Context
-    static func toSectionContext(_ view: View, _ listContext: ListContext<Source>, section: Int) -> SectionContext
-    static func toItemContext(_ view: View, _ listContext: ListContext<Source>, path: PathConvertible) -> ItemContext
+    
+    static func toSectionContext(
+        _ view: View,
+        _ listContext: ListContext<Source>,
+        section: Int
+    ) -> SectionContext
+    
+    static func toItemContext(
+        _ view: View,
+        _ listContext: ListContext<Source>,
+        path: PathConvertible
+    ) -> ItemContext
     
     init(contextSetups: [(ListContext<Source>) -> Void], source: Source)
 }
 
 extension ListAdapter {
-    init<OtherSource: DataSource>(_ dataSource: OtherSource) where OtherSource.SourceBase == Source {
+    init<OtherSource: DataSource>(
+        _ dataSource: OtherSource
+    ) where OtherSource.SourceBase == Source {
         self.init(contextSetups: [], source: dataSource.sourceBase)
     }
 
-    init<OtherSource: ListAdapter>(_ dataSource: OtherSource) where OtherSource.SourceBase == Source {
+    init<OtherSource: ListAdapter>(
+        _ dataSource: OtherSource
+    ) where OtherSource.SourceBase == Source {
         self.init(contextSetups: dataSource.contextSetups, source: dataSource.sourceBase)
     }
     
@@ -69,7 +83,9 @@ extension ListAdapter {
         collectionList.contextSetups.append {
             let keyPath = Self.rootKeyPath.appending(path: keyPath)
             guard case let .index(path) = $0[keyPath: keyPath].index else { fatalError() }
-            $0.set(keyPath) { closure((Self.toSectionContext($1, $0, section: $2[keyPath: path]), $2)) }
+            $0.set(keyPath) {
+                closure((Self.toSectionContext($1, $0, section: $2[keyPath: path]), $2))
+            }
         }
         return collectionList
     }
@@ -82,7 +98,9 @@ extension ListAdapter {
         collectionList.contextSetups.append {
             let keyPath = Self.rootKeyPath.appending(path: keyPath)
             guard case let .index(path) = $0[keyPath: keyPath].index else { fatalError() }
-            $0.set(keyPath) { closure((Self.toSectionContext($1, $0, section: $2[keyPath: path]), $2)) }
+            $0.set(keyPath) {
+                closure((Self.toSectionContext($1, $0, section: $2[keyPath: path]), $2))
+            }
         }
         return collectionList
     }

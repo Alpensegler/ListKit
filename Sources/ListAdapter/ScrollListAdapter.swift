@@ -39,50 +39,33 @@ where Source.SourceBase == Source {
     }
 }
 
+#if os(iOS) || os(tvOS)
+import UIKit
+
 extension ScrollList: ListAdapter {
     static var rootKeyPath: ReferenceWritableKeyPath<Delegates, UIScrollViewDelegates> {
         \.scrollViewDelegates
     }
     
-    static func toContext(_ view: UIScrollView, _ listContext: ListContext<Source>) -> Never {
+    static func toContext(
+        _ view: UIScrollView, _ listContext: ListContext<Source>
+    ) -> ScrollContext<Source> {
+        .init(listView: view, coordinator: listContext.coordinator)
+    }
+    
+    static func toSectionContext(
+        _ view: UIScrollView,
+        _ listContext: ListContext<Source>, section: Int
+    ) -> Never {
         fatalError()
     }
     
-    static func toSectionContext(_ view: UIScrollView, _ listContext: ListContext<Source>, section: Int) -> Never {
+    static func toItemContext(
+        _ view: UIScrollView,
+        _ listContext: ListContext<Source>,
+        path: PathConvertible
+    ) -> Never {
         fatalError()
-    }
-    
-    static func toItemContext(_ view: UIScrollView, _ listContext: ListContext<Source>, path: PathConvertible) -> Never {
-        fatalError()
-    }
-}
-
-#if os(iOS) || os(tvOS)
-import UIKit
-
-extension ScrollListAdapter {
-    func set<Object: AnyObject, Input, Output>(
-        _ keyPath: ReferenceWritableKeyPath<UIScrollViewDelegates, Delegate<Object, Input, Output>>,
-        _ closure: @escaping ((Object, Input)) -> Output
-    ) -> ScrollList<SourceBase> {
-        var scrollList = self.scrollList
-        scrollList.contextSetups.append {
-            let rootPath = \Delegates.scrollViewDelegates
-            $0.set(rootPath.appending(path: keyPath)) { closure(($1, $2)) }
-        }
-        return scrollList
-    }
-
-    func set<Object: AnyObject, Input>(
-        _ keyPath: ReferenceWritableKeyPath<UIScrollViewDelegates, Delegate<Object, Input, Void>>,
-        _ closure: @escaping ((Object, Input)) -> Void
-    ) -> ScrollList<SourceBase> {
-        var scrollList = self.scrollList
-        scrollList.contextSetups.append {
-            let rootPath = \Delegates.scrollViewDelegates
-            $0.set(rootPath.appending(path: keyPath)) { closure(($1, $2)) }
-        }
-        return scrollList
     }
 }
 

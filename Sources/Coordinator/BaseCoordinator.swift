@@ -5,9 +5,7 @@
 //  Created by Frain on 2019/10/12.
 //
 
-import ObjectiveC.runtime
-
-public class BaseCoordinator: NSObject {
+public class BaseCoordinator {
     enum SourceValue<OtherType, Coordinator, AssociatedValue, AssociatedDiffValue>
     where Coordinator: BaseCoordinator, OtherType: DiffEquatable {
         case single(DiffableSource<Coordinator, AssociatedValue, AssociatedDiffValue>)
@@ -45,12 +43,6 @@ public class BaseCoordinator: NSObject {
         }
     }
     
-    struct ListContext {
-        let sectionOffset: Int
-        let itemOffset: Int
-        let listView: () -> ListView?
-    }
-    
     enum SourceType {
         case cell
         case section
@@ -66,18 +58,6 @@ public class BaseCoordinator: NSObject {
     typealias AnyItemSources = SourceValue<Never, BaseCoordinator, Any, Any>
     typealias AnySectionSources = SectionSourceValue<BaseCoordinator, [Any], Any>
     typealias AnyDiffableSourceValue = DiffableValue<BaseCoordinator>
-    
-    //DelegatesValues
-    
-    lazy var selectorSets = initialSelectorSets()
-    
-    #if os(iOS) || os(tvOS)
-    var scrollViewDelegates = UIScrollViewDelegates()
-    var collectionViewDelegates = UICollectionViewDelegates()
-    var tableViewDelegates = UITableViewDelegates()
-    #endif
-    
-    var contexts = [ObjectIdentifier: ListContext]()
     
     //Updating
     var didUpdateToCoordinator = [(BaseCoordinator, BaseCoordinator) -> Void]()
@@ -107,29 +87,8 @@ public class BaseCoordinator: NSObject {
     
     func anySourceUpdate(to sources: [AnyDiffableSourceValue]) { fatalError() }
     
-    func addToSelectorSet(_ subselectorSets: inout SelectorSets, isAll: Bool = false) {
-        guard !isAll else {
-            subselectorSets = selectorSets
-            return
-        }
-        if sourceType == .section {
-            subselectorSets.withIndex.formUnion(selectorSets.withIndex)
-        }
-        subselectorSets.withIndexPath.formUnion(selectorSets.withIndexPath)
-    }
-    
-    func applyBy(listView: ListView) {
-//        listView.setupWith(coordinator: self)
-        applyBy(listView: listView, sectionOffset: 0, itemOffset: 0)
-        listView.reloadSynchronously()
-    }
-    
-    func applyBy(listView: ListView, sectionOffset: Int, itemOffset: Int) {
-        contexts[ObjectIdentifier(listView)] = ListContext(
-            sectionOffset: sectionOffset,
-            itemOffset: itemOffset
-        ) { [weak listView] in listView }
-    }
+    func applyBy(listView: ListView) { fatalError() }
+    func applyBy(listView: ListView, sectionOffset: Int, itemOffset: Int) { fatalError() }
     
     func update(
         from coordinator: BaseCoordinator,
@@ -138,89 +97,6 @@ public class BaseCoordinator: NSObject {
         isMove: Bool
     ) -> [(changes: ListChanges, update: () -> Void)] {
         fatalError()
-    }
-    
-    //Responding
-    func apply<Object: AnyObject, Input, Output>(
-        _ keyPath: KeyPath<BaseCoordinator, Delegate<Object, Input, Output>>,
-        object: Object,
-        with input: Input
-    ) -> Output {
-        self[keyPath: keyPath].closure!(object, input)
-    }
-    
-    func apply<Object: AnyObject, Input>(
-        _ keyPath: KeyPath<BaseCoordinator, Delegate<Object, Input, Void>>,
-        object: Object,
-        with input: Input
-    ) {
-        self[keyPath: keyPath].closure?(object, input)
-    }
-    
-    public override func responds(to aSelector: Selector!) -> Bool {
-        if aSelector.map(selectorSets.contains) == true { return false }
-        return superResponds(to: aSelector)
-    }
-    
-    public func superResponds(to aSelector: Selector!) -> Bool {
-        super.responds(to: aSelector)
-    }
-}
-
-//Responding extension
-extension BaseCoordinator {
-    func offsets<Object: AnyObject>(for object: Object) -> (sectionOffset: Int, itemOffset: Int) {
-        guard let context = contexts[ObjectIdentifier(object)] else { return (0, 0) }
-        return (context.sectionOffset, context.itemOffset)
-    }
-    
-    func initialSelectorSets(withoutIndex: Bool = false) -> SelectorSets {
-        var selectorSets = SelectorSets()
-        selectorSets.withoutIndex = withoutIndex
-        
-        #if os(iOS) || os(tvOS)
-        scrollViewDelegates.add(by: &selectorSets)
-        collectionViewDelegates.add(by: &selectorSets)
-        tableViewDelegates.add(by: &selectorSets)
-        #endif
-        
-        return selectorSets
-    }
-    
-    func apply<Object: AnyObject, Output>(
-        _ keyPath: KeyPath<BaseCoordinator, Delegate<Object, Void, Output>>,
-        object: Object
-    ) -> Output {
-        apply(keyPath, object: object, with: ())
-    }
-    
-    func apply<Object: AnyObject>(
-        _ keyPath: KeyPath<BaseCoordinator, Delegate<Object, Void, Void>>,
-        object: Object
-    ) {
-        apply(keyPath, object: object, with: ())
-    }
-    
-    func set<Object: AnyObject, Input, Output>(
-        _ keyPath: ReferenceWritableKeyPath<BaseCoordinator, Delegate<Object, Input, Output>>,
-        _ closure: @escaping ((Object, Input)) -> Output
-    ) {
-        self[keyPath: keyPath].closure = { closure(($0, $1)) }
-        let delegate = self[keyPath: keyPath]
-        switch delegate.index {
-        case .none: selectorSets.value.remove(delegate.selector)
-        case .index: selectorSets.withIndex.remove(delegate.selector)
-        case .indexPath: selectorSets.withIndexPath.remove(delegate.selector)
-        }
-    }
-
-    func set<Object: AnyObject, Input>(
-        _ keyPath: ReferenceWritableKeyPath<BaseCoordinator, Delegate<Object, Input, Void>>,
-        _ closure: @escaping ((Object, Input)) -> Void
-    ) {
-        self[keyPath: keyPath].closure = { closure(($0, $1)) }
-        let delegate = self[keyPath: keyPath]
-        selectorSets.void.remove(delegate.selector)
     }
 }
 

@@ -11,7 +11,7 @@ where
     SourceBase.Source.SourceBase.Item == Item
 {
     var collectionList: CollectionList<SourceBase> { provideCollectionListBySubsource() }
-    func provideCollectionListBySubsource() -> CollectionList<SourceBase> { toCollectionList() }
+    func provideCollectionListBySubsource() -> CollectionList<SourceBase> { .init(self) }
 }
 
 public extension CollectionListAdapter
@@ -21,5 +21,5 @@ where
     SourceBase.Source.Element.SourceBase.Item == Item
 {
     var collectionList: CollectionList<SourceBase> { provideCollectionListBySubsource() }
-    func provideCollectionListBySubsource() -> CollectionList<SourceBase> { toCollectionList() }
+    func provideCollectionListBySubsource() -> CollectionList<SourceBase> { .init(self) }
 }

@@ -17,9 +17,9 @@ extension Optional: DataSource where Wrapped: DataSource {
 
 extension Optional: ScrollListAdapter where Wrapped: ScrollListAdapter { }
 extension Optional: TableListAdapter where Wrapped: TableListAdapter {
-    public var tableList: TableList<Self> { toTableList() }
+    public var tableList: TableList<Self> { .init(self) }
 }
 
 extension Optional: CollectionListAdapter where Wrapped: CollectionListAdapter {
-    public var collectionList: CollectionList<Self> { toCollectionList() }
+    public var collectionList: CollectionList<Self> { .init(self) }
 }

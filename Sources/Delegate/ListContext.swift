@@ -25,9 +25,9 @@ class CoordinatorContext<Coordinator: BaseCoordinator>: Delegates {
     
     func set<Object: AnyObject, Input, Output>(
         _ keyPath: ReferenceWritableKeyPath<Delegates, Delegate<Object, Input, Output>>,
-        _ closure: @escaping (Coordinator, Object, Input) -> Output
+        _ closure: @escaping (CoordinatorContext<Coordinator>, Object, Input) -> Output
     ) {
-        self[keyPath: keyPath].closure = { [unowned coordinator] in closure(coordinator, $0, $1) }
+        self[keyPath: keyPath].closure = { [unowned self] in closure(self, $0, $1) }
         let delegate = self[keyPath: keyPath]
         switch delegate.index {
         case .none: selectorSets { $0.value.remove(delegate.selector) }
@@ -38,9 +38,9 @@ class CoordinatorContext<Coordinator: BaseCoordinator>: Delegates {
 
     func set<Object: AnyObject, Input>(
         _ keyPath: ReferenceWritableKeyPath<Delegates, Delegate<Object, Input, Void>>,
-        _ closure: @escaping (Coordinator, Object, Input) -> Void
+        _ closure: @escaping (CoordinatorContext<Coordinator>, Object, Input) -> Void
     ) {
-        self[keyPath: keyPath].closure = { [unowned coordinator] in closure(coordinator, $0, $1) }
+        self[keyPath: keyPath].closure = { [unowned self] in closure(self, $0, $1) }
         let delegate = self[keyPath: keyPath]
         selectorSets { $0.void.remove(delegate.selector) }
     }

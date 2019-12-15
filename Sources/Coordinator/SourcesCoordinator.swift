@@ -17,12 +17,6 @@ where
     var subitemCoordinators = [ItemTypedCoorinator<Item>]()
     var anysubCoordinators: [BaseCoordinator] { subitemCoordinators }
     var subsourcesHasSectioned = false
-    override var sourceType: SourceType {
-        get { subsourcesHasSectioned || selectorSets.hasIndex ? .section : .cell }
-        set { fatalError() }
-    }
-    
-    lazy var subselectorSets = initialSelectorSets(withoutIndex: true)
     
     var offsets = [Path]()
     
@@ -95,36 +89,9 @@ where
         resetAndConfigIndicesAndOffsets()
     }
     
-    override func apply<Object: AnyObject, Input, Output>(
-        _ keyPath: KeyPath<BaseCoordinator, Delegate<Object, Input, Output>>,
-        object: Object,
-        with input: Input
-    ) -> Output {
-        let closure = self[keyPath: keyPath]
-        let coordinator = subcoordinator(for: closure, object: object, with: input)
-        return coordinator?.apply(keyPath, object: object, with: input)
-            ?? super.apply(keyPath, object: object, with: input)
-    }
-    
-    override func apply<Object: AnyObject, Input>(
-        _ keyPath: KeyPath<BaseCoordinator, Delegate<Object, Input, Void>>,
-        object: Object,
-        with input: Input
-    ) {
-        let closure = self[keyPath: keyPath]
-        let coordinator = subcoordinator(for: closure, object: object, with: input)
-        coordinator?.apply(keyPath, object: object, with: input)
-        super.apply(keyPath, object: object, with: input)
-    }
-    
-    override func responds(to aSelector: Selector!) -> Bool {
-        super.responds(to: aSelector) || aSelector.map(subselectorSets.contains) != true
-    }
-    
     override func setup() {
         setupCoordinators()
         configIndicesAndOffsets()
-        configSubselectorSets()
         rangeReplacable = true
     }
     
@@ -132,13 +99,7 @@ where
         offsets.removeAll(keepingCapacity: true)
         sourceIndices.removeAll(keepingCapacity: true)
         subsourcesHasSectioned = false
-        reconfigSubselectorSets()
         configIndicesAndOffsets()
-    }
-    
-    func reconfigSubselectorSets() {
-        subselectorSets = initialSelectorSets(withoutIndex: true)
-        configSubselectorSets()
     }
     
     func setupCoordinators() {
@@ -186,43 +147,6 @@ where
 
             offsets.append(offset)
         }
-    }
-    
-    func configSubselectorSets() {
-        guard !isEmpty else {
-            subselectorSets = initialSelectorSets()
-            return
-        }
-        let notEmptySubcoordinator = anysubCoordinators.filter { !$0.isEmpty }
-        if notEmptySubcoordinator.count == 1, notEmptySubcoordinator[0].sourceType == sourceType {
-            notEmptySubcoordinator[0].addToSelectorSet(&subselectorSets, isAll: true)
-            return
-        }
-        for coordinator in notEmptySubcoordinator {
-            coordinator.addToSelectorSet(&subselectorSets)
-        }
-    }
-    
-    func subcoordinator<Object: AnyObject, Input, Output>(
-        for closureDelegate: Delegate<Object, Input, Output>,
-        object: Object,
-        with input: Input
-    ) -> BaseCoordinator? {
-        guard let index = closureDelegate.index else { return nil }
-        let (sectionOffset, itemOffset) = offsets(for: object)
-        let offset: Int
-        switch index {
-        case let .index(keyPath):
-            let section = input[keyPath: keyPath]
-            guard let sectionOffset = self.index(of: section - sectionOffset) else { return nil }
-            offset = sectionOffset
-        case let .indexPath(keyPath):
-            let path = input[keyPath: keyPath]
-            let rawPath = Path(section: path.section - sectionOffset, item: path.item - itemOffset)
-            offset = self.index(of: rawPath)
-        }
-        let subcoordinator = anysubCoordinators[offset]
-        return subcoordinator.responds(to: closureDelegate.selector) ? subcoordinator : nil
     }
     
     func subsectionSources<C: BaseCoordinator, V, D>(

@@ -7,7 +7,7 @@
 
 @dynamicMemberLookup
 public protocol Context {
-    associatedtype List: ListView
+    associatedtype List
     associatedtype Source: DataSource where Source.SourceBase == Source
     
     var coordinator: ListCoordinator<Source> { get }

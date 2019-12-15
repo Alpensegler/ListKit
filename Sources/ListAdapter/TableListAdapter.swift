@@ -15,8 +15,7 @@ public struct TableList<Source: DataSource>: TableListAdapter, UpdatableDataSour
 where Source.SourceBase == Source {
     public typealias Item = Source.Item
     public typealias SourceBase = Source
-    
-    var contextSetups = [(ListContext<Source>) -> Void]()
+    var contextSetups: [(ListContext<Source>) -> Void]
     
     public let source: Source
     public let coordinatorStorage = CoordinatorStorage<Source>()
@@ -24,6 +23,7 @@ where Source.SourceBase == Source {
     public var updater: Updater<Source> { source.updater }
     public var sourceBase: Source { source }
     public var tableList: TableList<Source> { self }
+    public var listCoordinator: ListCoordinator<Source> { sourceListCoordinator }
     public func makeListCoordinator() -> ListCoordinator<Source> {
         addToStorage(source.listCoordinator)
     }
@@ -36,97 +36,32 @@ where Source.SourceBase == Source {
     }
 }
 
-extension DataSource {
-    func toTableList() -> TableList<SourceBase> {
-        let tableList = TableList(source: sourceBase)
-        tableList.coordinatorStorage.coordinator = listCoordinator
-        return tableList
+extension TableList: ListAdapter {
+    static var rootKeyPath: ReferenceWritableKeyPath<Delegates, UITableViewDelegates> {
+        \.tableViewDelegates
+    }
+    
+    static func toContext(_ view: TableView, _ listContext: ListContext<Source>) -> TableContext<Source> {
+        .init(listView: view, coordinator: listContext.coordinator)
+    }
+    
+    static func toSectionContext(_ view: TableView, _ listContext: ListContext<Source>, section: Int) -> TableSectionContext<Source> {
+        .init(
+            listView: view,
+            coordinator: listContext.coordinator,
+            section: section - listContext.sectionOffset,
+            sectionOffset: listContext.sectionOffset
+        )
+    }
+    
+    static func toItemContext(_ view: TableView, _ listContext: ListContext<Source>, path: PathConvertible) -> TableItemContext<Source> {
+        .init(
+            listView: view,
+            coordinator: listContext.coordinator,
+            section: path.section - listContext.sectionOffset,
+            sectionOffset: listContext.sectionOffset,
+            item: path.item - listContext.itemOffset,
+            itemOffset: listContext.itemOffset
+        )
     }
 }
-
-#if os(iOS) || os(tvOS)
-import UIKit
-
-extension TableListAdapter {
-    func set<Input, Output>(
-        _ keyPath: ReferenceWritableKeyPath<UITableViewDelegates, Delegate<TableView, Input, Output>>,
-        _ closure: @escaping ((TableContext<SourceBase>, Input)) -> Output
-    ) -> TableList<SourceBase> {
-        var tableList = self.tableList
-        tableList.contextSetups.append {
-            let rootPath = \Delegates.tableViewDelegates
-            $0.set(rootPath.appending(path: keyPath)) { closure((.init($1, $0), $2)) }
-        }
-        return tableList
-    }
-    
-    func set<Input>(
-        _ keyPath: ReferenceWritableKeyPath<UITableViewDelegates, Delegate<TableView, Input, Void>>,
-        _ closure: @escaping ((TableContext<SourceBase>, Input)) -> Void
-    ) -> TableList<SourceBase> {
-        var tableList = self.tableList
-        tableList.contextSetups.append {
-            let rootPath = \Delegates.tableViewDelegates
-            $0.set(rootPath.appending(path: keyPath)) { closure((.init($1, $0), $2)) }
-        }
-        return tableList
-    }
-    
-    func set<Input, Output>(
-        _ keyPath: ReferenceWritableKeyPath<UITableViewDelegates, Delegate<TableView, Input, Output>>,
-        _ closure: @escaping ((TableSectionContext<SourceBase>, Input)) -> Output
-    ) -> TableList<SourceBase> {
-        var tableList = self.tableList
-        tableList.contextSetups.append {
-            let rootPath = \Delegates.tableViewDelegates
-            let keyPath = rootPath.appending(path: keyPath)
-            guard case let .index(path) = $0[keyPath: keyPath].index else { fatalError() }
-            $0.set(keyPath) { closure((.init($1, $0, section: $2[keyPath: path]), $2)) }
-        }
-        return tableList
-    }
-    
-    func set<Input>(
-        _ keyPath: ReferenceWritableKeyPath<UITableViewDelegates, Delegate<TableView, Input, Void>>,
-        _ closure: @escaping ((TableSectionContext<SourceBase>, Input)) -> Void
-    ) -> TableList<SourceBase> {
-        var tableList = self.tableList
-        tableList.contextSetups.append {
-            let rootPath = \Delegates.tableViewDelegates
-            let keyPath = rootPath.appending(path: keyPath)
-            guard case let .index(path) = $0[keyPath: keyPath].index else { fatalError() }
-            $0.set(keyPath) { closure((.init($1, $0, section: $2[keyPath: path]), $2)) }
-        }
-        return tableList
-    }
-    
-    func set<Input, Output>(
-        _ keyPath: ReferenceWritableKeyPath<UITableViewDelegates, Delegate<TableView, Input, Output>>,
-        _ closure: @escaping ((TableItemContext<SourceBase>, Input)) -> Output
-    ) -> TableList<SourceBase> {
-        var tableList = self.tableList
-        tableList.contextSetups.append {
-            let rootPath = \Delegates.tableViewDelegates
-            let keyPath = rootPath.appending(path: keyPath)
-            guard case let .indexPath(path) = $0[keyPath: keyPath].index else { fatalError() }
-            $0.set(keyPath) { closure((.init($1, $0, path: $2[keyPath: path]), $2)) }
-        }
-        return tableList
-    }
-    
-    func set<Input>(
-        _ keyPath: ReferenceWritableKeyPath<UITableViewDelegates, Delegate<TableView, Input, Void>>,
-        _ closure: @escaping ((TableItemContext<SourceBase>, Input)) -> Void
-    ) -> TableList<SourceBase> {
-        var tableList = self.tableList
-        tableList.contextSetups.append {
-            let rootPath = \Delegates.tableViewDelegates
-            let keyPath = rootPath.appending(path: keyPath)
-            guard case let .indexPath(path) = $0[keyPath: keyPath].index else { fatalError() }
-            $0.set(keyPath) { closure((.init($1, $0, path: $2[keyPath: path]), $2)) }
-        }
-        return tableList
-    }
-}
-
-#endif

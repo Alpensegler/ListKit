@@ -10,11 +10,7 @@ public protocol ScrollListAdapter: DataSource {
 }
 
 public extension ScrollListAdapter {
-    var scrollList: ScrollList<SourceBase> {
-        let scrollList = ScrollList(source: sourceBase)
-        scrollList.coordinatorStorage.coordinator = listCoordinator
-        return scrollList
-    }
+    var scrollList: ScrollList<SourceBase> { ScrollList(source: sourceBase) }
 }
 
 @propertyWrapper
@@ -31,15 +27,33 @@ where Source.SourceBase == Source {
     
     public var updater: Updater<Source> { source.updater }
     public var sourceBase: Source { source }
+    public var listCoordinator: ListCoordinator<Source> { sourceListCoordinator }
     public func makeListCoordinator() -> ListCoordinator<Source> {
-        addToStorage(source.makeListCoordinator())
+        addToStorage(sourceBase.listCoordinator)
     }
-    
     public var wrappedValue: Source { source }
     public var projectedValue: Source.Source { source.source }
     
     public subscript<Value>(dynamicMember path: KeyPath<Source, Value>) -> Value {
         source[keyPath: path]
+    }
+}
+
+extension ScrollList: ListAdapter {
+    static var rootKeyPath: ReferenceWritableKeyPath<Delegates, UIScrollViewDelegates> {
+        \.scrollViewDelegates
+    }
+    
+    static func toContext(_ view: UIScrollView, _ listContext: ListContext<Source>) -> Never {
+        fatalError()
+    }
+    
+    static func toSectionContext(_ view: UIScrollView, _ listContext: ListContext<Source>, section: Int) -> Never {
+        fatalError()
+    }
+    
+    static func toItemContext(_ view: UIScrollView, _ listContext: ListContext<Source>, path: PathConvertible) -> Never {
+        fatalError()
     }
 }
 

@@ -11,7 +11,7 @@ where
     SourceBase.Source.SourceBase.Item == Item
 {
     var tableList: TableList<SourceBase> { provideTableListBySubsource() }
-    func provideTableListBySubsource() -> TableList<SourceBase> { toTableList() }
+    func provideTableListBySubsource() -> TableList<SourceBase> { .init(self) }
 }
 
 public extension TableListAdapter
@@ -21,5 +21,5 @@ where
     SourceBase.Source.Element.SourceBase.Item == Item
 {
     var tableList: TableList<SourceBase> { provideTableListBySubsource() }
-    func provideTableListBySubsource() -> TableList<SourceBase> { toTableList() }
+    func provideTableListBySubsource() -> TableList<SourceBase> { .init(self) }
 }

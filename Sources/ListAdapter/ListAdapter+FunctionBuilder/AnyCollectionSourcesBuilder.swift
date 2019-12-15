@@ -9,14 +9,16 @@ public typealias AnyCollectionSources = CollectionList<AnySources>
 
 public extension CollectionList where SourceBase == AnySources {
     init<Source: CollectionListAdapter>(_ dataSource: Source) {
-        let collectionList = dataSource.collectionList
-        let source = AnySources(collectionList.sourceBase)
-        self.init(source: source)
-        coordinatorStorage.coordinator = source.listCoordinator
+        self.init(SourceBase(dataSource.collectionList))
+    }
+    
+    init<Source: CollectionListAdapter>(_ dataSources: [Source]) {
+        self.init(SourceBase(dataSources))
     }
     
     init(@AnyCollectionSourcesBuilder content: () -> Self) {
-        self.init(source: content().sourceBase)
+        let dataSource = content()
+        self.init(contextSetups: dataSource.contextSetups, source: dataSource.sourceBase)
     }
 }
 
@@ -35,7 +37,7 @@ public struct AnyCollectionSourcesBuilder {
     }
     
     public static func buildBlock() -> AnyCollectionSources {
-        AnyCollectionSources(Sources(dataSources: [AnyCollectionSources]()).toCollectionList())
+        AnyCollectionSources([AnyCollectionSources]())
     }
 
     public static func buildBlock<S: CollectionListAdapter>(_ content: S) -> AnyCollectionSources {
@@ -43,38 +45,38 @@ public struct AnyCollectionSourcesBuilder {
     }
     
     public static func buildBlock<S0: CollectionListAdapter, S1: CollectionListAdapter>(_ s0: S0, _ s1: S1) -> AnyCollectionSources {
-        AnyCollectionSources(Sources(dataSources: [AnyCollectionSources(s0), AnyCollectionSources(s1)]).toCollectionList())
+        AnyCollectionSources([AnyCollectionSources(s0), AnyCollectionSources(s1)])
     }
     
     public static func buildBlock<S0: CollectionListAdapter, S1: CollectionListAdapter, S2: CollectionListAdapter>(_ s0: S0, _ s1: S1, _ s2: S2) -> AnyCollectionSources {
-        AnyCollectionSources(Sources(dataSources: [AnyCollectionSources(s0), AnyCollectionSources(s1), AnyCollectionSources(s2)]).toCollectionList())
+        AnyCollectionSources([AnyCollectionSources(s0), AnyCollectionSources(s1), AnyCollectionSources(s2)])
     }
     
     public static func buildBlock<S0: CollectionListAdapter, S1: CollectionListAdapter, S2: CollectionListAdapter, S3: CollectionListAdapter>(_ s0: S0, _ s1: S1, _ s2: S2, _ s3: S3) -> AnyCollectionSources {
-        AnyCollectionSources(Sources(dataSources: [AnyCollectionSources(s0), AnyCollectionSources(s1), AnyCollectionSources(s2), AnyCollectionSources(s3)]).toCollectionList())
+        AnyCollectionSources([AnyCollectionSources(s0), AnyCollectionSources(s1), AnyCollectionSources(s2), AnyCollectionSources(s3)])
     }
     
     public static func buildBlock<S0: CollectionListAdapter, S1: CollectionListAdapter, S2: CollectionListAdapter, S3: CollectionListAdapter, S4: CollectionListAdapter>(_ s0: S0, _ s1: S1, _ s2: S2, _ s3: S3, _ s4: S4) -> AnyCollectionSources {
-        AnyCollectionSources(Sources(dataSources: [AnyCollectionSources(s0), AnyCollectionSources(s1), AnyCollectionSources(s2), AnyCollectionSources(s3), AnyCollectionSources(s4)]).toCollectionList())
+        AnyCollectionSources([AnyCollectionSources(s0), AnyCollectionSources(s1), AnyCollectionSources(s2), AnyCollectionSources(s3), AnyCollectionSources(s4)])
     }
     
     public static func buildBlock<S0: CollectionListAdapter, S1: CollectionListAdapter, S2: CollectionListAdapter, S3: CollectionListAdapter, S4: CollectionListAdapter, S5: CollectionListAdapter>(_ s0: S0, _ s1: S1, _ s2: S2, _ s3: S3, _ s4: S4, _ s5: S5) -> AnyCollectionSources {
-        AnyCollectionSources(Sources(dataSources: [AnyCollectionSources(s0), AnyCollectionSources(s1), AnyCollectionSources(s2), AnyCollectionSources(s3), AnyCollectionSources(s4), AnyCollectionSources(s5)]).toCollectionList())
+        AnyCollectionSources([AnyCollectionSources(s0), AnyCollectionSources(s1), AnyCollectionSources(s2), AnyCollectionSources(s3), AnyCollectionSources(s4), AnyCollectionSources(s5)])
     }
     
     public static func buildBlock<S0: CollectionListAdapter, S1: CollectionListAdapter, S2: CollectionListAdapter, S3: CollectionListAdapter, S4: CollectionListAdapter, S5: CollectionListAdapter, S6: CollectionListAdapter>(_ s0: S0, _ s1: S1, _ s2: S2, _ s3: S3, _ s4: S4, _ s5: S5, _ s6: S6) -> AnyCollectionSources {
-        AnyCollectionSources(Sources(dataSources: [AnyCollectionSources(s0), AnyCollectionSources(s1), AnyCollectionSources(s2), AnyCollectionSources(s3), AnyCollectionSources(s4), AnyCollectionSources(s5), AnyCollectionSources(s6)]).toCollectionList())
+        AnyCollectionSources([AnyCollectionSources(s0), AnyCollectionSources(s1), AnyCollectionSources(s2), AnyCollectionSources(s3), AnyCollectionSources(s4), AnyCollectionSources(s5), AnyCollectionSources(s6)])
     }
     
     public static func buildBlock<S0: CollectionListAdapter, S1: CollectionListAdapter, S2: CollectionListAdapter, S3: CollectionListAdapter, S4: CollectionListAdapter, S5: CollectionListAdapter, S6: CollectionListAdapter, S7: CollectionListAdapter>(_ s0: S0, _ s1: S1, _ s2: S2, _ s3: S3, _ s4: S4, _ s5: S5, _ s6: S6, _ s7: S7) -> AnyCollectionSources {
-        AnyCollectionSources(Sources(dataSources: [AnyCollectionSources(s0), AnyCollectionSources(s1), AnyCollectionSources(s2), AnyCollectionSources(s3), AnyCollectionSources(s4), AnyCollectionSources(s5), AnyCollectionSources(s6), AnyCollectionSources(s7)]).toCollectionList())
+        AnyCollectionSources([AnyCollectionSources(s0), AnyCollectionSources(s1), AnyCollectionSources(s2), AnyCollectionSources(s3), AnyCollectionSources(s4), AnyCollectionSources(s5), AnyCollectionSources(s6), AnyCollectionSources(s7)])
     }
     
     public static func buildBlock<S0: CollectionListAdapter, S1: CollectionListAdapter, S2: CollectionListAdapter, S3: CollectionListAdapter, S4: CollectionListAdapter, S5: CollectionListAdapter, S6: CollectionListAdapter, S7: CollectionListAdapter, S8: CollectionListAdapter>(_ s0: S0, _ s1: S1, _ s2: S2, _ s3: S3, _ s4: S4, _ s5: S5, _ s6: S6, _ s7: S7, _ s8: S8) -> AnyCollectionSources {
-        AnyCollectionSources(Sources(dataSources: [AnyCollectionSources(s0), AnyCollectionSources(s1), AnyCollectionSources(s2), AnyCollectionSources(s3), AnyCollectionSources(s4), AnyCollectionSources(s5), AnyCollectionSources(s6), AnyCollectionSources(s7)]).toCollectionList())
+        AnyCollectionSources([AnyCollectionSources(s0), AnyCollectionSources(s1), AnyCollectionSources(s2), AnyCollectionSources(s3), AnyCollectionSources(s4), AnyCollectionSources(s5), AnyCollectionSources(s6), AnyCollectionSources(s7)])
     }
     
     public static func buildBlock<S0: CollectionListAdapter, S1: CollectionListAdapter, S2: CollectionListAdapter, S3: CollectionListAdapter, S4: CollectionListAdapter, S5: CollectionListAdapter, S6: CollectionListAdapter, S7: CollectionListAdapter, S8: CollectionListAdapter, S9: CollectionListAdapter>(_ s0: S0, _ s1: S1, _ s2: S2, _ s3: S3, _ s4: S4, _ s5: S5, _ s6: S6, _ s7: S7, _ s8: S8, _ s9: S9) -> AnyCollectionSources {
-        AnyCollectionSources(Sources(dataSources: [AnyCollectionSources(s8), AnyCollectionSources(s0), AnyCollectionSources(s1), AnyCollectionSources(s2), AnyCollectionSources(s3), AnyCollectionSources(s4), AnyCollectionSources(s5), AnyCollectionSources(s6), AnyCollectionSources(s7), AnyCollectionSources(s8), AnyCollectionSources(s9)]).toCollectionList())
+        AnyCollectionSources([AnyCollectionSources(s8), AnyCollectionSources(s0), AnyCollectionSources(s1), AnyCollectionSources(s2), AnyCollectionSources(s3), AnyCollectionSources(s4), AnyCollectionSources(s5), AnyCollectionSources(s6), AnyCollectionSources(s7), AnyCollectionSources(s8), AnyCollectionSources(s9)])
     }
 }

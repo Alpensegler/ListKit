@@ -10,6 +10,8 @@ import ObjectiveC.runtime
 public class ListCoordinator<SourceBase: DataSource>: ItemTypedCoorinator<SourceBase.Item> {
     typealias Item = SourceBase.Item
     
+    var stagingContextSetups = [(ListContext<SourceBase>) -> Void]()
+    var contexts = [ObjectIdentifier: ListContext<SourceBase>]()
     var source: SourceBase.Source { fatalError() }
     override var anySource: Any { source }
     
@@ -90,58 +92,9 @@ class WrapperCoordinator<SourceBase: DataSource>: ListCoordinator<SourceBase> {
         wrappedCoodinator.anySourceUpdate(to: sources)
     }
     
-    override func responds(to aSelector: Selector!) -> Bool {
-        guard aSelector.map(allSelectors.contains) == true else {
-            return superResponds(to: aSelector)
-        }
-        return super.responds(to: aSelector) || wrappedCoodinator.responds(to: aSelector)
-    }
-    
-    override func apply<Object: AnyObject, Input, Output>(
-        _ keyPath: KeyPath<BaseCoordinator, Delegate<Object, Input, Output>>,
-        object: Object,
-        with input: Input
-    ) -> Output {
-        wrappedCoodinator.responds(to: self[keyPath: keyPath].selector)
-            ? wrappedCoodinator.apply(keyPath, object: object, with: input)
-            : super.apply(keyPath, object: object, with: input)
-    }
-    
-    override func apply<Object: AnyObject, Input>(
-        _ keyPath: KeyPath<BaseCoordinator, Delegate<Object, Input, Void>>,
-        object: Object,
-        with input: Input
-    ) {
-        if wrappedCoodinator.responds(to: self[keyPath: keyPath].selector) {
-            wrappedCoodinator.apply(keyPath, object: object, with: input)
-        }
-        super.apply(keyPath, object: object, with: input)
-    }
-    
-    override func addToSelectorSet(_ subselectorSets: inout SelectorSets, isAll: Bool = false) {
-        guard !isAll else {
-            subselectorSets = allSelectorSets()
-            return
-        }
-        if sourceType == .section {
-            subselectorSets.withIndex.formUnion(selectorSets.withIndex.intersection(wrappedCoodinator.selectorSets.withIndex))
-        }
-        subselectorSets.withIndexPath.formUnion(selectorSets.withIndexPath.intersection(wrappedCoodinator.selectorSets.withIndexPath))
-    }
-    
     override func applyBy(listView: ListView, sectionOffset: Int, itemOffset: Int) {
         super.applyBy(listView: listView, sectionOffset: sectionOffset, itemOffset: itemOffset)
         wrappedCoodinator.applyBy(listView: listView, sectionOffset: sectionOffset, itemOffset: itemOffset)
-    }
-    
-    func allSelectorSets() -> SelectorSets {
-        SelectorSets(
-            void: selectorSets.void.intersection(wrappedCoodinator.selectorSets.void),
-            value: selectorSets.value.intersection(wrappedCoodinator.selectorSets.value),
-            withIndex: selectorSets.withIndex.intersection(wrappedCoodinator.selectorSets.withIndex),
-            withIndexPath: selectorSets.withIndexPath.intersection(wrappedCoodinator.selectorSets.withIndexPath),
-            hasIndex: selectorSets.hasIndex || wrappedCoodinator.selectorSets.hasIndex
-        )
     }
 }
 

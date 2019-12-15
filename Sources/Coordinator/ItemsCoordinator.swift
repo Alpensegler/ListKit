@@ -8,10 +8,6 @@
 class ItemsCoordinator<SourceBase: DataSource>: SourceStoredListCoordinator<SourceBase>
 where SourceBase.Source: Collection, SourceBase.Item == SourceBase.Source.Element {
     var items = [Item]()
-    override var sourceType: SourceType {
-        get { selectorSets.hasIndex ? .section : .cell }
-        set { fatalError() }
-    }
     
     override var isEmpty: Bool { sourceType == .cell && items.isEmpty }
     

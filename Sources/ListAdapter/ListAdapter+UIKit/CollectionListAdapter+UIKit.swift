@@ -12,7 +12,7 @@ public extension DataSource {
     func provideCollectionViewCell(
         _ closure: @escaping (CollectionItemContext<SourceBase>, Item) -> UICollectionViewCell
     ) -> CollectionList<SourceBase> {
-        toCollectionList().set(\.collectionViewDataSources.cellForItemAt) {
+        toCollectionList().set(\.cellForItemAt) {
             closure($0.0, $0.0.itemValue)
         }
     }
@@ -46,7 +46,7 @@ public extension CollectionListAdapter {
     func provideCollectionListSupplementaryView(
         _ closure: @escaping (CollectionItemContext<SourceBase>, CollectionView.SupplementaryViewType) -> UICollectionReusableView
     ) -> CollectionList<SourceBase> {
-        set(\.collectionViewDataSources.viewForSupplementaryElementOfKindAt) { closure($0.0, .init($0.1.0)) }
+        set(\.viewForSupplementaryElementOfKindAt) { closure($0.0, .init($0.1.0)) }
     }
 
     //Reordering Items
@@ -54,14 +54,14 @@ public extension CollectionListAdapter {
     func collectionViewCanMoveItem(
         _ closure: @escaping (CollectionItemContext<SourceBase>, Item) -> Bool
     ) -> CollectionList<SourceBase> {
-        set(\.collectionViewDataSources.canMoveItemAt) { closure($0.0, $0.0.itemValue) }
+        set(\.canMoveItemAt) { closure($0.0, $0.0.itemValue) }
     }
     
     @discardableResult
     func collectionViewMoveItem(
         _ closure: @escaping (CollectionContext<SourceBase>, IndexPath, IndexPath) -> Void
     ) -> CollectionList<SourceBase> {
-        set(\.collectionViewDataSources.moveItemAtTo) { closure($0.0, $0.1.0, $0.1.1) }
+        set(\.moveItemAtTo) { closure($0.0, $0.1.0, $0.1.1) }
     }
     
     //Configuring an Index
@@ -69,14 +69,14 @@ public extension CollectionListAdapter {
     func collectionViewIndexTitles(
         _ closure: @escaping (CollectionContext<SourceBase>) -> [String]?
     ) -> CollectionList<SourceBase> {
-        set(\.collectionViewDataSources.indexTitles) { closure($0.0) }
+        set(\.indexTitles) { closure($0.0) }
     }
     
     @discardableResult
     func collectionViewIndexPathForIndexTitle(
         _ closure: @escaping (CollectionContext<SourceBase>, String, Int) -> IndexPath
     ) -> CollectionList<SourceBase> {
-        set(\.collectionViewDataSources.indexPathForIndexTitleAt) { closure($0.0, $0.1.0, $0.1.1) }
+        set(\.indexPathForIndexTitleAt) { closure($0.0, $0.1.0, $0.1.1) }
     }
 }
 
@@ -87,28 +87,28 @@ public extension CollectionListAdapter {
     func collectionViewShouldSelectItem(
         _ closure: @escaping (CollectionItemContext<SourceBase>, Item) -> Bool
     ) -> CollectionList<SourceBase> {
-        set(\.collectionViewDelegates.shouldSelectItemAt) { closure($0.0, $0.0.itemValue) }
+        set(\.shouldSelectItemAt) { closure($0.0, $0.0.itemValue) }
     }
     
     @discardableResult
     func collectionViewDidSelectItem(
         _ closure: @escaping (CollectionItemContext<SourceBase>, Item) -> Void
     ) -> CollectionList<SourceBase> {
-        set(\.collectionViewDelegates.didSelectItemAt) { closure($0.0, $0.0.itemValue) }
+        set(\.didSelectItemAt) { closure($0.0, $0.0.itemValue) }
     }
     
     @discardableResult
     func collectionViewShouldDeselectItem(
         _ closure: @escaping (CollectionItemContext<SourceBase>, Item) -> Bool
     ) -> CollectionList<SourceBase> {
-        set(\.collectionViewDelegates.shouldDeselectItemAt) { closure($0.0, $0.0.itemValue) }
+        set(\.shouldDeselectItemAt) { closure($0.0, $0.0.itemValue) }
     }
     
     @discardableResult
     func collectionViewDidDeselectItem(
         _ closure: @escaping (CollectionItemContext<SourceBase>, Item) -> Void
     ) -> CollectionList<SourceBase> {
-        set(\.collectionViewDelegates.didDeselectItemAt) { closure($0.0, $0.0.itemValue) }
+        set(\.didDeselectItemAt) { closure($0.0, $0.0.itemValue) }
     }
     
     @available(iOS 13.0, *)
@@ -116,7 +116,7 @@ public extension CollectionListAdapter {
     func collectionViewShouldBeginMultipleSelectionInteraction(
         _ closure: @escaping (CollectionItemContext<SourceBase>, Item) -> Bool
     ) -> CollectionList<SourceBase> {
-        set(\.collectionViewDelegates.shouldBeginMultipleSelectionInteractionAt) { closure($0.0, $0.0.itemValue) }
+        set(\.shouldBeginMultipleSelectionInteractionAt) { closure($0.0, $0.0.itemValue) }
     }
     
     @available(iOS 13.0, *)
@@ -124,7 +124,7 @@ public extension CollectionListAdapter {
     func collectionViewDidBeginMultipleSelectionInteractionAt(
         _ closure: @escaping (CollectionItemContext<SourceBase>, Item) -> Void
     ) -> CollectionList<SourceBase> {
-        set(\.collectionViewDelegates.didBeginMultipleSelectionInteractionAt) { closure($0.0, $0.0.itemValue) }
+        set(\.didBeginMultipleSelectionInteractionAt) { closure($0.0, $0.0.itemValue) }
     }
     
     @available(iOS 13.0, *)
@@ -132,7 +132,7 @@ public extension CollectionListAdapter {
     func collectionViewDidEndMultipleSelectionInteraction(
         _ closure: @escaping (CollectionContext<SourceBase>) -> Void
     ) -> CollectionList<SourceBase> {
-        set(\.collectionViewDelegates.didEndMultipleSelectionInteraction) { closure($0.0) }
+        set(\.didEndMultipleSelectionInteraction) { closure($0.0) }
     }
     
     //Managing Cell Highlighting
@@ -140,21 +140,21 @@ public extension CollectionListAdapter {
     func collectionViewShouldHighlightItem(
         _ closure: @escaping (CollectionItemContext<SourceBase>, Item) -> Bool
     ) -> CollectionList<SourceBase> {
-        set(\.collectionViewDelegates.shouldHighlightItemAt) { closure($0.0, $0.0.itemValue) }
+        set(\.shouldHighlightItemAt) { closure($0.0, $0.0.itemValue) }
     }
     
     @discardableResult
     func collectionViewDidHighlightItem(
         _ closure: @escaping (CollectionItemContext<SourceBase>, Item) -> Void
     ) -> CollectionList<SourceBase> {
-        set(\.collectionViewDelegates.didHighlightItemAt) { closure($0.0, $0.0.itemValue) }
+        set(\.didHighlightItemAt) { closure($0.0, $0.0.itemValue) }
     }
     
     @discardableResult
     func collectionViewDidUnhighlightItem(
         _ closure: @escaping (CollectionItemContext<SourceBase>, Item) -> Void
     ) -> CollectionList<SourceBase> {
-        set(\.collectionViewDelegates.didUnhighlightItemAt) { closure($0.0, $0.0.itemValue) }
+        set(\.didUnhighlightItemAt) { closure($0.0, $0.0.itemValue) }
     }
     
     //Tracking the Addition and Removal of Views
@@ -162,14 +162,14 @@ public extension CollectionListAdapter {
     func collectionViewWillDisplayForItemAt(
         _ closure: @escaping (CollectionItemContext<SourceBase>, UICollectionViewCell, Item) -> Void
     ) -> CollectionList<SourceBase> {
-        set(\.collectionViewDelegates.willDisplayForItemAt) { closure($0.0, $0.1.0, $0.0.itemValue) }
+        set(\.willDisplayForItemAt) { closure($0.0, $0.1.0, $0.0.itemValue) }
     }
     
     @discardableResult
     func collectionViewWillDisplaySupplementaryView(
         _ closure: @escaping (CollectionItemContext<SourceBase>, CollectionView.SupplementaryViewType, UICollectionReusableView, Item) -> Void
     ) -> CollectionList<SourceBase> {
-        set(\.collectionViewDelegates.willDisplaySupplementaryViewForElementKindAt) {
+        set(\.willDisplaySupplementaryViewForElementKindAt) {
             closure($0.0, .init($0.1.1), $0.1.0, $0.0.itemValue)
         }
     }
@@ -178,14 +178,14 @@ public extension CollectionListAdapter {
     func collectionViewDidEndDisplayingItem(
         _ closure: @escaping (CollectionItemContext<SourceBase>, UICollectionViewCell, Item) -> Void
     ) -> CollectionList<SourceBase> {
-        set(\.collectionViewDelegates.didEndDisplayingForItemAt) { closure($0.0, $0.1.0, $0.0.itemValue) }
+        set(\.didEndDisplayingForItemAt) { closure($0.0, $0.1.0, $0.0.itemValue) }
     }
     
     @discardableResult
     func collectionViewDidEndDisplayingSupplementaryView(
         _ closure: @escaping (CollectionItemContext<SourceBase>, CollectionView.SupplementaryViewType, UICollectionReusableView, Item) -> Void
     ) -> CollectionList<SourceBase> {
-        set(\.collectionViewDelegates.didEndDisplayingSupplementaryViewForElementOfKindAt) {
+        set(\.didEndDisplayingSupplementaryViewForElementOfKindAt) {
             closure($0.0, .init($0.1.1), $0.1.0, $0.0.itemValue)
         }
     }
@@ -195,21 +195,21 @@ public extension CollectionListAdapter {
     func collectionViewTransitionLayoutForOldLayoutNewLayout(
         _ closure: @escaping (CollectionContext<SourceBase>, UICollectionViewLayout, UICollectionViewLayout) -> UICollectionViewTransitionLayout
     ) -> CollectionList<SourceBase> {
-        set(\.collectionViewDelegates.transitionLayoutForOldLayoutNewLayout) { closure($0.0, $0.1.0, $0.1.1) }
+        set(\.transitionLayoutForOldLayoutNewLayout) { closure($0.0, $0.1.0, $0.1.1) }
     }
     
     @discardableResult
     func collectionViewTargetContentOffset(
         _ closure: @escaping (CollectionContext<SourceBase>, CGPoint) -> CGPoint
     ) -> CollectionList<SourceBase> {
-        set(\.collectionViewDelegates.targetContentOffsetForProposedContentOffset) { closure($0.0, $0.1) }
+        set(\.targetContentOffsetForProposedContentOffset) { closure($0.0, $0.1) }
     }
     
     @discardableResult
     func collectionViewTargetIndexPathForMoveFromItem(
         _ closure: @escaping (CollectionContext<SourceBase>, IndexPath, IndexPath) -> IndexPath
     ) -> CollectionList<SourceBase> {
-        set(\.collectionViewDelegates.targetIndexPathForMoveFromItemAtToProposedIndexPath) { closure($0.0, $0.1.0, $0.1.1) }
+        set(\.targetIndexPathForMoveFromItemAtToProposedIndexPath) { closure($0.0, $0.1.0, $0.1.1) }
     }
     
     //Managing Actions for Cells
@@ -217,49 +217,49 @@ public extension CollectionListAdapter {
     func collectionViewShouldShowMenuForItem(
         _ closure: @escaping (CollectionItemContext<SourceBase>, Item) -> Bool
     ) -> CollectionList<SourceBase> {
-        set(\.collectionViewDelegates.shouldShowMenuForItemAt) { closure($0.0, $0.0.itemValue) }
+        set(\.shouldShowMenuForItemAt) { closure($0.0, $0.0.itemValue) }
     }
     
     @discardableResult
     func collectionViewCanPerformActionWithSender(
         _ closure: @escaping (CollectionItemContext<SourceBase>, Selector, Any?, Item) -> Bool
     ) -> CollectionList<SourceBase> {
-        set(\.collectionViewDelegates.canPerformActionForItemAtWithSender) { closure($0.0, $0.1.0, $0.1.2, $0.0.itemValue) }
+        set(\.canPerformActionForItemAtWithSender) { closure($0.0, $0.1.0, $0.1.2, $0.0.itemValue) }
     }
     
     @discardableResult
     func collectionViewPerformActionWithSender(
         _ closure: @escaping (CollectionItemContext<SourceBase>, Selector, Any?, Item) -> Void
     ) -> CollectionList<SourceBase> {
-        set(\.collectionViewDelegates.performActionForItemAtWithSender) { closure($0.0, $0.1.0, $0.1.2, $0.0.itemValue) }
+        set(\.performActionForItemAtWithSender) { closure($0.0, $0.1.0, $0.1.2, $0.0.itemValue) }
     }
     
     //Managing Focus in a Collection View
     func collectionViewCanFocusItem(
         _ closure: @escaping (CollectionItemContext<SourceBase>, Item) -> Bool
     ) -> CollectionList<SourceBase> {
-        set(\.collectionViewDelegates.canFocusItemAt) { closure($0.0, $0.0.itemValue) }
+        set(\.canFocusItemAt) { closure($0.0, $0.0.itemValue) }
     }
     
     @discardableResult
     func collectionViewIndexPathForPreferredFocusedView(
         _ closure: @escaping (CollectionContext<SourceBase>) -> IndexPath?
     ) -> CollectionList<SourceBase> {
-        set(\.collectionViewDelegates.indexPathForPreferredFocusedView) { closure($0.0) }
+        set(\.indexPathForPreferredFocusedView) { closure($0.0) }
     }
     
     @discardableResult
     func collectionViewShouldUpdateFocusIn(
         _ closure: @escaping (CollectionContext<SourceBase>, UICollectionViewFocusUpdateContext) -> Bool
     ) -> CollectionList<SourceBase> {
-        set(\.collectionViewDelegates.shouldUpdateFocusIn) { closure($0.0, $0.1) }
+        set(\.shouldUpdateFocusIn) { closure($0.0, $0.1) }
     }
     
     @discardableResult
     func collectionViewDidUpdateFocusInWith(
         _ closure: @escaping (CollectionContext<SourceBase>, UICollectionViewFocusUpdateContext, UIFocusAnimationCoordinator) -> Void
     ) -> CollectionList<SourceBase> {
-        set(\.collectionViewDelegates.didUpdateFocusInWith) { closure($0.0, $0.1.0, $0.1.1) }
+        set(\.didUpdateFocusInWith) { closure($0.0, $0.1.0, $0.1.1) }
     }
 
     //Controlling the Spring-Loading Behavior
@@ -268,7 +268,7 @@ public extension CollectionListAdapter {
     func collectionViewShouldSpringLoadItemAtWith(
         _ closure: @escaping (CollectionItemContext<SourceBase>, UISpringLoadedInteractionContext, Item) -> Bool
     ) -> CollectionList<SourceBase> {
-        set(\.collectionViewDelegates.shouldSpringLoadItemAtWith) { closure($0.0, $0.1.1, $0.0.itemValue) }
+        set(\.shouldSpringLoadItemAtWith) { closure($0.0, $0.1.1, $0.0.itemValue) }
     }
     
     //Instance Methods
@@ -277,7 +277,7 @@ public extension CollectionListAdapter {
     func collectionViewContextMenuConfigurationForItem(
         _ closure: @escaping (CollectionItemContext<SourceBase>, CGPoint, Item) -> UIContextMenuConfiguration
     ) -> CollectionList<SourceBase> {
-        set(\.collectionViewDelegates.contextMenuConfigurationForItemAtPoint) { closure($0.0, $0.1.1, $0.0.itemValue) }
+        set(\.contextMenuConfigurationForItemAtPoint) { closure($0.0, $0.1.1, $0.0.itemValue) }
     }
     
     @available(iOS 13.0, *)
@@ -285,7 +285,7 @@ public extension CollectionListAdapter {
     func collectionViewPreviewForDismissingContextMenuWithConfiguration(
         _ closure: @escaping (CollectionContext<SourceBase>, UIContextMenuConfiguration) -> UITargetedPreview
     ) -> CollectionList<SourceBase> {
-        set(\.collectionViewDelegates.previewForDismissingContextMenuWithConfiguration) { closure($0.0, $0.1) }
+        set(\.previewForDismissingContextMenuWithConfiguration) { closure($0.0, $0.1) }
     }
     
     @available(iOS 13.0, *)
@@ -293,7 +293,7 @@ public extension CollectionListAdapter {
     func collectionViewPreviewForHighlightingContextMenuWithConfiguration(
         _ closure: @escaping (CollectionContext<SourceBase>, UIContextMenuConfiguration) -> UITargetedPreview
     ) -> CollectionList<SourceBase> {
-        set(\.collectionViewDelegates.previewForHighlightingContextMenuWithConfiguration) { closure($0.0, $0.1) }
+        set(\.previewForHighlightingContextMenuWithConfiguration) { closure($0.0, $0.1) }
     }
     
     @available(iOS 13.0, *)
@@ -301,7 +301,7 @@ public extension CollectionListAdapter {
     func collectionViewWillPerformPreviewActionForMenuWithAnimator(
         _ closure: @escaping (CollectionContext<SourceBase>, UIContextMenuConfiguration, UIContextMenuInteractionCommitAnimating) -> Void
     ) -> CollectionList<SourceBase> {
-        set(\.collectionViewDelegates.willPerformPreviewActionForMenuWithAnimator) { closure($0.0, $0.1.0, $0.1.1) }
+        set(\.willPerformPreviewActionForMenuWithAnimator) { closure($0.0, $0.1.0, $0.1.1) }
     }
 }
 
@@ -312,7 +312,7 @@ public extension CollectionListAdapter {
     func collectionViewLayoutSizeForItem(
         _ closure: @escaping (CollectionItemContext<SourceBase>, UICollectionViewLayout, Item) -> CGSize
     ) -> CollectionList<SourceBase> {
-        set(\.collectionViewDelegateFlowLayouts.layoutSizeForItemAt) { closure($0.0, $0.1.0, $0.0.itemValue) }
+        set(\.layoutSizeForItemAt) { closure($0.0, $0.1.0, $0.0.itemValue) }
     }
     
     //Getting the Section Spacing
@@ -320,21 +320,21 @@ public extension CollectionListAdapter {
     func collectionViewLayoutInset(
         _ closure: @escaping (CollectionSectionContext<SourceBase>, UICollectionViewLayout) -> UIEdgeInsets
     ) -> CollectionList<SourceBase> {
-        set(\.collectionViewDelegateFlowLayouts.layoutInsetForSectionAt) { closure($0.0, $0.1.0) }
+        set(\.layoutInsetForSectionAt) { closure($0.0, $0.1.0) }
     }
     
     @discardableResult
     func collectionViewLayoutMinimumLineSpacing(
         _ closure: @escaping (CollectionSectionContext<SourceBase>, UICollectionViewLayout) -> CGFloat
     ) -> CollectionList<SourceBase> {
-        set(\.collectionViewDelegateFlowLayouts.layoutMinimumLineSpacingForSectionAt) { closure($0.0, $0.1.0) }
+        set(\.layoutMinimumLineSpacingForSectionAt) { closure($0.0, $0.1.0) }
     }
     
     @discardableResult
     func collectionViewLayoutMinimumInteritemSpacing(
         _ closure: @escaping (CollectionSectionContext<SourceBase>, UICollectionViewLayout) -> CGFloat
     ) -> CollectionList<SourceBase> {
-        set(\.collectionViewDelegateFlowLayouts.layoutMinimumInteritemSpacingForSectionAt) { closure($0.0, $0.1.0) }
+        set(\.layoutMinimumInteritemSpacingForSectionAt) { closure($0.0, $0.1.0) }
     }
     
     //Getting the Header and Footer Sizes
@@ -342,14 +342,14 @@ public extension CollectionListAdapter {
     func collectionViewLayoutReferenceSizeForHeader(
         _ closure: @escaping (CollectionSectionContext<SourceBase>, UICollectionViewLayout) -> CGSize
     ) -> CollectionList<SourceBase> {
-        set(\.collectionViewDelegateFlowLayouts.layoutReferenceSizeForHeaderInSection) { closure($0.0, $0.1.0) }
+        set(\.layoutReferenceSizeForHeaderInSection) { closure($0.0, $0.1.0) }
     }
     
     @discardableResult
     func collectionViewLayoutReferenceSizeForFooterIn(
         _ closure: @escaping (CollectionSectionContext<SourceBase>, UICollectionViewLayout) -> CGSize
     ) -> CollectionList<SourceBase> {
-        set(\.collectionViewDelegateFlowLayouts.layoutReferenceSizeForFooterInSection) { closure($0.0, $0.1.0) }
+        set(\.layoutReferenceSizeForFooterInSection) { closure($0.0, $0.1.0) }
     }
 }
 

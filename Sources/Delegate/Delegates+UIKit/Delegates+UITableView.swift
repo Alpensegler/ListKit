@@ -1,5 +1,5 @@
 //
-//  Coordinator+UITableViewDelegate.swift
+//  Delegates+UITableView.swift
 //  ListKit
 //
 //  Created by Frain on 2019/12/9.
@@ -10,6 +10,56 @@ import UIKit
 
 class UITableViewDelegates {
     typealias Delegate<Input, Output> = ListKit.Delegate<UITableView, Input, Output>
+    
+    //MARK: - DataSource
+    
+    //Providing Cells, Headers, and Footers
+    var cellForRowAt = Delegate<IndexPath, UITableViewCell>(
+        index: .indexPath(\.self),
+        #selector(UITableViewDataSource.tableView(_:cellForRowAt:))
+    )
+    
+    var titleForHeaderInSection = Delegate<Int, String?>(
+        index: .index(\.self),
+        #selector(UITableViewDataSource.tableView(_:titleForHeaderInSection:))
+    )
+    
+    var titleForFooterInSection = Delegate<Int, String?>(
+        index: .index(\.self),
+        #selector(UITableViewDataSource.tableView(_:titleForFooterInSection:))
+    )
+    
+    //Inserting or Deleting Table Rows
+    var commitForRowAt = Delegate<(UITableViewCell.EditingStyle, IndexPath), Void>(
+        index: .indexPath(\.1),
+        #selector(UITableViewDataSource.tableView(_:commit:forRowAt:))
+    )
+    
+    var canEditRowAt = Delegate<IndexPath, Bool>(
+        index: .indexPath(\.self),
+        #selector(UITableViewDataSource.tableView(_:canEditRowAt:))
+    )
+    
+    //Reordering Table Rows
+    var canMoveRowAt = Delegate<IndexPath, Bool>(
+        index: .indexPath(\.self),
+        #selector(UITableViewDataSource.tableView(_:canMoveRowAt:))
+    )
+    
+    var moveRowAtTo = Delegate<(IndexPath, IndexPath), Void>(
+        #selector(UITableViewDataSource.tableView(_:moveRowAt:to:))
+    )
+
+    //Configuring an Index
+    var sectionIndexTitles = Delegate<Void, [String]?>(
+        #selector(UITableViewDataSource.sectionIndexTitles(for:))
+    )
+    
+    var sectionForSectionIndexTitleAt = Delegate<(String, Int), Int>(
+        #selector(UITableViewDataSource.tableView(_:sectionForSectionIndexTitle:at:))
+    )
+    
+    //MARK: - Delegate
     
     //Configuring Rows for the Table View
     var willDisplayForRowAt = Delegate<(UITableViewCell, IndexPath), Void>(
@@ -341,6 +391,25 @@ class UITableViewDelegates {
     }
     
     func add(by selectorSets: inout SelectorSets) {
+        //DataSource
+        //Providing Cells, Headers, and Footers
+        selectorSets.add(cellForRowAt)
+        selectorSets.add(titleForHeaderInSection)
+        selectorSets.add(titleForFooterInSection)
+        
+        //Inserting or Deleting Table Rows
+        selectorSets.add(commitForRowAt)
+        selectorSets.add(canEditRowAt)
+        
+        //Reordering Table Rows
+        selectorSets.add(canMoveRowAt)
+        selectorSets.add(moveRowAtTo)
+        
+        //Configuring an Index
+        selectorSets.add(sectionIndexTitles)
+        selectorSets.add(sectionForSectionIndexTitleAt)
+        
+        //Delegate
         //Configuring Rows for the Table View
         selectorSets.add(willDisplayForRowAt)
         selectorSets.add(indentationLevelForRowAt)
@@ -424,9 +493,58 @@ class UITableViewDelegates {
     }
 }
 
-extension BaseCoordinator: UITableViewDelegate { }
+extension Delegates: UITableViewDataSource {
+    //Providing the Number of Rows and Sections
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        baseCoordinator.numbersOfItems(in: section)
+    }
 
-public extension BaseCoordinator {
+    func numberOfSections(in tableView: UITableView) -> Int {
+        baseCoordinator.numbersOfSections()
+    }
+    
+    //Providing Cells, Headers, and Footers
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        apply(\.tableViewDelegates.cellForRowAt, object: tableView, with: indexPath)
+    }
+
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        apply(\.tableViewDelegates.titleForHeaderInSection, object: tableView, with: section)
+    }
+
+    func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
+        apply(\.tableViewDelegates.titleForFooterInSection, object: tableView, with: section)
+    }
+
+    //Inserting or Deleting Table Rows
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        apply(\.tableViewDelegates.commitForRowAt, object: tableView, with: (editingStyle, indexPath))
+    }
+
+    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        apply(\.tableViewDelegates.canEditRowAt, object: tableView, with: indexPath)
+    }
+    
+    //Reordering Table Rows
+    func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
+        apply(\.tableViewDelegates.canMoveRowAt, object: tableView, with: indexPath)
+    }
+
+    func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+        apply(\.tableViewDelegates.moveRowAtTo, object: tableView, with: (sourceIndexPath, destinationIndexPath))
+    }
+
+    //Configuring an Index
+    func sectionIndexTitles(for tableView: UITableView) -> [String]? {
+        apply(\.tableViewDelegates.sectionIndexTitles, object: (tableView))
+    }
+
+    func tableView(_ tableView: UITableView, sectionForSectionIndexTitle title: String, at index: Int) -> Int {
+        apply(\.tableViewDelegates.sectionForSectionIndexTitleAt, object: tableView, with: (title, index))
+    }
+}
+
+extension Delegates: UITableViewDelegate {
     //Configuring Rows for the Table View
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         apply(\.tableViewDelegates.willDisplayForRowAt, object: tableView, with: (cell, indexPath))

@@ -73,12 +73,7 @@ public class BaseCoordinator: NSObject {
     
     #if os(iOS) || os(tvOS)
     var scrollViewDelegates = UIScrollViewDelegates()
-    
-    var collectionViewDataSources = UICollectionViewDataSources()
     var collectionViewDelegates = UICollectionViewDelegates()
-    var collectionViewDelegateFlowLayouts = UICollectionViewDelegateFlowLayouts()
-    
-    var tableViewDataSources = UITableViewDataSources()
     var tableViewDelegates = UITableViewDelegates()
     #endif
     
@@ -124,7 +119,7 @@ public class BaseCoordinator: NSObject {
     }
     
     func applyBy(listView: ListView) {
-        listView.setupWith(coordinator: self)
+//        listView.setupWith(coordinator: self)
         applyBy(listView: listView, sectionOffset: 0, itemOffset: 0)
         listView.reloadSynchronously()
     }
@@ -185,10 +180,7 @@ extension BaseCoordinator {
         
         #if os(iOS) || os(tvOS)
         scrollViewDelegates.add(by: &selectorSets)
-        collectionViewDataSources.add(by: &selectorSets)
         collectionViewDelegates.add(by: &selectorSets)
-        collectionViewDelegateFlowLayouts.add(by: &selectorSets)
-        tableViewDataSources.add(by: &selectorSets)
         tableViewDelegates.add(by: &selectorSets)
         #endif
         

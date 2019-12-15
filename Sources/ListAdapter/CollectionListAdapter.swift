@@ -16,6 +16,8 @@ where Source.SourceBase == Source {
     public typealias Item = Source.Item
     public typealias SourceBase = Source
     
+    var contextSetups = [(ListContext<Source>) -> Void]()
+    
     public let source: Source
     public let coordinatorStorage = CoordinatorStorage<Source>()
     
@@ -42,80 +44,89 @@ extension DataSource {
     }
 }
 
+#if os(iOS) || os(tvOS)
+import UIKit
+
 extension CollectionListAdapter {
     func set<Input, Output>(
-        _ keyPath: ReferenceWritableKeyPath<BaseCoordinator, Delegate<CollectionView, Input, Output>>,
+        _ keyPath: ReferenceWritableKeyPath<UICollectionViewDelegates, Delegate<CollectionView, Input, Output>>,
         _ closure: @escaping ((CollectionContext<SourceBase>, Input)) -> Output
     ) -> CollectionList<SourceBase> {
-        let collectionList = self.collectionList
-        let coordinator = collectionList.listCoordinator
-        coordinator.set(keyPath) { [unowned coordinator] in
-            closure((.init($0.0, coordinator), $0.1))
+        var collectionList = self.collectionList
+        collectionList.contextSetups.append {
+            let rootPath = \Delegates.collectionViewDelegates
+            $0.set(rootPath.appending(path: keyPath)) { closure((.init($1, $0), $2)) }
         }
         return collectionList
     }
     
     func set<Input>(
-        _ keyPath: ReferenceWritableKeyPath<BaseCoordinator, Delegate<CollectionView, Input, Void>>,
+        _ keyPath: ReferenceWritableKeyPath<UICollectionViewDelegates, Delegate<CollectionView, Input, Void>>,
         _ closure: @escaping ((CollectionContext<SourceBase>, Input)) -> Void
     ) -> CollectionList<SourceBase> {
-        let collectionList = self.collectionList
-        let coordinator = collectionList.listCoordinator
-        coordinator.set(keyPath) { [unowned coordinator] in
-            closure((.init($0.0, coordinator), $0.1))
+        var collectionList = self.collectionList
+        collectionList.contextSetups.append {
+            let rootPath = \Delegates.collectionViewDelegates
+            $0.set(rootPath.appending(path: keyPath)) { closure((.init($1, $0), $2)) }
         }
         return collectionList
     }
     
     func set<Input, Output>(
-        _ keyPath: ReferenceWritableKeyPath<BaseCoordinator, Delegate<CollectionView, Input, Output>>,
+        _ keyPath: ReferenceWritableKeyPath<UICollectionViewDelegates, Delegate<CollectionView, Input, Output>>,
         _ closure: @escaping ((CollectionSectionContext<SourceBase>, Input)) -> Output
     ) -> CollectionList<SourceBase> {
-        let collectionList = self.collectionList
-        let coordinator = collectionList.listCoordinator
-        guard case let .index(path) = coordinator[keyPath: keyPath].index else { fatalError() }
-        coordinator.set(keyPath) { [unowned coordinator] in
-            closure((.init($0.0, coordinator, section: $0.1[keyPath: path]), $0.1))
+        var collectionList = self.collectionList
+        collectionList.contextSetups.append {
+            let rootPath = \Delegates.collectionViewDelegates
+            let keyPath = rootPath.appending(path: keyPath)
+            guard case let .index(path) = $0[keyPath: keyPath].index else { fatalError() }
+            $0.set(keyPath) { closure((.init($1, $0, section: $2[keyPath: path]), $2)) }
         }
         return collectionList
     }
     
     func set<Input>(
-        _ keyPath: ReferenceWritableKeyPath<BaseCoordinator, Delegate<CollectionView, Input, Void>>,
+        _ keyPath: ReferenceWritableKeyPath<UICollectionViewDelegates, Delegate<CollectionView, Input, Void>>,
         _ closure: @escaping ((CollectionSectionContext<SourceBase>, Input)) -> Void
     ) -> CollectionList<SourceBase> {
-        let collectionList = self.collectionList
-        let coordinator = collectionList.listCoordinator
-        guard case let .index(path) = coordinator[keyPath: keyPath].index else { fatalError() }
-        coordinator.set(keyPath) { [unowned coordinator] in
-            closure((.init($0.0, coordinator, section: $0.1[keyPath: path]), $0.1))
+        var collectionList = self.collectionList
+        collectionList.contextSetups.append {
+            let rootPath = \Delegates.collectionViewDelegates
+            let keyPath = rootPath.appending(path: keyPath)
+            guard case let .index(path) = $0[keyPath: keyPath].index else { fatalError() }
+            $0.set(keyPath) { closure((.init($1, $0, section: $2[keyPath: path]), $2)) }
         }
         return collectionList
     }
     
     func set<Input, Output>(
-        _ keyPath: ReferenceWritableKeyPath<BaseCoordinator, Delegate<CollectionView, Input, Output>>,
+        _ keyPath: ReferenceWritableKeyPath<UICollectionViewDelegates, Delegate<CollectionView, Input, Output>>,
         _ closure: @escaping ((CollectionItemContext<SourceBase>, Input)) -> Output
     ) -> CollectionList<SourceBase> {
-        let collectionList = self.collectionList
-        let coordinator = collectionList.listCoordinator
-        guard case let .indexPath(path) = coordinator[keyPath: keyPath].index else { fatalError() }
-        coordinator.set(keyPath) { [unowned coordinator] in
-            closure((.init($0.0, coordinator, path: $0.1[keyPath: path]), $0.1))
+        var collectionList = self.collectionList
+        collectionList.contextSetups.append {
+            let rootPath = \Delegates.collectionViewDelegates
+            let keyPath = rootPath.appending(path: keyPath)
+            guard case let .indexPath(path) = $0[keyPath: keyPath].index else { fatalError() }
+            $0.set(keyPath) { closure((.init($1, $0, path: $2[keyPath: path]), $2)) }
         }
         return collectionList
     }
     
     func set<Input>(
-        _ keyPath: ReferenceWritableKeyPath<BaseCoordinator, Delegate<CollectionView, Input, Void>>,
+        _ keyPath: ReferenceWritableKeyPath<UICollectionViewDelegates, Delegate<CollectionView, Input, Void>>,
         _ closure: @escaping ((CollectionItemContext<SourceBase>, Input)) -> Void
     ) -> CollectionList<SourceBase> {
-        let collectionList = self.collectionList
-        let coordinator = collectionList.listCoordinator
-        guard case let .indexPath(path) = coordinator[keyPath: keyPath].index else { fatalError() }
-        coordinator.set(keyPath) { [unowned coordinator] in
-            closure((.init($0.0, coordinator, path: $0.1[keyPath: path]), $0.1))
+        var collectionList = self.collectionList
+        collectionList.contextSetups.append {
+            let rootPath = \Delegates.collectionViewDelegates
+            let keyPath = rootPath.appending(path: keyPath)
+            guard case let .indexPath(path) = $0[keyPath: keyPath].index else { fatalError() }
+            $0.set(keyPath) { closure((.init($1, $0, path: $2[keyPath: path]), $2)) }
         }
         return collectionList
     }
 }
+
+#endif

@@ -19,6 +19,4 @@ public protocol ListView: NSObject {
     func deleteSections(_ sections: IndexSet)
     func reloadSections(_ sections: IndexSet)
     func moveSection(_ section: Int, toSection newSection: Int)
-    
-    func setupWith(coordinator: BaseCoordinator)
 }

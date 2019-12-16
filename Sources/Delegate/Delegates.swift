@@ -17,6 +17,9 @@ class Delegates: NSObject {
     
     lazy var selectorSets = initialSelectorSets()
     
+    var sectionOffset = 0
+    var itemOffset = 0
+    
     //Responding
     func apply<Object: AnyObject, Input, Output>(
         _ keyPath: KeyPath<Delegates, Delegate<Object, Input, Output>>,

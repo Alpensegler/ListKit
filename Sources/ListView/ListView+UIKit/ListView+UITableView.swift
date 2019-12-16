@@ -12,8 +12,13 @@ private var listViewDefaultAnimationKey: Void?
 
 public typealias TableView = UITableView
 
-extension UITableView: UIListView {
+extension UITableView: UIListView, SetuptableListView {
     public typealias Cell = UITableViewCell
+    
+    func setup(with delegates: Delegates) {
+        dataSource = delegates
+        delegate = delegates
+    }
 }
 
 public extension UITableView {
@@ -25,7 +30,9 @@ public extension UITableView {
     
     func reloadSynchronously() {
         reloadData()
-        layoutIfNeeded()
+        if window != nil {
+            layoutIfNeeded()
+        }
     }
     
     func perform(update: () -> Void, animated: Bool, completion: ((Bool) -> Void)?) {

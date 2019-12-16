@@ -13,7 +13,8 @@ where SourceBase.Source: Collection, SourceBase.Item == SourceBase.Source.Elemen
     
     override func item<Path: PathConvertible>(at path: Path) -> Item { items[path.item] }
     
-    override func setup() {
+    override func setup(with delegates: Delegates) {
+        sourceType = delegates.selectorSets.hasIndex ? .section : .cell
         items = source.map { $0 }
         configSourceIndices()
     }
@@ -47,8 +48,8 @@ where SourceBase.Source: Collection, SourceBase.Item == SourceBase.Source.Elemen
 
 class RangeReplacableItemsCoordinator<SourceBase: DataSource>: ItemsCoordinator<SourceBase>
 where SourceBase.Source: RangeReplaceableCollection, SourceBase.Source.Element == SourceBase.Item {
-    override func setup() {
-        super.setup()
+    override func setup(with delegates: Delegates) {
+        super.setup(with: delegates)
         rangeReplacable = true
     }
     

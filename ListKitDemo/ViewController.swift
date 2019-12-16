@@ -10,16 +10,20 @@ import UIKit
 import ListKit
 
 class ViewController: UIViewController, TableListAdapter, UpdatableDataSource {
-    @IBOutlet weak var tableView: UITableView! { didSet { apply(by: tableView) } }
+    @IBOutlet weak var tableView: UITableView!
     
     typealias Item = Any
     var source: AnyTableSources {
         AnyTableSources {
             Sources(items: ["a", "b", "c"])
-                .provideTableViewCell()
+                .tableViewCellForRow()
             Sources(items: [1, 2, 3])
-                .provideTableViewCell()
+                .tableViewCellForRow()
         }
+    }
+    
+    override func viewDidLoad() {
+        apply(by: tableView)
     }
 }
 

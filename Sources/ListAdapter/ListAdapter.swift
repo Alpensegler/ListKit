@@ -7,13 +7,13 @@
 
 protocol ListAdapter: UpdatableDataSource where Source == SourceBase {
     associatedtype View: AnyObject
-    associatedtype Value: AnyObject
+    associatedtype ViewDelegates: AnyObject
     associatedtype Context
     associatedtype SectionContext
     associatedtype ItemContext
     
     var contextSetups: [(ListContext<Source>) -> Void] { get set }
-    static var rootKeyPath: ReferenceWritableKeyPath<Delegates, Value> { get }
+    static var rootKeyPath: ReferenceWritableKeyPath<Delegates, ViewDelegates> { get }
     
     static func toContext(_ view: View, _ listContext: ListContext<Source>) -> Context
     
@@ -52,82 +52,82 @@ extension ListAdapter {
     }
 
     func set<Input, Output>(
-        _ keyPath: ReferenceWritableKeyPath<Value, Delegate<View, Input, Output>>,
+        _ keyPath: ReferenceWritableKeyPath<ViewDelegates, Delegate<View, Input, Output>>,
         _ closure: @escaping ((Context, Input)) -> Output
     ) -> Self {
-        var collectionList = self
-        collectionList.contextSetups.append {
+        var mutableSelf = self
+        mutableSelf.contextSetups.append {
             let keyPath = Self.rootKeyPath.appending(path: keyPath)
             $0.set(keyPath) { closure((Self.toContext($1, $0), $2)) }
         }
-        return collectionList
+        return mutableSelf
     }
 
     func set<Input>(
-        _ keyPath: ReferenceWritableKeyPath<Value, Delegate<View, Input, Void>>,
+        _ keyPath: ReferenceWritableKeyPath<ViewDelegates, Delegate<View, Input, Void>>,
         _ closure: @escaping ((Context, Input)) -> Void
     ) -> Self {
-        var collectionList = self
-        collectionList.contextSetups.append {
+        var mutableSelf = self
+        mutableSelf.contextSetups.append {
             let keyPath = Self.rootKeyPath.appending(path: keyPath)
             $0.set(keyPath) { closure((Self.toContext($1, $0), $2)) }
         }
-        return collectionList
+        return mutableSelf
     }
 
     func set<Input, Output>(
-        _ keyPath: ReferenceWritableKeyPath<Value, Delegate<View, Input, Output>>,
+        _ keyPath: ReferenceWritableKeyPath<ViewDelegates, Delegate<View, Input, Output>>,
         _ closure: @escaping ((SectionContext, Input)) -> Output
     ) -> Self {
-        var collectionList = self
-        collectionList.contextSetups.append {
+        var mutableSelf = self
+        mutableSelf.contextSetups.append {
             let keyPath = Self.rootKeyPath.appending(path: keyPath)
             guard case let .index(path) = $0[keyPath: keyPath].index else { fatalError() }
             $0.set(keyPath) {
                 closure((Self.toSectionContext($1, $0, section: $2[keyPath: path]), $2))
             }
         }
-        return collectionList
+        return mutableSelf
     }
 
     func set<Input>(
-        _ keyPath: ReferenceWritableKeyPath<Value, Delegate<View, Input, Void>>,
+        _ keyPath: ReferenceWritableKeyPath<ViewDelegates, Delegate<View, Input, Void>>,
         _ closure: @escaping ((SectionContext, Input)) -> Void
     ) -> Self {
-        var collectionList = self
-        collectionList.contextSetups.append {
+        var mutableSelf = self
+        mutableSelf.contextSetups.append {
             let keyPath = Self.rootKeyPath.appending(path: keyPath)
             guard case let .index(path) = $0[keyPath: keyPath].index else { fatalError() }
             $0.set(keyPath) {
                 closure((Self.toSectionContext($1, $0, section: $2[keyPath: path]), $2))
             }
         }
-        return collectionList
+        return mutableSelf
     }
 
     func set<Input, Output>(
-        _ keyPath: ReferenceWritableKeyPath<Value, Delegate<View, Input, Output>>,
+        _ keyPath: ReferenceWritableKeyPath<ViewDelegates, Delegate<View, Input, Output>>,
         _ closure: @escaping ((ItemContext, Input)) -> Output
     ) -> Self {
-        var collectionList = self
-        collectionList.contextSetups.append {
+        var mutableSelf = self
+        mutableSelf.contextSetups.append {
             let keyPath = Self.rootKeyPath.appending(path: keyPath)
             guard case let .indexPath(path) = $0[keyPath: keyPath].index else { fatalError() }
             $0.set(keyPath) { closure((Self.toItemContext($1, $0, path: $2[keyPath: path]), $2)) }
         }
-        return collectionList
+        return mutableSelf
     }
 
     func set<Input>(
-        _ keyPath: ReferenceWritableKeyPath<Value, Delegate<View, Input, Void>>,
+        _ keyPath: ReferenceWritableKeyPath<ViewDelegates, Delegate<View, Input, Void>>,
         _ closure: @escaping ((ItemContext, Input)) -> Void
     ) -> Self {
-        var collectionList = self
-        collectionList.contextSetups.append {
+        var mutableSelf = self
+        mutableSelf.contextSetups.append {
             let keyPath = Self.rootKeyPath.appending(path: keyPath)
             guard case let .indexPath(path) = $0[keyPath: keyPath].index else { fatalError() }
             $0.set(keyPath) { closure((Self.toItemContext($1, $0, path: $2[keyPath: path]), $2)) }
         }
-        return collectionList
+        return mutableSelf
     }
 }

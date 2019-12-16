@@ -16,14 +16,17 @@ where
     var subsources = [SourceBase.Source.Element]()
     var subitemCoordinators = [ItemTypedCoorinator<Item>]()
     var anysubCoordinators: [BaseCoordinator] { subitemCoordinators }
-    var subsourcesHasSectioned = false
     
-    var offsets = [Path]()
+    var sourcesContext = [ObjectIdentifier: SourcesContext<SourceBase>]()
+    override var contexts: [ObjectIdentifier: ListContext<SourceBase>] {
+        get { sourcesContext }
+        set { fatalError() }
+    }
     
     override var isEmpty: Bool { sourceIndices.isEmpty }
     
     override func item<Path: PathConvertible>(at path: Path) -> Item {
-        let indexAt = index(of: path)
+        let indexAt = sourceIndices.index(of: path)
         let offset = offsets[indexAt]
         let subcoordinator = subitemCoordinators[indexAt]
         return subcoordinator.item(at: path - offset)
@@ -89,17 +92,48 @@ where
         resetAndConfigIndicesAndOffsets()
     }
     
-    override func setup() {
-        setupCoordinators()
-        configIndicesAndOffsets()
-        rangeReplacable = true
+    @discardableResult
+    override func setup(
+        listView: SetuptableListView,
+        objectIdentifier: ObjectIdentifier,
+        sectionOffset: Int = 0,
+        itemOffset: Int = 0,
+        isRoot: Bool = false
+    ) -> Delegates {
+        if let context = sourcesContext[objectIdentifier] {
+            context.sectionOffset = sectionOffset
+            context.itemOffset = itemOffset
+            context.configSubdelegatesOffsets()
+            return context
+        }
+        let context = SourcesContext(
+            coordinator: self,
+            listView: listView
+        )
+        context.sectionOffset = sectionOffset
+        context.itemOffset = itemOffset
+        sourcesContext[objectIdentifier] = context
+        if !didSetup {
+            setupCoordinators()
+            rangeReplacable = true
+            let hasSectioned = configSubdelegates(
+                for: [(objectIdentifier, context)],
+                isReset: true
+            )
+            sourceType = (context.selectorSets.hasIndex || hasSectioned) ? .section : .cell
+            didSetup = true
+        } else {
+            configSubdelegates(for: [(objectIdentifier, context)], isReset: false)
+        }
+        if isRoot { listView.setup(with: context) }
+        return context
     }
     
     func resetAndConfigIndicesAndOffsets() {
         offsets.removeAll(keepingCapacity: true)
         sourceIndices.removeAll(keepingCapacity: true)
-        subsourcesHasSectioned = false
-        configIndicesAndOffsets()
+        sourcesContext.values.forEach { $0.subdelegates.removeAll(keepingCapacity: true) }
+        configSubdelegates(for: sourcesContext.lazy.map { $0 }, isReset: true)
     }
     
     func setupCoordinators() {
@@ -109,44 +143,70 @@ where
         }
     }
     
-    func index<Path: PathConvertible>(of path: Path) -> Int {
-        switch sourceIndices[path.section] {
-        case let .section(offset, _): return offset
-        case let .cell(indices: indices): return indices[path.item]
-        }
-    }
-    
-    func index(of section: Int) -> Int? {
-        guard case let .section(offset, _) = sourceIndices[section] else { return nil }
-        return offset
-    }
-    
-    func configIndicesAndOffsets() {
-        var offset = Path()
-        for subcoordinator in anysubCoordinators {
-            switch (subcoordinator.sourceType, sourceIndices.last) {
-            case (.section, _):
-                let sections = subcoordinator.sourceIndices.sections(with: offsets.count)
-                guard !sections.isEmpty else { break }
-                offset = Path(section: sourceIndices.count)
-                subsourcesHasSectioned = true
-                sourceIndices.append(contentsOf: sections)
-            case (.cell, .cell(var cells)?):
-                let cellCounts = subcoordinator.numbersOfItems(in: 0)
-                guard cellCounts != 0 else { break }
-                offset.item = cells.count
-                cells.append(contentsOf: repeatElement(offsets.count, count: cellCounts))
-                sourceIndices[sourceIndices.lastIndex] = .cell(indices: cells)
-            case (.cell, _):
-                let cellCounts = subcoordinator.numbersOfItems(in: 0)
-                guard cellCounts != 0 else { break }
-                offset = Path(section: sourceIndices.count)
-                let indices = Array(repeating: offset.section, count: cellCounts)
-                sourceIndices.append(.cell(indices: indices))
+    @discardableResult
+    func configSubdelegates<Contexts: Collection>(
+        for contexts: Contexts,
+        isReset: Bool = true
+    ) -> Bool where Contexts.Element == (key: ObjectIdentifier, valye: SourcesContext<SourceBase>) {
+        var hasSectioned = false
+        if isReset {
+            var offset = Path()
+            for coordinator in anysubCoordinators {
+                contexts.forEach { setCoordinator(coordinator, context: $0, offset: offset) }
+                appendCoordinator(coordinator, offset: &offset, hasSection: &hasSectioned)
             }
-
-            offsets.append(offset)
+        } else {
+            for (subcoordinator, offset) in zip(anysubCoordinators, offsets) {
+                contexts.forEach { setCoordinator(subcoordinator, context: $0, offset: offset) }
+            }
         }
+        
+        contexts.forEach { $0.1.setupSelectorSets() }
+        return hasSectioned
+    }
+    
+    func appendCoordinator(
+        _ subcoordinator: BaseCoordinator,
+        offset: inout Path,
+        hasSection: inout Bool
+    ) {
+        switch (subcoordinator.sourceType, sourceIndices.last) {
+        case (.section, _):
+            let sections = subcoordinator.sourceIndices.sections(with: offsets.count)
+            guard !sections.isEmpty else { break }
+            hasSection = true
+            offset = Path(section: sourceIndices.count)
+            sourceIndices.append(contentsOf: sections)
+        case (.cell, .cell(var cells)?):
+            let cellCounts = subcoordinator.numbersOfItems(in: 0)
+            guard cellCounts != 0 else { break }
+            offset.item = cells.count
+            cells.append(contentsOf: repeatElement(offsets.count, count: cellCounts))
+            sourceIndices[sourceIndices.lastIndex] = .cell(indices: cells)
+        case (.cell, _):
+            let cellCounts = subcoordinator.numbersOfItems(in: 0)
+            guard cellCounts != 0 else { break }
+            offset = Path(section: sourceIndices.count)
+            let indices = Array(repeating: offset.section, count: cellCounts)
+            sourceIndices.append(.cell(indices: indices))
+        }
+
+        offsets.append(offset)
+    }
+    
+    func setCoordinator(
+        _ subcoordinator: BaseCoordinator,
+        context: (ObjectIdentifier, SourcesContext<SourceBase>),
+        offset: Path
+    ) {
+        guard let listView = context.1.listView() else { return }
+        let delegates = subcoordinator.setup(
+            listView: listView,
+            objectIdentifier: context.0,
+            sectionOffset: offset.section + context.1.sectionOffset,
+            itemOffset: offset.item + context.1.itemOffset
+        )
+        context.1.subdelegates.append((delegates, subcoordinator.isEmpty))
     }
     
     func subsectionSources<C: BaseCoordinator, V, D>(
@@ -181,7 +241,7 @@ where
     override var anysubCoordinators: [BaseCoordinator] { subcoordinators }
     
     override func anyItem<Path: PathConvertible>(at path: Path) -> Any {
-        let indexAt = index(of: path)
+        let indexAt = sourceIndices.index(of: path)
         let offset = offsets[indexAt]
         let subcoordinator = subcoordinators[indexAt]
         return subcoordinator.anyItem(at: path - offset)
@@ -213,8 +273,8 @@ fileprivate extension BidirectionalCollection {
     }
 }
 
-fileprivate extension Collection where Element == BaseCoordinator.SourceIndices {
-    func sections(with offset: Int) -> [BaseCoordinator.SourceIndices] {
+fileprivate extension Collection where Element == SourceIndices {
+    func sections(with offset: Int) -> [SourceIndices] {
         map { .section(index: offset, count: $0.count) }
     }
 }

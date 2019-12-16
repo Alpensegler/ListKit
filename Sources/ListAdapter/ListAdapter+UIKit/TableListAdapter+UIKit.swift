@@ -21,7 +21,7 @@ public extension DataSource {
         }
     }
     
-    func provideTableViewCell<Cell: UITableViewCell>(
+    func tableViewCellForRow<Cell: UITableViewCell>(
         _ cellClass: Cell.Type,
         identifier: String = "",
         _ closure: @escaping (Cell, TableItemContext<SourceBase>, Item) -> Void

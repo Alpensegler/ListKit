@@ -10,10 +10,14 @@ import UIKit
 
 public typealias CollectionView = UICollectionView
 
-extension UICollectionView: UIListView {
+extension UICollectionView: UIListView, SetuptableListView {
     public typealias Cell = UICollectionViewCell
     public typealias Animation = Bool
-    public typealias Size = CGSize
+    
+    func setup(with delegates: Delegates) {
+        dataSource = delegates
+        delegate = delegates
+    }
 }
 
 public extension UICollectionView {
@@ -24,7 +28,9 @@ public extension UICollectionView {
     
     func reloadSynchronously() {
         reloadData()
-        layoutIfNeeded()
+        if window != nil {
+            layoutIfNeeded()
+        }
     }
     
     func perform(update: () -> Void, animated: Bool, completion: ((Bool) -> Void)? = nil) {

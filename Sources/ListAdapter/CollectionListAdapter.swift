@@ -41,7 +41,12 @@ public extension CollectionListAdapter {
     @discardableResult
     func apply(by collectionView: CollectionView) -> CollectionList<SourceBase> {
         let collectionList = self.collectionList
-        collectionList.listCoordinator.applyBy(listView: collectionView)
+        collectionList.listCoordinator.setup(
+            listView: collectionView,
+            objectIdentifier: ObjectIdentifier(collectionView),
+            isRoot: true
+        )
+        collectionView.reloadSynchronously()
         return collectionList
     }
 }

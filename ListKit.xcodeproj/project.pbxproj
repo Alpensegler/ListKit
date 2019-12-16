@@ -42,7 +42,6 @@
 		F383064423506BAC00AE8B97 /* Differing.swift in Sources */ = {isa = PBXBuildFile; fileRef = F383064123506BAC00AE8B97 /* Differing.swift */; };
 		F383064523506BAC00AE8B97 /* Identifiable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F383064223506BAC00AE8B97 /* Identifiable.swift */; };
 		F3841D5D2355E0DA006386E3 /* Collection+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3841D5C2355E0DA006386E3 /* Collection+Extension.swift */; };
-		F38B710523A306860081B842 /* AllSelectors.swift in Sources */ = {isa = PBXBuildFile; fileRef = F38B710423A306860081B842 /* AllSelectors.swift */; };
 		F39A23F323A16B660024F9AF /* AnyTableSourcesBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F39A23F123A16B660024F9AF /* AnyTableSourcesBuilder.swift */; };
 		F39A23F623A16D1F0024F9AF /* CoreData+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = F39A23F523A16D1F0024F9AF /* CoreData+Extension.swift */; };
 		F39A23F923A17FE60024F9AF /* Sources+Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F39A23F823A17FE50024F9AF /* Sources+Coordinator.swift */; };
@@ -50,6 +49,7 @@
 		F3A4933223A6472000809E7F /* ListContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A4933123A6472000809E7F /* ListContext.swift */; };
 		F3A4933823A6A95700809E7F /* ListAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A4933723A6A95700809E7F /* ListAdapter.swift */; };
 		F3A4933A23A6D3B400809E7F /* ScollContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A4933923A6D3B400809E7F /* ScollContext.swift */; };
+		F3A4939A23A79EBF00809E7F /* SourceType.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A4939923A79EBF00809E7F /* SourceType.swift */; };
 		F3AD00DD238BC2AF000AF1B3 /* Differ.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3AD00DC238BC2AF000AF1B3 /* Differ.swift */; };
 		F3AD013A238BE6FE000AF1B3 /* ItemsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3AD0139238BE6FE000AF1B3 /* ItemsCoordinator.swift */; };
 		F3AD0680238FF3DA000AF1B3 /* SourcesCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3AD067F238FF3DA000AF1B3 /* SourcesCoordinator.swift */; };
@@ -112,7 +112,6 @@
 		F383064123506BAC00AE8B97 /* Differing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Differing.swift; sourceTree = "<group>"; };
 		F383064223506BAC00AE8B97 /* Identifiable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Identifiable.swift; sourceTree = "<group>"; };
 		F3841D5C2355E0DA006386E3 /* Collection+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Collection+Extension.swift"; sourceTree = "<group>"; };
-		F38B710423A306860081B842 /* AllSelectors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllSelectors.swift; sourceTree = "<group>"; };
 		F39A23F123A16B660024F9AF /* AnyTableSourcesBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnyTableSourcesBuilder.swift; sourceTree = "<group>"; };
 		F39A23F523A16D1F0024F9AF /* CoreData+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CoreData+Extension.swift"; sourceTree = "<group>"; };
 		F39A23F823A17FE50024F9AF /* Sources+Coordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Sources+Coordinator.swift"; sourceTree = "<group>"; };
@@ -120,6 +119,7 @@
 		F3A4933123A6472000809E7F /* ListContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListContext.swift; sourceTree = "<group>"; };
 		F3A4933723A6A95700809E7F /* ListAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListAdapter.swift; sourceTree = "<group>"; };
 		F3A4933923A6D3B400809E7F /* ScollContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScollContext.swift; sourceTree = "<group>"; };
+		F3A4939923A79EBF00809E7F /* SourceType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourceType.swift; sourceTree = "<group>"; };
 		F3AD00DC238BC2AF000AF1B3 /* Differ.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Differ.swift; sourceTree = "<group>"; };
 		F3AD0139238BE6FE000AF1B3 /* ItemsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemsCoordinator.swift; sourceTree = "<group>"; };
 		F3AD067F238FF3DA000AF1B3 /* SourcesCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourcesCoordinator.swift; sourceTree = "<group>"; };
@@ -207,7 +207,6 @@
 				F314E8E723A62147003C203B /* Delegates.swift */,
 				F3A4933123A6472000809E7F /* ListContext.swift */,
 				F314E8EA23A62200003C203B /* SelestorSets.swift */,
-				F38B710423A306860081B842 /* AllSelectors.swift */,
 			);
 			path = Delegate;
 			sourceTree = "<group>";
@@ -318,6 +317,7 @@
 				F3AD00DC238BC2AF000AF1B3 /* Differ.swift */,
 				F3F7795D237DB806008C6B21 /* Change.swift */,
 				F3D786FB2399318B00D7A5CD /* Associator.swift */,
+				F3A4939923A79EBF00809E7F /* SourceType.swift */,
 			);
 			path = Utility;
 			sourceTree = "<group>";
@@ -487,13 +487,13 @@
 				F37DD4E323A190AE00689CAD /* TableListAdapter+Source.swift in Sources */,
 				F3EB15DC23A2ED1900C9AC5E /* ListAdapters+ListAdapters.swift in Sources */,
 				F35BBA03239FD05C0024EA7D /* TableContext.swift in Sources */,
-				F38B710523A306860081B842 /* AllSelectors.swift in Sources */,
 				F3EB15DA23A2CF8D00C9AC5E /* Optional+Extension.swift in Sources */,
 				F304A6E3239E95ED00133D14 /* ListView+NSTableView.swift in Sources */,
 				F3D786972399263B00D7A5CD /* CollectionContext.swift in Sources */,
 				F3D787022399327200D7A5CD /* ListView+UITableView.swift in Sources */,
 				F39A23F623A16D1F0024F9AF /* CoreData+Extension.swift in Sources */,
 				F329598323A10B7D001D6063 /* ListViewStorage+UIKit.swift in Sources */,
+				F3A4939A23A79EBF00809E7F /* SourceType.swift in Sources */,
 				F383064323506BAC00AE8B97 /* CollectionDifference.swift in Sources */,
 				F3D787082399F4C500D7A5CD /* AnySourcesCoordinator.swift in Sources */,
 				F31250EB239C5E0E00E77969 /* ItemTypedCoorinator.swift in Sources */,

@@ -48,11 +48,6 @@ public class BaseCoordinator {
         case section
     }
     
-    enum SourceIndices: Equatable {
-        case section(index: Int, count: Int)
-        case cell(indices: [Int])
-    }
-    
     typealias SectionSourceValue<C: BaseCoordinator, A, D> = SourceValue<Other<C, A, D>, C, A, D>
     
     typealias AnyItemSources = SourceValue<Never, BaseCoordinator, Any, Any>
@@ -69,6 +64,7 @@ public class BaseCoordinator {
     
     var sourceType = SourceType.cell
     var sourceIndices = [SourceIndices]()
+    var offsets = [Path]()
     var rangeReplacable = false
     var isEmpty: Bool { false }
     
@@ -87,8 +83,16 @@ public class BaseCoordinator {
     
     func anySourceUpdate(to sources: [AnyDiffableSourceValue]) { fatalError() }
     
-    func applyBy(listView: ListView) { fatalError() }
-    func applyBy(listView: ListView, sectionOffset: Int, itemOffset: Int) { fatalError() }
+    @discardableResult
+    func setup(
+        listView: SetuptableListView,
+        objectIdentifier: ObjectIdentifier,
+        sectionOffset: Int = 0,
+        itemOffset: Int = 0,
+        isRoot: Bool = false
+    ) -> Delegates {
+        fatalError()
+    }
     
     func update(
         from coordinator: BaseCoordinator,
@@ -251,15 +255,6 @@ extension BaseCoordinator.Other: DiffEquatable {
         case (.cellContainer, .cellContainer): return true
         case (.noneDiffable, .noneDiffable): return lhs.diffable() == rhs.diffable()
         default: return false
-        }
-    }
-}
-
-extension BaseCoordinator.SourceIndices {
-    var count: Int {
-        switch self {
-        case let .section(_, count): return count
-        case let .cell(cells): return cells.count
         }
     }
 }

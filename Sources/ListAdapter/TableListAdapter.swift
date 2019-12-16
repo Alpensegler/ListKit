@@ -40,7 +40,12 @@ public extension TableListAdapter {
     @discardableResult
     func apply(by tableView: TableView) -> TableList<SourceBase> {
         let tableList = self.tableList
-//        tableView.setupWith(coordinator: tableList.listCoordinator)
+        tableList.listCoordinator.setup(
+            listView: tableView,
+            objectIdentifier: ObjectIdentifier(tableView),
+            isRoot: true
+        )
+        tableView.reloadSynchronously()
         return tableList
     }
 }

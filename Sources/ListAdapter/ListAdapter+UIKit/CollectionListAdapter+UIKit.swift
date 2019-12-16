@@ -17,7 +17,7 @@ public extension DataSource {
         }
     }
     
-    func collectionViewCell<Cell: UICollectionViewCell>(
+    func collectionViewCellForItem<Cell: UICollectionViewCell>(
         _ cellClass: Cell.Type,
         identifier: String = "",
         _ closure: @escaping (Cell, CollectionItemContext<SourceBase>, Item) -> Void

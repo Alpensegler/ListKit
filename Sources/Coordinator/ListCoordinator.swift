@@ -5,14 +5,16 @@
 //  Created by Frain on 2019/11/25.
 //
 
-import ObjectiveC.runtime
-
 public class ListCoordinator<SourceBase: DataSource>: ItemTypedCoorinator<SourceBase.Item> {
     typealias Item = SourceBase.Item
     
     var stagingContextSetups = [(ListContext<SourceBase>) -> Void]()
     var contexts = [ObjectIdentifier: ListContext<SourceBase>]()
     var source: SourceBase.Source { fatalError() }
+    var didSetup = false
+    
+    func setup(with delegates: Delegates) { }
+    
     override var anySource: Any { source }
     
     override init() {
@@ -25,21 +27,44 @@ public class ListCoordinator<SourceBase: DataSource>: ItemTypedCoorinator<Source
         selfType = ObjectIdentifier(SourceBase.self)
         itemType = ObjectIdentifier(SourceBase.Item.self)
     }
+    
+    @discardableResult
+    override func setup(
+        listView: SetuptableListView,
+        objectIdentifier: ObjectIdentifier,
+        sectionOffset: Int = 0,
+        itemOffset: Int = 0,
+        isRoot: Bool = false
+    ) -> Delegates {
+        let context = contexts[objectIdentifier] ?? {
+            let context = ListContext(coordinator: self, listView: listView)
+            contexts[objectIdentifier] = context
+            stagingContextSetups.forEach { $0(context) }
+            if !didSetup {
+                setup(with: context)
+                didSetup = true
+            }
+            return context
+        }()
+        context.sectionOffset = sectionOffset
+        context.itemOffset = itemOffset
+        if isRoot { listView.setup(with: context) }
+        return context
+    }
 }
 
 class SourceStoredListCoordinator<SourceBase: DataSource>: ListCoordinator<SourceBase> {
     var _source: SourceBase.Source
     override var source: SourceBase.Source { _source }
     
-    func setup() { }
-    
     override init(sourceBase: SourceBase) {
         _source = sourceBase.source
         
         super.init(sourceBase: sourceBase)
-        setup()
     }
 }
+
+import UIKit
 
 class WrapperCoordinator<SourceBase: DataSource>: ListCoordinator<SourceBase> {
     var wrappedCoodinator: BaseCoordinator { fatalError() }
@@ -92,9 +117,35 @@ class WrapperCoordinator<SourceBase: DataSource>: ListCoordinator<SourceBase> {
         wrappedCoodinator.anySourceUpdate(to: sources)
     }
     
-    override func applyBy(listView: ListView, sectionOffset: Int, itemOffset: Int) {
-        super.applyBy(listView: listView, sectionOffset: sectionOffset, itemOffset: itemOffset)
-        wrappedCoodinator.applyBy(listView: listView, sectionOffset: sectionOffset, itemOffset: itemOffset)
+    override func setup(
+        listView: SetuptableListView,
+        objectIdentifier: ObjectIdentifier,
+        sectionOffset: Int = 0,
+        itemOffset: Int = 0,
+        isRoot: Bool = false
+    ) -> Delegates {
+        let subcontext = wrappedCoodinator.setup(
+            listView: listView,
+            objectIdentifier: objectIdentifier,
+            sectionOffset: sectionOffset,
+            itemOffset: itemOffset
+        )
+        
+        let context = contexts[objectIdentifier] ?? {
+            let context = SourceContext(
+                coordinator: self as ListCoordinator<SourceBase>,
+                other: subcontext,
+                listView: listView
+            )
+            contexts[objectIdentifier] = context
+            stagingContextSetups.forEach { $0(context) }
+            context.setupSelectorSets()
+            return context
+        }()
+        context.sectionOffset = sectionOffset
+        context.itemOffset = itemOffset
+        if isRoot { listView.setup(with: context) }
+        return context
     }
 }
 

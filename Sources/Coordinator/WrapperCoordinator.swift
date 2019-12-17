@@ -83,7 +83,7 @@ class WrapperCoordinator<SourceBase: DataSource>: ListCoordinator<SourceBase> {
         }()
         delegates.sectionOffset = sectionOffset
         delegates.itemOffset = itemOffset
-        if isRoot { listView.setup(with: delegates) }
+        delegates.setup(isRoot: isRoot, listView: listView)
         return delegates
     }
 }

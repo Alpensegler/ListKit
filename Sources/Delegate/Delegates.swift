@@ -19,6 +19,7 @@ class Delegates: NSObject {
     
     var sectionOffset = 0
     var itemOffset = 0
+    var isRoot = false
     
     //Responding
     func apply<Object: AnyObject, Input, Output>(

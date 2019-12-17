@@ -175,31 +175,3 @@ where
         }
     }
 }
-
-public extension Sources
-where
-    Source: RangeReplaceableCollection,
-    Source.Element: DataSource,
-    Source.Element.Item == Item,
-    Item == Any
-{
-    init(id: AnyHashable, dataSources: Source, updater: Updater<Self> = .none) {
-        self.id = id
-        self.source = dataSources
-        self.updater = .init(
-            source: .init(identifier: { $0.id }),
-            item: updater.item
-        )
-        self.listCoordinatorMaker = {
-            $0.addToStorage(AnySourcesCoordinator(sourceBase: $0.sourceBase))
-        }
-    }
-    
-    init(dataSources: Source, updater: Updater<Self> = .none) {
-        self.source = dataSources
-        self.updater = updater
-        self.listCoordinatorMaker = {
-            $0.addToStorage(AnySourcesCoordinator(sourceBase: $0.sourceBase))
-        }
-    }
-}

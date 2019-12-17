@@ -64,15 +64,3 @@ where
         SourcesCoordinator(sourceBase: sourceBase)
     }
 }
-
-public extension DataSource
-where
-    SourceBase.Source: RangeReplaceableCollection,
-    SourceBase.Source.Element: DataSource,
-    SourceBase.Source.Element.SourceBase.Item == Item,
-    Item == Any
-{
-    func makeListCoordinator() -> ListCoordinator<SourceBase> {
-        AnySourcesCoordinator(sourceBase: sourceBase)
-    }
-}

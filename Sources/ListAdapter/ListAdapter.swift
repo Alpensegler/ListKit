@@ -45,10 +45,14 @@ extension ListAdapter {
         self.init(delegatesSetups: dataSource.delegatesSetups, source: dataSource.sourceBase)
     }
     
-    var sourceListCoordinator: ListCoordinator<Source> {
+    var adapterCoordinator: ListCoordinator<Source> {
         let listCoordinator = coordinatorStorage.coordinator ?? makeListCoordinator()
         listCoordinator.stagingDelegatesSetups = delegatesSetups
         return listCoordinator
+    }
+    
+    func makeAdapterCoordinator() -> ListCoordinator<Source> {
+        addToStorage(AdapterCoordinator(sourceBase: source))
     }
 
     func set<Input, Output>(

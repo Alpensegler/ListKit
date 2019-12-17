@@ -37,6 +37,13 @@ public extension UpdatableDataSource {
     }
 }
 
+extension UpdatableDataSource {
+    func addToStorage(_ coordinator: ListCoordinator<SourceBase>) -> ListCoordinator<SourceBase> {
+        coordinatorStorage.coordinator = coordinator
+        return coordinator
+    }
+}
+
 #if canImport(ObjectiveC)
 import ObjectiveC.runtime
 

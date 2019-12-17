@@ -24,9 +24,7 @@ where SourceBase.Source: Collection, SourceBase.Item == SourceBase.Source.Elemen
     }
     
     override func anySectionSources<Source: DataSource>(source: Source) -> AnySectionSources {
-        sourceType == .section
-            ? .other(Other(type: .cellContainer) { [.init(source: source, coordinator: self) { self.items }] })
-            : .single(.init(source: source, coordinator: self) { self.items })
+        .single(.init(source: source, coordinator: self) { self.items })
     }
     
     override func itemSources<Source: DataSource>(source: Source) -> ItemSource {
@@ -34,9 +32,7 @@ where SourceBase.Source: Collection, SourceBase.Item == SourceBase.Source.Elemen
     }
     
     override func sectionSources<Source: DataSource>(source: Source) -> SectionSource {
-        sourceType == .section
-            ? .other(Other(type: .cellContainer) { [.init(source: source, coordinator: self) { self.items }] })
-            : .single(.init(source: source, coordinator: self) { self.items })
+        .single(.init(source: source, coordinator: self) { self.items })
     }
     
     func configSourceIndices() {

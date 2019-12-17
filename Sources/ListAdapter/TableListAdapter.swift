@@ -46,6 +46,10 @@ public extension TableListAdapter {
         tableView.reloadSynchronously()
         return tableList
     }
+    
+    func makeTableListCoordinator() -> ListCoordinator<SourceBase> {
+        tableList.listCoordinator
+    }
 }
 
 #if os(iOS) || os(tvOS)

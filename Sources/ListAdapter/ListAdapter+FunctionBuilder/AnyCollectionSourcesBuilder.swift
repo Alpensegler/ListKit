@@ -25,15 +25,15 @@ public extension CollectionList where SourceBase == AnySources {
 @_functionBuilder
 public struct AnyCollectionSourcesBuilder {
     public static func buildIf<S: CollectionListAdapter>(_ content: S?) -> AnyCollectionSources {
-        AnyCollectionSources(content)
+        AnyCollectionSources(content.map { [AnyCollectionSources($0)] } ?? [])
     }
 
     public static func buildEither<TrueContent: CollectionListAdapter>(first: TrueContent) -> AnyCollectionSources {
-        AnyCollectionSources(first)
+        AnyCollectionSources([first])
     }
 
     public static func buildEither<FalseContent: CollectionListAdapter>(second: FalseContent) -> AnyCollectionSources {
-        AnyCollectionSources(second)
+        AnyCollectionSources([second])
     }
     
     public static func buildBlock() -> AnyCollectionSources {
@@ -41,7 +41,7 @@ public struct AnyCollectionSourcesBuilder {
     }
 
     public static func buildBlock<S: CollectionListAdapter>(_ content: S) -> AnyCollectionSources {
-        AnyCollectionSources(AnyCollectionSources(content))
+        AnyCollectionSources([AnyCollectionSources(content)])
     }
     
     public static func buildBlock<S0: CollectionListAdapter, S1: CollectionListAdapter>(_ s0: S0, _ s1: S1) -> AnyCollectionSources {

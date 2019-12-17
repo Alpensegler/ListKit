@@ -18,7 +18,15 @@ where SourceBase.Item == SourceBase.Source {
         .single(.init(item: source, coordinator: self) { self.source })
     }
     
+    override func anySectionSources<Source: DataSource>(source: Source) -> AnySectionSources {
+        .single(.init(source: source, coordinator: self) { [self.source] })
+    }
+    
     override func itemSources<Source: DataSource>(source: Source) -> ItemSource {
         .single(.init(item: source, coordinator: self) { self.source })
+    }
+    
+    override func sectionSources<Source: DataSource>(source: Source) -> SectionSource {
+        .single(.init(source: source, coordinator: self) { [self.source] })
     }
 }

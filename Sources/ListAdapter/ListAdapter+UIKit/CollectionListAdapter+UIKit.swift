@@ -23,9 +23,9 @@ public extension DataSource {
         _ closure: @escaping (Cell, CollectionItemContext<SourceBase>, Item) -> Void
     ) -> CollectionList<SourceBase> {
         collectionViewCellForItem { (context, item) in
-            context.dequeueReusableCell(cellClass, identifier: identifier) {
-                closure($0, context, item)
-            }
+            let cell = context.dequeueReusableCell(cellClass, identifier: identifier)
+            closure(cell, context, item)
+            return cell
         }
     }
 }

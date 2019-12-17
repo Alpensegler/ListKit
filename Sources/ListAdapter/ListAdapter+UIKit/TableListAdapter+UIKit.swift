@@ -11,9 +11,9 @@ import UIKit
 public extension DataSource {
     func tableViewCellForRow(
         _ closure: @escaping (TableItemContext<SourceBase>, Item) -> UITableViewCell = { (context, item) in
-            context.dequeueReusableCell(UITableViewCell.self) {
-                $0.textLabel?.text = "\(item)"
-            }
+            let cell = context.dequeueReusableCell(UITableViewCell.self)
+            cell.textLabel?.text = "\(item)"
+            return cell
         }
     ) -> TableList<SourceBase> {
         TableList(self).set(\.cellForRowAt) {
@@ -27,9 +27,9 @@ public extension DataSource {
         _ closure: @escaping (Cell, TableItemContext<SourceBase>, Item) -> Void
     ) -> TableList<SourceBase> {
         tableViewCellForRow { (context, item) in
-            context.dequeueReusableCell(cellClass, identifier: identifier) {
-                closure($0, context, item)
-            }
+            let cell = context.dequeueReusableCell(cellClass, identifier: identifier)
+            closure(cell, context, item)
+            return cell
         }
     }
 }

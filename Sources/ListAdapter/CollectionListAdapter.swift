@@ -47,6 +47,10 @@ public extension CollectionListAdapter {
         collectionView.reloadSynchronously()
         return collectionList
     }
+    
+    func makeCollectionListCoordinator() -> ListCoordinator<SourceBase> {
+        collectionList.listCoordinator
+    }
 }
 
 #if os(iOS) || os(tvOS)

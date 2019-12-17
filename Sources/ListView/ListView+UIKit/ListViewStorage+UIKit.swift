@@ -12,9 +12,8 @@ public extension UIListView {
     func dequeueReusableCell<CustomCell: UIView>(
         _ cellClass: CustomCell.Type,
         identifier: String = "",
-        indexPath: IndexPath,
-        configuration: (CustomCell) -> Void = { _ in }
-    ) -> Cell {
+        indexPath: IndexPath
+    ) -> CustomCell {
         guard CustomCell.isSubclass(of: Cell.self) else {
             fatalError("\(CustomCell.self) is not subclass of \(Cell.self)")
         }
@@ -23,32 +22,27 @@ public extension UIListView {
             _storage.registeredCellIdentifiers.insert(id)
             register(CustomCell.self, forCellReuseIdentifier: id)
         }
-        let cell = dequeueReusableCell(withIdentifier: id, for: indexPath)
-        (cell as? CustomCell).map(configuration)
-        return cell
+        return dequeueReusableCell(withIdentifier: id, for: indexPath) as! CustomCell
     }
 
     func dequeueReusableCell<CustomCell: UIView>(
         _ cellClass: CustomCell.Type,
         storyBoardIdentifier: String,
-        indexPath: IndexPath,
-        configuration: (CustomCell) -> Void = { _ in }
-    ) -> Cell {
+        indexPath: IndexPath
+    ) -> CustomCell {
         guard CustomCell.isSubclass(of: Cell.self) else {
             fatalError("\(CustomCell.self) is not subclass of \(Cell.self)")
         }
         let cell = dequeueReusableCell(withIdentifier: storyBoardIdentifier, for: indexPath)
-        (cell as? CustomCell).map(configuration)
-        return cell
+        return cell as! CustomCell
     }
     
     func dequeueReusableCell<CustomCell: UIView>(
         _ cellClass: CustomCell.Type,
         withNibName nibName: String,
         bundle: Bundle? = nil,
-        indexPath: IndexPath,
-        configuration: (CustomCell) -> Void = { _ in }
-    ) -> Cell {
+        indexPath: IndexPath
+    ) -> CustomCell {
         guard CustomCell.isSubclass(of: Cell.self) else {
             fatalError("\(CustomCell.self) is not subclass of \(Cell.self)")
         }
@@ -57,9 +51,7 @@ public extension UIListView {
             _storage.registeredNibNames.insert(nibName)
             register(nib, forCellReuseIdentifier: nibName)
         }
-        let cell = dequeueReusableCell(withIdentifier: nibName, for: indexPath)
-        (cell as? CustomCell).map(configuration)
-        return cell
+        return dequeueReusableCell(withIdentifier: nibName, for: indexPath) as! CustomCell
     }
 }
 
@@ -68,9 +60,8 @@ public extension UICollectionView {
         type: SupplementaryViewType,
         _ supplementaryClass: CustomSupplementaryView.Type,
         identifier: String = "",
-        indexPath: IndexPath,
-        configuration: (CustomSupplementaryView) -> Void = { _ in }
-    ) -> UICollectionReusableView {
+        indexPath: IndexPath
+    ) -> CustomSupplementaryView {
         let id = NSStringFromClass(CustomSupplementaryView.self) + type.rawValue + identifier
         if _storage.registeredSupplementaryIdentifiers[type]?.contains(id) != true {
             var identifiers = _storage.registeredSupplementaryIdentifiers[type] ?? .init()
@@ -83,8 +74,7 @@ public extension UICollectionView {
             withReuseIdentifier: id,
             for: indexPath
         )
-        (supplementaryView as? CustomSupplementaryView).map(configuration)
-        return supplementaryView
+        return supplementaryView as! CustomSupplementaryView
     }
     
     func dequeueReusableSupplementaryView<CustomSupplementaryView: UICollectionReusableView>(
@@ -92,9 +82,8 @@ public extension UICollectionView {
         _ supplementaryClass: CustomSupplementaryView.Type,
         nibName: String,
         bundle: Bundle? = nil,
-        indexPath: IndexPath,
-        configuration: (CustomSupplementaryView) -> Void = { _ in }
-    ) -> UICollectionReusableView {
+        indexPath: IndexPath
+    ) -> CustomSupplementaryView {
         let nib = UINib(nibName: nibName, bundle: bundle)
         let id = nibName + type.rawValue
         if _storage.registeredSupplementaryNibName[type]?.contains(id) != true {
@@ -108,8 +97,7 @@ public extension UICollectionView {
             withReuseIdentifier: id,
             for: indexPath
         )
-        (supplementaryView as? CustomSupplementaryView).map(configuration)
-        return supplementaryView
+        return supplementaryView as! CustomSupplementaryView
     }
 }
 
@@ -117,9 +105,8 @@ public extension UITableView {
     func dequeueReusableSupplementaryView<CustomSupplementaryView: UITableViewHeaderFooterView>(
         type: SupplementaryViewType,
         _ supplementaryClass: CustomSupplementaryView.Type,
-        identifier: String = "",
-        configuration: (CustomSupplementaryView) -> Void = { _ in }
-    ) -> UITableViewHeaderFooterView? {
+        identifier: String = ""
+    ) -> CustomSupplementaryView? {
         let id = NSStringFromClass(CustomSupplementaryView.self) + type.rawValue + identifier
         if _storage.registeredSupplementaryIdentifiers[type]?.contains(id) != true {
             var identifiers = _storage.registeredSupplementaryIdentifiers[type] ?? .init()
@@ -128,17 +115,15 @@ public extension UITableView {
             register(supplementaryViewType: type, supplementaryClass, identifier: id)
         }
         let supplementaryView = dequeueReusableHeaderFooterView(withIdentifier: id)
-        (supplementaryView as? CustomSupplementaryView).map(configuration)
-        return supplementaryView
+        return supplementaryView as? CustomSupplementaryView
     }
     
     func dequeueReusableSupplementaryView<CustomSupplementaryView: UITableViewHeaderFooterView>(
         type: SupplementaryViewType,
         _ supplementaryClass: CustomSupplementaryView.Type,
         nibName: String,
-        bundle: Bundle? = nil,
-        configuration: (CustomSupplementaryView) -> Void = { _ in }
-    ) -> UITableViewHeaderFooterView? {
+        bundle: Bundle? = nil
+    ) -> CustomSupplementaryView? {
         let nib = UINib(nibName: nibName, bundle: bundle)
         let id = nibName + type.rawValue
         if _storage.registeredSupplementaryNibName[type]?.contains(id) != true {
@@ -148,8 +133,7 @@ public extension UITableView {
             register(supplementaryViewType: type, nib, identifier: id)
         }
         let supplementaryView = dequeueReusableHeaderFooterView(withIdentifier: id)
-        (supplementaryView as? CustomSupplementaryView).map(configuration)
-        return supplementaryView
+        return supplementaryView as? CustomSupplementaryView
     }
 }
 

@@ -24,10 +24,8 @@ where Source.SourceBase == Source {
     public var updater: Updater<Source> { source.updater }
     public var sourceBase: Source { source }
     public var collectionList: CollectionList<Source> { self }
-    public var listCoordinator: ListCoordinator<Source> { sourceListCoordinator }
-    public func makeListCoordinator() -> ListCoordinator<Source> {
-        addToStorage(source.listCoordinator)
-    }
+    public var listCoordinator: ListCoordinator<Source> { adapterCoordinator }
+    public func makeListCoordinator() -> ListCoordinator<Source> { makeAdapterCoordinator() }
     
     public var wrappedValue: Source { source }
     public var projectedValue: Source.Source { source.source }

@@ -63,27 +63,27 @@ class WrapperCoordinator<SourceBase: DataSource>: ListCoordinator<SourceBase> {
         itemOffset: Int = 0,
         isRoot: Bool = false
     ) -> Delegates {
-        let subcontext = wrappedCoodinator.setup(
+        let subdelegates = wrappedCoodinator.setup(
             listView: listView,
             objectIdentifier: objectIdentifier,
             sectionOffset: sectionOffset,
             itemOffset: itemOffset
         )
         
-        let context = delegatesStorage[objectIdentifier] ?? {
-            let context = SourceDelegates(
+        let delegates = delegatesStorage[objectIdentifier] ?? {
+            let delegates = SourceDelegates(
                 coordinator: self as ListCoordinator<SourceBase>,
-                other: subcontext,
+                other: subdelegates,
                 listView: listView
             )
-            delegatesStorage[objectIdentifier] = context
-            stagingDelegatesSetups.forEach { $0(context) }
-            context.setupSelectorSets()
-            return context
+            delegatesStorage[objectIdentifier] = delegates
+            stagingDelegatesSetups.forEach { $0(delegates) }
+            delegates.setupSelectorSets()
+            return delegates
         }()
-        context.sectionOffset = sectionOffset
-        context.itemOffset = itemOffset
-        if isRoot { listView.setup(with: context) }
-        return context
+        delegates.sectionOffset = sectionOffset
+        delegates.itemOffset = itemOffset
+        if isRoot { listView.setup(with: delegates) }
+        return delegates
     }
 }

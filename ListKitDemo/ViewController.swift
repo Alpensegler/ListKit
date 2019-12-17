@@ -9,7 +9,7 @@
 import UIKit
 import ListKit
 
-class ViewController: UIViewController, TableListAdapter, UpdatableDataSource {
+class ViewController: UIViewController, UpdatableTableListAdapter {
     @IBOutlet weak var tableView: UITableView! { didSet { apply(by: tableView) } }
     
     typealias Item = Any

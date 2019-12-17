@@ -56,6 +56,7 @@
 		F3A4940023A8CDC600809E7F /* SourceStoredListCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A493FF23A8CDC600809E7F /* SourceStoredListCoordinator.swift */; };
 		F3A4940223A8CDEA00809E7F /* WrapperCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A4940123A8CDEA00809E7F /* WrapperCoordinator.swift */; };
 		F3A4940423A8CE2000809E7F /* ItemTypedWrapperCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A4940323A8CE2000809E7F /* ItemTypedWrapperCoordinator.swift */; };
+		F3A4940623A8D12400809E7F /* AdapterCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A4940523A8D12400809E7F /* AdapterCoordinator.swift */; };
 		F3AD00DD238BC2AF000AF1B3 /* Differ.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3AD00DC238BC2AF000AF1B3 /* Differ.swift */; };
 		F3AD013A238BE6FE000AF1B3 /* ItemsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3AD0139238BE6FE000AF1B3 /* ItemsCoordinator.swift */; };
 		F3AD0680238FF3DA000AF1B3 /* SourcesCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3AD067F238FF3DA000AF1B3 /* SourcesCoordinator.swift */; };
@@ -132,6 +133,7 @@
 		F3A493FF23A8CDC600809E7F /* SourceStoredListCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourceStoredListCoordinator.swift; sourceTree = "<group>"; };
 		F3A4940123A8CDEA00809E7F /* WrapperCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WrapperCoordinator.swift; sourceTree = "<group>"; };
 		F3A4940323A8CE2000809E7F /* ItemTypedWrapperCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemTypedWrapperCoordinator.swift; sourceTree = "<group>"; };
+		F3A4940523A8D12400809E7F /* AdapterCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdapterCoordinator.swift; sourceTree = "<group>"; };
 		F3AD00DC238BC2AF000AF1B3 /* Differ.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Differ.swift; sourceTree = "<group>"; };
 		F3AD0139238BE6FE000AF1B3 /* ItemsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemsCoordinator.swift; sourceTree = "<group>"; };
 		F3AD067F238FF3DA000AF1B3 /* SourcesCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourcesCoordinator.swift; sourceTree = "<group>"; };
@@ -198,8 +200,9 @@
 				F37BF3CB23968B7E0095C419 /* SectionsCoordinator.swift */,
 				F30433E8239FDF09007BACA9 /* SourceCoordinator.swift */,
 				F3AD067F238FF3DA000AF1B3 /* SourcesCoordinator.swift */,
-				F3D787072399F4C500D7A5CD /* AnySourcesCoordinator.swift */,
 				F37BF3CD23969DFD0095C419 /* NSCoordinator.swift */,
+				F3D787072399F4C500D7A5CD /* AnySourcesCoordinator.swift */,
+				F3A4940523A8D12400809E7F /* AdapterCoordinator.swift */,
 			);
 			path = Coordinator;
 			sourceTree = "<group>";
@@ -500,6 +503,7 @@
 				F3D785C82398FC5B00D7A5CD /* UpdatableDataSource.swift in Sources */,
 				F31250F4239DB57100E77969 /* Delegate.swift in Sources */,
 				F35BBA05239FD0EA0024EA7D /* TableListAdapter.swift in Sources */,
+				F3A4940623A8D12400809E7F /* AdapterCoordinator.swift in Sources */,
 				F3AD013A238BE6FE000AF1B3 /* ItemsCoordinator.swift in Sources */,
 				F3A4933823A6A95700809E7F /* ListAdapter.swift in Sources */,
 				F37DD4E323A190AE00689CAD /* TableListAdapter+Source.swift in Sources */,

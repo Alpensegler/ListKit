@@ -14,9 +14,9 @@ extension UICollectionView: UIListView, SetuptableListView {
     public typealias Cell = UICollectionViewCell
     public typealias Animation = Bool
     
-    func setup(with delegates: Delegates) {
-        dataSource = delegates
-        delegate = delegates
+    func setup(with delegatesStorage: Delegates) {
+        dataSource = delegatesStorage
+        delegate = delegatesStorage
     }
 }
 

@@ -5,7 +5,7 @@
 //  Created by Frain on 2019/12/3.
 //
 
-class NSCoordinator<SourceBase: NSDataSource>: ListCoordinator<SourceBase> {
+final class NSCoordinator<SourceBase: NSDataSource>: ListCoordinator<SourceBase> {
     let itemClosure: (Int, Int) -> Item
     let configSourceIndices: (NSCoordinator<SourceBase>) -> Void
     

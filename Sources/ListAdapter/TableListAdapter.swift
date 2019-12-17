@@ -15,7 +15,7 @@ public struct TableList<Source: DataSource>: TableListAdapter, UpdatableDataSour
 where Source.SourceBase == Source {
     public typealias Item = Source.Item
     public typealias SourceBase = Source
-    var contextSetups: [(ListContext<Source>) -> Void]
+    var delegatesSetups: [(ListDelegates<Source>) -> Void]
     
     public let source: Source
     public let coordinatorStorage = CoordinatorStorage<Source>()
@@ -59,14 +59,14 @@ extension TableList: ListAdapter {
     
     static func toContext(
         _ view: TableView,
-        _ listContext: ListContext<Source>
+        _ listContext: ListDelegates<Source>
     ) -> TableContext<Source> {
         .init(listView: view, coordinator: listContext.coordinator)
     }
     
     static func toSectionContext(
         _ view: TableView,
-        _ listContext: ListContext<Source>,
+        _ listContext: ListDelegates<Source>,
         section: Int
     ) -> TableSectionContext<Source> {
         .init(
@@ -79,7 +79,7 @@ extension TableList: ListAdapter {
     
     static func toItemContext(
         _ view: TableView,
-        _ listContext: ListContext<Source>,
+        _ listContext: ListDelegates<Source>,
         path: PathConvertible
     ) -> TableItemContext<Source> {
         .init(

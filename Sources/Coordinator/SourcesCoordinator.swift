@@ -5,8 +5,6 @@
 //  Created by Frain on 2019/11/28.
 //
 
-import ObjectiveC.runtime
-
 class SourcesCoordinator<SourceBase: DataSource>: SourceStoredListCoordinator<SourceBase>
 where
     SourceBase.Source: RangeReplaceableCollection,
@@ -16,10 +14,11 @@ where
     var subsources = [SourceBase.Source.Element]()
     var subitemCoordinators = [ItemTypedCoorinator<Item>]()
     var anysubCoordinators: [BaseCoordinator] { subitemCoordinators }
+    var isAnyType = Item.self == Any.self
     
-    var sourcesContext = [ObjectIdentifier: SourcesContext<SourceBase>]()
-    override var contexts: [ObjectIdentifier: ListContext<SourceBase>] {
-        get { sourcesContext }
+    var sourcesDelegates = [ObjectIdentifier: SourcesDelegates<SourceBase>]()
+    override var delegatesStorage: [ObjectIdentifier: ListDelegates<SourceBase>] {
+        get { sourcesDelegates }
         set { fatalError() }
     }
     
@@ -100,19 +99,19 @@ where
         itemOffset: Int = 0,
         isRoot: Bool = false
     ) -> Delegates {
-        if let context = sourcesContext[objectIdentifier] {
+        if let context = sourcesDelegates[objectIdentifier] {
             context.sectionOffset = sectionOffset
             context.itemOffset = itemOffset
             context.configSubdelegatesOffsets()
             return context
         }
-        let context = SourcesContext(
+        let context = SourcesDelegates(
             coordinator: self,
             listView: listView
         )
         context.sectionOffset = sectionOffset
         context.itemOffset = itemOffset
-        sourcesContext[objectIdentifier] = context
+        sourcesDelegates[objectIdentifier] = context
         if !didSetup {
             setupCoordinators()
             rangeReplacable = true
@@ -132,8 +131,8 @@ where
     func resetAndConfigIndicesAndOffsets() {
         offsets.removeAll(keepingCapacity: true)
         sourceIndices.removeAll(keepingCapacity: true)
-        sourcesContext.values.forEach { $0.subdelegates.removeAll(keepingCapacity: true) }
-        configSubdelegates(for: sourcesContext.lazy.map { $0 }, isReset: true)
+        sourcesDelegates.values.forEach { $0.subdelegates.removeAll(keepingCapacity: true) }
+        configSubdelegates(for: sourcesDelegates.lazy.map { $0 }, isReset: true)
     }
     
     func setupCoordinators() {
@@ -147,7 +146,7 @@ where
     func configSubdelegates<Contexts: Collection>(
         for contexts: Contexts,
         isReset: Bool = true
-    ) -> Bool where Contexts.Element == (key: ObjectIdentifier, valye: SourcesContext<SourceBase>) {
+    ) -> Bool where Contexts.Element == (key: ObjectIdentifier, valye: SourcesDelegates<SourceBase>) {
         var hasSectioned = false
         if isReset {
             var offset = Path()
@@ -170,33 +169,32 @@ where
         offset: inout Path,
         hasSection: inout Bool
     ) {
+        offsets.append(offset)
         switch (subcoordinator.sourceType, sourceIndices.last) {
         case (.section, _):
-            let sections = subcoordinator.sourceIndices.sections(with: offsets.count)
+            let sections = subcoordinator.sourceIndices.sections(with: offsets.count - 1)
             guard !sections.isEmpty else { break }
             hasSection = true
-            offset = Path(section: sourceIndices.count)
             sourceIndices.append(contentsOf: sections)
+            offset = Path(section: sourceIndices.count)
         case (.cell, .cell(var cells)?):
             let cellCounts = subcoordinator.numbersOfItems(in: 0)
             guard cellCounts != 0 else { break }
+            cells.append(contentsOf: repeatElement(offsets.count - 1, count: cellCounts))
             offset.item = cells.count
-            cells.append(contentsOf: repeatElement(offsets.count, count: cellCounts))
             sourceIndices[sourceIndices.lastIndex] = .cell(indices: cells)
         case (.cell, _):
             let cellCounts = subcoordinator.numbersOfItems(in: 0)
             guard cellCounts != 0 else { break }
-            offset = Path(section: sourceIndices.count)
             let indices = Array(repeating: offset.section, count: cellCounts)
             sourceIndices.append(.cell(indices: indices))
+            offset = Path(section: sourceIndices.count)
         }
-
-        offsets.append(offset)
     }
     
     func setCoordinator(
         _ subcoordinator: BaseCoordinator,
-        context: (ObjectIdentifier, SourcesContext<SourceBase>),
+        context: (ObjectIdentifier, SourcesDelegates<SourceBase>),
         offset: Path
     ) {
         guard let listView = context.1.listView() else { return }

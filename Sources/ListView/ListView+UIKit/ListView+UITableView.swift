@@ -15,9 +15,9 @@ public typealias TableView = UITableView
 extension UITableView: UIListView, SetuptableListView {
     public typealias Cell = UITableViewCell
     
-    func setup(with delegates: Delegates) {
-        dataSource = delegates
-        delegate = delegates
+    func setup(with delegatesStorage: Delegates) {
+        dataSource = delegatesStorage
+        delegate = delegatesStorage
     }
 }
 

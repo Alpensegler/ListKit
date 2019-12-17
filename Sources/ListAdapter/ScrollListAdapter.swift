@@ -20,7 +20,7 @@ where Source.SourceBase == Source {
     public typealias Item = Source.Item
     public typealias SourceBase = Source
     
-    var contextSetups = [(ListContext<Source>) -> Void]()
+    var delegatesSetups = [(ListDelegates<Source>) -> Void]()
     
     public let source: Source
     public let coordinatorStorage = CoordinatorStorage<Source>()
@@ -48,21 +48,21 @@ extension ScrollList: ListAdapter {
     }
     
     static func toContext(
-        _ view: UIScrollView, _ listContext: ListContext<Source>
+        _ view: UIScrollView, _ listContext: ListDelegates<Source>
     ) -> ScrollContext<Source> {
         .init(listView: view, coordinator: listContext.coordinator)
     }
     
     static func toSectionContext(
         _ view: UIScrollView,
-        _ listContext: ListContext<Source>, section: Int
+        _ listContext: ListDelegates<Source>, section: Int
     ) -> Never {
         fatalError()
     }
     
     static func toItemContext(
         _ view: UIScrollView,
-        _ listContext: ListContext<Source>,
+        _ listContext: ListDelegates<Source>,
         path: PathConvertible
     ) -> Never {
         fatalError()

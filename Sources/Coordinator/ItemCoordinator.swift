@@ -5,7 +5,7 @@
 //  Created by Frain on 2019/10/10.
 //
 
-class ItemCoordinator<SourceBase: DataSource>: SourceStoredListCoordinator<SourceBase>
+final class ItemCoordinator<SourceBase: DataSource>: SourceStoredListCoordinator<SourceBase>
 where SourceBase.Item == SourceBase.Source {
     override func item<Path: PathConvertible>(at path: Path) -> Item { source }
     

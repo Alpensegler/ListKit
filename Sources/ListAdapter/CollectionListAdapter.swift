@@ -16,7 +16,7 @@ where Source.SourceBase == Source {
     public typealias Item = Source.Item
     public typealias SourceBase = Source
     
-    var contextSetups = [(ListContext<Source>) -> Void]()
+    var delegatesSetups = [(ListDelegates<Source>) -> Void]()
     
     public let source: Source
     public let coordinatorStorage = CoordinatorStorage<Source>()
@@ -60,14 +60,14 @@ extension CollectionList: ListAdapter {
     
     static func toContext(
         _ view: CollectionView,
-        _ listContext: ListContext<Source>
+        _ listContext: ListDelegates<Source>
     ) -> CollectionContext<Source> {
         .init(listView: view, coordinator: listContext.coordinator)
     }
     
     static func toSectionContext(
         _ view: CollectionView,
-        _ listContext: ListContext<Source>,
+        _ listContext: ListDelegates<Source>,
         section: Int
     ) -> CollectionSectionContext<Source> {
         .init(
@@ -80,7 +80,7 @@ extension CollectionList: ListAdapter {
     
     static func toItemContext(
         _ view: CollectionView,
-        _ listContext: ListContext<Source>,
+        _ listContext: ListDelegates<Source>,
         path: PathConvertible
     ) -> CollectionItemContext<Source> {
         .init(

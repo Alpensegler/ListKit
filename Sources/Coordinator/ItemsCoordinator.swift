@@ -46,7 +46,7 @@ where SourceBase.Source: Collection, SourceBase.Item == SourceBase.Source.Elemen
     }
 }
 
-class RangeReplacableItemsCoordinator<SourceBase: DataSource>: ItemsCoordinator<SourceBase>
+final class RangeReplacableItemsCoordinator<SourceBase: DataSource>: ItemsCoordinator<SourceBase>
 where SourceBase.Source: RangeReplaceableCollection, SourceBase.Source.Element == SourceBase.Item {
     override func setup(with delegates: Delegates) {
         super.setup(with: delegates)

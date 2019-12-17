@@ -5,7 +5,7 @@
 //  Created by Frain on 2019/12/6.
 //
 
-class AnySourceCoordinator<SourceBase: DataSource>: WrapperCoordinator<SourceBase>
+final class AnySourceCoordinator<SourceBase: DataSource>: WrapperCoordinator<SourceBase>
 where SourceBase.Source == Any, SourceBase.Item == Any {
     var coordinator: BaseCoordinator
     var storedSource: Any

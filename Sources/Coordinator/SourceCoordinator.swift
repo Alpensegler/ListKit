@@ -5,7 +5,7 @@
 //  Created by Frain on 2019/12/10.
 //
 
-class SourceCoordinator<SourceBase: DataSource>: ItemTypedWrappedCoordinator<SourceBase>
+final class SourceCoordinator<SourceBase: DataSource>: ItemTypedWrapperCoordinator<SourceBase>
 where SourceBase.Source: DataSource, SourceBase.Source.Item == SourceBase.Item {
     var coodinator: ListCoordinator<SourceBase.Source.SourceBase>
     var storedSource: SourceBase.Source

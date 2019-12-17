@@ -18,7 +18,7 @@ public extension CollectionList where SourceBase == AnySources {
     
     init(@AnyCollectionSourcesBuilder content: () -> Self) {
         let dataSource = content()
-        self.init(contextSetups: dataSource.contextSetups, source: dataSource.sourceBase)
+        self.init(delegatesSetups: dataSource.delegatesSetups, source: dataSource.sourceBase)
     }
 }
 

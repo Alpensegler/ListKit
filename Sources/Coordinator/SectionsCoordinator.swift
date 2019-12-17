@@ -37,7 +37,7 @@ where
 }
 
 
-class RangeReplacableSectionsCoordinator<SourceBase: DataSource>: SectionsCoordinator<SourceBase>
+final class RangeReplacableSectionsCoordinator<SourceBase: DataSource>: SectionsCoordinator<SourceBase>
 where
     SourceBase.Source: RangeReplaceableCollection,
     SourceBase.Source.Element: RangeReplaceableCollection,

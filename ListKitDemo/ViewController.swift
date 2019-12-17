@@ -10,20 +10,26 @@ import UIKit
 import ListKit
 
 class ViewController: UIViewController, TableListAdapter, UpdatableDataSource {
-    @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var tableView: UITableView! { didSet { apply(by: tableView) } }
     
     typealias Item = Any
     var source: AnyTableSources {
         AnyTableSources {
             Sources(items: ["a", "b", "c"])
                 .tableViewCellForRow()
-            Sources(items: [1, 2, 3])
+                .tableViewDidSelectRow { (context, item) in
+                    context.deselectItem(animated: false)
+                    print(item)
+                }
+                .tableViewHeaderTitleForSection { (context) -> String? in
+                    "title"
+                }
+            Sources(sections: [[1, 2, 3], [1, 2, 3]])
                 .tableViewCellForRow()
+                .tableViewHeaderTitleForSection { (context) -> String? in
+                    "title2"
+                }
         }
-    }
-    
-    override func viewDidLoad() {
-        apply(by: tableView)
     }
 }
 

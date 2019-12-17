@@ -8,6 +8,8 @@
 public class ListCoordinator<SourceBase: DataSource>: ItemTypedCoorinator<SourceBase.Item> {
     typealias Item = SourceBase.Item
     
+    var nestedAdapterUpdate = [AnyHashable: (SourceBase) -> Void]()
+    var nestedAdapterItemUpdate = [AnyHashable: (Item) -> Void]()
     var stagingDelegatesSetups = [(ListDelegates<SourceBase>) -> Void]()
     var delegatesStorage = [ObjectIdentifier: ListDelegates<SourceBase>]()
     var source: SourceBase.Source { fatalError() }
@@ -26,6 +28,16 @@ public class ListCoordinator<SourceBase: DataSource>: ItemTypedCoorinator<Source
         
         selfType = ObjectIdentifier(SourceBase.self)
         itemType = ObjectIdentifier(SourceBase.Item.self)
+    }
+    
+    func update(
+        to sourceBase: SourceBase,
+        from coordinator: ListCoordinator<SourceBase>,
+        completion: @escaping () -> Void
+    ) {
+        nestedAdapterUpdate = coordinator.nestedAdapterUpdate
+        nestedAdapterUpdate.values.forEach { $0(sourceBase) }
+        fatalError()
     }
     
     @discardableResult

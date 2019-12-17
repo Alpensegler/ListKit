@@ -25,15 +25,15 @@ public extension TableList where SourceBase == AnySources {
 @_functionBuilder
 public struct AnyTableSourcesBuilder {
     public static func buildIf<S: TableListAdapter>(_ content: S?) -> AnyTableSources {
-        AnyTableSources(content)
+        AnyTableSources(content.map { [AnyTableSources($0)] } ?? [])
     }
 
     public static func buildEither<TrueContent: TableListAdapter>(first: TrueContent) -> AnyTableSources {
-        AnyTableSources(first)
+        AnyTableSources([first])
     }
 
     public static func buildEither<FalseContent: TableListAdapter>(second: FalseContent) -> AnyTableSources {
-        AnyTableSources(second)
+        AnyTableSources([second])
     }
     
     public static func buildBlock() -> AnyTableSources {
@@ -41,7 +41,7 @@ public struct AnyTableSourcesBuilder {
     }
 
     public static func buildBlock<S: TableListAdapter>(_ content: S) -> AnyTableSources {
-        AnyTableSources(content)
+        AnyTableSources([AnyTableSources(content)])
     }
     
     public static func buildBlock<S0: TableListAdapter, S1: TableListAdapter>(_ s0: S0, _ s1: S1) -> AnyTableSources {

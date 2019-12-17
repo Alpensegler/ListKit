@@ -15,6 +15,10 @@
 		F36FBF3223A2FA72005AC5AC /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F36FBF3023A2FA72005AC5AC /* LaunchScreen.storyboard */; };
 		F38B710123A2FE0C0081B842 /* ListKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F38B710023A2FE0C0081B842 /* ListKit.framework */; };
 		F38B710223A2FE0C0081B842 /* ListKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F38B710023A2FE0C0081B842 /* ListKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		F3A4941623A97C6B00809E7F /* DemoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A4941523A97C6B00809E7F /* DemoViewController.swift */; };
+		F3A4941923A97D5D00809E7F /* Cell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A4941823A97D5D00809E7F /* Cell.swift */; };
+		F3A4941B23A9818300809E7F /* NestedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A4941A23A9818300809E7F /* NestedViewController.swift */; };
+		F3A4941D23A98BEE00809E7F /* TestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A4941C23A98BEE00809E7F /* TestViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -41,6 +45,10 @@
 		F36FBF3123A2FA72005AC5AC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		F36FBF3323A2FA72005AC5AC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F38B710023A2FE0C0081B842 /* ListKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = ListKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		F3A4941523A97C6B00809E7F /* DemoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoViewController.swift; sourceTree = "<group>"; };
+		F3A4941823A97D5D00809E7F /* Cell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cell.swift; sourceTree = "<group>"; };
+		F3A4941A23A9818300809E7F /* NestedViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NestedViewController.swift; sourceTree = "<group>"; };
+		F3A4941C23A98BEE00809E7F /* TestViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,9 +83,13 @@
 		F36FBF2423A2FA70005AC5AC /* ListKitDemo */ = {
 			isa = PBXGroup;
 			children = (
+				F3A4941723A97D5300809E7F /* View */,
 				F36FBF2523A2FA70005AC5AC /* AppDelegate.swift */,
 				F36FBF2723A2FA70005AC5AC /* SceneDelegate.swift */,
+				F3A4941523A97C6B00809E7F /* DemoViewController.swift */,
 				F36FBF2923A2FA70005AC5AC /* ViewController.swift */,
+				F3A4941A23A9818300809E7F /* NestedViewController.swift */,
+				F3A4941C23A98BEE00809E7F /* TestViewController.swift */,
 				F36FBF2B23A2FA70005AC5AC /* Main.storyboard */,
 				F36FBF2E23A2FA72005AC5AC /* Assets.xcassets */,
 				F36FBF3023A2FA72005AC5AC /* LaunchScreen.storyboard */,
@@ -92,6 +104,14 @@
 				F38B710023A2FE0C0081B842 /* ListKit.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		F3A4941723A97D5300809E7F /* View */ = {
+			isa = PBXGroup;
+			children = (
+				F3A4941823A97D5D00809E7F /* Cell.swift */,
+			);
+			path = View;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -166,9 +186,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F3A4941D23A98BEE00809E7F /* TestViewController.swift in Sources */,
 				F36FBF2A23A2FA70005AC5AC /* ViewController.swift in Sources */,
+				F3A4941B23A9818300809E7F /* NestedViewController.swift in Sources */,
 				F36FBF2623A2FA70005AC5AC /* AppDelegate.swift in Sources */,
+				F3A4941923A97D5D00809E7F /* Cell.swift in Sources */,
 				F36FBF2823A2FA70005AC5AC /* SceneDelegate.swift in Sources */,
+				F3A4941623A97C6B00809E7F /* DemoViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

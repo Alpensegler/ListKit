@@ -9,27 +9,28 @@
 import UIKit
 import ListKit
 
-class ViewController: UIViewController, UpdatableTableListAdapter {
-    @IBOutlet weak var tableView: UITableView! { didSet { apply(by: tableView) } }
-    
+class ViewController: DemoViewController, UpdatableTableListAdapter {
     typealias Item = Any
     var source: AnyTableSources {
         AnyTableSources {
-            Sources(items: ["a", "b", "c"])
-                .tableViewCellForRow()
-                .tableViewDidSelectRow { (context, item) in
-                    context.deselectItem(animated: false)
-                    print(item)
-                }
-                .tableViewHeaderTitleForSection { (context) -> String? in
-                    "title"
-                }
-            Sources(sections: [[1, 2, 3], [1, 2, 3]])
-                .tableViewCellForRow()
-                .tableViewHeaderTitleForSection { (context) -> String? in
-                    "title2"
-                }
+            page("nested", viewController: NestedViewController.self)
+            page("test", viewController: TestViewController.self)
         }
     }
+    
+    override func viewDidLoad() {
+        apply(by: tableView)
+    }
+    
+    func page(_ title: String, viewController: UIViewController.Type) -> some TableListAdapter {
+        Sources(item: (title: title, viewController: viewController))
+            .tableViewCellForRow { (context, item) -> UITableViewCell in
+                let labelCell = context.dequeueReusableCell(UITableViewCell.self)
+                labelCell.textLabel?.text = item.title
+                return labelCell
+            }
+            .tableViewDidSelectRow { [unowned navigationController] (context, item) in
+                navigationController?.pushViewController(item.viewController.init(), animated: true)
+            }
+    }
 }
-

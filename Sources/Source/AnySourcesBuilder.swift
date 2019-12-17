@@ -18,15 +18,15 @@ public extension AnySources {
 @_functionBuilder
 public struct AnySourcesBuilder {
     public static func buildIf<S: DataSource>(_ content: S?) -> AnySources {
-        AnySources(content)
+        AnySources(content.map { [AnySources($0)] } ?? [])
     }
 
     public static func buildEither<TrueContent: DataSource>(first: TrueContent) -> AnySources {
-        AnySources(first)
+        AnySources([first])
     }
 
     public static func buildEither<FalseContent: DataSource>(second: FalseContent) -> AnySources {
-        AnySources(second)
+        AnySources([second])
     }
     
     public static func buildBlock() -> AnySources {
@@ -34,7 +34,7 @@ public struct AnySourcesBuilder {
     }
     
     public static func buildBlock<S: DataSource>(_ content: S) -> AnySources {
-        AnySources(AnySources(content))
+        AnySources([AnySources(content)])
     }
     
     public static func buildBlock<S0: DataSource, S1: DataSource>(_ s0: S0, _ s1: S1) -> AnySources {

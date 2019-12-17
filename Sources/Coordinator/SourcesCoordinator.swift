@@ -5,15 +5,15 @@
 //  Created by Frain on 2019/11/28.
 //
 
-class SourcesCoordinator<SourceBase: DataSource>: SourceStoredListCoordinator<SourceBase>
+final class SourcesCoordinator<SourceBase: DataSource>: SourceStoredListCoordinator<SourceBase>
 where
     SourceBase.Source: RangeReplaceableCollection,
     SourceBase.Source.Element: DataSource,
     SourceBase.Source.Element.SourceBase.Item == SourceBase.Item
 {
     var subsources = [SourceBase.Source.Element]()
-    var subitemCoordinators = [ItemTypedCoorinator<Item>]()
-    var anysubCoordinators: [BaseCoordinator] { subitemCoordinators }
+    var subCoordinators = [ItemTypedCoorinator<Item>]()
+    var anysubCoordinators: [BaseCoordinator] { subCoordinators }
     var isAnyType = Item.self == Any.self
     
     var sourcesDelegates = [ObjectIdentifier: SourcesDelegates<SourceBase>]()
@@ -27,7 +27,7 @@ where
     override func item<Path: PathConvertible>(at path: Path) -> Item {
         let indexAt = sourceIndices.index(of: path)
         let offset = offsets[indexAt]
-        let subcoordinator = subitemCoordinators[indexAt]
+        let subcoordinator = subCoordinators[indexAt]
         return subcoordinator.item(at: path - offset)
     }
     
@@ -56,7 +56,7 @@ where
             subcoordinators.append(source.coordinator as! ItemTypedCoorinator<Item>)
         }
         subsources = anySubsources
-        subitemCoordinators = subcoordinators
+        subCoordinators = subcoordinators
         resetAndConfigIndicesAndOffsets()
     }
     
@@ -64,7 +64,7 @@ where
         source: Source
     ) -> ItemSource where Source.SourceBase.Item == Item {
         .inSource(.init(source: source, coordinator: self) {
-            zip(self.subsources, self.subitemCoordinators).map { (source, coordinator) in
+            zip(self.subsources, self.subCoordinators).map { (source, coordinator) in
                 coordinator.itemSources(source: source)
             }
         })
@@ -73,7 +73,7 @@ where
     override func sectionSources<Source: DataSource>(source: Source) -> SectionSource {
         .inSource(.init(source: source, coordinator: self) {
             self.subsectionSources(
-                subcoordinators: self.subitemCoordinators,
+                subcoordinators: self.subCoordinators,
                 getter: ItemTypedCoorinator<Item>.sectionSources
             )
         })
@@ -87,7 +87,7 @@ where
             subcoordinators.append(source.coordinator)
         }
         subsources = anySubsources
-        subitemCoordinators = subcoordinators
+        subCoordinators = subcoordinators
         resetAndConfigIndicesAndOffsets()
     }
     
@@ -132,35 +132,35 @@ where
         offsets.removeAll(keepingCapacity: true)
         sourceIndices.removeAll(keepingCapacity: true)
         sourcesDelegates.values.forEach { $0.subdelegates.removeAll(keepingCapacity: true) }
-        configSubdelegates(for: sourcesDelegates.lazy.map { $0 }, isReset: true)
+        configSubdelegates(for: sourcesDelegates, isReset: true)
     }
     
     func setupCoordinators() {
         for subsource in source {
             subsources.append(subsource)
-            subitemCoordinators.append(subsource.itemTypedCoordinator)
+            subCoordinators.append(subsource.itemTypedCoordinator)
         }
     }
     
     @discardableResult
-    func configSubdelegates<Contexts: Collection>(
-        for contexts: Contexts,
+    func configSubdelegates<C: Collection>(
+        for collection: C,
         isReset: Bool = true
-    ) -> Bool where Contexts.Element == (key: ObjectIdentifier, valye: SourcesDelegates<SourceBase>) {
+    ) -> Bool where C.Element == (key: ObjectIdentifier, value: SourcesDelegates<SourceBase>) {
         var hasSectioned = false
         if isReset {
             var offset = Path()
             for coordinator in anysubCoordinators {
-                contexts.forEach { setCoordinator(coordinator, context: $0, offset: offset) }
+                collection.forEach { setCoordinator(coordinator, context: $0, offset: offset) }
                 appendCoordinator(coordinator, offset: &offset, hasSection: &hasSectioned)
             }
         } else {
             for (subcoordinator, offset) in zip(anysubCoordinators, offsets) {
-                contexts.forEach { setCoordinator(subcoordinator, context: $0, offset: offset) }
+                collection.forEach { setCoordinator(subcoordinator, context: $0, offset: offset) }
             }
         }
         
-        contexts.forEach { $0.1.setupSelectorSets() }
+        collection.forEach { $0.1.setupSelectorSets() }
         return hasSectioned
     }
     
@@ -225,43 +225,6 @@ where
             }
         }
         return results
-    }
-}
-
-class AnySourcesCoordinator<SourceBase: DataSource>: SourcesCoordinator<SourceBase>
-where
-    SourceBase.Source: RangeReplaceableCollection,
-    SourceBase.Source.Element: DataSource,
-    SourceBase.Source.Element.SourceBase.Item == SourceBase.Item,
-    SourceBase.Source.Element.SourceBase.Item == Any
-{
-    var subcoordinators = [BaseCoordinator]()
-    override var anysubCoordinators: [BaseCoordinator] { subcoordinators }
-    
-    override func anyItem<Path: PathConvertible>(at path: Path) -> Any {
-        let indexAt = sourceIndices.index(of: path)
-        let offset = offsets[indexAt]
-        let subcoordinator = subcoordinators[indexAt]
-        return subcoordinator.anyItem(at: path - offset)
-    }
-    
-    override func setupCoordinators() {
-        for subsource in source {
-            subsources.append(subsource)
-            subcoordinators.append(subsource.listCoordinator)
-        }
-    }
-    
-    override func anySourceUpdate(to sources: [AnyDiffableSourceValue]) {
-        var anySubsources = [Any]()
-        var coordinators = [BaseCoordinator]()
-        for source in sources {
-            anySubsources.append(source.value)
-            coordinators.append(source.coordinator)
-        }
-        subsources = anySubsources as! [SourceBase.Source.Element]
-        subcoordinators = coordinators
-        resetAndConfigIndicesAndOffsets()
     }
 }
 

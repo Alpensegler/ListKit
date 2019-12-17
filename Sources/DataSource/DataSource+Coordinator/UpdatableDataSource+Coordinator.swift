@@ -65,18 +65,6 @@ where
     }
 }
 
-public extension UpdatableDataSource
-where
-    SourceBase.Source: RangeReplaceableCollection,
-    SourceBase.Source.Element: DataSource,
-    SourceBase.Source.Element.SourceBase.Item == Item,
-    Item == Any
-{
-    func makeListCoordinator() -> ListCoordinator<SourceBase> {
-        addToStorage(AnySourcesCoordinator(sourceBase: sourceBase))
-    }
-}
-
 public extension NSDataSource where SourceBase: NSDataSource {
     func makeListCoordinator() -> ListCoordinator<SourceBase> {
         addToStorage(NSCoordinator(sourceBase: sourceBase))

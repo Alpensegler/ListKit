@@ -16,6 +16,12 @@ class ListDelegates<SourceBase: DataSource>: Delegates {
         super.init()
     }
     
+    func setup(isRoot: Bool, listView: SetuptableListView) {
+        self.isRoot = isRoot
+        guard isRoot else { return }
+        listView.setup(with: self)
+    }
+    
     func selectorSets(applying: (inout SelectorSets) -> Void) {
         applying(&selectorSets)
     }

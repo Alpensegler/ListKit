@@ -99,33 +99,33 @@ where
         itemOffset: Int = 0,
         isRoot: Bool = false
     ) -> Delegates {
-        if let context = sourcesDelegates[objectIdentifier] {
-            context.sectionOffset = sectionOffset
-            context.itemOffset = itemOffset
-            context.configSubdelegatesOffsets()
-            return context
+        if let delegates = sourcesDelegates[objectIdentifier] {
+            delegates.sectionOffset = sectionOffset
+            delegates.itemOffset = itemOffset
+            delegates.configSubdelegatesOffsets()
+            return delegates
         }
-        let context = SourcesDelegates(
+        let delegates = SourcesDelegates(
             coordinator: self,
             listView: listView
         )
-        context.sectionOffset = sectionOffset
-        context.itemOffset = itemOffset
-        sourcesDelegates[objectIdentifier] = context
+        delegates.sectionOffset = sectionOffset
+        delegates.itemOffset = itemOffset
+        sourcesDelegates[objectIdentifier] = delegates
         if !didSetup {
             setupCoordinators()
             rangeReplacable = true
             let hasSectioned = configSubdelegates(
-                for: [(objectIdentifier, context)],
+                for: [(objectIdentifier, delegates)],
                 isReset: true
             )
-            sourceType = (context.selectorSets.hasIndex || hasSectioned) ? .section : .cell
+            sourceType = (delegates.selectorSets.hasIndex || hasSectioned) ? .section : .cell
             didSetup = true
         } else {
-            configSubdelegates(for: [(objectIdentifier, context)], isReset: false)
+            configSubdelegates(for: [(objectIdentifier, delegates)], isReset: false)
         }
-        if isRoot { listView.setup(with: context) }
-        return context
+        delegates.setup(isRoot: isRoot, listView: listView)
+        return delegates
     }
     
     func resetAndConfigIndicesAndOffsets() {

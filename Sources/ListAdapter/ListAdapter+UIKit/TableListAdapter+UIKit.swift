@@ -177,14 +177,14 @@ public extension TableListAdapter {
     
     //Providing Custom Header and Footer Views
     @discardableResult
-    func provideTableViewViewHeader(
+    func tableViewViewHeaderForSection(
         _ closure: @escaping (TableSectionContext<SourceBase>) -> UIView?
     ) -> TableList<SourceBase> {
         tableList.set(\.viewForHeaderInSection) { closure($0.0) }
     }
     
     @discardableResult
-    func provideTableViewViewFooter(
+    func tableViewViewFooterForSection(
         _ closure: @escaping (TableSectionContext<SourceBase>) -> UIView?
     ) -> TableList<SourceBase> {
         tableList.set(\.viewForFooterInSection) { closure($0.0) }

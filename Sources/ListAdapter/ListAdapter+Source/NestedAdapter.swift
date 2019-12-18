@@ -17,9 +17,7 @@ public extension ItemContext {
         coordinator.nestedAdapterItemUpdate[keyPath] = { sourceBase in
             let newAdapter = sourceBase[keyPath: keyPath]
             let newcoordinator = newAdapter.makeCollectionListCoordinator()
-            newcoordinator.update(to: newAdapter.sourceBase, from: subcoordinator) {
-                subcoordinator = newcoordinator
-            }
+            newcoordinator.update(from: subcoordinator) { subcoordinator = newcoordinator }
         }
         return collectionList
     }
@@ -35,9 +33,7 @@ public extension ItemContext {
         coordinator.nestedAdapterItemUpdate[keyPath] = { sourceBase in
             let newAdapter = sourceBase[keyPath: keyPath]
             let newcoordinator = newAdapter.makeTableListCoordinator()
-            newcoordinator.update(to: newAdapter.sourceBase, from: subcoordinator) {
-                subcoordinator = newcoordinator
-            }
+            newcoordinator.update(from: subcoordinator) { subcoordinator = newcoordinator }
         }
         return tableList
     }

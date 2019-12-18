@@ -13,6 +13,7 @@ protocol ListAdapter: UpdatableDataSource where Source == SourceBase {
     associatedtype ItemContext
     
     var delegatesSetups: [(ListDelegates<Source>) -> Void] { get set }
+    var cacheFromItem: ((Item) -> Any)? { get }
     static var rootKeyPath: ReferenceWritableKeyPath<Delegates, ViewDelegates> { get }
     
     static func toContext(_ view: View, _ listContext: ListDelegates<Source>) -> Context
@@ -45,9 +46,12 @@ extension ListAdapter {
         self.init(delegatesSetups: dataSource.delegatesSetups, source: dataSource.sourceBase)
     }
     
+    var cacheFromItem: ((Item) -> Any)? { nil }
+    
     var adapterCoordinator: ListCoordinator<Source> {
         let listCoordinator = coordinatorStorage.coordinator ?? makeListCoordinator()
         listCoordinator.stagingDelegatesSetups = delegatesSetups
+        listCoordinator.cacheFromItem = cacheFromItem
         return listCoordinator
     }
     

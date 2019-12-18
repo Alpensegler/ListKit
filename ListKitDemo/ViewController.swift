@@ -13,8 +13,8 @@ class ViewController: DemoViewController, UpdatableTableListAdapter {
     typealias Item = Any
     var source: AnyTableSources {
         AnyTableSources {
-            page("nested", viewController: NestedViewController.self)
-            page("test", viewController: TestViewController.self)
+            page("nested", NestedViewController.self)
+            page("test", TestViewController.self)
         }
     }
     
@@ -22,7 +22,7 @@ class ViewController: DemoViewController, UpdatableTableListAdapter {
         apply(by: tableView)
     }
     
-    func page(_ title: String, viewController: UIViewController.Type) -> some TableListAdapter {
+    func page(_ title: String, _ viewController: UIViewController.Type) -> some TableListAdapter {
         Sources(item: (title: title, viewController: viewController))
             .tableViewCellForRow { (context, item) -> UITableViewCell in
                 let labelCell = context.dequeueReusableCell(UITableViewCell.self)

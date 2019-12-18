@@ -15,8 +15,8 @@ public struct CollectionList<Source: DataSource>: CollectionListAdapter, Updatab
 where Source.SourceBase == Source {
     public typealias Item = Source.Item
     public typealias SourceBase = Source
-    
     var delegatesSetups = [(ListDelegates<Source>) -> Void]()
+    var cacheFromItem: ((Item) -> Any)? = nil
     
     public let source: Source
     public let coordinatorStorage = CoordinatorStorage<Source>()
@@ -32,6 +32,11 @@ where Source.SourceBase == Source {
     
     public subscript<Value>(dynamicMember path: KeyPath<Source, Value>) -> Value {
         source[keyPath: path]
+    }
+    
+    init(delegatesSetups: [(ListDelegates<Source>) -> Void], source: Source) {
+        self.delegatesSetups = delegatesSetups
+        self.source = source
     }
 }
 

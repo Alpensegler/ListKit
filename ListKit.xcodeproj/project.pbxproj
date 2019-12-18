@@ -23,6 +23,7 @@
 		F312515C239E352100E77969 /* Delegates+UITableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F312515B239E352100E77969 /* Delegates+UITableView.swift */; };
 		F314E8E823A62147003C203B /* Delegates.swift in Sources */ = {isa = PBXBuildFile; fileRef = F314E8E723A62147003C203B /* Delegates.swift */; };
 		F314E8EB23A62200003C203B /* SelestorSets.swift in Sources */ = {isa = PBXBuildFile; fileRef = F314E8EA23A62200003C203B /* SelestorSets.swift */; };
+		F32282A023AA0733001AEBFD /* ItemReplatedCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = F322829F23AA0733001AEBFD /* ItemReplatedCache.swift */; };
 		F329598323A10B7D001D6063 /* ListViewStorage+UIKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = F329598223A10B7D001D6063 /* ListViewStorage+UIKit.swift */; };
 		F32959E623A11CF5001D6063 /* AnyCollectionSourcesBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F32959E523A11CF5001D6063 /* AnyCollectionSourcesBuilder.swift */; };
 		F33FBC3D234F33A70054BA38 /* DataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F33FBC3C234F33A70054BA38 /* DataSource.swift */; };
@@ -104,6 +105,7 @@
 		F312515B239E352100E77969 /* Delegates+UITableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Delegates+UITableView.swift"; sourceTree = "<group>"; };
 		F314E8E723A62147003C203B /* Delegates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Delegates.swift; sourceTree = "<group>"; };
 		F314E8EA23A62200003C203B /* SelestorSets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelestorSets.swift; sourceTree = "<group>"; };
+		F322829F23AA0733001AEBFD /* ItemReplatedCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemReplatedCache.swift; sourceTree = "<group>"; };
 		F329598223A10B7D001D6063 /* ListViewStorage+UIKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ListViewStorage+UIKit.swift"; sourceTree = "<group>"; };
 		F32959E523A11CF5001D6063 /* AnyCollectionSourcesBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyCollectionSourcesBuilder.swift; sourceTree = "<group>"; };
 		F33FBC3A234F26B60054BA38 /* ListKitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListKitTests.swift; sourceTree = "<group>"; };
@@ -340,6 +342,7 @@
 				F37DD4E223A190AE00689CAD /* TableListAdapter+Source.swift */,
 				F3EB15DB23A2ED1900C9AC5E /* ListAdapters+ListAdapters.swift */,
 				F3A4941323A906A900809E7F /* NestedAdapter.swift */,
+				F322829F23AA0733001AEBFD /* ItemReplatedCache.swift */,
 			);
 			path = "ListAdapter+Source";
 			sourceTree = "<group>";
@@ -558,6 +561,7 @@
 				F3A4941223A8E69900809E7F /* DataSource+NSCoordinator.swift in Sources */,
 				F3A4933A23A6D3B400809E7F /* ScollContext.swift in Sources */,
 				F37BF3CC23968B7E0095C419 /* SectionsCoordinator.swift in Sources */,
+				F32282A023AA0733001AEBFD /* ItemReplatedCache.swift in Sources */,
 				F383064423506BAC00AE8B97 /* Differing.swift in Sources */,
 				F3AD0680238FF3DA000AF1B3 /* SourcesCoordinator.swift in Sources */,
 				F37BF3CA239686470095C419 /* ItemCoordinator.swift in Sources */,

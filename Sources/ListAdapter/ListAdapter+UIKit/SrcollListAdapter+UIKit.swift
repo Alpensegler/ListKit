@@ -50,7 +50,7 @@ public extension ScrollListAdapter {
     }
     
     @discardableResult
-    func provideViewForZooming(_ closure: @escaping (ScrollContext<SourceBase>) -> UIView?) -> ScrollList<SourceBase> {
+    func viewForZooming(_ closure: @escaping (ScrollContext<SourceBase>) -> UIView?) -> ScrollList<SourceBase> {
         scrollList.set(\.viewForZooming) { closure($0.0) }
     }
     
@@ -65,7 +65,7 @@ public extension ScrollListAdapter {
     }
     
     @discardableResult
-    func provideScrollViewShouldScrollToTop(_ closure: @escaping (ScrollContext<SourceBase>) -> Bool) -> ScrollList<SourceBase> {
+    func scrollViewShouldScrollToTop(_ closure: @escaping (ScrollContext<SourceBase>) -> Bool) -> ScrollList<SourceBase> {
         scrollList.set(\.shouldScrollToTop) { closure($0.0) }
     }
     

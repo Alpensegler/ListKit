@@ -61,9 +61,9 @@ public class BaseCoordinator {
     lazy var selectorSets = initialSelectorSets()
     
     #if os(iOS) || os(tvOS)
-    lazy var scrollViewDelegates = UIScrollListDelegate()
-    lazy var collectionViewDelegates = UICollectionListDelegate()
-    lazy var tableViewDelegates = UITableListDelegate()
+    lazy var scrollListDelegate = UIScrollListDelegate()
+    lazy var collectionListDelegate = UICollectionListDelegate()
+    lazy var tableListDelegate = UITableListDelegate()
     #endif
     
     //Source Diffing
@@ -129,9 +129,9 @@ public class BaseCoordinator {
         selectorSets.withoutIndex = withoutIndex
         
         #if os(iOS) || os(tvOS)
-        scrollViewDelegates.add(by: &selectorSets)
-        collectionViewDelegates.add(by: &selectorSets)
-        tableViewDelegates.add(by: &selectorSets)
+        scrollListDelegate.add(by: &selectorSets)
+        collectionListDelegate.add(by: &selectorSets)
+        tableListDelegate.add(by: &selectorSets)
         #endif
         
         return selectorSets

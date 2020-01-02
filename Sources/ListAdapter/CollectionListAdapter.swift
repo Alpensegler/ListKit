@@ -58,7 +58,7 @@ public extension CollectionListAdapter {
 
 extension CollectionList: ListAdapter {
     static var rootKeyPath: ReferenceWritableKeyPath<BaseCoordinator, UICollectionListDelegate> {
-        \.collectionViewDelegates
+        \.collectionListDelegate
     }
     
     static func toContext(

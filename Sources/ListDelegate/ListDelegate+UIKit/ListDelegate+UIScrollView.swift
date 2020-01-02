@@ -1,5 +1,5 @@
 //
-//  Delegates+UIScrollViewDelegate.swift
+//  ListDelegate+UIScrollView.swift
 //  ListKit
 //
 //  Created by Frain on 2019/12/8.
@@ -8,7 +8,7 @@
 #if os(iOS) || os(tvOS)
 import UIKit
 
-class UIScrollViewDelegates {
+final class UIScrollListDelegate {
     typealias Delegate<Input, Output> = ListKit.Delegate<UIScrollView, Input, Output>
     
     var didScroll = Delegate<Void, Void>(
@@ -97,7 +97,7 @@ class UIScrollViewDelegates {
 }
 
 //MARK: - ScrollView Delegate
-extension Delegates: UIScrollViewDelegate {
+extension ListDelegate: UIScrollViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         apply(\.scrollViewDelegates.didScroll, object: scrollView)
     }

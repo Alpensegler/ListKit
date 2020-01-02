@@ -31,6 +31,15 @@ class SelectorSets {
         self.hasIndex = hasIndex
     }
     
+    init(merging lhs: SelectorSets, _ rhs: SelectorSets) {
+        self.void = lhs.void.intersection(rhs.void)
+        self.value = lhs.value.intersection(rhs.value)
+        self.withIndex = lhs.withIndex.intersection(rhs.withIndex)
+        self.withIndexPath = lhs.withIndexPath.intersection(rhs.withIndexPath)
+        self.withoutIndex = lhs.withoutIndex || rhs.withoutIndex
+        self.hasIndex = lhs.hasIndex || rhs.hasIndex
+    }
+    
     func contains(_ selector: Selector) -> Bool {
         withIndexPath.contains(selector)
             || void.contains(selector)

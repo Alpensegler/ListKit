@@ -12,13 +12,8 @@ private var listViewDefaultAnimationKey: Void?
 
 public typealias TableView = UITableView
 
-extension UITableView: UIListView, SetuptableListView {
+extension UITableView: UIListView {
     public typealias Cell = UITableViewCell
-    
-    func setup(with delegatesStorage: Delegates) {
-        dataSource = delegatesStorage
-        delegate = delegatesStorage
-    }
 }
 
 public extension UITableView {

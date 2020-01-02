@@ -14,7 +14,6 @@ public protocol DataSource {
     var source: Source { get }
     var sourceBase: SourceBase { get }
     var updater: Updater<SourceBase> { get }
-    var listCoordinator: ListCoordinator<SourceBase> { get }
     
     func makeListCoordinator() -> ListCoordinator<SourceBase>
 }
@@ -25,13 +24,7 @@ public extension DataSource where SourceBase == Self {
 
 public extension DataSource {
     var updater: Updater<SourceBase> { .none }
-    var listCoordinator: ListCoordinator<SourceBase> { makeListCoordinator() }
     func makeListCoordinator() -> ListCoordinator<SourceBase> {
         fatalError("unsupported source \(Source.self) item \(Item.self)")
     }
-}
-
-extension DataSource {
-    var baseCoordinator: BaseCoordinator { listCoordinator }
-    var itemTypedCoordinator: ItemTypedCoorinator<Item> { listCoordinator }
 }

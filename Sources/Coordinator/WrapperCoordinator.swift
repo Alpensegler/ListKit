@@ -8,6 +8,9 @@
 class WrapperCoordinator<SourceBase: DataSource>: ListCoordinator<SourceBase> {
     var wrappedCoodinator: BaseCoordinator { fatalError() }
     
+    lazy var selfSelectorSets = initialSelectorSets()
+    var others: SelectorSets { wrappedCoodinator.selectorSets }
+    
     override var itemType: ObjectIdentifier {
         get { wrappedCoodinator.itemType }
         set { wrappedCoodinator.itemType = newValue }
@@ -57,33 +60,63 @@ class WrapperCoordinator<SourceBase: DataSource>: ListCoordinator<SourceBase> {
     }
     
     override func setup(
-        listView: SetuptableListView,
+        listView: ListView,
         objectIdentifier: ObjectIdentifier,
         sectionOffset: Int = 0,
-        itemOffset: Int = 0,
-        isRoot: Bool = false
-    ) -> Delegates {
-        let subdelegates = wrappedCoodinator.setup(
+        itemOffset: Int = 0
+    ) {
+        wrappedCoodinator.setup(
             listView: listView,
             objectIdentifier: objectIdentifier,
             sectionOffset: sectionOffset,
             itemOffset: itemOffset
         )
         
-        let delegates = delegatesStorage[objectIdentifier] ?? {
-            let delegates = SourceDelegates(
-                coordinator: self as ListCoordinator<SourceBase>,
-                other: subdelegates,
-                listView: listView
-            )
-            delegatesStorage[objectIdentifier] = delegates
-            stagingDelegatesSetups.forEach { $0(delegates) }
-            delegates.setupSelectorSets()
-            return delegates
-        }()
-        delegates.sectionOffset = sectionOffset
-        delegates.itemOffset = itemOffset
-        delegates.setup(isRoot: isRoot, listView: listView)
-        return delegates
+        super.setup(
+            listView: listView,
+            objectIdentifier: objectIdentifier,
+            sectionOffset: sectionOffset,
+            itemOffset: itemOffset
+        )
+    }
+    
+    override func setup() {
+        super.setup()
+        selectorSets = SelectorSets(merging: selfSelectorSets, others)
+    }
+    
+    override func selectorSets(applying: (inout SelectorSets) -> Void) {
+        super.selectorSets(applying: applying)
+        applying(&selfSelectorSets)
+    }
+    
+    override func apply<Object: AnyObject, Input, Output>(
+        _ keyPath: KeyPath<BaseCoordinator, Delegate<Object, Input, Output>>,
+        object: Object,
+        with input: Input
+    ) -> Output {
+        let closure = self[keyPath: keyPath]
+        let delegates = subdelegates(for: closure, object: object, with: input)
+        return delegates?.apply(keyPath, object: object, with: input)
+            ?? super.apply(keyPath, object: object, with: input)
+    }
+    
+    override func apply<Object: AnyObject, Input>(
+        _ keyPath: KeyPath<BaseCoordinator, Delegate<Object, Input, Void>>,
+        object: Object,
+        with input: Input
+    ) {
+        let closure = self[keyPath: keyPath]
+        let delegates = subdelegates(for: closure, object: object, with: input)
+        delegates?.apply(keyPath, object: object, with: input)
+        super.apply(keyPath, object: object, with: input)
+    }
+    
+    func subdelegates<Object: AnyObject, Input, Output>(
+        for delegate: Delegate<Object, Input, Output>,
+        object: Object,
+        with input: Input
+    ) -> BaseCoordinator? {
+        others.contains(delegate.selector) ? nil : wrappedCoodinator
     }
 }

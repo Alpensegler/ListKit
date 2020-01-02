@@ -1,5 +1,5 @@
 //
-//  Delegates+UITableView.swift
+//  ListDelegate+UITableView.swift
 //  ListKit
 //
 //  Created by Frain on 2019/12/9.
@@ -8,7 +8,7 @@
 #if os(iOS) || os(tvOS)
 import UIKit
 
-class UITableViewDelegates {
+final class UITableListDelegate {
     typealias Delegate<Input, Output> = ListKit.Delegate<UITableView, Input, Output>
     
     //MARK: - DataSource
@@ -493,14 +493,14 @@ class UITableViewDelegates {
     }
 }
 
-extension Delegates: UITableViewDataSource {
+extension ListDelegate: UITableViewDataSource {
     //Providing the Number of Rows and Sections
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        baseCoordinator.numbersOfItems(in: section)
+        coordinator.numbersOfItems(in: section)
     }
 
     func numberOfSections(in tableView: UITableView) -> Int {
-        baseCoordinator.numbersOfSections()
+        coordinator.numbersOfSections()
     }
     
     //Providing Cells, Headers, and Footers
@@ -544,7 +544,7 @@ extension Delegates: UITableViewDataSource {
     }
 }
 
-extension Delegates: UITableViewDelegate {
+extension ListDelegate: UITableViewDelegate {
     //Configuring Rows for the Table View
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         apply(\.tableViewDelegates.willDisplayForRowAt, object: tableView, with: (cell, indexPath))

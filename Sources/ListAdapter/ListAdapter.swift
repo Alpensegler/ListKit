@@ -12,25 +12,25 @@ protocol ListAdapter: UpdatableDataSource where Source == SourceBase {
     associatedtype SectionContext
     associatedtype ItemContext
     
-    var delegatesSetups: [(ListDelegates<Source>) -> Void] { get set }
+    var delegatesSetups: [(ListCoordinator<Source>) -> Void] { get set }
     var cacheFromItem: ((Item) -> Any)? { get }
-    static var rootKeyPath: ReferenceWritableKeyPath<Delegates, ViewDelegates> { get }
+    static var rootKeyPath: ReferenceWritableKeyPath<BaseCoordinator, ViewDelegates> { get }
     
-    static func toContext(_ view: View, _ listContext: ListDelegates<Source>) -> Context
+    static func toContext(_ view: View, _ coordinator: ListCoordinator<Source>) -> Context
     
     static func toSectionContext(
         _ view: View,
-        _ listContext: ListDelegates<Source>,
+        _ coordinator: ListCoordinator<Source>,
         section: Int
     ) -> SectionContext
     
     static func toItemContext(
         _ view: View,
-        _ listContext: ListDelegates<Source>,
+        _ coordinator: ListCoordinator<Source>,
         path: PathConvertible
     ) -> ItemContext
     
-    init(delegatesSetups: [(ListDelegates<Source>) -> Void], source: Source)
+    init(delegatesSetups: [(ListCoordinator<Source>) -> Void], source: Source)
 }
 
 extension ListAdapter {
@@ -49,14 +49,11 @@ extension ListAdapter {
     var cacheFromItem: ((Item) -> Any)? { nil }
     
     var adapterCoordinator: ListCoordinator<Source> {
-        let listCoordinator = coordinatorStorage.coordinator ?? makeListCoordinator()
-        listCoordinator.stagingDelegatesSetups = delegatesSetups
-        listCoordinator.cacheFromItem = cacheFromItem
-        return listCoordinator
+        fatalError()
     }
     
     func makeAdapterCoordinator() -> ListCoordinator<Source> {
-        addToStorage(AdapterCoordinator(sourceBase: source))
+        fatalError()
     }
 
     func set<Input, Output>(

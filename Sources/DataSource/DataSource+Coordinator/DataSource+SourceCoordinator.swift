@@ -15,6 +15,6 @@ where SourceBase.Source: DataSource, SourceBase.Source.Item == Item {
 public extension UpdatableDataSource
 where SourceBase.Source: DataSource, SourceBase.Source.Item == Item {
     func makeListCoordinator() -> ListCoordinator<SourceBase> {
-        addToStorage(SourceCoordinator(sourceBase: sourceBase))
+        SourceCoordinator(sourceBase: sourceBase, storage: coordinatorStorage)
     }
 }

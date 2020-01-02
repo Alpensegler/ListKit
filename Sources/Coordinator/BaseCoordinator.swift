@@ -58,13 +58,20 @@ public class BaseCoordinator {
     var didUpdateToCoordinator = [(BaseCoordinator, BaseCoordinator) -> Void]()
     var didUpdateIndices = [() -> Void]()
     
+    lazy var selectorSets = initialSelectorSets()
+    
+    #if os(iOS) || os(tvOS)
+    lazy var scrollViewDelegates = UIScrollListDelegate()
+    lazy var collectionViewDelegates = UICollectionListDelegate()
+    lazy var tableViewDelegates = UITableListDelegate()
+    #endif
+    
     //Source Diffing
     var selfType = ObjectIdentifier(Any.self)
     var itemType = ObjectIdentifier(Any.self)
     
     var sourceType = SourceType.cell
     var sourceIndices = [SourceIndices]()
-    var offsets = [Path]()
     var rangeReplacable = false
     var isEmpty: Bool { false }
     
@@ -83,14 +90,28 @@ public class BaseCoordinator {
     
     func anySourceUpdate(to sources: [AnyDiffableSourceValue]) { fatalError() }
     
-    @discardableResult
+    func apply<Object: AnyObject, Input, Output>(
+        _ keyPath: KeyPath<BaseCoordinator, Delegate<Object, Input, Output>>,
+        object: Object,
+        with input: Input
+    ) -> Output {
+        fatalError()
+    }
+    
+    func apply<Object: AnyObject, Input>(
+        _ keyPath: KeyPath<BaseCoordinator, Delegate<Object, Input, Void>>,
+        object: Object,
+        with input: Input
+    ) {
+        fatalError()
+    }
+    
     func setup(
-        listView: SetuptableListView,
+        listView: ListView,
         objectIdentifier: ObjectIdentifier,
         sectionOffset: Int = 0,
-        itemOffset: Int = 0,
-        isRoot: Bool = false
-    ) -> Delegates {
+        itemOffset: Int = 0
+    ) {
         fatalError()
     }
     
@@ -101,6 +122,19 @@ public class BaseCoordinator {
         isMove: Bool
     ) -> [(changes: ListChanges, update: () -> Void)] {
         fatalError()
+    }
+    
+    func initialSelectorSets(withoutIndex: Bool = false) -> SelectorSets {
+        var selectorSets = SelectorSets()
+        selectorSets.withoutIndex = withoutIndex
+        
+        #if os(iOS) || os(tvOS)
+        scrollViewDelegates.add(by: &selectorSets)
+        collectionViewDelegates.add(by: &selectorSets)
+        tableViewDelegates.add(by: &selectorSets)
+        #endif
+        
+        return selectorSets
     }
 }
 
@@ -207,6 +241,7 @@ extension BaseCoordinator.DiffableSource where AssociatedValue == AssociatedDiff
         }
     }
 }
+
 
 extension BaseCoordinator.DiffableSource where AssociatedValue == AssociatedDiffValue {
     init<Source: DataSource>(

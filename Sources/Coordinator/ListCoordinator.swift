@@ -5,27 +5,51 @@
 //  Created by Frain on 2019/11/25.
 //
 
+class ListContext {
+    weak var listView: ListView?
+    var sectionOffset: Int
+    var itemOffset: Int
+    
+    init(listView: ListView?, sectionOffset: Int, itemOffset: Int) {
+        self.listView = listView
+        self.sectionOffset = sectionOffset
+        self.itemOffset = itemOffset
+    }
+}
+
 public class ListCoordinator<SourceBase: DataSource>: ItemTypedCoorinator<SourceBase.Item> {
     typealias Item = SourceBase.Item
+    
+    weak var storage: CoordinatorStorage<SourceBase>?
     
     var nestedAdapterItemUpdate = [AnyHashable: (Item) -> Void]()
     var cacheForItem = [[Any]]()
     var cacheFromItem: ((Item) -> Any)?
-    var stagingDelegatesSetups = [(ListDelegates<SourceBase>) -> Void]()
-    var delegatesStorage = [ObjectIdentifier: ListDelegates<SourceBase>]()
+    var listContexts = [ObjectIdentifier: ListContext]()
     var source: SourceBase.Source { fatalError() }
     var didSetup = false
     
-    func setup(with delegates: Delegates) { }
+    func offset(for object: AnyObject) -> (Int, Int) {
+        guard let context = listContexts[ObjectIdentifier(object)] else { return (0, 0) }
+        return (context.sectionOffset, context.itemOffset)
+    }
+    
+    func setup() {
+        didSetup = true
+    }
     
     override var anySource: Any { source }
     
-    override init() {
+    init(storage: CoordinatorStorage<SourceBase>? = nil) {
         super.init()
+        
+        self.storage = storage
     }
     
-    init(sourceBase: SourceBase) {
+    init(sourceBase: SourceBase, storage: CoordinatorStorage<SourceBase>? = nil) {
         super.init()
+        
+        self.storage = storage
         
         selfType = ObjectIdentifier(SourceBase.self)
         itemType = ObjectIdentifier(SourceBase.Item.self)
@@ -35,27 +59,50 @@ public class ListCoordinator<SourceBase: DataSource>: ItemTypedCoorinator<Source
         fatalError()
     }
     
-    @discardableResult
+    func set<Object: AnyObject, Input, Output>(
+        _ keyPath: ReferenceWritableKeyPath<BaseCoordinator, Delegate<Object, Input, Output>>,
+        _ closure: @escaping (ListCoordinator<SourceBase>, Object, Input) -> Output
+    ) {
+        self[keyPath: keyPath].closure = { [unowned self] in closure(self, $0, $1) }
+        let delegate = self[keyPath: keyPath]
+        switch delegate.index {
+        case .none: selectorSets { $0.value.remove(delegate.selector) }
+        case .index: selectorSets { $0.withIndex.remove(delegate.selector) }
+        case .indexPath: selectorSets { $0.withIndexPath.remove(delegate.selector) }
+        }
+    }
+
+    func set<Object: AnyObject, Input>(
+        _ keyPath: ReferenceWritableKeyPath<BaseCoordinator, Delegate<Object, Input, Void>>,
+        _ closure: @escaping (ListCoordinator<SourceBase>, Object, Input) -> Void
+    ) {
+        self[keyPath: keyPath].closure = { [unowned self] in closure(self, $0, $1) }
+        let delegate = self[keyPath: keyPath]
+        selectorSets { $0.void.remove(delegate.selector) }
+    }
+    
+    func selectorSets(applying: (inout SelectorSets) -> Void) {
+        applying(&selectorSets)
+    }
+    
     override func setup(
-        listView: SetuptableListView,
+        listView: ListView,
         objectIdentifier: ObjectIdentifier,
         sectionOffset: Int = 0,
-        itemOffset: Int = 0,
-        isRoot: Bool = false
-    ) -> Delegates {
-        let delegates = delegatesStorage[objectIdentifier] ?? {
-            let context = ListDelegates(coordinator: self, listView: listView)
-            delegatesStorage[objectIdentifier] = context
-            stagingDelegatesSetups.forEach { $0(context) }
-            if !didSetup {
-                setup(with: context)
-                didSetup = true
-            }
-            return context
-        }()
-        delegates.sectionOffset = sectionOffset
-        delegates.itemOffset = itemOffset
-        delegates.setup(isRoot: isRoot, listView: listView)
-        return delegates
+        itemOffset: Int = 0
+    ) {
+        if let context = listContexts[objectIdentifier] {
+            context.sectionOffset = sectionOffset
+            context.itemOffset = itemOffset
+            return
+        }
+        
+        let context = ListContext(
+            listView: listView,
+            sectionOffset: sectionOffset,
+            itemOffset: itemOffset
+        )
+        listContexts[objectIdentifier] = context
+        if !didSetup { setup() }
     }
 }

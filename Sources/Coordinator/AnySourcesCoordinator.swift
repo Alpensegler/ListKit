@@ -18,7 +18,7 @@ where SourceBase.Source == Any, SourceBase.Item == Any {
     }
     
     init<Source: DataSource>(_ dataSource: Source) {
-        self.coordinator = dataSource.baseCoordinator
+        self.coordinator = dataSource.makeListCoordinator()
         self.storedSource = dataSource
         super.init()
     }

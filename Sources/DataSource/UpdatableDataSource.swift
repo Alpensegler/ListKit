@@ -15,6 +15,7 @@ public protocol UpdatableDataSource: DataSource {
 
 public class CoordinatorStorage<SourceBase: DataSource> {
     var coordinators = [ListCoordinator<SourceBase>]()
+    var coordinator: ListCoordinator<SourceBase>!
     var source: SourceBase.Source!
     
     public init() { }

@@ -95,7 +95,7 @@ public class BaseCoordinator {
         object: Object,
         with input: Input
     ) -> Output {
-        fatalError()
+        self[keyPath: keyPath].closure!(object, input)
     }
     
     func apply<Object: AnyObject, Input>(
@@ -103,7 +103,7 @@ public class BaseCoordinator {
         object: Object,
         with input: Input
     ) {
-        fatalError()
+        self[keyPath: keyPath].closure?(object, input)
     }
     
     func setup(

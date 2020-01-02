@@ -10,7 +10,7 @@ import Foundation
 final class ListDelegate: NSObject {
     var coordinator: BaseCoordinator
     
-    init(coordinator: BaseCoordinator) {
+    init(_ coordinator: BaseCoordinator) {
         self.coordinator = coordinator
     }
     
@@ -43,4 +43,10 @@ final class ListDelegate: NSObject {
     ) {
         apply(keyPath, object: object, with: ())
     }
+    
+    override func responds(to aSelector: Selector!) -> Bool {
+        if aSelector.map(coordinator.selectorSets.contains) == true { return false }
+        return super.responds(to: aSelector)
+    }
+
 }

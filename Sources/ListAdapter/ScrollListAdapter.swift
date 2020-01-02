@@ -20,14 +20,14 @@ where Source.SourceBase == Source {
     public typealias Item = Source.Item
     public typealias SourceBase = Source
     
-    var delegatesSetups = [(ListCoordinator<Source>) -> Void]()
+    var coordinatorSetups = [(ListCoordinator<Source>) -> Void]()
     
     public let source: Source
     public let coordinatorStorage = CoordinatorStorage<Source>()
     
     public var updater: Updater<Source> { source.updater }
     public var sourceBase: Source { source }
-    public func makeListCoordinator() -> ListCoordinator<Source> { makeAdapterCoordinator() }
+    public func makeListCoordinator() -> ListCoordinator<Source> { makeCoordinator() }
     public var wrappedValue: Source { source }
     public var projectedValue: Source.Source { source.source }
     

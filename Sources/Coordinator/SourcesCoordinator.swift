@@ -99,7 +99,7 @@ where
         if let context = listContexts[objectIdentifier] {
             context.sectionOffset = sectionOffset
             context.itemOffset = itemOffset
-            configSubdelegates(for: [(objectIdentifier, context)])
+            configSubcoordinator(for: [(objectIdentifier, context)])
             return
         }
         
@@ -112,7 +112,7 @@ where
         if !didSetup {
             setupCoordinators()
             rangeReplacable = true
-            let hasSectioned = configSubdelegates(
+            let hasSectioned = configSubcoordinator(
                 for: [(objectIdentifier, context)],
                 isReset: true
             )
@@ -120,7 +120,7 @@ where
             sourceType = (selectorSets.hasIndex || hasSectioned) ? .section : .cell
             didSetup = true
         } else {
-            configSubdelegates(for: [(objectIdentifier, context)], isReset: false)
+            configSubcoordinator(for: [(objectIdentifier, context)], isReset: false)
         }
     }
     
@@ -135,8 +135,8 @@ where
         with input: Input
     ) -> Output {
         let closure = self[keyPath: keyPath]
-        let delegates = subdelegates(for: closure, object: object, with: input)
-        return delegates?.apply(keyPath, object: object, with: input)
+        let coordinator = subcoordinator(for: closure, object: object, with: input)
+        return coordinator?.apply(keyPath, object: object, with: input)
             ?? super.apply(keyPath, object: object, with: input)
     }
     
@@ -146,8 +146,8 @@ where
         with input: Input
     ) {
         let closure = self[keyPath: keyPath]
-        let delegates = subdelegates(for: closure, object: object, with: input)
-        delegates?.apply(keyPath, object: object, with: input)
+        let coordinator = subcoordinator(for: closure, object: object, with: input)
+        coordinator?.apply(keyPath, object: object, with: input)
         super.apply(keyPath, object: object, with: input)
     }
     
@@ -162,7 +162,7 @@ where
         selectorSets = SelectorSets(merging: selfSelectorSets, others)
     }
     
-    func subdelegates<Object: AnyObject, Input, Output>(
+    func subcoordinator<Object: AnyObject, Input, Output>(
         for delegate: Delegate<Object, Input, Output>,
         object: Object,
         with input: Input
@@ -189,7 +189,7 @@ where
     func resetAndConfigIndicesAndOffsets() {
         offsets.removeAll(keepingCapacity: true)
         sourceIndices.removeAll(keepingCapacity: true)
-        configSubdelegates(for: listContexts, isReset: true)
+        configSubcoordinator(for: listContexts, isReset: true)
     }
     
     func setupCoordinators() {
@@ -200,7 +200,7 @@ where
     }
     
     @discardableResult
-    func configSubdelegates<C: Collection>(
+    func configSubcoordinator<C: Collection>(
         for collection: C,
         isReset: Bool = true
     ) -> Bool where C.Element == (key: ObjectIdentifier, value: ListContext) {

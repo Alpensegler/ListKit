@@ -10,9 +10,14 @@ import UIKit
 
 public typealias CollectionView = UICollectionView
 
-extension UICollectionView: UIListView {
+extension UICollectionView: UIListView, SetuptableListView {
     public typealias Cell = UICollectionViewCell
     public typealias Animation = Bool
+    
+    func setup(with listDelegate: ListDelegate) {
+        dataSource = listDelegate
+        delegate = listDelegate
+    }
 }
 
 public extension UICollectionView {

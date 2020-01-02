@@ -18,7 +18,7 @@ public extension TableList where SourceBase == AnySources {
     
     init(@AnyTableSourcesBuilder content: () -> Self) {
         let dataSource = content()
-        self.init(delegatesSetups: dataSource.delegatesSetups, source: dataSource.sourceBase)
+        self.init(coordinatorSetups: dataSource.coordinatorSetups, source: dataSource.sourceBase)
     }
 }
 

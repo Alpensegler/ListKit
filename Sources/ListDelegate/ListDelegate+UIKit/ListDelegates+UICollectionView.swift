@@ -385,29 +385,29 @@ extension ListDelegate: UICollectionViewDataSource {
     
     //Getting Views for Items
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        apply(\.collectionViewDelegates.cellForItemAt, object: collectionView, with: indexPath)
+        apply(\.collectionListDelegate.cellForItemAt, object: collectionView, with: indexPath)
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        apply(\.collectionViewDelegates.viewForSupplementaryElementOfKindAt, object: collectionView, with: (kind, indexPath))
+        apply(\.collectionListDelegate.viewForSupplementaryElementOfKindAt, object: collectionView, with: (kind, indexPath))
     }
     
     //Reordering Items
     func collectionView(_ collectionView: UICollectionView, canMoveItemAt indexPath: IndexPath) -> Bool {
-        apply(\.collectionViewDelegates.canMoveItemAt, object: collectionView, with: indexPath)
+        apply(\.collectionListDelegate.canMoveItemAt, object: collectionView, with: indexPath)
     }
 
     func collectionView(_ collectionView: UICollectionView, moveItemAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
-        apply(\.collectionViewDelegates.moveItemAtTo, object: collectionView, with: (sourceIndexPath, destinationIndexPath))
+        apply(\.collectionListDelegate.moveItemAtTo, object: collectionView, with: (sourceIndexPath, destinationIndexPath))
     }
 
     //Configuring an Index
     func indexTitles(for collectionView: UICollectionView) -> [String]? {
-        apply(\.collectionViewDelegates.indexTitles, object: collectionView)
+        apply(\.collectionListDelegate.indexTitles, object: collectionView)
     }
     
     func collectionView(_ collectionView: UICollectionView, indexPathForIndexTitle title: String, at index: Int) -> IndexPath {
-        apply(\.collectionViewDelegates.indexPathForIndexTitleAt, object: collectionView, with: (title, index))
+        apply(\.collectionListDelegate.indexPathForIndexTitleAt, object: collectionView, with: (title, index))
     }
 }
 
@@ -415,163 +415,163 @@ extension ListDelegate: UICollectionViewDelegate {
     
     //Managing the Selected Cells
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-        apply(\.collectionViewDelegates.shouldSelectItemAt, object: collectionView, with: indexPath)
+        apply(\.collectionListDelegate.shouldSelectItemAt, object: collectionView, with: indexPath)
     }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        apply(\.collectionViewDelegates.didSelectItemAt, object: collectionView, with: indexPath)
+        apply(\.collectionListDelegate.didSelectItemAt, object: collectionView, with: indexPath)
     }
 
     func collectionView(_ collectionView: UICollectionView, shouldDeselectItemAt indexPath: IndexPath) -> Bool {
-        apply(\.collectionViewDelegates.shouldDeselectItemAt, object: collectionView, with: indexPath)
+        apply(\.collectionListDelegate.shouldDeselectItemAt, object: collectionView, with: indexPath)
     }
 
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-        apply(\.collectionViewDelegates.didDeselectItemAt, object: collectionView, with: indexPath)
+        apply(\.collectionListDelegate.didDeselectItemAt, object: collectionView, with: indexPath)
     }
     
     @available(iOS 13.0, *)
     func collectionView(_ collectionView: UICollectionView, shouldBeginMultipleSelectionInteractionAt indexPath: IndexPath) -> Bool {
-        apply(\.collectionViewDelegates.shouldBeginMultipleSelectionInteractionAt, object: collectionView, with: indexPath)
+        apply(\.collectionListDelegate.shouldBeginMultipleSelectionInteractionAt, object: collectionView, with: indexPath)
     }
     
     @available(iOS 13.0, *)
     func collectionView(_ collectionView: UICollectionView, didBeginMultipleSelectionInteractionAt indexPath: IndexPath) {
-        apply(\.collectionViewDelegates.didBeginMultipleSelectionInteractionAt, object: collectionView, with: indexPath)
+        apply(\.collectionListDelegate.didBeginMultipleSelectionInteractionAt, object: collectionView, with: indexPath)
     }
     
     @available(iOS 13.0, *)
     func collectionViewDidEndMultipleSelectionInteraction(_ collectionView: UICollectionView) {
-        apply(\.collectionViewDelegates.didEndMultipleSelectionInteraction, object: collectionView)
+        apply(\.collectionListDelegate.didEndMultipleSelectionInteraction, object: collectionView)
     }
 
     //Managing Cell Highlighting
     func collectionView(_ collectionView: UICollectionView, shouldHighlightItemAt indexPath: IndexPath) -> Bool {
-        apply(\.collectionViewDelegates.shouldHighlightItemAt, object: collectionView, with: indexPath)
+        apply(\.collectionListDelegate.shouldHighlightItemAt, object: collectionView, with: indexPath)
     }
 
     func collectionView(_ collectionView: UICollectionView, didHighlightItemAt indexPath: IndexPath) {
-        apply(\.collectionViewDelegates.didHighlightItemAt, object: collectionView, with: indexPath)
+        apply(\.collectionListDelegate.didHighlightItemAt, object: collectionView, with: indexPath)
     }
 
     func collectionView(_ collectionView: UICollectionView, didUnhighlightItemAt indexPath: IndexPath) {
-        apply(\.collectionViewDelegates.didUnhighlightItemAt, object: collectionView, with: indexPath)
+        apply(\.collectionListDelegate.didUnhighlightItemAt, object: collectionView, with: indexPath)
     }
 
     //Tracking the Addition and Removal of Views
     func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        apply(\.collectionViewDelegates.willDisplayForItemAt, object: collectionView, with: (cell, indexPath))
+        apply(\.collectionListDelegate.willDisplayForItemAt, object: collectionView, with: (cell, indexPath))
     }
 
     func collectionView(_ collectionView: UICollectionView, willDisplaySupplementaryView view: UICollectionReusableView, forElementKind elementKind: String, at indexPath: IndexPath) {
-        apply(\.collectionViewDelegates.willDisplaySupplementaryViewForElementKindAt, object: collectionView, with: (view, elementKind, indexPath))
+        apply(\.collectionListDelegate.willDisplaySupplementaryViewForElementKindAt, object: collectionView, with: (view, elementKind, indexPath))
     }
 
     func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        apply(\.collectionViewDelegates.didEndDisplayingForItemAt, object: collectionView, with: (cell, indexPath))
+        apply(\.collectionListDelegate.didEndDisplayingForItemAt, object: collectionView, with: (cell, indexPath))
     }
 
     func collectionView(_ collectionView: UICollectionView, didEndDisplayingSupplementaryView view: UICollectionReusableView, forElementOfKind elementKind: String, at indexPath: IndexPath) {
-        apply(\.collectionViewDelegates.didEndDisplayingSupplementaryViewForElementOfKindAt, object: collectionView, with: (view, elementKind, indexPath))
+        apply(\.collectionListDelegate.didEndDisplayingSupplementaryViewForElementOfKindAt, object: collectionView, with: (view, elementKind, indexPath))
     }
 
     //Handling Layout Changes
     func collectionView(_ collectionView: UICollectionView, transitionLayoutForOldLayout fromLayout: UICollectionViewLayout, newLayout toLayout: UICollectionViewLayout) -> UICollectionViewTransitionLayout {
-        apply(\.collectionViewDelegates.transitionLayoutForOldLayoutNewLayout, object: collectionView, with: (fromLayout, toLayout))
+        apply(\.collectionListDelegate.transitionLayoutForOldLayoutNewLayout, object: collectionView, with: (fromLayout, toLayout))
     }
 
     func collectionView(_ collectionView: UICollectionView, targetContentOffsetForProposedContentOffset proposedContentOffset: CGPoint) -> CGPoint {
-        apply(\.collectionViewDelegates.targetContentOffsetForProposedContentOffset, object: collectionView, with: (proposedContentOffset))
+        apply(\.collectionListDelegate.targetContentOffsetForProposedContentOffset, object: collectionView, with: (proposedContentOffset))
     }
 
     func collectionView(_ collectionView: UICollectionView, targetIndexPathForMoveFromItemAt originalIndexPath: IndexPath, toProposedIndexPath proposedIndexPath: IndexPath) -> IndexPath {
-        apply(\.collectionViewDelegates.targetIndexPathForMoveFromItemAtToProposedIndexPath, object: collectionView, with: (originalIndexPath, proposedIndexPath))
+        apply(\.collectionListDelegate.targetIndexPathForMoveFromItemAtToProposedIndexPath, object: collectionView, with: (originalIndexPath, proposedIndexPath))
     }
 
     //Managing Actions for Cells
     func collectionView(_ collectionView: UICollectionView, shouldShowMenuForItemAt indexPath: IndexPath) -> Bool {
-        apply(\.collectionViewDelegates.shouldShowMenuForItemAt, object: collectionView, with: indexPath)
+        apply(\.collectionListDelegate.shouldShowMenuForItemAt, object: collectionView, with: indexPath)
     }
 
     func collectionView(_ collectionView: UICollectionView, canPerformAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) -> Bool {
-        apply(\.collectionViewDelegates.canPerformActionForItemAtWithSender, object: collectionView, with: (action, indexPath, sender))
+        apply(\.collectionListDelegate.canPerformActionForItemAtWithSender, object: collectionView, with: (action, indexPath, sender))
     }
 
     func collectionView(_ collectionView: UICollectionView, performAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) {
-        apply(\.collectionViewDelegates.performActionForItemAtWithSender, object: collectionView, with: (action, indexPath, sender))
+        apply(\.collectionListDelegate.performActionForItemAtWithSender, object: collectionView, with: (action, indexPath, sender))
     }
 
     //Managing Focus in a Collection View
     func collectionView(_ collectionView: UICollectionView, canFocusItemAt indexPath: IndexPath) -> Bool {
-        apply(\.collectionViewDelegates.canFocusItemAt, object: collectionView, with: indexPath)
+        apply(\.collectionListDelegate.canFocusItemAt, object: collectionView, with: indexPath)
     }
 
     func indexPathForPreferredFocusedView(in collectionView: UICollectionView) -> IndexPath? {
-        apply(\.collectionViewDelegates.indexPathForPreferredFocusedView, object: collectionView)
+        apply(\.collectionListDelegate.indexPathForPreferredFocusedView, object: collectionView)
     }
 
     func collectionView(_ collectionView: UICollectionView, shouldUpdateFocusIn context: UICollectionViewFocusUpdateContext) -> Bool {
-        apply(\.collectionViewDelegates.shouldUpdateFocusIn, object: collectionView, with: context)
+        apply(\.collectionListDelegate.shouldUpdateFocusIn, object: collectionView, with: context)
     }
 
     func collectionView(_ collectionView: UICollectionView, didUpdateFocusIn context: UICollectionViewFocusUpdateContext, with coordinator: UIFocusAnimationCoordinator) {
-        apply(\.collectionViewDelegates.didUpdateFocusInWith, object: collectionView, with: (context, coordinator))
+        apply(\.collectionListDelegate.didUpdateFocusInWith, object: collectionView, with: (context, coordinator))
     }
 
     //Controlling the Spring-Loading Behavior
     @available(iOS 11.0, *)
     func collectionView(_ collectionView: UICollectionView, shouldSpringLoadItemAt indexPath: IndexPath, with context: UISpringLoadedInteractionContext) -> Bool {
-        apply(\.collectionViewDelegates.shouldSpringLoadItemAtWith, object: collectionView, with: (indexPath, context))
+        apply(\.collectionListDelegate.shouldSpringLoadItemAtWith, object: collectionView, with: (indexPath, context))
     }
 
     //Instance Methods
     @available(iOS 13.0, *)
     func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
-        apply(\.collectionViewDelegates.contextMenuConfigurationForItemAtPoint, object: collectionView, with: (indexPath, point))
+        apply(\.collectionListDelegate.contextMenuConfigurationForItemAtPoint, object: collectionView, with: (indexPath, point))
     }
     
     @available(iOS 13.0, *)
     func collectionView(_ collectionView: UICollectionView, previewForDismissingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
-        apply(\.collectionViewDelegates.previewForDismissingContextMenuWithConfiguration, object: collectionView, with: (configuration))
+        apply(\.collectionListDelegate.previewForDismissingContextMenuWithConfiguration, object: collectionView, with: (configuration))
     }
     
     @available(iOS 13.0, *)
     func collectionView(_ collectionView: UICollectionView, previewForHighlightingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
-        apply(\.collectionViewDelegates.previewForHighlightingContextMenuWithConfiguration, object: collectionView, with: (configuration))
+        apply(\.collectionListDelegate.previewForHighlightingContextMenuWithConfiguration, object: collectionView, with: (configuration))
     }
     
     @available(iOS 13.0, *)
     func collectionView(_ collectionView: UICollectionView, willPerformPreviewActionForMenuWith configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionCommitAnimating) {
-        apply(\.collectionViewDelegates.willPerformPreviewActionForMenuWithAnimator, object: collectionView, with: (configuration, animator))
+        apply(\.collectionListDelegate.willPerformPreviewActionForMenuWithAnimator, object: collectionView, with: (configuration, animator))
     }
 }
 
 extension ListDelegate: UICollectionViewDelegateFlowLayout {
     //Getting the Size of Items
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        apply(\.collectionViewDelegates.layoutSizeForItemAt, object: collectionView, with: (collectionViewLayout, indexPath))
+        apply(\.collectionListDelegate.layoutSizeForItemAt, object: collectionView, with: (collectionViewLayout, indexPath))
     }
 
     //Getting the Section Spacing
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-        apply(\.collectionViewDelegates.layoutInsetForSectionAt, object: collectionView, with: (collectionViewLayout, section))
+        apply(\.collectionListDelegate.layoutInsetForSectionAt, object: collectionView, with: (collectionViewLayout, section))
     }
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-        apply(\.collectionViewDelegates.layoutMinimumLineSpacingForSectionAt, object: collectionView, with: (collectionViewLayout, section))
+        apply(\.collectionListDelegate.layoutMinimumLineSpacingForSectionAt, object: collectionView, with: (collectionViewLayout, section))
     }
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        apply(\.collectionViewDelegates.layoutMinimumInteritemSpacingForSectionAt, object: collectionView, with: (collectionViewLayout, section))
+        apply(\.collectionListDelegate.layoutMinimumInteritemSpacingForSectionAt, object: collectionView, with: (collectionViewLayout, section))
     }
 
     //Getting the Header and Footer Sizes
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        apply(\.collectionViewDelegates.layoutReferenceSizeForHeaderInSection, object: collectionView, with: (collectionViewLayout, section))
+        apply(\.collectionListDelegate.layoutReferenceSizeForHeaderInSection, object: collectionView, with: (collectionViewLayout, section))
     }
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
-        apply(\.collectionViewDelegates.layoutReferenceSizeForFooterInSection, object: collectionView, with: (collectionViewLayout, section))
+        apply(\.collectionListDelegate.layoutReferenceSizeForFooterInSection, object: collectionView, with: (collectionViewLayout, section))
     }
 }
 

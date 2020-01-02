@@ -41,7 +41,7 @@ import UIKit
 
 extension ScrollList: ListAdapter {
     static var rootKeyPath: ReferenceWritableKeyPath<BaseCoordinator, UIScrollListDelegate> {
-        \.scrollViewDelegates
+        \.scrollListDelegate
     }
     
     static func toContext(

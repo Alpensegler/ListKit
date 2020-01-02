@@ -58,7 +58,7 @@ public extension TableListAdapter {
 
 extension TableList: ListAdapter {
     static var rootKeyPath: ReferenceWritableKeyPath<BaseCoordinator, UITableListDelegate> {
-        \.tableViewDelegates
+        \.tableListDelegate
     }
     
     static func toContext(

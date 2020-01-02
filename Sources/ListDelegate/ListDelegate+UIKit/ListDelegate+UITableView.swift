@@ -505,258 +505,258 @@ extension ListDelegate: UITableViewDataSource {
     
     //Providing Cells, Headers, and Footers
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        apply(\.tableViewDelegates.cellForRowAt, object: tableView, with: indexPath)
+        apply(\.tableListDelegate.cellForRowAt, object: tableView, with: indexPath)
     }
 
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        apply(\.tableViewDelegates.titleForHeaderInSection, object: tableView, with: section)
+        apply(\.tableListDelegate.titleForHeaderInSection, object: tableView, with: section)
     }
 
     func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
-        apply(\.tableViewDelegates.titleForFooterInSection, object: tableView, with: section)
+        apply(\.tableListDelegate.titleForFooterInSection, object: tableView, with: section)
     }
 
     //Inserting or Deleting Table Rows
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        apply(\.tableViewDelegates.commitForRowAt, object: tableView, with: (editingStyle, indexPath))
+        apply(\.tableListDelegate.commitForRowAt, object: tableView, with: (editingStyle, indexPath))
     }
 
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        apply(\.tableViewDelegates.canEditRowAt, object: tableView, with: indexPath)
+        apply(\.tableListDelegate.canEditRowAt, object: tableView, with: indexPath)
     }
     
     //Reordering Table Rows
     func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-        apply(\.tableViewDelegates.canMoveRowAt, object: tableView, with: indexPath)
+        apply(\.tableListDelegate.canMoveRowAt, object: tableView, with: indexPath)
     }
 
     func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
-        apply(\.tableViewDelegates.moveRowAtTo, object: tableView, with: (sourceIndexPath, destinationIndexPath))
+        apply(\.tableListDelegate.moveRowAtTo, object: tableView, with: (sourceIndexPath, destinationIndexPath))
     }
 
     //Configuring an Index
     func sectionIndexTitles(for tableView: UITableView) -> [String]? {
-        apply(\.tableViewDelegates.sectionIndexTitles, object: (tableView))
+        apply(\.tableListDelegate.sectionIndexTitles, object: (tableView))
     }
 
     func tableView(_ tableView: UITableView, sectionForSectionIndexTitle title: String, at index: Int) -> Int {
-        apply(\.tableViewDelegates.sectionForSectionIndexTitleAt, object: tableView, with: (title, index))
+        apply(\.tableListDelegate.sectionForSectionIndexTitleAt, object: tableView, with: (title, index))
     }
 }
 
 extension ListDelegate: UITableViewDelegate {
     //Configuring Rows for the Table View
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        apply(\.tableViewDelegates.willDisplayForRowAt, object: tableView, with: (cell, indexPath))
+        apply(\.tableListDelegate.willDisplayForRowAt, object: tableView, with: (cell, indexPath))
     }
 
     func tableView(_ tableView: UITableView, indentationLevelForRowAt indexPath: IndexPath) -> Int {
-        apply(\.tableViewDelegates.indentationLevelForRowAt, object: tableView, with: indexPath)
+        apply(\.tableListDelegate.indentationLevelForRowAt, object: tableView, with: indexPath)
     }
 
     @available(iOS 11.0, *)
     func tableView(_ tableView: UITableView, shouldSpringLoadRowAt indexPath: IndexPath, with context: UISpringLoadedInteractionContext) -> Bool {
-        apply(\.tableViewDelegates.springLoadRowAtWith, object: tableView, with: (indexPath, context))
+        apply(\.tableListDelegate.springLoadRowAtWith, object: tableView, with: (indexPath, context))
     }
 
     //Responding to Row Selections
     func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
-        apply(\.tableViewDelegates.willSelectRowAt, object: tableView, with: indexPath)
+        apply(\.tableListDelegate.willSelectRowAt, object: tableView, with: indexPath)
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        apply(\.tableViewDelegates.didSelectRowAt, object: tableView, with: indexPath)
+        apply(\.tableListDelegate.didSelectRowAt, object: tableView, with: indexPath)
     }
 
     func tableView(_ tableView: UITableView, willDeselectRowAt indexPath: IndexPath) -> IndexPath? {
-        apply(\.tableViewDelegates.willDeselectRowAt, object: tableView, with: indexPath)
+        apply(\.tableListDelegate.willDeselectRowAt, object: tableView, with: indexPath)
     }
 
     func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
-        apply(\.tableViewDelegates.didDeselectRowAt, object: tableView, with: indexPath)
+        apply(\.tableListDelegate.didDeselectRowAt, object: tableView, with: indexPath)
     }
 
     @available(iOS 13.0, *)
     func tableView(_ tableView: UITableView, shouldBeginMultipleSelectionInteractionAt indexPath: IndexPath) -> Bool {
-        apply(\.tableViewDelegates.shouldBeginMultipleSelectionInteractionAt, object: tableView, with: indexPath)
+        apply(\.tableListDelegate.shouldBeginMultipleSelectionInteractionAt, object: tableView, with: indexPath)
     }
     
     @available(iOS 13.0, *)
     func tableView(_ tableView: UITableView, didBeginMultipleSelectionInteractionAt indexPath: IndexPath) {
-        apply(\.tableViewDelegates.didBeginMultipleSelectionInteractionAt, object: tableView, with: indexPath)
+        apply(\.tableListDelegate.didBeginMultipleSelectionInteractionAt, object: tableView, with: indexPath)
     }
     
     @available(iOS 13.0, *)
     func tableViewDidEndMultipleSelectionInteraction(_ tableView: UITableView) {
-        apply(\.tableViewDelegates.didEndMultipleSelectionInteraction, object: tableView)
+        apply(\.tableListDelegate.didEndMultipleSelectionInteraction, object: tableView)
     }
     
     //Providing Custom Header and Footer Views
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        apply(\.tableViewDelegates.viewForHeaderInSection, object: tableView, with: section)
+        apply(\.tableListDelegate.viewForHeaderInSection, object: tableView, with: section)
     }
 
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-        apply(\.tableViewDelegates.viewForFooterInSection, object: tableView, with: section)
+        apply(\.tableListDelegate.viewForFooterInSection, object: tableView, with: section)
     }
 
     func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
-        apply(\.tableViewDelegates.willDisplayHeaderViewForSection, object: tableView, with: (view, section))
+        apply(\.tableListDelegate.willDisplayHeaderViewForSection, object: tableView, with: (view, section))
     }
 
     func tableView(_ tableView: UITableView, willDisplayFooterView view: UIView, forSection section: Int) {
-        apply(\.tableViewDelegates.willDisplayFooterViewForSection, object: tableView, with: (view, section))
+        apply(\.tableListDelegate.willDisplayFooterViewForSection, object: tableView, with: (view, section))
     }
 
     //Providing Header, Footer, and Row Heights
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        apply(\.tableViewDelegates.heightForRowAt, object: tableView, with: indexPath)
+        apply(\.tableListDelegate.heightForRowAt, object: tableView, with: indexPath)
     }
 
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        apply(\.tableViewDelegates.heightForHeaderInSection, object: tableView, with: section)
+        apply(\.tableListDelegate.heightForHeaderInSection, object: tableView, with: section)
     }
 
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        apply(\.tableViewDelegates.heightForFooterInSection, object: tableView, with: section)
+        apply(\.tableListDelegate.heightForFooterInSection, object: tableView, with: section)
     }
 
     //Estimating Heights for the Table's Content
     func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
-        apply(\.tableViewDelegates.estimatedHeightForRowAt, object: tableView, with: indexPath)
+        apply(\.tableListDelegate.estimatedHeightForRowAt, object: tableView, with: indexPath)
     }
 
     func tableView(_ tableView: UITableView, estimatedHeightForHeaderInSection section: Int) -> CGFloat {
-        apply(\.tableViewDelegates.estimatedHeightForHeaderInSection, object: tableView, with: section)
+        apply(\.tableListDelegate.estimatedHeightForHeaderInSection, object: tableView, with: section)
     }
 
     func tableView(_ tableView: UITableView, estimatedHeightForFooterInSection section: Int) -> CGFloat {
-        apply(\.tableViewDelegates.estimatedHeightForFooterInSection, object: tableView, with: section)
+        apply(\.tableListDelegate.estimatedHeightForFooterInSection, object: tableView, with: section)
     }
 
     //Managing Accessory Views
     func tableView(_ tableView: UITableView, accessoryButtonTappedForRowWith indexPath: IndexPath) {
-        apply(\.tableViewDelegates.accessoryButtonTappedForRowWith, object: tableView, with: indexPath)
+        apply(\.tableListDelegate.accessoryButtonTappedForRowWith, object: tableView, with: indexPath)
     }
 
     //Responding to Row Actions
     @available(iOS 11.0, *)
     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        apply(\.tableViewDelegates.leadingSwipeActionsConfigurationForRowAt, object: tableView, with: indexPath)
+        apply(\.tableListDelegate.leadingSwipeActionsConfigurationForRowAt, object: tableView, with: indexPath)
     }
 
     @available(iOS 11.0, *)
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        apply(\.tableViewDelegates.trailingSwipeActionsConfigurationForRowAt, object: tableView, with: indexPath)
+        apply(\.tableListDelegate.trailingSwipeActionsConfigurationForRowAt, object: tableView, with: indexPath)
     }
 
     func tableView(_ tableView: UITableView, shouldShowMenuForRowAt indexPath: IndexPath) -> Bool {
-        apply(\.tableViewDelegates.shouldShowMenuForRowAt, object: tableView, with: indexPath)
+        apply(\.tableListDelegate.shouldShowMenuForRowAt, object: tableView, with: indexPath)
     }
 
     func tableView(_ tableView: UITableView, canPerformAction action: Selector, forRowAt indexPath: IndexPath, withSender sender: Any?) -> Bool {
-        apply(\.tableViewDelegates.canPerformActionForRowAtWithSender, object: tableView, with: (action, indexPath, sender))
+        apply(\.tableListDelegate.canPerformActionForRowAtWithSender, object: tableView, with: (action, indexPath, sender))
     }
 
     func tableView(_ tableView: UITableView, performAction action: Selector, forRowAt indexPath: IndexPath, withSender sender: Any?) {
-        apply(\.tableViewDelegates.performActionForRowAtWithSender, object: tableView, with: (action, indexPath, sender))
+        apply(\.tableListDelegate.performActionForRowAtWithSender, object: tableView, with: (action, indexPath, sender))
     }
 
     func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
-        apply(\.tableViewDelegates.editActionsForRowAt, object: tableView, with: indexPath)
+        apply(\.tableListDelegate.editActionsForRowAt, object: tableView, with: indexPath)
     }
 
     //Managing Table View Highlights
     
     func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool {
-        apply(\.tableViewDelegates.shouldHighlightRowAt, object: tableView, with: indexPath)
+        apply(\.tableListDelegate.shouldHighlightRowAt, object: tableView, with: indexPath)
     }
 
     func tableView(_ tableView: UITableView, didHighlightRowAt indexPath: IndexPath) {
-        apply(\.tableViewDelegates.didHighlightRowAt, object: tableView, with: indexPath)
+        apply(\.tableListDelegate.didHighlightRowAt, object: tableView, with: indexPath)
     }
 
     func tableView(_ tableView: UITableView, didUnhighlightRowAt indexPath: IndexPath) {
-        apply(\.tableViewDelegates.didUnhighlightRowAt, object: tableView, with: indexPath)
+        apply(\.tableListDelegate.didUnhighlightRowAt, object: tableView, with: indexPath)
     }
 
     //Editing Table Rows
 
     func tableView(_ tableView: UITableView, willBeginEditingRowAt indexPath: IndexPath) {
-        apply(\.tableViewDelegates.willBeginEditingRowAt, object: tableView, with: indexPath)
+        apply(\.tableListDelegate.willBeginEditingRowAt, object: tableView, with: indexPath)
     }
 
     func tableView(_ tableView: UITableView, didEndEditingRowAt indexPath: IndexPath?) {
-        apply(\.tableViewDelegates.didEndEditingRowAt, object: tableView, with: indexPath)
+        apply(\.tableListDelegate.didEndEditingRowAt, object: tableView, with: indexPath)
     }
 
     func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
-        apply(\.tableViewDelegates.editingStyleForRowAt, object: tableView, with: indexPath)
+        apply(\.tableListDelegate.editingStyleForRowAt, object: tableView, with: indexPath)
     }
 
     func tableView(_ tableView: UITableView, titleForDeleteConfirmationButtonForRowAt indexPath: IndexPath) -> String? {
-        apply(\.tableViewDelegates.titleForDeleteConfirmationButtonForRowAt, object: tableView, with: indexPath)
+        apply(\.tableListDelegate.titleForDeleteConfirmationButtonForRowAt, object: tableView, with: indexPath)
     }
 
     func tableView(_ tableView: UITableView, shouldIndentWhileEditingRowAt indexPath: IndexPath) -> Bool {
-        apply(\.tableViewDelegates.shouldIndentWhileEditingRowAt, object: tableView, with: indexPath)
+        apply(\.tableListDelegate.shouldIndentWhileEditingRowAt, object: tableView, with: indexPath)
     }
 
     //Reordering Table Rows
 
     func tableView(_ tableView: UITableView, targetIndexPathForMoveFromRowAt sourceIndexPath: IndexPath, toProposedIndexPath proposedDestinationIndexPath: IndexPath) -> IndexPath {
-        apply(\.tableViewDelegates.targetIndexPathForMoveFromRowAtToProposedIndexPath, object: tableView, with: (sourceIndexPath, proposedDestinationIndexPath))
+        apply(\.tableListDelegate.targetIndexPathForMoveFromRowAtToProposedIndexPath, object: tableView, with: (sourceIndexPath, proposedDestinationIndexPath))
     }
 
     //Tracking the Removal of Views
     func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        apply(\.tableViewDelegates.didEndDisplayingForRowAt, object: tableView, with: (cell, indexPath))
+        apply(\.tableListDelegate.didEndDisplayingForRowAt, object: tableView, with: (cell, indexPath))
     }
 
     func tableView(_ tableView: UITableView, didEndDisplayingHeaderView view: UIView, forSection section: Int) {
-        apply(\.tableViewDelegates.didEndDisplayingHeaderViewForSection, object: tableView, with: (view, section))
+        apply(\.tableListDelegate.didEndDisplayingHeaderViewForSection, object: tableView, with: (view, section))
     }
 
     func tableView(_ tableView: UITableView, didEndDisplayingFooterView view: UIView, forSection section: Int) {
-        apply(\.tableViewDelegates.didEndDisplayingFooterViewForSection, object: tableView, with: (view, section))
+        apply(\.tableListDelegate.didEndDisplayingFooterViewForSection, object: tableView, with: (view, section))
     }
 
     //Managing Table View Focus
     func tableView(_ tableView: UITableView, canFocusRowAt indexPath: IndexPath) -> Bool {
-        apply(\.tableViewDelegates.canFocusRowAt, object: tableView, with: indexPath)
+        apply(\.tableListDelegate.canFocusRowAt, object: tableView, with: indexPath)
     }
 
     func tableView(_ tableView: UITableView, shouldUpdateFocusIn context: UITableViewFocusUpdateContext) -> Bool {
-        apply(\.tableViewDelegates.shouldUpdateFocusIn, object: tableView, with: context)
+        apply(\.tableListDelegate.shouldUpdateFocusIn, object: tableView, with: context)
     }
 
     func tableView(_ tableView: UITableView, didUpdateFocusIn context: UITableViewFocusUpdateContext, with coordinator: UIFocusAnimationCoordinator) {
-        apply(\.tableViewDelegates.didUpdateFocusInWith, object: tableView, with: (context, coordinator))
+        apply(\.tableListDelegate.didUpdateFocusInWith, object: tableView, with: (context, coordinator))
     }
 
     func indexPathForPreferredFocusedView(in tableView: UITableView) -> IndexPath? {
-        apply(\.tableViewDelegates.indexPathForPreferredFocusedView, object: tableView)
+        apply(\.tableListDelegate.indexPathForPreferredFocusedView, object: tableView)
     }
 
     //Instance Methods
     @available(iOS 13.0, *)
     func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
-        apply(\.tableViewDelegates.contextMenuConfigurationForRowAtPoint, object: tableView, with: (indexPath, point))
+        apply(\.tableListDelegate.contextMenuConfigurationForRowAtPoint, object: tableView, with: (indexPath, point))
     }
     
     @available(iOS 13.0, *)
     func tableView(_ tableView: UITableView, previewForDismissingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
-        apply(\.tableViewDelegates.previewForDismissingContextMenuWithConfiguration, object: tableView, with: configuration)
+        apply(\.tableListDelegate.previewForDismissingContextMenuWithConfiguration, object: tableView, with: configuration)
     }
     
     @available(iOS 13.0, *)
     func tableView(_ tableView: UITableView, previewForHighlightingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
-        apply(\.tableViewDelegates.previewForHighlightingContextMenuWithConfiguration, object: tableView, with: (configuration))
+        apply(\.tableListDelegate.previewForHighlightingContextMenuWithConfiguration, object: tableView, with: (configuration))
     }
     
     @available(iOS 13.0, *)
     func tableView(_ tableView: UITableView, willPerformPreviewActionForMenuWith configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionCommitAnimating) {
-        apply(\.tableViewDelegates.willPerformPreviewActionForMenuWithAnimator, object: tableView, with: (configuration, animator))
+        apply(\.tableListDelegate.willPerformPreviewActionForMenuWithAnimator, object: tableView, with: (configuration, animator))
     }
 }
 

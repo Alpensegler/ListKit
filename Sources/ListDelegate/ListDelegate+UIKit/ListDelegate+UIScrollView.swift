@@ -99,60 +99,60 @@ final class UIScrollListDelegate {
 //MARK: - ScrollView Delegate
 extension ListDelegate: UIScrollViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        apply(\.scrollViewDelegates.didScroll, object: scrollView)
+        apply(\.scrollListDelegate.didScroll, object: scrollView)
     }
     
     func scrollViewDidZoom(_ scrollView: UIScrollView) {
-        apply(\.scrollViewDelegates.didZoom, object: scrollView)
+        apply(\.scrollListDelegate.didZoom, object: scrollView)
     }
     
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        apply(\.scrollViewDelegates.willBeginDragging, object: scrollView)
+        apply(\.scrollListDelegate.willBeginDragging, object: scrollView)
     }
     
     func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
-        apply(\.scrollViewDelegates.willEndDragging, object: scrollView, with: (velocity, targetContentOffset))
+        apply(\.scrollListDelegate.willEndDragging, object: scrollView, with: (velocity, targetContentOffset))
     }
     
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-        apply(\.scrollViewDelegates.didEndDragging, object: scrollView, with: (decelerate))
+        apply(\.scrollListDelegate.didEndDragging, object: scrollView, with: (decelerate))
     }
     
     func scrollViewWillBeginDecelerating(_ scrollView: UIScrollView) {
-        apply(\.scrollViewDelegates.willBeginDecelerating, object: scrollView)
+        apply(\.scrollListDelegate.willBeginDecelerating, object: scrollView)
     }
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        apply(\.scrollViewDelegates.didEndDecelerating, object: scrollView)
+        apply(\.scrollListDelegate.didEndDecelerating, object: scrollView)
     }
     
     func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
-        apply(\.scrollViewDelegates.didEndScrollingAnimation, object: scrollView)
+        apply(\.scrollListDelegate.didEndScrollingAnimation, object: scrollView)
     }
     
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {
-        apply(\.scrollViewDelegates.viewForZooming, object: scrollView)
+        apply(\.scrollListDelegate.viewForZooming, object: scrollView)
     }
     
     func scrollViewWillBeginZooming(_ scrollView: UIScrollView, with view: UIView?) {
-        apply(\.scrollViewDelegates.willBeginZooming, object: scrollView, with: (view))
+        apply(\.scrollListDelegate.willBeginZooming, object: scrollView, with: (view))
     }
     
     func scrollViewDidEndZooming(_ scrollView: UIScrollView, with view: UIView?, atScale scale: CGFloat) {
-        apply(\.scrollViewDelegates.didEndZooming, object: scrollView, with: (view, scale))
+        apply(\.scrollListDelegate.didEndZooming, object: scrollView, with: (view, scale))
     }
     
     func scrollViewShouldScrollToTop(_ scrollView: UIScrollView) -> Bool {
-        apply(\.scrollViewDelegates.shouldScrollToTop, object: scrollView)
+        apply(\.scrollListDelegate.shouldScrollToTop, object: scrollView)
     }
     
     func scrollViewDidScrollToTop(_ scrollView: UIScrollView) {
-        apply(\.scrollViewDelegates.didScrollToTop, object: scrollView)
+        apply(\.scrollListDelegate.didScrollToTop, object: scrollView)
     }
     
     @available(iOS 11.0, *)
     func scrollViewDidChangeAdjustedContentInset(_ scrollView: UIScrollView) {
-        apply(\.scrollViewDelegates.didChangeAdjustedContentInset, object: scrollView)
+        apply(\.scrollListDelegate.didChangeAdjustedContentInset, object: scrollView)
     }
 }
 

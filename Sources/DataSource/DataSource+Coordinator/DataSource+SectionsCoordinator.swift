@@ -34,7 +34,7 @@ where
     SourceBase.Source.Element.Element == Item
 {
     func makeListCoordinator() -> ListCoordinator<SourceBase> {
-        addToStorage(SectionsCoordinator(sourceBase: sourceBase))
+        SectionsCoordinator(sourceBase: sourceBase, storage: coordinatorStorage)
     }
 }
 
@@ -45,6 +45,6 @@ where
     SourceBase.Source.Element.Element == Item
 {
     func makeListCoordinator() -> ListCoordinator<SourceBase> {
-        addToStorage(RangeReplacableSectionsCoordinator(sourceBase: sourceBase))
+        RangeReplacableSectionsCoordinator(sourceBase: sourceBase, storage: coordinatorStorage)
     }
 }

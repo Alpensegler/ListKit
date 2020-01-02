@@ -9,8 +9,9 @@ final class ItemCoordinator<SourceBase: DataSource>: SourceStoredListCoordinator
 where SourceBase.Item == SourceBase.Source {
     override func item<Path: PathConvertible>(at path: Path) -> Item { source }
     
-    override func setup(with delegates: Delegates) {
-        sourceType = delegates.selectorSets.hasIndex ? .section : .cell
+    override func setup() {
+        super.setup()
+        sourceType = selectorSets.hasIndex ? .section : .cell
         sourceIndices = [.cell(indices: [0])]
     }
     

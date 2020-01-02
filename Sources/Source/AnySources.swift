@@ -20,6 +20,6 @@ public struct AnySources: UpdatableDataSource {
         let itemDiffer = Differ<Item>(differ: updater.item)
         self.source = dataSource
         self.updater = Updater(source: differ, item: itemDiffer)
-        self.coordinatorMaker = { $0.addToStorage(AnySourceCoordinator(dataSource)) }
+        self.coordinatorMaker = { _ in AnySourceCoordinator(dataSource) }
     }
 }

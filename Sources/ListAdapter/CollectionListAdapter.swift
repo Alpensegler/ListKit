@@ -15,7 +15,7 @@ public struct CollectionList<Source: DataSource>: CollectionListAdapter, Updatab
 where Source.SourceBase == Source {
     public typealias Item = Source.Item
     public typealias SourceBase = Source
-    var delegatesSetups = [(ListDelegates<Source>) -> Void]()
+    var delegatesSetups = [(ListCoordinator<Source>) -> Void]()
     var cacheFromItem: ((Item) -> Any)? = nil
     
     public let source: Source
@@ -24,7 +24,6 @@ where Source.SourceBase == Source {
     public var updater: Updater<Source> { source.updater }
     public var sourceBase: Source { source }
     public var collectionList: CollectionList<Source> { self }
-    public var listCoordinator: ListCoordinator<Source> { adapterCoordinator }
     public func makeListCoordinator() -> ListCoordinator<Source> { makeAdapterCoordinator() }
     
     public var wrappedValue: Source { source }
@@ -34,7 +33,7 @@ where Source.SourceBase == Source {
         source[keyPath: path]
     }
     
-    init(delegatesSetups: [(ListDelegates<Source>) -> Void], source: Source) {
+    init(delegatesSetups: [(ListCoordinator<Source>) -> Void], source: Source) {
         self.delegatesSetups = delegatesSetups
         self.source = source
     }
@@ -44,59 +43,56 @@ public extension CollectionListAdapter {
     @discardableResult
     func apply(by collectionView: CollectionView) -> CollectionList<SourceBase> {
         let collectionList = self.collectionList
-        collectionList.listCoordinator.setup(
+        makeListCoordinator().setup(
             listView: collectionView,
-            objectIdentifier: ObjectIdentifier(collectionView),
-            isRoot: true
+            objectIdentifier: ObjectIdentifier(collectionView)
         )
         collectionView.reloadSynchronously()
         return collectionList
-    }
-    
-    func makeCollectionListCoordinator() -> ListCoordinator<SourceBase> {
-        collectionList.listCoordinator
     }
 }
 
 #if os(iOS) || os(tvOS)
 
 extension CollectionList: ListAdapter {
-    static var rootKeyPath: ReferenceWritableKeyPath<Delegates, UICollectionViewDelegates> {
+    static var rootKeyPath: ReferenceWritableKeyPath<BaseCoordinator, UICollectionListDelegate> {
         \.collectionViewDelegates
     }
     
     static func toContext(
         _ view: CollectionView,
-        _ listContext: ListDelegates<Source>
+        _ coordinator: ListCoordinator<Source>
     ) -> CollectionContext<Source> {
-        .init(listView: view, coordinator: listContext.coordinator)
+        .init(listView: view, coordinator: coordinator)
     }
     
     static func toSectionContext(
         _ view: CollectionView,
-        _ listContext: ListDelegates<Source>,
+        _ coordinator: ListCoordinator<Source>,
         section: Int
     ) -> CollectionSectionContext<Source> {
-        .init(
+        let (sectionOffset, _) = coordinator.offset(for: view)
+        return .init(
             listView: view,
-            coordinator: listContext.coordinator,
-            section: section - listContext.sectionOffset,
-            sectionOffset: listContext.sectionOffset
+            coordinator: coordinator,
+            section: section - sectionOffset,
+            sectionOffset: sectionOffset
         )
     }
     
     static func toItemContext(
         _ view: CollectionView,
-        _ listContext: ListDelegates<Source>,
+        _ coordinator: ListCoordinator<Source>,
         path: PathConvertible
     ) -> CollectionItemContext<Source> {
-        .init(
+        let (sectionOffset, itemOffset) = coordinator.offset(for: view)
+        return .init(
             listView: view,
-            coordinator: listContext.coordinator,
-            section: path.section - listContext.sectionOffset,
-            sectionOffset: listContext.sectionOffset,
-            item: path.item - listContext.itemOffset,
-            itemOffset: listContext.itemOffset
+            coordinator: coordinator,
+            section: path.section - sectionOffset,
+            sectionOffset: sectionOffset,
+            item: path.item - itemOffset,
+            itemOffset: itemOffset
         )
     }
 }

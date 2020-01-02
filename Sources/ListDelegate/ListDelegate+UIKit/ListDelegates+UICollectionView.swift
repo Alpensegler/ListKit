@@ -1,5 +1,5 @@
 //
-//  Delegates+UICollectionView.swift
+//  ListDelegate+UICollectionView.swift
 //  ListKit
 //
 //  Created by Frain on 2019/12/8.
@@ -8,7 +8,7 @@
 #if os(iOS) || os(tvOS)
 import UIKit
 
-class UICollectionViewDelegates {
+final class UICollectionListDelegate {
     typealias Delegate<Input, Output> = ListKit.Delegate<UICollectionView, Input, Output>
     //MARK - DataSources
     
@@ -373,14 +373,14 @@ class UICollectionViewDelegates {
     }
 }
 
-extension Delegates: UICollectionViewDataSource {
+extension ListDelegate: UICollectionViewDataSource {
     //Getting Item and Section Metrics
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        baseCoordinator.numbersOfItems(in: section)
+        coordinator.numbersOfItems(in: section)
     }
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        baseCoordinator.numbersOfSections()
+        coordinator.numbersOfSections()
     }
     
     //Getting Views for Items
@@ -411,7 +411,7 @@ extension Delegates: UICollectionViewDataSource {
     }
 }
 
-extension Delegates: UICollectionViewDelegate {
+extension ListDelegate: UICollectionViewDelegate {
     
     //Managing the Selected Cells
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
@@ -546,7 +546,7 @@ extension Delegates: UICollectionViewDelegate {
     }
 }
 
-extension Delegates: UICollectionViewDelegateFlowLayout {
+extension ListDelegate: UICollectionViewDelegateFlowLayout {
     //Getting the Size of Items
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         apply(\.collectionViewDelegates.layoutSizeForItemAt, object: collectionView, with: (collectionViewLayout, indexPath))

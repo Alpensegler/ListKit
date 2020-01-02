@@ -20,14 +20,13 @@ where Source.SourceBase == Source {
     public typealias Item = Source.Item
     public typealias SourceBase = Source
     
-    var delegatesSetups = [(ListDelegates<Source>) -> Void]()
+    var delegatesSetups = [(ListCoordinator<Source>) -> Void]()
     
     public let source: Source
     public let coordinatorStorage = CoordinatorStorage<Source>()
     
     public var updater: Updater<Source> { source.updater }
     public var sourceBase: Source { source }
-    public var listCoordinator: ListCoordinator<Source> { adapterCoordinator }
     public func makeListCoordinator() -> ListCoordinator<Source> { makeAdapterCoordinator() }
     public var wrappedValue: Source { source }
     public var projectedValue: Source.Source { source.source }
@@ -41,26 +40,26 @@ where Source.SourceBase == Source {
 import UIKit
 
 extension ScrollList: ListAdapter {
-    static var rootKeyPath: ReferenceWritableKeyPath<Delegates, UIScrollViewDelegates> {
+    static var rootKeyPath: ReferenceWritableKeyPath<BaseCoordinator, UIScrollListDelegate> {
         \.scrollViewDelegates
     }
     
     static func toContext(
-        _ view: UIScrollView, _ listContext: ListDelegates<Source>
+        _ view: UIScrollView, _ coordinator: ListCoordinator<Source>
     ) -> ScrollContext<Source> {
-        .init(listView: view, coordinator: listContext.coordinator)
+        .init(listView: view, coordinator: coordinator)
     }
     
     static func toSectionContext(
         _ view: UIScrollView,
-        _ listContext: ListDelegates<Source>, section: Int
+        _ coordinator: ListCoordinator<Source>, section: Int
     ) -> Never {
         fatalError()
     }
     
     static func toItemContext(
         _ view: UIScrollView,
-        _ listContext: ListDelegates<Source>,
+        _ coordinator: ListCoordinator<Source>,
         path: PathConvertible
     ) -> Never {
         fatalError()

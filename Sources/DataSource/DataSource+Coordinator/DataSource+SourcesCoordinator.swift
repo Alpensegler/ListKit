@@ -23,6 +23,6 @@ where
     SourceBase.Source.Element.SourceBase.Item == Item
 {
     func makeListCoordinator() -> ListCoordinator<SourceBase> {
-        addToStorage(SourcesCoordinator(sourceBase: sourceBase))
+        SourcesCoordinator(sourceBase: sourceBase, storage: coordinatorStorage)
     }
 }

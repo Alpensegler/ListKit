@@ -13,15 +13,24 @@ public protocol UpdatableDataSource: DataSource {
     func performReloadData(_ completion: ((Bool) -> Void)?)
 }
 
-public class CoordinatorStorage<Source: DataSource> {
-    var coordinator: ListCoordinator<Source>!
+public class CoordinatorStorage<SourceBase: DataSource> {
+    var coordinators = [ListCoordinator<SourceBase>]()
+    var source: SourceBase.Source!
     
     public init() { }
+    
+    deinit {
+        
+    }
 }
 
 public extension UpdatableDataSource {
-    var listCoordinator: ListCoordinator<SourceBase> {
-        coordinatorStorage.coordinator ?? makeListCoordinator()
+    var currentSource: SourceBase.Source {
+        coordinatorStorage.source ?? {
+            let source = self.sourceBase.source
+            coordinatorStorage.source = source
+            return source
+        }()
     }
     
     func performUpdate(animated: Bool = true, completion: ((Bool) -> Void)? = nil) {
@@ -34,13 +43,6 @@ public extension UpdatableDataSource {
       
     func performReloadData(_ completion: ((Bool) -> Void)? = nil) {
         
-    }
-}
-
-extension UpdatableDataSource {
-    func addToStorage(_ coordinator: ListCoordinator<SourceBase>) -> ListCoordinator<SourceBase> {
-        coordinatorStorage.coordinator = coordinator
-        return coordinator
     }
 }
 

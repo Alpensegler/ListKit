@@ -13,10 +13,10 @@ public extension ItemContext {
     ) -> CollectionList<Adapter.SourceBase> {
         let subAdapter = itemValue[keyPath: keyPath]
         let collectionList = subAdapter.apply(by: collectionView)
-        var subcoordinator = collectionList.listCoordinator
+        var subcoordinator = collectionList.makeListCoordinator()
         coordinator.nestedAdapterItemUpdate[keyPath] = { sourceBase in
             let newAdapter = sourceBase[keyPath: keyPath]
-            let newcoordinator = newAdapter.makeCollectionListCoordinator()
+            let newcoordinator = newAdapter.makeListCoordinator()
             newcoordinator.update(from: subcoordinator) { subcoordinator = newcoordinator }
         }
         return collectionList
@@ -29,10 +29,10 @@ public extension ItemContext {
     ) -> TableList<Adapter.SourceBase> {
         let subAdapter = itemValue[keyPath: keyPath]
         let tableList = subAdapter.apply(by: tableView)
-        var subcoordinator = tableList.listCoordinator
+        var subcoordinator = tableList.makeListCoordinator()
         coordinator.nestedAdapterItemUpdate[keyPath] = { sourceBase in
             let newAdapter = sourceBase[keyPath: keyPath]
-            let newcoordinator = newAdapter.makeTableListCoordinator()
+            let newcoordinator = newAdapter.makeListCoordinator()
             newcoordinator.update(from: subcoordinator) { subcoordinator = newcoordinator }
         }
         return tableList

@@ -17,7 +17,8 @@ where
     
     override var isEmpty: Bool { sections.isEmpty }
     
-    override func setup(with delegates: Delegates) {
+    override func setup() {
+        super.setup()
         sections = source.map { $0.map { $0 } }
         sourceType = .section
         configSourceIndices()
@@ -43,8 +44,8 @@ where
     SourceBase.Source.Element: RangeReplaceableCollection,
     SourceBase.Source.Element.Element == SourceBase.Item
 {
-    override func setup(with delegates: Delegates) {
-        super.setup(with: delegates)
+    override func setup() {
+        super.setup()
         rangeReplacable = true
     }
     

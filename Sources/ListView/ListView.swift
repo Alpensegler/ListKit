@@ -20,7 +20,3 @@ public protocol ListView: NSObject {
     func reloadSections(_ sections: IndexSet)
     func moveSection(_ section: Int, toSection newSection: Int)
 }
-
-protocol SetuptableListView: ListView {
-    func setup(with delegates: Delegates)
-}

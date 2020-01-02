@@ -12,8 +12,7 @@ protocol ListAdapter: UpdatableDataSource where Source == SourceBase {
     associatedtype SectionContext
     associatedtype ItemContext
     
-    var delegatesSetups: [(ListCoordinator<Source>) -> Void] { get set }
-    var cacheFromItem: ((Item) -> Any)? { get }
+    var coordinatorSetups: [(ListCoordinator<Source>) -> Void] { get set }
     static var rootKeyPath: ReferenceWritableKeyPath<BaseCoordinator, ViewDelegates> { get }
     
     static func toContext(_ view: View, _ coordinator: ListCoordinator<Source>) -> Context
@@ -30,30 +29,31 @@ protocol ListAdapter: UpdatableDataSource where Source == SourceBase {
         path: PathConvertible
     ) -> ItemContext
     
-    init(delegatesSetups: [(ListCoordinator<Source>) -> Void], source: Source)
+    init(coordinatorSetups: [(ListCoordinator<Source>) -> Void], source: Source)
 }
 
 extension ListAdapter {
     init<OtherSource: DataSource>(
         _ dataSource: OtherSource
     ) where OtherSource.SourceBase == Source {
-        self.init(delegatesSetups: [], source: dataSource.sourceBase)
+        self.init(coordinatorSetups: [], source: dataSource.sourceBase)
     }
 
     init<OtherSource: ListAdapter>(
         _ dataSource: OtherSource
     ) where OtherSource.SourceBase == Source {
-        self.init(delegatesSetups: dataSource.delegatesSetups, source: dataSource.sourceBase)
+        self.init(coordinatorSetups: dataSource.coordinatorSetups, source: dataSource.sourceBase)
     }
     
     var cacheFromItem: ((Item) -> Any)? { nil }
     
-    var adapterCoordinator: ListCoordinator<Source> {
-        fatalError()
-    }
-    
-    func makeAdapterCoordinator() -> ListCoordinator<Source> {
-        fatalError()
+    func makeCoordinator() -> ListCoordinator<Source> {
+        coordinatorStorage.coordinator ?? {
+            let coordinator = sourceBase.makeListCoordinator()
+            coordinatorSetups.forEach { $0(coordinator) }
+            coordinator.cacheFromItem = cacheFromItem
+            return coordinator
+        }()
     }
 
     func set<Input, Output>(
@@ -61,7 +61,7 @@ extension ListAdapter {
         _ closure: @escaping ((Context, Input)) -> Output
     ) -> Self {
         var mutableSelf = self
-        mutableSelf.delegatesSetups.append {
+        mutableSelf.coordinatorSetups.append {
             let keyPath = Self.rootKeyPath.appending(path: keyPath)
             $0.set(keyPath) { closure((Self.toContext($1, $0), $2)) }
         }
@@ -73,7 +73,7 @@ extension ListAdapter {
         _ closure: @escaping ((Context, Input)) -> Void
     ) -> Self {
         var mutableSelf = self
-        mutableSelf.delegatesSetups.append {
+        mutableSelf.coordinatorSetups.append {
             let keyPath = Self.rootKeyPath.appending(path: keyPath)
             $0.set(keyPath) { closure((Self.toContext($1, $0), $2)) }
         }
@@ -85,7 +85,7 @@ extension ListAdapter {
         _ closure: @escaping ((SectionContext, Input)) -> Output
     ) -> Self {
         var mutableSelf = self
-        mutableSelf.delegatesSetups.append {
+        mutableSelf.coordinatorSetups.append {
             let keyPath = Self.rootKeyPath.appending(path: keyPath)
             guard case let .index(path) = $0[keyPath: keyPath].index else { fatalError() }
             $0.set(keyPath) {
@@ -100,7 +100,7 @@ extension ListAdapter {
         _ closure: @escaping ((SectionContext, Input)) -> Void
     ) -> Self {
         var mutableSelf = self
-        mutableSelf.delegatesSetups.append {
+        mutableSelf.coordinatorSetups.append {
             let keyPath = Self.rootKeyPath.appending(path: keyPath)
             guard case let .index(path) = $0[keyPath: keyPath].index else { fatalError() }
             $0.set(keyPath) {
@@ -115,7 +115,7 @@ extension ListAdapter {
         _ closure: @escaping ((ItemContext, Input)) -> Output
     ) -> Self {
         var mutableSelf = self
-        mutableSelf.delegatesSetups.append {
+        mutableSelf.coordinatorSetups.append {
             let keyPath = Self.rootKeyPath.appending(path: keyPath)
             guard case let .indexPath(path) = $0[keyPath: keyPath].index else { fatalError() }
             $0.set(keyPath) { closure((Self.toItemContext($1, $0, path: $2[keyPath: path]), $2)) }
@@ -128,7 +128,7 @@ extension ListAdapter {
         _ closure: @escaping ((ItemContext, Input)) -> Void
     ) -> Self {
         var mutableSelf = self
-        mutableSelf.delegatesSetups.append {
+        mutableSelf.coordinatorSetups.append {
             let keyPath = Self.rootKeyPath.appending(path: keyPath)
             guard case let .indexPath(path) = $0[keyPath: keyPath].index else { fatalError() }
             $0.set(keyPath) { closure((Self.toItemContext($1, $0, path: $2[keyPath: path]), $2)) }

@@ -96,8 +96,8 @@ class WrapperCoordinator<SourceBase: DataSource>: ListCoordinator<SourceBase> {
         with input: Input
     ) -> Output {
         let closure = self[keyPath: keyPath]
-        let delegates = subdelegates(for: closure, object: object, with: input)
-        return delegates?.apply(keyPath, object: object, with: input)
+        let coordinator = subcoordinator(for: closure, object: object, with: input)
+        return coordinator?.apply(keyPath, object: object, with: input)
             ?? super.apply(keyPath, object: object, with: input)
     }
     
@@ -107,12 +107,12 @@ class WrapperCoordinator<SourceBase: DataSource>: ListCoordinator<SourceBase> {
         with input: Input
     ) {
         let closure = self[keyPath: keyPath]
-        let delegates = subdelegates(for: closure, object: object, with: input)
-        delegates?.apply(keyPath, object: object, with: input)
+        let coordinator = subcoordinator(for: closure, object: object, with: input)
+        coordinator?.apply(keyPath, object: object, with: input)
         super.apply(keyPath, object: object, with: input)
     }
     
-    func subdelegates<Object: AnyObject, Input, Output>(
+    func subcoordinator<Object: AnyObject, Input, Output>(
         for delegate: Delegate<Object, Input, Output>,
         object: Object,
         with input: Input

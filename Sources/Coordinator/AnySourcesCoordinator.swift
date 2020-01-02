@@ -5,8 +5,7 @@
 //  Created by Frain on 2019/12/6.
 //
 
-final class AnySourceCoordinator<SourceBase: DataSource>: WrapperCoordinator<SourceBase>
-where SourceBase.Source == Any, SourceBase.Item == Any {
+final class AnySourceCoordinator: WrapperCoordinator<AnySources> {
     var coordinator: BaseCoordinator
     var storedSource: Any
     override var wrappedCoodinator: BaseCoordinator { coordinator }
@@ -17,9 +16,9 @@ where SourceBase.Source == Any, SourceBase.Item == Any {
         set { wrappedCoodinator.selfType = newValue }
     }
     
-    init<Source: DataSource>(_ dataSource: Source) {
+    init<Source: DataSource>(_ dataSource: Source, storage: CoordinatorStorage<AnySources>) {
         self.coordinator = dataSource.makeListCoordinator()
         self.storedSource = dataSource
-        super.init()
+        super.init(storage: storage)
     }
 }

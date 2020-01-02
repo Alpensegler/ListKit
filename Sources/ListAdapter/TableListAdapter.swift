@@ -15,7 +15,7 @@ public struct TableList<Source: DataSource>: TableListAdapter, UpdatableDataSour
 where Source.SourceBase == Source {
     public typealias Item = Source.Item
     public typealias SourceBase = Source
-    var delegatesSetups: [(ListCoordinator<Source>) -> Void]
+    var coordinatorSetups: [(ListCoordinator<Source>) -> Void]
     var cacheFromItem: ((Item) -> Any)? = nil
     
     public let source: Source
@@ -24,7 +24,7 @@ where Source.SourceBase == Source {
     public var updater: Updater<Source> { source.updater }
     public var sourceBase: Source { source }
     public var tableList: TableList<Source> { self }
-    public func makeListCoordinator() -> ListCoordinator<Source> { makeAdapterCoordinator() }
+    public func makeListCoordinator() -> ListCoordinator<Source> { makeCoordinator() }
     
     public var wrappedValue: Source { source }
     public var projectedValue: Source.Source { source.source }
@@ -33,8 +33,8 @@ where Source.SourceBase == Source {
         source[keyPath: path]
     }
     
-    init(delegatesSetups: [(ListCoordinator<Source>) -> Void], source: Source) {
-        self.delegatesSetups = delegatesSetups
+    init(coordinatorSetups: [(ListCoordinator<Source>) -> Void], source: Source) {
+        self.coordinatorSetups = coordinatorSetups
         self.source = source
     }
 }
@@ -43,10 +43,12 @@ public extension TableListAdapter {
     @discardableResult
     func apply(by tableView: TableView) -> TableList<SourceBase> {
         let tableList = self.tableList
-        makeListCoordinator().setup(
+        let coordinator = makeListCoordinator()
+        coordinator.setup(
             listView: tableView,
             objectIdentifier: ObjectIdentifier(tableView)
         )
+        _ = tableView.listDelegate(for: coordinator)
         tableView.reloadSynchronously()
         return tableList
     }

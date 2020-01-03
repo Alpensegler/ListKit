@@ -12,7 +12,7 @@ where
     SourceBase.Source.Element.Element == Item
 {
     func makeListCoordinator() -> ListCoordinator<SourceBase> {
-        SectionsCoordinator(sourceBase: sourceBase)
+        SectionsCoordinator(sourceBase)
     }
 }
 
@@ -23,7 +23,7 @@ where
     SourceBase.Source.Element.Element == Item
 {
     func makeListCoordinator() -> ListCoordinator<SourceBase> {
-        RangeReplacableSectionsCoordinator(sourceBase: sourceBase)
+        RangeReplacableSectionsCoordinator(sourceBase)
     }
 }
 
@@ -34,7 +34,7 @@ where
     SourceBase.Source.Element.Element == Item
 {
     func makeListCoordinator() -> ListCoordinator<SourceBase> {
-        SectionsCoordinator(sourceBase: sourceBase, storage: coordinatorStorage)
+        SectionsCoordinator(sourceBase, storage: coordinatorStorage)
     }
 }
 
@@ -45,6 +45,6 @@ where
     SourceBase.Source.Element.Element == Item
 {
     func makeListCoordinator() -> ListCoordinator<SourceBase> {
-        RangeReplacableSectionsCoordinator(sourceBase: sourceBase, storage: coordinatorStorage)
+        RangeReplacableSectionsCoordinator(sourceBase, storage: coordinatorStorage)
     }
 }

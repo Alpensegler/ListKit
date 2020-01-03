@@ -46,7 +46,7 @@ public class ListCoordinator<SourceBase: DataSource>: ItemTypedCoorinator<Source
         self.storage = storage
     }
     
-    init(sourceBase: SourceBase, storage: CoordinatorStorage<SourceBase>? = nil) {
+    init(_ sourceBase: SourceBase, storage: CoordinatorStorage<SourceBase>? = nil) {
         super.init()
         
         self.storage = storage

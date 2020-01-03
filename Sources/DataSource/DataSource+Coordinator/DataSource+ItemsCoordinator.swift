@@ -8,27 +8,27 @@
 public extension DataSource
 where SourceBase.Source: Collection, SourceBase.Source.Element == Item {
     func makeListCoordinator() -> ListCoordinator<SourceBase> {
-        ItemsCoordinator(sourceBase: sourceBase)
+        ItemsCoordinator(sourceBase)
     }
 }
 
 public extension DataSource
 where SourceBase.Source: RangeReplaceableCollection, SourceBase.Source.Element == Item {
     func makeListCoordinator() -> ListCoordinator<SourceBase> {
-        RangeReplacableItemsCoordinator(sourceBase: sourceBase)
+        RangeReplacableItemsCoordinator(sourceBase)
     }
 }
 
 public extension UpdatableDataSource
 where SourceBase.Source: Collection, SourceBase.Source.Element == Item {
     func makeListCoordinator() -> ListCoordinator<SourceBase> {
-        ItemsCoordinator(sourceBase: sourceBase, storage: coordinatorStorage)
+        ItemsCoordinator(sourceBase, storage: coordinatorStorage)
     }
 }
 
 public extension UpdatableDataSource
 where SourceBase.Source: RangeReplaceableCollection, SourceBase.Source.Element == Item {
     func makeListCoordinator() -> ListCoordinator<SourceBase> {
-        RangeReplacableItemsCoordinator(sourceBase: sourceBase, storage: coordinatorStorage)
+        RangeReplacableItemsCoordinator(sourceBase, storage: coordinatorStorage)
     }
 }

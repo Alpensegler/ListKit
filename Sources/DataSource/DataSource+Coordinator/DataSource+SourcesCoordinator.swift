@@ -12,7 +12,7 @@ where
     SourceBase.Source.Element.SourceBase.Item == Item
 {
     func makeListCoordinator() -> ListCoordinator<SourceBase> {
-        SourcesCoordinator(sourceBase: sourceBase)
+        SourcesCoordinator(sourceBase)
     }
 }
 
@@ -23,6 +23,6 @@ where
     SourceBase.Source.Element.SourceBase.Item == Item
 {
     func makeListCoordinator() -> ListCoordinator<SourceBase> {
-        SourcesCoordinator(sourceBase: sourceBase, storage: coordinatorStorage)
+        SourcesCoordinator(sourceBase, storage: coordinatorStorage)
     }
 }

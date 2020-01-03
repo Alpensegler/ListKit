@@ -25,7 +25,7 @@ final class NSCoordinator<SourceBase: NSDataSource>: ListCoordinator<SourceBase>
         }))
     }
     
-    override init(sourceBase: SourceBase, storage: CoordinatorStorage<SourceBase>? = nil) {
+    override init(_ sourceBase: SourceBase, storage: CoordinatorStorage<SourceBase>? = nil) {
         itemClosure = { [unowned sourceBase] in sourceBase.item(at: $0, item: $1) }
         configSourceIndices = { [unowned sourceBase] in
             $0.sourceIndices = (0..<sourceBase.numbersOfSections()).map {
@@ -33,7 +33,7 @@ final class NSCoordinator<SourceBase: NSDataSource>: ListCoordinator<SourceBase>
             }
         }
         
-        super.init(sourceBase: sourceBase, storage: storage)
+        super.init(sourceBase, storage: storage)
         configSourceIndices(self)
         sourceType = .section
     }

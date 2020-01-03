@@ -13,10 +13,10 @@ where SourceBase.Source: DataSource, SourceBase.Source.Item == SourceBase.Item {
     override var wrappedCoodinator: BaseCoordinator { coordinator }
     override var wrappedItemTypedCoodinator: ItemTypedCoorinator<Item> { coordinator }
     
-    override init(sourceBase: SourceBase, storage: CoordinatorStorage<SourceBase>? = nil) {
+    override init(_ sourceBase: SourceBase, storage: CoordinatorStorage<SourceBase>? = nil) {
         storedSource = sourceBase.source(storage: storage)
         coordinator = storedSource.makeListCoordinator()
         
-        super.init(sourceBase: sourceBase, storage: storage)
+        super.init(sourceBase, storage: storage)
     }
 }

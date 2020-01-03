@@ -14,7 +14,7 @@ public extension Sources where Source == Item {
             item: updater.item
         )
         self.listCoordinatorMaker = {
-            ItemCoordinator(sourceBase: $0.sourceBase, storage: $0.coordinatorStorage)
+            ItemCoordinator($0.sourceBase, storage: $0.coordinatorStorage)
         }
     }
     
@@ -22,7 +22,7 @@ public extension Sources where Source == Item {
         self.source = item
         self.updater = updater
         self.listCoordinatorMaker = {
-            ItemCoordinator(sourceBase: $0.sourceBase, storage: $0.coordinatorStorage)
+            ItemCoordinator($0.sourceBase, storage: $0.coordinatorStorage)
         }
     }
 }
@@ -37,7 +37,7 @@ where Source: Collection, Source.Element == Item {
             item: updater.item
         )
         self.listCoordinatorMaker = {
-            ItemsCoordinator(sourceBase: $0.sourceBase, storage: $0.coordinatorStorage)
+            ItemsCoordinator($0.sourceBase, storage: $0.coordinatorStorage)
         }
     }
     
@@ -45,7 +45,7 @@ where Source: Collection, Source.Element == Item {
         self.source = items
         self.updater = updater
         self.listCoordinatorMaker = {
-            ItemsCoordinator(sourceBase: $0.sourceBase, storage: $0.coordinatorStorage)
+            ItemsCoordinator($0.sourceBase, storage: $0.coordinatorStorage)
         }
     }
 }
@@ -60,7 +60,7 @@ where Source: RangeReplaceableCollection, Source.Element == Item {
             item: updater.item
         )
         self.listCoordinatorMaker = {
-            RangeReplacableItemsCoordinator(sourceBase: $0.sourceBase, storage: $0.coordinatorStorage)
+            RangeReplacableItemsCoordinator($0.sourceBase, storage: $0.coordinatorStorage)
         }
     }
     
@@ -68,7 +68,7 @@ where Source: RangeReplaceableCollection, Source.Element == Item {
         self.source = items
         self.updater = updater
         self.listCoordinatorMaker = {
-            RangeReplacableItemsCoordinator(sourceBase: $0.sourceBase, storage: $0.coordinatorStorage)
+            RangeReplacableItemsCoordinator($0.sourceBase, storage: $0.coordinatorStorage)
         }
     }
 }
@@ -87,7 +87,7 @@ where
             item: updater.item
         )
         self.listCoordinatorMaker = {
-            SectionsCoordinator(sourceBase: $0.sourceBase, storage: $0.coordinatorStorage)
+            SectionsCoordinator($0.sourceBase, storage: $0.coordinatorStorage)
         }
     }
     
@@ -95,7 +95,7 @@ where
         self.source = sections
         self.updater = updater
         self.listCoordinatorMaker = {
-            SectionsCoordinator(sourceBase: $0.sourceBase, storage: $0.coordinatorStorage)
+            SectionsCoordinator($0.sourceBase, storage: $0.coordinatorStorage)
         }
     }
 }
@@ -114,7 +114,7 @@ where
             item: updater.item
         )
         self.listCoordinatorMaker = {
-            RangeReplacableSectionsCoordinator(sourceBase: $0.sourceBase, storage: $0.coordinatorStorage)
+            RangeReplacableSectionsCoordinator($0.sourceBase, storage: $0.coordinatorStorage)
         }
     }
     
@@ -122,7 +122,7 @@ where
         self.source = sections
         self.updater = updater
         self.listCoordinatorMaker = {
-            RangeReplacableSectionsCoordinator(sourceBase: $0.sourceBase, storage: $0.coordinatorStorage)
+            RangeReplacableSectionsCoordinator($0.sourceBase, storage: $0.coordinatorStorage)
         }
     }
 }
@@ -136,7 +136,7 @@ public extension Sources where Source: DataSource, Source.Item == Item {
             item: updater.item
         )
         self.listCoordinatorMaker = {
-            SourceCoordinator(sourceBase: $0.sourceBase, storage: $0.coordinatorStorage)
+            SourceCoordinator($0.sourceBase, storage: $0.coordinatorStorage)
         }
     }
     
@@ -144,7 +144,7 @@ public extension Sources where Source: DataSource, Source.Item == Item {
         self.source = dataSource
         self.updater = updater
         self.listCoordinatorMaker = {
-            SourceCoordinator(sourceBase: $0.sourceBase, storage: $0.coordinatorStorage)
+            SourceCoordinator($0.sourceBase, storage: $0.coordinatorStorage)
         }
     }
 }
@@ -163,7 +163,7 @@ where
             item: updater.item
         )
         self.listCoordinatorMaker = {
-            SourcesCoordinator(sourceBase: $0.sourceBase, storage: $0.coordinatorStorage)
+            SourcesCoordinator($0.sourceBase, storage: $0.coordinatorStorage)
         }
     }
     
@@ -171,7 +171,7 @@ where
         self.source = dataSources
         self.updater = updater
         self.listCoordinatorMaker = {
-            SourcesCoordinator(sourceBase: $0.sourceBase, storage: $0.coordinatorStorage)
+            SourcesCoordinator($0.sourceBase, storage: $0.coordinatorStorage)
         }
     }
 }

@@ -26,8 +26,15 @@ public extension UICollectionView {
         set { Associator.set(value: newValue, key: &Self.listViewDefaultAnimationKey, to: self) }
     }
     
-    func reloadSynchronously() {
-        reloadData()
+    func reloadSynchronously(animated: Bool = true) {
+        if animated {
+            reloadData()
+        } else {
+            CATransaction.begin()
+            CATransaction.setDisableActions(true)
+            reloadData()
+            CATransaction.commit()
+        }
         if window != nil {
             layoutIfNeeded()
         }

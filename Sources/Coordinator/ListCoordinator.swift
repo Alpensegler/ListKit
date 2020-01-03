@@ -56,7 +56,35 @@ public class ListCoordinator<SourceBase: DataSource>: ItemTypedCoorinator<Source
     }
     
     func update(from coordinator: ListCoordinator<SourceBase>, completion: @escaping () -> Void) {
-        fatalError()
+        
+    }
+    
+    func update(
+        to sourceBase: SourceBase,
+        animated: Bool,
+        completion: ((ListView, Bool) -> Void)?
+    ) {
+        
+    }
+    
+    func reload(
+        to sourceBase: SourceBase,
+        animated: Bool,
+        completion: ((ListView, Bool) -> Void)?
+    ) {
+        
+    }
+    
+    func reloadData(
+        to sourceBase: SourceBase,
+        animated: Bool,
+        completion: ((ListView, Bool) -> Void)?
+    ) {
+        
+    }
+    
+    func removeCurrent(animated: Bool, completion: ((ListView, Bool) -> Void)?) {
+        
     }
     
     func set<Object: AnyObject, Input, Output>(

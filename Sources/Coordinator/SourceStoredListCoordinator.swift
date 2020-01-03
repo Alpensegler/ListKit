@@ -10,7 +10,7 @@ class SourceStoredListCoordinator<SourceBase: DataSource>: ListCoordinator<Sourc
     override var source: SourceBase.Source { _source }
     
     override init(sourceBase: SourceBase, storage: CoordinatorStorage<SourceBase>? = nil) {
-        _source = storage?.source ?? sourceBase.source
+        _source = sourceBase.source(storage: storage)
         
         super.init(sourceBase: sourceBase)
     }

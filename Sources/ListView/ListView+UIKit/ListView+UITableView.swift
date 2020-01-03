@@ -19,6 +19,10 @@ extension UITableView: UIListView, SetuptableListView {
         dataSource = listDelegate
         delegate = listDelegate
     }
+    
+    func isDelegate(_ listDelegate: ListDelegate) -> Bool {
+        dataSource === listDelegate && delegate === listDelegate
+    }
 }
 
 public extension UITableView {

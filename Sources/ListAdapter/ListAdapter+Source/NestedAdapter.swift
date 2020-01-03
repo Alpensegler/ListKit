@@ -9,33 +9,33 @@ public extension ItemContext {
     @discardableResult
     func nestedAdapter<Adapter: CollectionListAdapter>(
     _ keyPath: KeyPath<Source.Item, Adapter>,
-        applyBy collectionView: CollectionView
+        applyBy collectionView: CollectionView,
+        animated: Bool = true,
+        completion: ((Bool) -> Void)? = nil
     ) -> CollectionList<Adapter.SourceBase> {
-        let subAdapter = itemValue[keyPath: keyPath]
-        let collectionList = subAdapter.apply(by: collectionView)
-        var subcoordinator = collectionList.makeListCoordinator()
-        coordinator.nestedAdapterItemUpdate[keyPath] = { sourceBase in
-            let newAdapter = sourceBase[keyPath: keyPath]
-            let newcoordinator = newAdapter.makeListCoordinator()
-            newcoordinator.update(from: subcoordinator) { subcoordinator = newcoordinator }
+        coordinator.nestedAdapterItemUpdate[keyPath] = { [weak collectionView] sourceBase in
+            guard let collectionView = collectionView else { return }
+            let adapter = sourceBase[keyPath: keyPath]
+            adapter.apply(by: collectionView, animated: animated, completion: completion)
         }
-        return collectionList
+        let subAdapter = itemValue[keyPath: keyPath]
+        return subAdapter.apply(by: collectionView, animated: animated, completion: completion)
     }
     
     @discardableResult
     func nestedAdapter<Adapter: TableListAdapter>(
         _ keyPath: KeyPath<Source.Item, Adapter>,
-        applyBy tableView: TableView
+        applyBy tableView: TableView,
+        animated: Bool = true,
+        completion: ((Bool) -> Void)? = nil
     ) -> TableList<Adapter.SourceBase> {
-        let subAdapter = itemValue[keyPath: keyPath]
-        let tableList = subAdapter.apply(by: tableView)
-        var subcoordinator = tableList.makeListCoordinator()
-        coordinator.nestedAdapterItemUpdate[keyPath] = { sourceBase in
-            let newAdapter = sourceBase[keyPath: keyPath]
-            let newcoordinator = newAdapter.makeListCoordinator()
-            newcoordinator.update(from: subcoordinator) { subcoordinator = newcoordinator }
+        coordinator.nestedAdapterItemUpdate[keyPath] = { [weak tableView] sourceBase in
+            guard let tableView = tableView else { return }
+            let adapter = sourceBase[keyPath: keyPath]
+            adapter.apply(by: tableView, animated: animated, completion: completion)
         }
-        return tableList
+        let subAdapter = itemValue[keyPath: keyPath]
+        return subAdapter.apply(by: tableView)
     }
 }
 

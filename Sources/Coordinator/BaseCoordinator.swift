@@ -108,7 +108,7 @@ public class BaseCoordinator {
     
     func setup(
         listView: ListView,
-        objectIdentifier: ObjectIdentifier,
+        key: ObjectIdentifier,
         sectionOffset: Int = 0,
         itemOffset: Int = 0
     ) {
@@ -121,6 +121,13 @@ public class BaseCoordinator {
         toOffset: Path,
         isMove: Bool
     ) -> [(changes: ListChanges, update: () -> Void)] {
+        fatalError()
+    }
+    
+    func update(
+        from coordinator: BaseCoordinator,
+        animated: Bool,
+        completion: ((Bool) -> Void)?) -> Bool {
         fatalError()
     }
     

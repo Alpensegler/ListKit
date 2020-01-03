@@ -92,14 +92,14 @@ where
     
     override func setup(
         listView: ListView,
-        objectIdentifier: ObjectIdentifier,
+        key: ObjectIdentifier,
         sectionOffset: Int = 0,
         itemOffset: Int = 0
     ) {
-        if let context = listContexts[objectIdentifier] {
+        if let context = listContexts[key] {
             context.sectionOffset = sectionOffset
             context.itemOffset = itemOffset
-            configSubcoordinator(for: [(objectIdentifier, context)])
+            configSubcoordinator(for: [(key, context)])
             return
         }
         
@@ -108,19 +108,19 @@ where
             sectionOffset: sectionOffset,
             itemOffset: itemOffset
         )
-        listContexts[objectIdentifier] = context
+        listContexts[key] = context
         if !didSetup {
             setupCoordinators()
             rangeReplacable = true
             let hasSectioned = configSubcoordinator(
-                for: [(objectIdentifier, context)],
+                for: [(key, context)],
                 isReset: true
             )
             setupSelectorSets()
             sourceType = (selectorSets.hasIndex || hasSectioned) ? .section : .cell
             didSetup = true
         } else {
-            configSubcoordinator(for: [(objectIdentifier, context)], isReset: false)
+            configSubcoordinator(for: [(key, context)], isReset: false)
         }
     }
     
@@ -256,7 +256,7 @@ where
         guard let listView = context.1.listView else { return }
         subcoordinator.setup(
             listView: listView,
-            objectIdentifier: context.0,
+            key: context.0,
             sectionOffset: offset.section + context.1.sectionOffset,
             itemOffset: offset.item + context.1.itemOffset
         )

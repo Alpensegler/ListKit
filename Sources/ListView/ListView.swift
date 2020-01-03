@@ -23,16 +23,13 @@ public protocol ListView: NSObject {
 
 protocol SetuptableListView: ListView {
     func setup(with listDelegate: ListDelegate)
+    func isDelegate(_ listDelegate: ListDelegate) -> Bool
 }
 
 private var listDelegateKey: Void?
 
 extension SetuptableListView {
-    func listDelegate(for coordinator: BaseCoordinator) -> ListDelegate {
-        Associator.getValue(key: &listDelegateKey, from: self, initialValue: {
-           let delegate = ListDelegate(coordinator)
-            self.setup(with: delegate)
-            return delegate
-        }())
+    var listDelegate: ListDelegate {
+        Associator.getValue(key: &listDelegateKey, from: self, initialValue: .init(self))
     }
 }

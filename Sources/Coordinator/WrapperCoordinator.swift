@@ -61,20 +61,20 @@ class WrapperCoordinator<SourceBase: DataSource>: ListCoordinator<SourceBase> {
     
     override func setup(
         listView: ListView,
-        objectIdentifier: ObjectIdentifier,
+        key: ObjectIdentifier,
         sectionOffset: Int = 0,
         itemOffset: Int = 0
     ) {
         wrappedCoodinator.setup(
             listView: listView,
-            objectIdentifier: objectIdentifier,
+            key: key,
             sectionOffset: sectionOffset,
             itemOffset: itemOffset
         )
         
         super.setup(
             listView: listView,
-            objectIdentifier: objectIdentifier,
+            key: key,
             sectionOffset: sectionOffset,
             itemOffset: itemOffset
         )

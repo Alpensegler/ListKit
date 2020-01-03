@@ -8,10 +8,29 @@
 import Foundation
 
 final class ListDelegate: NSObject {
-    var coordinator: BaseCoordinator
+    unowned let listView: SetuptableListView
+    private(set) var coordinator: BaseCoordinator!
     
-    init(_ coordinator: BaseCoordinator) {
+    init(_ listView: SetuptableListView) {
+        self.listView = listView
+    }
+    
+    func setCoordinator(
+        coordinator: BaseCoordinator,
+        animated: Bool,
+        completion: ((Bool) -> Void)?
+    ) {
+        let isDelegate = listView.isDelegate(self)
+        let rawCoordinator = self.coordinator
         self.coordinator = coordinator
+        coordinator.setup(listView: listView, key: ObjectIdentifier(listView))
+        let updatable = isDelegate && rawCoordinator.map {
+            coordinator.update(from: $0, animated: animated, completion: completion)
+        } ?? false
+        if updatable { return }
+        if !isDelegate { listView.setup(with: self) }
+        listView.reloadSynchronously(animated: animated)
+        completion?(true)
     }
     
     func apply<Object: AnyObject, Input, Output>(

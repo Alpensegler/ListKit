@@ -11,6 +11,8 @@ import CoreData
 open class FetchedResultsController<Item>: NSObject, NSFetchedResultsControllerDelegate
 where Item: NSFetchRequestResult {
     open var fetchedResultController: NSFetchedResultsController<Item>
+    open var animated = true
+    open var completion: ((ListView, Bool) -> Void)?
 
     public init(_ fetchedResultController: NSFetchedResultsController<Item>) {
         self.fetchedResultController = fetchedResultController
@@ -37,14 +39,13 @@ where Item: NSFetchRequestResult {
     public func controllerWillChangeContent(
         _ controller: NSFetchedResultsController<NSFetchRequestResult>
     ) {
-//        startUpdate()
+        startUpdate()
     }
     
     public func controllerDidChangeContent(
         _ controller: NSFetchedResultsController<NSFetchRequestResult>
     ) {
-//        endUpdate()
-//        contentChangeDidEnd()
+        endUpdate(animated: animated, completion: completion)
     }
     
     public func controller(

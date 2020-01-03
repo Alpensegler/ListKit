@@ -5,7 +5,7 @@
 //  Created by Frain on 2019/11/25.
 //
 
-class ListContext {
+final class ListContext {
     weak var listView: ListView?
     var sectionOffset: Int
     var itemOffset: Int
@@ -29,6 +29,29 @@ public class ListCoordinator<SourceBase: DataSource>: ItemTypedCoorinator<Source
     var source: SourceBase.Source { fatalError() }
     var didSetup = false
     
+    override var anySource: Any { source }
+    
+    override func setup(
+        listView: ListView,
+        key: ObjectIdentifier,
+        sectionOffset: Int = 0,
+        itemOffset: Int = 0
+    ) {
+        if let context = listContexts[key] {
+            context.sectionOffset = sectionOffset
+            context.itemOffset = itemOffset
+            return
+        }
+        
+        let context = ListContext(
+            listView: listView,
+            sectionOffset: sectionOffset,
+            itemOffset: itemOffset
+        )
+        listContexts[key] = context
+        if !didSetup { setup() }
+    }
+    
     func offset(for object: AnyObject) -> (Int, Int) {
         guard let context = listContexts[ObjectIdentifier(object)] else { return (0, 0) }
         return (context.sectionOffset, context.itemOffset)
@@ -38,24 +61,7 @@ public class ListCoordinator<SourceBase: DataSource>: ItemTypedCoorinator<Source
         didSetup = true
     }
     
-    override var anySource: Any { source }
-    
-    init(storage: CoordinatorStorage<SourceBase>? = nil) {
-        super.init()
-        
-        self.storage = storage
-    }
-    
-    init(_ sourceBase: SourceBase, storage: CoordinatorStorage<SourceBase>? = nil) {
-        super.init()
-        
-        self.storage = storage
-        
-        selfType = ObjectIdentifier(SourceBase.self)
-        itemType = ObjectIdentifier(SourceBase.Item.self)
-    }
-    
-    func update(from coordinator: ListCoordinator<SourceBase>, completion: @escaping () -> Void) {
+    func update(from coordinator: ListCoordinator<SourceBase>) {
         
     }
     
@@ -113,24 +119,18 @@ public class ListCoordinator<SourceBase: DataSource>: ItemTypedCoorinator<Source
         applying(&selectorSets)
     }
     
-    override func setup(
-        listView: ListView,
-        objectIdentifier: ObjectIdentifier,
-        sectionOffset: Int = 0,
-        itemOffset: Int = 0
-    ) {
-        if let context = listContexts[objectIdentifier] {
-            context.sectionOffset = sectionOffset
-            context.itemOffset = itemOffset
-            return
-        }
+    init(storage: CoordinatorStorage<SourceBase>? = nil) {
+        super.init()
         
-        let context = ListContext(
-            listView: listView,
-            sectionOffset: sectionOffset,
-            itemOffset: itemOffset
-        )
-        listContexts[objectIdentifier] = context
-        if !didSetup { setup() }
+        self.storage = storage
+    }
+    
+    init(_ sourceBase: SourceBase, storage: CoordinatorStorage<SourceBase>? = nil) {
+        super.init()
+        
+        self.storage = storage
+        
+        selfType = ObjectIdentifier(SourceBase.self)
+        itemType = ObjectIdentifier(SourceBase.Item.self)
     }
 }

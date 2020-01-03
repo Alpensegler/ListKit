@@ -41,15 +41,18 @@ where Source.SourceBase == Source {
 
 public extension TableListAdapter {
     @discardableResult
-    func apply(by tableView: TableView) -> TableList<SourceBase> {
+    func apply(
+        by tableView: TableView,
+        animated: Bool = true,
+        completion: ((Bool) -> Void)? = nil
+    ) -> TableList<SourceBase> {
         let tableList = self.tableList
         let coordinator = makeListCoordinator()
-        coordinator.setup(
-            listView: tableView,
-            objectIdentifier: ObjectIdentifier(tableView)
+        tableView.listDelegate.setCoordinator(
+            coordinator: coordinator,
+            animated: animated,
+            completion: completion
         )
-        _ = tableView.listDelegate(for: coordinator)
-        tableView.reloadSynchronously()
         return tableList
     }
 }

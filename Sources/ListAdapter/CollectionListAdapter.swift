@@ -41,15 +41,18 @@ where Source.SourceBase == Source {
 
 public extension CollectionListAdapter {
     @discardableResult
-    func apply(by collectionView: CollectionView) -> CollectionList<SourceBase> {
+    func apply(
+        by collectionView: CollectionView,
+        animated: Bool = true,
+        completion: ((Bool) -> Void)? = nil
+    ) -> CollectionList<SourceBase> {
         let collectionList = self.collectionList
         let coordinator = makeListCoordinator()
-        coordinator.setup(
-            listView: collectionView,
-            objectIdentifier: ObjectIdentifier(collectionView)
+        collectionView.listDelegate.setCoordinator(
+            coordinator: coordinator,
+            animated: animated,
+            completion: completion
         )
-        _ = collectionView.listDelegate(for: coordinator)
-        collectionView.reloadSynchronously()
         return collectionList
     }
 }

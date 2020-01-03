@@ -12,6 +12,7 @@ public protocol UpdatableDataSource: DataSource {
 public final class CoordinatorStorage<SourceBase: DataSource> {
     var coordinators = [ListCoordinator<SourceBase>]()
     var source: SourceBase.Source!
+    var stagingUpdate: [(ListCoordinator<SourceBase>) -> Void]?
     
     public init() { }
     
@@ -26,6 +27,7 @@ public extension UpdatableDataSource {
     }
     
     func performUpdate(animated: Bool = true, completion: ((ListView, Bool) -> Void)? = nil) {
+        cancelUpdate()
         coordinatorStorage.source = nil
         coordinatorStorage.coordinators.forEach {
             $0.update(to: sourceBase, animated: animated, completion: completion)
@@ -33,6 +35,7 @@ public extension UpdatableDataSource {
     }
     
     func reloadCurrent(animated: Bool = true, completion: ((ListView, Bool) -> Void)? = nil) {
+        cancelUpdate()
         coordinatorStorage.source = nil
         coordinatorStorage.coordinators.forEach {
             $0.reload(to: sourceBase, animated: animated, completion: completion)
@@ -40,16 +43,30 @@ public extension UpdatableDataSource {
     }
     
     func removeCurrent(animated: Bool = true, completion: ((ListView, Bool) -> Void)? = nil) {
+        cancelUpdate()
         coordinatorStorage.coordinators.forEach {
             $0.removeCurrent(animated: animated, completion: completion)
         }
     }
       
     func reloadData(animated: Bool = true, completion: ((ListView, Bool) -> Void)? = nil) {
+        cancelUpdate()
         coordinatorStorage.source = nil
         coordinatorStorage.coordinators.forEach {
             $0.reloadData(to: sourceBase, animated: animated, completion: completion)
         }
+    }
+    
+    func startUpdate() {
+        
+    }
+    
+    func cancelUpdate() {
+        
+    }
+    
+    func endUpdate(animated: Bool = true, completion: ((ListView, Bool) -> Void)? = nil) {
+        
     }
 }
 

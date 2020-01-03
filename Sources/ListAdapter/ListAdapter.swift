@@ -12,7 +12,7 @@ protocol ListAdapter: UpdatableDataSource where Source == SourceBase {
     associatedtype SectionContext
     associatedtype ItemContext
     
-    var coordinatorSetups: [(ListCoordinator<Source>) -> Void] { get set }
+    var coordinatorSetups: [(ListCoordinator<Source>) -> Void] { get }
     static var rootKeyPath: ReferenceWritableKeyPath<BaseCoordinator, ViewDelegates> { get }
     
     static func toContext(_ view: View, _ coordinator: ListCoordinator<Source>) -> Context
@@ -32,6 +32,17 @@ protocol ListAdapter: UpdatableDataSource where Source == SourceBase {
     init(coordinatorSetups: [(ListCoordinator<Source>) -> Void], source: Source)
 }
 
+final class ListAdapterStorage<Source: DataSource> where Source.SourceBase == Source {
+    var makeListCoordinator: () -> ListCoordinator<Source> = { fatalError() }
+    
+    lazy var listCoordinator = makeListCoordinator()
+    lazy var coordinatorStorage = listCoordinator.storage ?? {
+        let storage = CoordinatorStorage<Source>()
+        storage.coordinators.append(listCoordinator)
+        return storage
+    }()
+}
+
 extension ListAdapter {
     init<OtherSource: DataSource>(
         _ dataSource: OtherSource
@@ -47,92 +58,90 @@ extension ListAdapter {
     
     var cacheFromItem: ((Item) -> Any)? { nil }
     
-    func makeCoordinator() -> ListCoordinator<Source> {
-        coordinatorStorage.coordinator ?? {
-            let coordinator = sourceBase.makeListCoordinator()
-            coordinatorSetups.forEach { $0(coordinator) }
-            coordinator.cacheFromItem = cacheFromItem
-            return coordinator
-        }()
+    nonmutating func makeCoordinator() -> ListCoordinator<Source> {
+        let coordinator = sourceBase.makeListCoordinator()
+        coordinatorSetups.forEach { $0(coordinator) }
+        coordinator.cacheFromItem = cacheFromItem
+        return coordinator
     }
 
     func set<Input, Output>(
         _ keyPath: ReferenceWritableKeyPath<ViewDelegates, Delegate<View, Input, Output>>,
         _ closure: @escaping ((Context, Input)) -> Output
     ) -> Self {
-        var mutableSelf = self
-        mutableSelf.coordinatorSetups.append {
+        var setups = coordinatorSetups
+        setups.append {
             let keyPath = Self.rootKeyPath.appending(path: keyPath)
             $0.set(keyPath) { closure((Self.toContext($1, $0), $2)) }
         }
-        return mutableSelf
+        return .init(coordinatorSetups: setups, source: source)
     }
 
     func set<Input>(
         _ keyPath: ReferenceWritableKeyPath<ViewDelegates, Delegate<View, Input, Void>>,
         _ closure: @escaping ((Context, Input)) -> Void
     ) -> Self {
-        var mutableSelf = self
-        mutableSelf.coordinatorSetups.append {
+        var setups = coordinatorSetups
+        setups.append {
             let keyPath = Self.rootKeyPath.appending(path: keyPath)
             $0.set(keyPath) { closure((Self.toContext($1, $0), $2)) }
         }
-        return mutableSelf
+        return .init(coordinatorSetups: setups, source: source)
     }
 
     func set<Input, Output>(
         _ keyPath: ReferenceWritableKeyPath<ViewDelegates, Delegate<View, Input, Output>>,
         _ closure: @escaping ((SectionContext, Input)) -> Output
     ) -> Self {
-        var mutableSelf = self
-        mutableSelf.coordinatorSetups.append {
+        var setups = coordinatorSetups
+        setups.append {
             let keyPath = Self.rootKeyPath.appending(path: keyPath)
             guard case let .index(path) = $0[keyPath: keyPath].index else { fatalError() }
             $0.set(keyPath) {
                 closure((Self.toSectionContext($1, $0, section: $2[keyPath: path]), $2))
             }
         }
-        return mutableSelf
+        return .init(coordinatorSetups: setups, source: source)
     }
 
     func set<Input>(
         _ keyPath: ReferenceWritableKeyPath<ViewDelegates, Delegate<View, Input, Void>>,
         _ closure: @escaping ((SectionContext, Input)) -> Void
     ) -> Self {
-        var mutableSelf = self
-        mutableSelf.coordinatorSetups.append {
+        var setups = coordinatorSetups
+        setups.append {
             let keyPath = Self.rootKeyPath.appending(path: keyPath)
             guard case let .index(path) = $0[keyPath: keyPath].index else { fatalError() }
             $0.set(keyPath) {
                 closure((Self.toSectionContext($1, $0, section: $2[keyPath: path]), $2))
             }
         }
-        return mutableSelf
+        return .init(coordinatorSetups: setups, source: source)
     }
 
     func set<Input, Output>(
         _ keyPath: ReferenceWritableKeyPath<ViewDelegates, Delegate<View, Input, Output>>,
         _ closure: @escaping ((ItemContext, Input)) -> Output
     ) -> Self {
-        var mutableSelf = self
-        mutableSelf.coordinatorSetups.append {
+        var setups = coordinatorSetups
+        setups.append {
             let keyPath = Self.rootKeyPath.appending(path: keyPath)
             guard case let .indexPath(path) = $0[keyPath: keyPath].index else { fatalError() }
             $0.set(keyPath) { closure((Self.toItemContext($1, $0, path: $2[keyPath: path]), $2)) }
         }
-        return mutableSelf
+        return .init(coordinatorSetups: setups, source: source)
     }
 
     func set<Input>(
         _ keyPath: ReferenceWritableKeyPath<ViewDelegates, Delegate<View, Input, Void>>,
         _ closure: @escaping ((ItemContext, Input)) -> Void
     ) -> Self {
-        var mutableSelf = self
-        mutableSelf.coordinatorSetups.append {
+        var setups = coordinatorSetups
+        setups.append {
             let keyPath = Self.rootKeyPath.appending(path: keyPath)
             guard case let .indexPath(path) = $0[keyPath: keyPath].index else { fatalError() }
             $0.set(keyPath) { closure((Self.toItemContext($1, $0, path: $2[keyPath: path]), $2)) }
         }
-        return mutableSelf
+        return .init(coordinatorSetups: setups, source: source)
     }
 }

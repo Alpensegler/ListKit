@@ -19,20 +19,28 @@ public struct ScrollList<Source: DataSource>: ScrollListAdapter, UpdatableDataSo
 where Source.SourceBase == Source {
     public typealias Item = Source.Item
     public typealias SourceBase = Source
-    
-    var coordinatorSetups = [(ListCoordinator<Source>) -> Void]()
+    let coordinatorSetups: [(ListCoordinator<Source>) -> Void]
+    let storage = ListAdapterStorage<Source>()
     
     public let source: Source
-    public let coordinatorStorage = CoordinatorStorage<Source>()
     
     public var updater: Updater<Source> { source.updater }
     public var sourceBase: Source { source }
-    public func makeListCoordinator() -> ListCoordinator<Source> { makeCoordinator() }
+    public var scrollList: ScrollList<SourceBase> { self }
+    public var coordinatorStorage: CoordinatorStorage<Source> { storage.coordinatorStorage }
+    public func makeListCoordinator() -> ListCoordinator<Source> { storage.listCoordinator }
+    
     public var wrappedValue: Source { source }
     public var projectedValue: Source.Source { source.source }
     
     public subscript<Value>(dynamicMember path: KeyPath<Source, Value>) -> Value {
         source[keyPath: path]
+    }
+    
+    init(coordinatorSetups: [(ListCoordinator<Source>) -> Void] = [], source: Source) {
+        self.coordinatorSetups = coordinatorSetups
+        self.source = source
+        storage.makeListCoordinator = makeCoordinator
     }
 }
 

@@ -7,15 +7,10 @@
 
 public protocol UpdatableDataSource: DataSource {
     var coordinatorStorage: CoordinatorStorage<SourceBase> { get }
-    
-    func performUpdate(animated: Bool, completion: ((Bool) -> Void)?)
-    func performReloadCurrent(animated: Bool, completion: ((Bool) -> Void)?)
-    func performReloadData(_ completion: ((Bool) -> Void)?)
 }
 
-public class CoordinatorStorage<SourceBase: DataSource> {
+public final class CoordinatorStorage<SourceBase: DataSource> {
     var coordinators = [ListCoordinator<SourceBase>]()
-    var coordinator: ListCoordinator<SourceBase>!
     var source: SourceBase.Source!
     
     public init() { }
@@ -27,23 +22,44 @@ public class CoordinatorStorage<SourceBase: DataSource> {
 
 public extension UpdatableDataSource {
     var currentSource: SourceBase.Source {
-        coordinatorStorage.source ?? {
-            let source = self.sourceBase.source
-            coordinatorStorage.source = source
-            return source
-        }()
+        sourceBase.source(storage: coordinatorStorage)
     }
     
-    func performUpdate(animated: Bool = true, completion: ((Bool) -> Void)? = nil) {
-        
+    func performUpdate(animated: Bool = true, completion: ((ListView, Bool) -> Void)? = nil) {
+        coordinatorStorage.source = nil
+        coordinatorStorage.coordinators.forEach {
+            $0.update(to: sourceBase, animated: animated, completion: completion)
+        }
     }
     
-    func performReloadCurrent(animated: Bool = true, completion: ((Bool) -> Void)? = nil) {
-        
+    func reloadCurrent(animated: Bool = true, completion: ((ListView, Bool) -> Void)? = nil) {
+        coordinatorStorage.source = nil
+        coordinatorStorage.coordinators.forEach {
+            $0.reload(to: sourceBase, animated: animated, completion: completion)
+        }
+    }
+    
+    func removeCurrent(animated: Bool = true, completion: ((ListView, Bool) -> Void)? = nil) {
+        coordinatorStorage.coordinators.forEach {
+            $0.removeCurrent(animated: animated, completion: completion)
+        }
     }
       
-    func performReloadData(_ completion: ((Bool) -> Void)? = nil) {
-        
+    func reloadData(animated: Bool = true, completion: ((ListView, Bool) -> Void)? = nil) {
+        coordinatorStorage.source = nil
+        coordinatorStorage.coordinators.forEach {
+            $0.reloadData(to: sourceBase, animated: animated, completion: completion)
+        }
+    }
+}
+
+extension DataSource {
+    func source(storage: CoordinatorStorage<Self>?) -> Source {
+        storage?.source ?? {
+            let source = self.source
+            storage?.source = source
+            return source
+        }()
     }
 }
 

@@ -16,9 +16,10 @@ public extension TableListAdapter {
         let cacheGetter: (TableItemContext<SourceBase>) -> Cache = {
             $0.coordinator.cacheForItem[$0.section][$0.item] as! Cache
         }
-        var tableList = toTableList(self, cacheGetter)
-        tableList.cacheFromItem = { cacheFromItem($0) }
-        return tableList
+        let tableList = toTableList(self, cacheGetter)
+        var setups = tableList.coordinatorSetups
+        setups.append { $0.cacheFromItem = cacheFromItem }
+        return .init(coordinatorSetups: setups, source: tableList.source)
     }
     
     func tableListWithCache(
@@ -40,9 +41,10 @@ public extension CollectionListAdapter {
         let cacheGetter: (CollectionItemContext<SourceBase>) -> Cache = {
             $0.coordinator.cacheForItem[$0.section][$0.item] as! Cache
         }
-        var tableList = toCollectionList(self, cacheGetter)
-        tableList.cacheFromItem = { cacheFromItem($0) }
-        return tableList
+        let collectionList = toCollectionList(self, cacheGetter)
+        var setups = collectionList.coordinatorSetups
+        setups.append { $0.cacheFromItem = cacheFromItem }
+        return .init(coordinatorSetups: setups, source: collectionList.source)
     }
     
     func collectionListWithCache(

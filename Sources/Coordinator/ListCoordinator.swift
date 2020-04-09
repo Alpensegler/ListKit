@@ -9,47 +9,57 @@ final class ListContext {
     weak var listView: ListView?
     var sectionOffset: Int
     var itemOffset: Int
+    var supercoordinator: BaseCoordinator?
     
-    init(listView: ListView?, sectionOffset: Int, itemOffset: Int) {
+    init(listView: ListView?, sectionOffset: Int, itemOffset: Int, supercoordinator: BaseCoordinator?) {
         self.listView = listView
         self.sectionOffset = sectionOffset
         self.itemOffset = itemOffset
+        self.supercoordinator = supercoordinator
     }
 }
 
-public class ListCoordinator<SourceBase: DataSource>: ItemTypedCoorinator<SourceBase.Item> {
+public class ListCoordinator<SourceBase: DataSource>: BaseCoordinator
+where SourceBase.SourceBase == SourceBase {
     typealias Item = SourceBase.Item
     
     weak var storage: CoordinatorStorage<SourceBase>?
     
-    var nestedAdapterItemUpdate = [AnyHashable: (Item) -> Void]()
-    var cacheForItem = [[Any]]()
     var cacheFromItem: ((Item) -> Any)?
     var listContexts = [ObjectIdentifier: ListContext]()
-    var source: SourceBase.Source { fatalError() }
     var didSetup = false
     
-    override var anySource: Any { source }
+    var _id: AnyHashable
+    var defaultUpdate = Update<Item>()
+    var differ = Differ<SourceBase>()
     
-    override func setup(
-        listView: ListView,
-        key: ObjectIdentifier,
-        sectionOffset: Int = 0,
-        itemOffset: Int = 0
-    ) {
-        if let context = listContexts[key] {
-            context.sectionOffset = sectionOffset
-            context.itemOffset = itemOffset
-            return
-        }
-        
-        let context = ListContext(
-            listView: listView,
-            sectionOffset: sectionOffset,
-            itemOffset: itemOffset
-        )
-        listContexts[key] = context
-        if !didSetup { setup() }
+    var source: SourceBase.Source { fatalError() }
+    
+    override var id: AnyHashable { _id }
+    
+    func item(at path: PathConvertible) -> Item { fatalError() }
+    
+    func configNestedIfNeeded() {
+//        guard needUpdateCaches else { return }
+//        itemCaches.enumerated().forEach { (arg) in
+//            let section = arg.offset
+//            arg.element.enumerated().forEach { (arg) in
+//                let item = arg.offset
+//                arg.element.nestedAdapterItemUpdate.values.forEach {
+//                    if $0.0 { return }
+//                    $0.1(self.item(at: Path(section: section, item: item)))
+//                }
+//            }
+//        }
+    }
+    
+    func configNestedNotNewIfNeeded() {
+//        guard needUpdateCaches else { return }
+//        for cache in itemCaches.lazy.flatMap({ $0 }) {
+//            cache.nestedAdapterItemUpdate.keys.forEach {
+//                cache.nestedAdapterItemUpdate[$0]?.0 = false
+//            }
+//        }
     }
     
     func offset(for object: AnyObject) -> (Int, Int) {
@@ -61,31 +71,72 @@ public class ListCoordinator<SourceBase: DataSource>: ItemTypedCoorinator<Source
         didSetup = true
     }
     
-    func update(from coordinator: ListCoordinator<SourceBase>) {
-        
+    //Diffs:
+    func itemDifference(
+        from coordinator: BaseCoordinator,
+        differ: Differ<Item>
+    ) -> [Difference<ItemRelatedCache>] {
+        fatalError()
     }
     
-    func update(
-        to sourceBase: SourceBase,
-        animated: Bool,
-        completion: ((ListView, Bool) -> Void)?
-    ) {
-        
+    func itemsDifference(
+        from coordinator: BaseCoordinator,
+        differ: Differ<Item>
+    ) -> Difference<Void> {
+        fatalError()
     }
     
-    func reload(
-        to sourceBase: SourceBase,
-        animated: Bool,
-        completion: ((ListView, Bool) -> Void)?
-    ) {
-        
+    func sourcesDifference(
+        from coordinator: BaseCoordinator,
+        differ: Differ<Item>
+    ) -> Difference<BaseCoordinator> {
+        fatalError()
     }
     
-    func reloadData(
+    func performReload(
         to sourceBase: SourceBase,
-        animated: Bool,
-        completion: ((ListView, Bool) -> Void)?
+        _ animated: Bool,
+        _ completion: ((ListView, Bool) -> Void)?,
+        _ updateData: ((SourceBase.Source) -> Void)?
     ) {
+        for context in listContexts.values {
+            guard let listView = context.listView else { continue }
+            if let coordinator = context.supercoordinator {
+                _ = coordinator
+            } else {
+                updateTo(sourceBase, with: updateData)
+                context.listView?.reloadSynchronously(animated: animated)
+                completion?(listView, true)
+            }
+        }
+    }
+    
+    func perform(
+        diff: Differ<Item>,
+        to sourceBase: SourceBase,
+        _ animated: Bool,
+        _ completion: ((ListView, Bool) -> Void)?,
+        _ updateData: ((SourceBase.Source) -> Void)?
+    ) {
+        fatalError()
+    }
+    
+    func perform(
+        _ update: Update<Item>,
+        to sourceBase: SourceBase,
+        _ animated: Bool,
+        _ completion: ((ListView, Bool) -> Void)?,
+        _ updateData: ((SourceBase.Source) -> Void)?
+    ) {
+        switch update.way {
+        case .diff(let diff):
+            perform(diff: diff, to: sourceBase, animated, completion, updateData)
+        case .reload:
+            performReload(to: sourceBase, animated, completion, updateData)
+        }
+    }
+    
+    func updateTo(_ sourceBase: SourceBase, with updateData: ((SourceBase.Source) -> Void)?) {
         
     }
     
@@ -93,6 +144,7 @@ public class ListCoordinator<SourceBase: DataSource>: ItemTypedCoorinator<Source
         
     }
     
+    //Selectors
     func set<Object: AnyObject, Input, Output>(
         _ keyPath: ReferenceWritableKeyPath<BaseCoordinator, Delegate<Object, Input, Output>>,
         _ closure: @escaping (ListCoordinator<SourceBase>, Object, Input) -> Output
@@ -119,18 +171,45 @@ public class ListCoordinator<SourceBase: DataSource>: ItemTypedCoorinator<Source
         applying(&selectorSets)
     }
     
-    init(storage: CoordinatorStorage<SourceBase>? = nil) {
-        super.init()
+    override func anyItem(at path: PathConvertible) -> Any { item(at: path) }
+    
+    override func setup(
+        listView: ListView,
+        key: ObjectIdentifier,
+        sectionOffset: Int = 0,
+        itemOffset: Int = 0,
+        supercoordinator: BaseCoordinator? = nil
+    ) {
+        if let context = listContexts[key] {
+            context.sectionOffset = sectionOffset
+            context.itemOffset = itemOffset
+            return
+        }
         
-        self.storage = storage
+        let context = ListContext(
+            listView: listView,
+            sectionOffset: sectionOffset,
+            itemOffset: itemOffset,
+            supercoordinator: supercoordinator
+        )
+        listContexts[key] = context
+        if !didSetup { setup() }
     }
     
-    init(_ sourceBase: SourceBase, storage: CoordinatorStorage<SourceBase>? = nil) {
+    init(update: Update<Item> = .init(), storage: CoordinatorStorage<SourceBase>? = nil) {
+        _id = ObjectIdentifier(SourceBase.self)
         super.init()
         
         self.storage = storage
+        self.defaultUpdate = update
+    }
+    
+    init(_ sourceBase: SourceBase, storage: CoordinatorStorage<SourceBase>?) {
+        _id = ObjectIdentifier(SourceBase.self)
         
-        selfType = ObjectIdentifier(SourceBase.self)
-        itemType = ObjectIdentifier(SourceBase.Item.self)
+        super.init()
+        
+        self.storage = storage
+        self.defaultUpdate = sourceBase.listUpdate
     }
 }

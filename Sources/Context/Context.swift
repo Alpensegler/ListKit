@@ -5,7 +5,6 @@
 //  Created by Frain on 2019/10/10.
 //
 
-@dynamicMemberLookup
 public protocol Context {
     associatedtype List
     associatedtype Source: DataSource where Source.SourceBase == Source
@@ -26,12 +25,20 @@ public protocol ItemContext: SectionContext {
 
 public extension Context {
     var source: Source.Source { coordinator.source }
-    
-    subscript<Value>(dynamicMember keyPath: KeyPath<Source.Source, Value>) -> Value {
-        source[keyPath: keyPath]
-    }
+
+//    subscript<Value>(dynamicMember keyPath: KeyPath<Source.Source, Value>) -> Value {
+//        source[keyPath: keyPath]
+//    }
 }
 
 extension ItemContext {
     var itemValue: Source.Item { coordinator.item(at: Path(section: section, item: item)) }
+    
+    func setNestedCache(with key: AnyHashable, update: @escaping (Any) -> Void) {
+        coordinator.cacheValue(at: section, item).nestedAdapterItemUpdate[key] = (true, update)
+    }
+    
+    func cacheForItem(_ key: ObjectIdentifier) -> Any? {
+        coordinator.cacheForItem(key: key, at: section, item)
+    }
 }

@@ -7,11 +7,26 @@
 
 final class SourcesCoordinator<SourceBase: DataSource>: SourceStoredListCoordinator<SourceBase>
 where
+    SourceBase.SourceBase == SourceBase,
     SourceBase.Source: RangeReplaceableCollection,
     SourceBase.Source.Element: DataSource,
     SourceBase.Source.Element.SourceBase.Item == SourceBase.Item
 {
-    typealias Subcoordinator = ListCoordinator<SourceBase.Source.Element.SourceBase>
+    enum Source: DiffEquatable {
+        case other
+        case value(Diffable<Element>)
+        
+        func diffEqual(to other: Self, default value: Bool) -> Bool {
+            switch (self, other) {
+            case (.other, .other): return true
+            case let (.value(lhs), .value(rhs)): return lhs.diffEqual(to: rhs)
+            default: return false
+            }
+        }
+    }
+    
+    typealias Element = SourceBase.Source.Element
+    typealias Subcoordinator = ListCoordinator<Element.SourceBase>
     
     var subsources = [SourceBase.Source.Element]()
     var subcoordinators = [Subcoordinator]()
@@ -21,80 +36,82 @@ where
     lazy var selfSelectorSets = initialSelectorSets()
     var others = SelectorSets()
     
+    override var multiType: SourceMultipleType { .sources }
     override var isEmpty: Bool { sourceIndices.isEmpty }
     
-    override func item<Path: PathConvertible>(at path: Path) -> Item {
+    override func item(at path: PathConvertible) -> Item {
         let indexAt = sourceIndices.index(of: path)
         let offset = offsets[indexAt]
         let subcoordinator = subcoordinators[indexAt]
         return subcoordinator.item(at: path - offset)
     }
     
-    override func anyItemSources<Source: DataSource>(source: Source) -> AnyItemSources {
-        .inSource(.init(source: source, coordinator: self) {
-            zip(self.subsources, self.subcoordinators).map { (source, coordinator) in
-                coordinator.anyItemSources(source: source)
-            }
-        })
-    }
-    
-    override func anySectionSources<Source: DataSource>(source: Source) -> AnySectionSources {
-        .inSource(.init(source: source, coordinator: self) {
-            self.subsectionSources(
-                subcoordinators: self.subcoordinators,
-                getter: BaseCoordinator.anySectionSources
-            )
-        })
-    }
-    
-    override func anySourceUpdate(to sources: [AnyDiffableSourceValue]) {
-        var anySubsources = [SourceBase.Source.Element]()
-        var coordinators = [Subcoordinator]()
-        for source in sources {
-            anySubsources.append(source.value() as! SourceBase.Source.Element)
-            coordinators.append(source.coordinator as! Subcoordinator)
-        }
-        subsources = anySubsources
-        subcoordinators = coordinators
-        resetAndConfigIndicesAndOffsets()
-    }
-    
-    override func itemSources<Source: DataSource>(
-        source: Source
-    ) -> ItemSource where Source.SourceBase.Item == Item {
-        .inSource(.init(source: source, coordinator: self) {
-            zip(self.subsources, self.subcoordinators).map { (source, coordinator) in
-                coordinator.itemSources(source: source)
-            }
-        })
-    }
-    
-    override func sectionSources<Source: DataSource>(source: Source) -> SectionSource {
-        .inSource(.init(source: source, coordinator: self) {
-            self.subsectionSources(
-                subcoordinators: self.subcoordinators,
-                getter: ItemTypedCoorinator<Item>.sectionSources
-            )
-        })
-    }
-    
-    override func sourceUpdate(to sources: [DiffableSourceValue]) {
-        var anySubsources = [SourceBase.Source.Element]()
-        var coordinators = [Subcoordinator]()
-        for source in sources {
-            anySubsources.append(source.value() as! SourceBase.Source.Element)
-            coordinators.append(source.coordinator as! Subcoordinator)
-        }
-        subsources = anySubsources
-        subcoordinators = coordinators
-        resetAndConfigIndicesAndOffsets()
-    }
+//    override func anyItemSources<Source: DataSource>(source: Source) -> AnyItemSources {
+//        .inSource(.init(source: source, coordinator: self) {
+//            zip(self.subsources, self.subcoordinators).map { (source, coordinator) in
+//                coordinator.anyItemSources(source: source)
+//            }
+//        })
+//    }
+//
+//    override func anySectionSources<Source: DataSource>(source: Source) -> AnySectionSources {
+//        .inSource(.init(source: source, coordinator: self) {
+//            self.subsectionSources(
+//                subcoordinators: self.subcoordinators,
+//                getter: BaseCoordinator.anySectionSources
+//            )
+//        })
+//    }
+//
+//    override func anySourceUpdate(to sources: [AnyDiffableSourceValue]) {
+//        var anySubsources = [SourceBase.Source.Element]()
+//        var coordinators = [Subcoordinator]()
+//        for source in sources {
+//            anySubsources.append(source.value() as! SourceBase.Source.Element)
+//            coordinators.append(source.coordinator as! Subcoordinator)
+//        }
+//        subsources = anySubsources
+//        subcoordinators = coordinators
+//        resetAndConfigIndicesAndOffsets()
+//    }
+//
+//    override func itemSources<Source: DataSource>(
+//        source: Source
+//    ) -> ItemSource where Source.SourceBase.Item == Item {
+//        .inSource(.init(source: source, coordinator: self) {
+//            zip(self.subsources, self.subcoordinators).map { (source, coordinator) in
+//                coordinator.itemSources(source: source)
+//            }
+//        })
+//    }
+//
+//    override func sectionSources<Source: DataSource>(source: Source) -> SectionSource {
+//        .inSource(.init(source: source, coordinator: self) {
+//            self.subsectionSources(
+//                subcoordinators: self.subcoordinators,
+//                getter: ItemTypedCoorinator<Item>.sectionSources
+//            )
+//        })
+//    }
+//
+//    override func sourceUpdate(to sources: [DiffableSourceValue]) {
+//        var anySubsources = [SourceBase.Source.Element]()
+//        var coordinators = [Subcoordinator]()
+//        for source in sources {
+//            anySubsources.append(source.value() as! SourceBase.Source.Element)
+//            coordinators.append(source.coordinator as! Subcoordinator)
+//        }
+//        subsources = anySubsources
+//        subcoordinators = coordinators
+//        resetAndConfigIndicesAndOffsets()
+//    }
     
     override func setup(
         listView: ListView,
         key: ObjectIdentifier,
         sectionOffset: Int = 0,
-        itemOffset: Int = 0
+        itemOffset: Int = 0,
+        isRoot: Bool
     ) {
         if let context = listContexts[key] {
             context.sectionOffset = sectionOffset
@@ -106,7 +123,8 @@ where
         let context = ListContext(
             listView: listView,
             sectionOffset: sectionOffset,
-            itemOffset: itemOffset
+            itemOffset: itemOffset,
+            isRoot: isRoot
         )
         listContexts[key] = context
         if !didSetup {
@@ -149,6 +167,15 @@ where
         let coordinator = subcoordinator(for: closure, object: object, with: input)
         coordinator?.apply(keyPath, object: object, with: input)
         super.apply(keyPath, object: object, with: input)
+    }
+    
+    //Diff
+    override func sourcesDifference(
+        from coordinator: BaseCoordinator,
+        differ: Differ<Item>
+    ) -> Difference<BaseCoordinator> {
+        
+        fatalError()
     }
     
     func setupSelectorSets() {

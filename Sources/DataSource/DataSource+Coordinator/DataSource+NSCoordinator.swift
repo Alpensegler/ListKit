@@ -7,6 +7,6 @@
 
 public extension NSDataSource where SourceBase: NSDataSource {
     func makeListCoordinator() -> ListCoordinator<SourceBase> {
-        NSCoordinator(sourceBase, storage: coordinatorStorage)
+        NSCoordinator(sourceBase)
     }
 }

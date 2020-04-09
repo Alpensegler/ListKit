@@ -8,21 +8,34 @@
 @propertyWrapper
 @dynamicMemberLookup
 public struct Sources<Source, Item>: UpdatableDataSource {
-    let listCoordinatorMaker: (Self) -> ListCoordinator<Self>
-    var id: AnyHashable! = nil
+    public typealias SourceBase = Self
+    let sourceGetter: () -> Source
+    let sourceSetter: (Source) -> Void
+    let coordinatorMaker: (Self) -> ListCoordinator<Self>
     
-    public internal(set) var source: Source
-    public internal(set) var updater: Updater<Self>
-    
+    public let differ: Differ<Self>
+    public let listUpdate: Update<Item>
     public let coordinatorStorage = CoordinatorStorage<Self>()
-    
-    public var wrappedValue: Source { source }
-    
-    public func makeListCoordinator() -> ListCoordinator<Self> {
-        listCoordinatorMaker(self)
+    public var source: Source {
+        get { sourceGetter() }
+        set {
+            sourceSetter(newValue)
+            perform(listUpdate, updateData: sourceSetter)
+        }
     }
     
+    public var wrappedValue: Source {
+        get { source }
+        set { source = newValue }
+    }
+    
+    public func makeListCoordinator() -> ListCoordinator<Self> { coordinatorMaker(self) }
     public subscript<Value>(dynamicMember keyPath: KeyPath<Source, Value>) -> Value {
         source[keyPath: keyPath]
+    }
+    
+    public subscript<Value>(dynamicMember keyPath: WritableKeyPath<Source, Value>) -> Value {
+        get { source[keyPath: keyPath] }
+        set { source[keyPath: keyPath] = newValue }
     }
 }

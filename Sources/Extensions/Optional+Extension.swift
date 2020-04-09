@@ -10,7 +10,8 @@ extension Optional: DataSource where Wrapped: DataSource {
     public typealias Source = Self
     
     public var source: Source { self }
-    public var updater: Updater<Self> { .none }
+    public var differ: Differ<Self> { (source?.differ).map { Differ($0) } ?? .none }
+    public var listUpdate: Update<Item> { source?.listUpdate ?? .reload }
     
     public func makeListCoordinator() -> ListCoordinator<Self> { .init() }
 }

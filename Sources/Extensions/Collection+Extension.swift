@@ -29,9 +29,9 @@ struct Path: Hashable, Comparable, PathConvertible {
     }
 }
 
-func < <L: PathConvertible, R: PathConvertible>(lhs: L, rhs: R) -> Bool { lhs.path < rhs.path }
-func - <L: PathConvertible, R: PathConvertible>(lhs: L, rhs: R) -> Path { lhs.path - rhs.path }
-func + <L: PathConvertible, R: PathConvertible>(lhs: L, rhs: R) -> Path { lhs.path + rhs.path }
+func < (lhs: PathConvertible, rhs: PathConvertible) -> Bool { lhs.path < rhs.path }
+func - (lhs: PathConvertible, rhs: PathConvertible) -> Path { lhs.path - rhs.path }
+func + (lhs: PathConvertible, rhs: PathConvertible) -> Path { lhs.path + rhs.path }
 
 extension RangeReplaceableCollection {
     subscript(safe index: Index) -> Element? {
@@ -41,7 +41,7 @@ extension RangeReplaceableCollection {
 }
 
 extension RandomAccessCollection where Element: RandomAccessCollection {
-    subscript<Path: PathConvertible>(path: Path) -> Element.Element {
+    subscript(path: PathConvertible) -> Element.Element {
         let element = self[index(startIndex, offsetBy: path.section)]
         return element[element.index(element.startIndex, offsetBy: path.item)]
     }

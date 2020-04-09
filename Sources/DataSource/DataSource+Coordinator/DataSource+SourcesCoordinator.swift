@@ -16,13 +16,14 @@ where
     }
 }
 
-public extension UpdatableDataSource
+public extension DataSource
 where
+    SourceBase: UpdatableDataSource,
     SourceBase.Source: RangeReplaceableCollection,
     SourceBase.Source.Element: DataSource,
     SourceBase.Source.Element.SourceBase.Item == Item
 {
     func makeListCoordinator() -> ListCoordinator<SourceBase> {
-        SourcesCoordinator(sourceBase, storage: coordinatorStorage)
+        SourcesCoordinator(updatable: sourceBase)
     }
 }

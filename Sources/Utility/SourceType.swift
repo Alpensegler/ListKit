@@ -18,7 +18,7 @@ enum SourceIndices: Equatable {
 }
 
 extension Array where Element == SourceIndices {
-    func index<Path: PathConvertible>(of path: Path) -> Int {
+    func index(of path: PathConvertible) -> Int {
         switch self[path.section] {
         case let .section(offset, _): return offset
         case let .cell(indices: indices): return indices[path.item]

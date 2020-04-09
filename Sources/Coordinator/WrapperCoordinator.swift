@@ -5,84 +5,136 @@
 //  Created by Frain on 2019/12/17.
 //
 
-class WrapperCoordinator<SourceBase: DataSource>: ListCoordinator<SourceBase> {
-    var wrappedCoodinator: BaseCoordinator { fatalError() }
-    
-    lazy var selfSelectorSets = initialSelectorSets()
+class WrapperCoordinator<SourceBase: DataSource, OtherSourceBase: DataSource>: ListCoordinator<SourceBase>
+where SourceBase.SourceBase == SourceBase, OtherSourceBase.SourceBase == OtherSourceBase {
+    var wrappedCoodinator: ListCoordinator<OtherSourceBase>
+    var itemTransform: (OtherSourceBase.Item) -> SourceBase.Item
     var others: SelectorSets { wrappedCoodinator.selectorSets }
+    var _source: SourceBase.Source
     
-    override var itemType: ObjectIdentifier {
-        get { wrappedCoodinator.itemType }
-        set { wrappedCoodinator.itemType = newValue }
-    }
+    lazy var combinedID = HashCombiner(_id, wrappedCoodinator.id)
+    lazy var selfSelectorSets = initialSelectorSets()
+    
+    override var id: AnyHashable { combinedID }
     
     override var sourceType: SourceType {
         get { wrappedCoodinator.sourceType }
         set { wrappedCoodinator.sourceType = newValue }
     }
     
-    override var sourceIndices: [SourceIndices] {
-        get { wrappedCoodinator.sourceIndices }
-        set { wrappedCoodinator.sourceIndices = newValue }
+    override var multiType: SourceMultipleType { wrappedCoodinator.multiType }
+    override var isEmpty: Bool { wrappedCoodinator.isEmpty }
+    
+    func subcoordinator<Object: AnyObject, Input, Output>(
+        for delegate: Delegate<Object, Input, Output>,
+        object: Object,
+        with input: Input
+    ) -> BaseCoordinator? {
+        others.contains(delegate.selector) ? nil : wrappedCoodinator
     }
     
-    override var rangeReplacable: Bool {
-        get { wrappedCoodinator.rangeReplacable }
-        set { wrappedCoodinator.rangeReplacable = newValue }
+    override func configNestedIfNeeded() {
+        wrappedCoodinator.configNestedIfNeeded()
     }
     
-    override func anyItem<Path: PathConvertible>(at path: Path) -> Any {
+    override func configNestedNotNewIfNeeded() {
+        wrappedCoodinator.configNestedNotNewIfNeeded()
+    }
+    
+    override func item(at path: PathConvertible) -> Item {
+        itemTransform(wrappedCoodinator.item(at: path))
+    }
+    
+    override func anyItem(at path: PathConvertible) -> Any {
         wrappedCoodinator.anyItem(at: path)
     }
     
-    override func anyItemSources<Source: DataSource>(source: Source) -> AnyItemSources {
-        wrappedCoodinator.anyItemSources(source: source)
+    override func itemRelatedCache(at path: PathConvertible) -> ItemRelatedCache {
+        wrappedCoodinator.itemRelatedCache(at: path)
     }
     
-    override func anyItemApplyMultiItem(changes: ValueChanges<Any, Int>) {
-        wrappedCoodinator.anyItemApplyMultiItem(changes: changes)
+    override func numbersOfSections() -> Int {
+        wrappedCoodinator.numbersOfSections()
     }
     
-    override func anySectionSources<Source: DataSource>(source: Source) -> AnySectionSources {
-        wrappedCoodinator.anySectionSources(source: source)
+    override func numbersOfItems(in section: Int) -> Int {
+        wrappedCoodinator.numbersOfItems(in: section)
     }
     
-    override func anySectionApplyMultiSection(changes: ValueChanges<[Any], Int>) {
-        wrappedCoodinator.anySectionApplyMultiSection(changes: changes)
+    //Diffs
+    override func itemDifference<Value>(
+        from coordinator: BaseCoordinator,
+        differ: Differ<Value>
+    ) -> [Difference<ItemRelatedCache>] {
+        wrappedCoodinator.itemDifference(from: coordinator, differ: differ)
     }
     
-    override func anySectionApplyItem(changes: [ValueChanges<Any, Int>]) {
-        wrappedCoodinator.anySectionApplyItem(changes: changes)
+    override func itemsDifference<Value>(
+        from coordinator: BaseCoordinator,
+        differ: Differ<Value>
+    ) -> Difference<Void> {
+        wrappedCoodinator.itemsDifference(from: coordinator, differ: differ)
     }
     
-    override func anySourceUpdate(to sources: [AnyDiffableSourceValue]) {
-        wrappedCoodinator.anySourceUpdate(to: sources)
+    override func sourcesDifference<Value>(
+        from coordinator: BaseCoordinator,
+        differ: Differ<Value>
+    ) -> Difference<BaseCoordinator> {
+        wrappedCoodinator.sourcesDifference(from: coordinator, differ: differ)
+    }
+    
+
+//    override func anyItemSources<Source: DataSource>(source: Source) -> AnyItemSources {
+//        wrappedCoodinator.anyItemSources(source: source)
+//    }
+//
+//    override func anyItemApplyMultiItem(changes: ValueChanges<Any, Int>) {
+//        wrappedCoodinator.anyItemApplyMultiItem(changes: changes)
+//    }
+//
+//    override func anySectionSources<Source: DataSource>(source: Source) -> AnySectionSources {
+//        wrappedCoodinator.anySectionSources(source: source)
+//    }
+//
+//    override func anySectionApplyMultiSection(changes: ValueChanges<[Any], Int>) {
+//        wrappedCoodinator.anySectionApplyMultiSection(changes: changes)
+//    }
+//
+//    override func anySectionApplyItem(changes: [ValueChanges<Any, Int>]) {
+//        wrappedCoodinator.anySectionApplyItem(changes: changes)
+//    }
+//
+//    override func anySourceUpdate(to sources: [AnyDiffableSourceValue]) {
+//        wrappedCoodinator.anySourceUpdate(to: sources)
+//    }
+
+    override func setup() {
+        super.setup()
+        selectorSets = SelectorSets(merging: selfSelectorSets, others)
     }
     
     override func setup(
         listView: ListView,
         key: ObjectIdentifier,
         sectionOffset: Int = 0,
-        itemOffset: Int = 0
+        itemOffset: Int = 0,
+        supercoordinator: BaseCoordinator? = nil
     ) {
         wrappedCoodinator.setup(
             listView: listView,
             key: key,
             sectionOffset: sectionOffset,
-            itemOffset: itemOffset
+            itemOffset: itemOffset,
+            supercoordinator: supercoordinator
         )
         
         super.setup(
             listView: listView,
             key: key,
             sectionOffset: sectionOffset,
-            itemOffset: itemOffset
+            itemOffset: itemOffset,
+            supercoordinator: supercoordinator
         )
-    }
-    
-    override func setup() {
-        super.setup()
-        selectorSets = SelectorSets(merging: selfSelectorSets, others)
     }
     
     override func selectorSets(applying: (inout SelectorSets) -> Void) {
@@ -110,13 +162,5 @@ class WrapperCoordinator<SourceBase: DataSource>: ListCoordinator<SourceBase> {
         let coordinator = subcoordinator(for: closure, object: object, with: input)
         coordinator?.apply(keyPath, object: object, with: input)
         super.apply(keyPath, object: object, with: input)
-    }
-    
-    func subcoordinator<Object: AnyObject, Input, Output>(
-        for delegate: Delegate<Object, Input, Output>,
-        object: Object,
-        with input: Input
-    ) -> BaseCoordinator? {
-        others.contains(delegate.selector) ? nil : wrappedCoodinator
     }
 }

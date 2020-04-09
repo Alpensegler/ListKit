@@ -19,8 +19,9 @@ where Source.SourceBase == Source {
     let storage = ListAdapterStorage<Source>()
     
     public let source: Source
-    public var updater: Updater<Source> { source.updater }
     public var sourceBase: Source { source }
+    public var differ: Differ<Source> { source.differ }
+    public var listUpdate: Update<Item> { source.listUpdate }
     public var collectionList: CollectionList<Source> { self }
     public var coordinatorStorage: CoordinatorStorage<Source> { storage.coordinatorStorage }
     public func makeListCoordinator() -> ListCoordinator<Source> { storage.listCoordinator }
@@ -43,17 +44,26 @@ public extension CollectionListAdapter {
     @discardableResult
     func apply(
         by collectionView: CollectionView,
+        update: Update<Item>,
         animated: Bool = true,
         completion: ((Bool) -> Void)? = nil
     ) -> CollectionList<SourceBase> {
         let collectionList = self.collectionList
-        let coordinator = makeListCoordinator()
         collectionView.listDelegate.setCoordinator(
-            coordinator: coordinator,
+            coordinator: collectionList.storage.listCoordinator,
             animated: animated,
             completion: completion
         )
         return collectionList
+    }
+    
+    @discardableResult
+    func apply(
+        by collectionView: CollectionView,
+        animated: Bool = true,
+        completion: ((Bool) -> Void)? = nil
+    ) -> CollectionList<SourceBase> {
+        apply(by: collectionView, update: listUpdate, animated: animated, completion: completion)
     }
 }
 

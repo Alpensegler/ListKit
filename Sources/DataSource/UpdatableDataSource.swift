@@ -9,7 +9,7 @@ public protocol UpdatableDataSource: DataSource {
     var coordinatorStorage: CoordinatorStorage<SourceBase> { get }
 }
 
-public final class CoordinatorStorage<SourceBase: DataSource> {
+public final class CoordinatorStorage<SourceBase: DataSource> where SourceBase.SourceBase == SourceBase {
     var coordinators = [ListCoordinator<SourceBase>]()
     var source: SourceBase.Source!
     var stagingUpdate: [(ListCoordinator<SourceBase>) -> Void]?
@@ -26,34 +26,31 @@ public extension UpdatableDataSource {
         sourceBase.source(storage: coordinatorStorage)
     }
     
-    func performUpdate(animated: Bool = true, completion: ((ListView, Bool) -> Void)? = nil) {
+    func perform(
+        _ update: Update<Item>,
+        animated: Bool = true,
+        completion: ((ListView, Bool) -> Void)? = nil,
+        updateData: ((SourceBase.Source) -> Void)? = nil
+    ) {
         cancelUpdate()
         coordinatorStorage.source = nil
         coordinatorStorage.coordinators.forEach {
-            $0.update(to: sourceBase, animated: animated, completion: completion)
+            $0.perform(update, to: sourceBase, animated, completion, updateData)
         }
     }
     
-    func reloadCurrent(animated: Bool = true, completion: ((ListView, Bool) -> Void)? = nil) {
-        cancelUpdate()
-        coordinatorStorage.source = nil
-        coordinatorStorage.coordinators.forEach {
-            $0.reload(to: sourceBase, animated: animated, completion: completion)
-        }
+    func performUpdate(
+        animated: Bool = true,
+        completion: ((ListView, Bool) -> Void)? = nil,
+        updateData: ((SourceBase.Source) -> Void)? = nil
+    ) {
+        perform(listUpdate, animated: animated, completion: completion, updateData: updateData)
     }
     
     func removeCurrent(animated: Bool = true, completion: ((ListView, Bool) -> Void)? = nil) {
         cancelUpdate()
         coordinatorStorage.coordinators.forEach {
             $0.removeCurrent(animated: animated, completion: completion)
-        }
-    }
-      
-    func reloadData(animated: Bool = true, completion: ((ListView, Bool) -> Void)? = nil) {
-        cancelUpdate()
-        coordinatorStorage.source = nil
-        coordinatorStorage.coordinators.forEach {
-            $0.reloadData(to: sourceBase, animated: animated, completion: completion)
         }
     }
     
@@ -70,7 +67,7 @@ public extension UpdatableDataSource {
     }
 }
 
-extension DataSource {
+extension DataSource where SourceBase == Self {
     func source(storage: CoordinatorStorage<Self>?) -> Source {
         storage?.source ?? {
             let source = self.source

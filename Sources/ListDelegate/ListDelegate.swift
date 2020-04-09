@@ -23,7 +23,7 @@ final class ListDelegate: NSObject {
         let isDelegate = listView.isDelegate(self)
         let rawCoordinator = self.coordinator
         self.coordinator = coordinator
-        coordinator.setup(listView: listView, key: ObjectIdentifier(listView))
+        coordinator.setup(listView: listView, key: ObjectIdentifier(listView), isRoot: true)
         let updatable = isDelegate && rawCoordinator.map {
             coordinator.update(from: $0, animated: animated, completion: completion)
         } ?? false

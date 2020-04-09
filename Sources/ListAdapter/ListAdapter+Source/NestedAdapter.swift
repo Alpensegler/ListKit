@@ -8,18 +8,29 @@
 public extension ItemContext {
     @discardableResult
     func nestedAdapter<Adapter: CollectionListAdapter>(
-    _ keyPath: KeyPath<Source.Item, Adapter>,
+        _ keyPath: KeyPath<Source.Item, Adapter>,
         applyBy collectionView: CollectionView,
         animated: Bool = true,
         completion: ((Bool) -> Void)? = nil
     ) -> CollectionList<Adapter.SourceBase> {
-        coordinator.nestedAdapterItemUpdate[keyPath] = { [weak collectionView] sourceBase in
-            guard let collectionView = collectionView else { return }
+        let adapter = itemValue[keyPath: keyPath]
+        let list = adapter.apply(
+            by: collectionView,
+            update: .reload,
+            animated: animated,
+            completion: completion
+        )
+        var coordinator = list.makeListCoordinator()
+        setNestedCache(with: keyPath) { [weak collectionView] sourceBase in
+            guard let sourceBase = sourceBase as? Source.Item,
+                let collectionView = collectionView,
+                collectionView.isCoordinator(coordinator)
+            else { return }
             let adapter = sourceBase[keyPath: keyPath]
-            adapter.apply(by: collectionView, animated: animated, completion: completion)
+            let list = adapter.apply(by: collectionView, animated: animated, completion: completion)
+            coordinator = list.makeListCoordinator()
         }
-        let subAdapter = itemValue[keyPath: keyPath]
-        return subAdapter.apply(by: collectionView, animated: animated, completion: completion)
+        return list
     }
     
     @discardableResult
@@ -29,13 +40,24 @@ public extension ItemContext {
         animated: Bool = true,
         completion: ((Bool) -> Void)? = nil
     ) -> TableList<Adapter.SourceBase> {
-        coordinator.nestedAdapterItemUpdate[keyPath] = { [weak tableView] sourceBase in
-            guard let tableView = tableView else { return }
+        let adapter = itemValue[keyPath: keyPath]
+        let list = adapter.apply(
+            by: tableView,
+            update: .reload,
+            animated: animated,
+            completion: completion
+        )
+        var coordinator = list.makeListCoordinator()
+        setNestedCache(with: keyPath) { [weak tableView] sourceBase in
+            guard let sourceBase = sourceBase as? Source.Item,
+                let tableView = tableView,
+                tableView.isCoordinator(coordinator)
+            else { return }
             let adapter = sourceBase[keyPath: keyPath]
-            adapter.apply(by: tableView, animated: animated, completion: completion)
+            let list = adapter.apply(by: tableView, animated: animated, completion: completion)
+            coordinator = list.makeListCoordinator()
         }
-        let subAdapter = itemValue[keyPath: keyPath]
-        return subAdapter.apply(by: tableView)
+        return list
     }
 }
 

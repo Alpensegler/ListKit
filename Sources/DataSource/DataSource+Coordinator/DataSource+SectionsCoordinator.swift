@@ -27,24 +27,26 @@ where
     }
 }
 
-public extension UpdatableDataSource
+public extension DataSource
 where
+    SourceBase: UpdatableDataSource,
     SourceBase.Source: Collection,
     SourceBase.Source.Element: Collection,
     SourceBase.Source.Element.Element == Item
 {
     func makeListCoordinator() -> ListCoordinator<SourceBase> {
-        SectionsCoordinator(sourceBase, storage: coordinatorStorage)
+        SectionsCoordinator(updatable: sourceBase)
     }
 }
 
-public extension UpdatableDataSource
+public extension DataSource
 where
+    SourceBase: UpdatableDataSource,
     SourceBase.Source: RangeReplaceableCollection,
     SourceBase.Source.Element: RangeReplaceableCollection,
     SourceBase.Source.Element.Element == Item
 {
     func makeListCoordinator() -> ListCoordinator<SourceBase> {
-        RangeReplacableSectionsCoordinator(sourceBase, storage: coordinatorStorage)
+        RangeReplacableSectionsCoordinator(updatable: sourceBase)
     }
 }

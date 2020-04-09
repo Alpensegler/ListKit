@@ -6,29 +6,24 @@
 //
 
 public struct CollectionDifference<ChangeElement> {
-    /// A type that represents a single change to a collection.
-    ///
-    /// The `offset` of each `insert` refers to the offset of its `element` in
-    /// the final state after the difference is fully applied. The `offset` of
-    /// each `remove` refers to the offset of its `element` in the original
-    /// state. Non-`nil` values of `associatedWith` refer to the offset of the
-    /// complementary change.
+    /// A single change to a collection.
     public enum Change {
+        /// An insertion.
+        ///
+        /// The `offset` value is the offset of the inserted element in the final
+        /// state of the collection after the difference is fully applied.
+        /// A non-`nil` `associatedWith` value is the offset of the complementary
+        /// change.
         case insert(offset: Int, element: ChangeElement, associatedWith: Int?)
+        
+        /// A removal.
+        ///
+        /// The `offset` value is the offset of the element to be removed in the
+        /// original state of the collection. A non-`nil` `associatedWith` value is
+        /// the offset of the complementary change.
         case remove(offset: Int, element: ChangeElement, associatedWith: Int?)
         
         // Internal common field accessors
-        internal var _element: ChangeElement {
-            get {
-                switch self {
-                case .insert(offset: _, element: let e, associatedWith: _):
-                    return e
-                case .remove(offset: _, element: let e, associatedWith: _):
-                    return e
-                }
-            }
-        }
-        
         internal var _offset: Int {
             get {
                 switch self {
@@ -36,6 +31,17 @@ public struct CollectionDifference<ChangeElement> {
                     return o
                 case .remove(offset: let o, element: _, associatedWith: _):
                     return o
+                }
+            }
+        }
+        
+        internal var _element: ChangeElement {
+            get {
+                switch self {
+                case .insert(offset: _, element: let e, associatedWith: _):
+                    return e
+                case .remove(offset: _, element: let e, associatedWith: _):
+                    return e
                 }
             }
         }
@@ -52,10 +58,11 @@ public struct CollectionDifference<ChangeElement> {
         }
     }
     
-    /// The `.insert` changes contained by this difference, from lowest offset to highest
+    /// The insertions contained by this difference, from lowest offset to
+    /// highest.
     public let insertions: [Change]
     
-    /// The `.remove` changes contained by this difference, from lowest offset to highest
+    /// The removals contained by this difference, from lowest offset to highest.
     public let removals: [Change]
     
     /// The public initializer calls this function to ensure that its parameter
@@ -74,8 +81,8 @@ public struct CollectionDifference<ChangeElement> {
     /// Complexity: O(`changes.count`)
     private static func _validateChanges<Changes: Collection>(
         _ changes : Changes
-        ) -> Bool where Changes.Element == Change {
-        if changes.count == 0 { return true }
+    ) -> Bool where Changes.Element == Change {
+        if changes.isEmpty { return true }
         
         var insertAssocToOffset = Dictionary<Int,Int>()
         var removeOffsetToAssoc = Dictionary<Int,Int>()
@@ -111,27 +118,27 @@ public struct CollectionDifference<ChangeElement> {
         return removeOffsetToAssoc == insertAssocToOffset
     }
     
-    /// Creates an instance from a collection of changes.
+    /// Creates a new collection difference from a collection of changes.
     ///
-    /// For clients interested in the difference between two collections, see
-    /// `BidirectionalCollection.difference(from:)`.
+    /// To find the difference between two collections, use the
+    /// `difference(from:)` method declared on the `BidirectionalCollection`
+    /// protocol.
     ///
-    /// To guarantee that instances are unambiguous and safe for compatible base
-    /// states, this initializer will fail unless its parameter meets to the
-    /// following requirements:
+    /// The collection of changes passed as `changes` must meet these
+    /// requirements:
     ///
-    /// 1. All insertion offsets are unique
-    /// 2. All removal offsets are unique
-    /// 3. All associations between insertions and removals are symmetric
+    /// - All insertion offsets are unique
+    /// - All removal offsets are unique
+    /// - All associations between insertions and removals are symmetric
     ///
-    /// - Parameter c: A collection of changes that represent a transition
+    /// - Parameter changes: A collection of changes that represent a transition
     ///   between two states.
     ///
     /// - Complexity: O(*n* * log(*n*)), where *n* is the length of the
     ///   parameter.
     public init?<Changes: Collection>(
         _ changes: Changes
-        ) where Changes.Element == Change {
+    ) where Changes.Element == Change {
         guard CollectionDifference<ChangeElement>._validateChanges(changes) else {
             return nil
         }
@@ -140,8 +147,8 @@ public struct CollectionDifference<ChangeElement> {
     }
     
     /// Internal initializer for use by algorithms that cannot produce invalid
-    /// collections of changes. These include the Myers' diff algorithm and
-    /// the move inferencer.
+    /// collections of changes. These include the Myers' diff algorithm,
+    /// self.inverse(), and the move inferencer.
     ///
     /// If parameter validity cannot be guaranteed by the caller then
     /// `CollectionDifference.init?(_:)` should be used instead.
@@ -153,7 +160,7 @@ public struct CollectionDifference<ChangeElement> {
     ///   parameter.
     internal init<Changes: Collection>(
         _validatedChanges changes: Changes
-        ) where Changes.Element == Change {
+    ) where Changes.Element == Change {
         let sortedChanges = changes.sorted { (a, b) -> Bool in
             switch (a, b) {
             case (.remove(_, _, _), .insert(_, _, _)):
@@ -167,7 +174,7 @@ public struct CollectionDifference<ChangeElement> {
         
         // Find first insertion via binary search
         let firstInsertIndex: Int
-        if sortedChanges.count == 0 {
+        if sortedChanges.isEmpty {
             firstInsertIndex = 0
         } else {
             var range = 0...sortedChanges.count
@@ -185,6 +192,17 @@ public struct CollectionDifference<ChangeElement> {
         
         removals = Array(sortedChanges[0..<firstInsertIndex])
         insertions = Array(sortedChanges[firstInsertIndex..<sortedChanges.count])
+    }
+    
+    public func inverse() -> Self {
+        return CollectionDifference(_validatedChanges: self.map { c in
+            switch c {
+            case .remove(let o, let e, let a):
+                return .insert(offset: o, element: e, associatedWith: a)
+            case .insert(let o, let e, let a):
+                return .remove(offset: o, element: e, associatedWith: a)
+            }
+        })
     }
 }
 
@@ -211,6 +229,7 @@ public struct CollectionDifference<ChangeElement> {
 extension CollectionDifference: Collection {
     public typealias Element = Change
     
+    /// The position of a collection difference.
     public struct Index {
         // Opaque index type is isomorphic to Int
         @usableFromInline
@@ -258,7 +277,7 @@ extension CollectionDifference.Index: Equatable {
     public static func == (
         lhs: CollectionDifference.Index,
         rhs: CollectionDifference.Index
-        ) -> Bool {
+    ) -> Bool {
         return lhs._offset == rhs._offset
     }
 }
@@ -268,7 +287,7 @@ extension CollectionDifference.Index: Comparable {
     public static func < (
         lhs: CollectionDifference.Index,
         rhs: CollectionDifference.Index
-        ) -> Bool {
+    ) -> Bool {
         return lhs._offset < rhs._offset
     }
 }
@@ -289,12 +308,12 @@ extension CollectionDifference.Change: Hashable where ChangeElement: Hashable {}
 extension CollectionDifference: Hashable where ChangeElement: Hashable {}
 
 extension CollectionDifference where ChangeElement: Hashable {
-    /// Infers which `ChangeElement`s have been both inserted and removed only
-    /// once and returns a new difference with those associations.
+    /// Returns a new collection difference with associations between individual
+    /// elements that have been removed and inserted only once.
     ///
-    /// - Returns: an instance with all possible moves inferred.
+    /// - Returns: A collection difference with all possible moves inferred.
     ///
-    /// - Complexity: O(*n*) where *n* is `self.count`
+    /// - Complexity: O(*n*) where *n* is the number of collection differences.
     public func inferringMoves() -> CollectionDifference<ChangeElement> {
         let uniqueRemovals: [ChangeElement:Int?] = {
             var result = [ChangeElement:Int?](minimumCapacity: Swift.min(removals.count, insertions.count))
@@ -343,3 +362,41 @@ extension CollectionDifference where ChangeElement: Hashable {
         }))
     }
 }
+
+extension CollectionDifference.Change: Codable where ChangeElement: Codable {
+    private enum _CodingKeys: String, CodingKey {
+        case offset
+        case element
+        case associatedOffset
+        case isRemove
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: _CodingKeys.self)
+        let offset = try values.decode(Int.self, forKey: .offset)
+        let element = try values.decode(ChangeElement.self, forKey: .element)
+        let associatedOffset = try values.decode(Int?.self, forKey: .associatedOffset)
+        let isRemove = try values.decode(Bool.self, forKey: .isRemove)
+        if isRemove {
+            self = .remove(offset: offset, element: element, associatedWith: associatedOffset)
+        } else {
+            self = .insert(offset: offset, element: element, associatedWith: associatedOffset)
+        }
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: _CodingKeys.self)
+        switch self {
+        case .remove(_, _, _):
+            try container.encode(true, forKey: .isRemove)
+        case .insert(_, _, _):
+            try container.encode(false, forKey: .isRemove)
+        }
+        
+        try container.encode(_offset, forKey: .offset)
+        try container.encode(_element, forKey: .element)
+        try container.encode(_associatedOffset, forKey: .associatedOffset)
+    }
+}
+
+extension CollectionDifference: Codable where ChangeElement: Codable {}

@@ -32,4 +32,11 @@ extension SetuptableListView {
     var listDelegate: ListDelegate {
         Associator.getValue(key: &listDelegateKey, from: self, initialValue: .init(self))
     }
+    
+    func isCoordinator(_ coordinator: BaseCoordinator) -> Bool {
+        if let delegate: ListDelegate = Associator.getValue(key: &listDelegateKey, from: self) {
+            return isDelegate(delegate) && delegate.coordinator === coordinator
+        }
+        return false
+    }
 }

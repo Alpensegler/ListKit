@@ -11,8 +11,8 @@ public extension DataSource where SourceBase.Source == Item {
     }
 }
 
-public extension UpdatableDataSource where SourceBase.Source == Item {
+public extension DataSource where SourceBase.Source == Item, SourceBase: UpdatableDataSource {
     func makeListCoordinator() -> ListCoordinator<SourceBase> {
-        ItemCoordinator(sourceBase, storage: coordinatorStorage)
+        ItemCoordinator(updatable: sourceBase)
     }
 }

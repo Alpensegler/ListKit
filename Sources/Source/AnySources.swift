@@ -7,19 +7,19 @@
 
 public struct AnySources: UpdatableDataSource {
     public typealias Item = Any
-    var coordinatorMaker: (Self) -> ListCoordinator<AnySources>
+    public typealias SourceBase = Self
+    let coordinatorMaker: (Self) -> ListCoordinator<AnySources>
     
     public let source: Any
-    public let updater: Updater<Self>
+    public let differ: Differ<AnySources>
+    public let listUpdate: Update<Any>
     public var coordinatorStorage = CoordinatorStorage<AnySources>()
-    public func makeListCoordinator() -> ListCoordinator<AnySources> { coordinatorMaker(self) }
+    public func makeListCoordinator() -> ListCoordinator<Self> { coordinatorMaker(self) }
     
     public init<Source: DataSource>(_ dataSource: Source) {
-        let updater = dataSource.updater
-        let differ = Differ<Self>(differ: updater.source) { (($0.source) as? Source)?.sourceBase }
-        let itemDiffer = Differ<Item>(differ: updater.item)
         self.source = dataSource
-        self.updater = Updater(source: differ, item: itemDiffer)
-        self.coordinatorMaker = { AnySourceCoordinator(dataSource, storage: $0.coordinatorStorage) }
+        self.differ = .init(dataSource.differ) { (($0.source) as? Source)?.sourceBase }
+        self.listUpdate = dataSource.listUpdate.diff.map { .init(diff: .init($0)) } ?? .reload
+        self.coordinatorMaker = { _ in fatalError() } // { AnySourceCoordinator(dataSource, source: $0) }
     }
 }

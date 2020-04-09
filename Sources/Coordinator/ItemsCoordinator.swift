@@ -6,72 +6,78 @@
 //
 
 class ItemsCoordinator<SourceBase: DataSource>: SourceStoredListCoordinator<SourceBase>
-where SourceBase.Source: Collection, SourceBase.Item == SourceBase.Source.Element {
-    var items = [Item]()
+where
+    SourceBase.SourceBase == SourceBase,
+    SourceBase.Source: Collection,
+    SourceBase.Item == SourceBase.Source.Element
+{
+    var items = [DiffableValue<Item, ItemRelatedCache>]()
+    
+    override var multiType: SourceMultipleType {
+        sourceType == .section ? .single : .multiple
+    }
     
     override var isEmpty: Bool { sourceType == .cell && items.isEmpty }
     
-    override func item<Path: PathConvertible>(at path: Path) -> Item { items[path.item] }
+    override func item(at path: PathConvertible) -> Item { items[path.item].value }
+    override func itemRelatedCache(at path: PathConvertible) -> ItemRelatedCache {
+        items[path.item].cache
+    }
+    
+    override func numbersOfSections() -> Int { 1 }
+    override func numbersOfItems(in section: Int) -> Int { items.count }
     
     override func setup() {
         super.setup()
         sourceType = selectorSets.hasIndex ? .section : .cell
-        items = source.map { $0 }
-        configSourceIndices()
+        items = source.map { DiffableValue(differ: defaultUpdate.diff, value: $0, cache: .init()) }
     }
     
-    override func anyItemSources<Source: DataSource>(source: Source) -> AnyItemSources {
-        .multiple(.init(source: source, coordinator: self) { self.items })
+    override func itemDifference(
+        from coordinator: BaseCoordinator,
+        differ: Differ<Item>
+    ) -> [Difference<ItemRelatedCache>] {
+        return [diff(from: coordinator as! ItemsCoordinator<SourceBase>, differ: differ)]
     }
     
-    override func anySectionSources<Source: DataSource>(source: Source) -> AnySectionSources {
-        .single(.init(source: source, coordinator: self) { self.items })
-    }
-    
-    override func itemSources<Source: DataSource>(source: Source) -> ItemSource {
-        .multiple(.init(source: source, coordinator: self) { self.items })
-    }
-    
-    override func sectionSources<Source: DataSource>(source: Source) -> SectionSource {
-        .single(.init(source: source, coordinator: self) { self.items })
-    }
-    
-    func configSourceIndices() {
-        sourceIndices = sourceType == .section
-            ? [.section(index: 0, count: items.count)]
-            : [.cell(indices: items.map { _ in 0 })]
+    func diff(
+        from coordinator: ItemsCoordinator<SourceBase>,
+        differ: Differ<Item>
+    ) -> ValueDifference<Item, ItemRelatedCache> {
+        let diff = ValueDifference(source: coordinator.items, target: items, differ: differ)
+        diff.starting = {
+            if coordinator.needUpdateCaches {
+                self.needUpdateCaches = true
+                self.configNestedNotNewIfNeeded()
+            }
+            self.items = coordinator.items
+            self._source = coordinator._source
+        }
+        diff.ending = { [items, _source] in
+            self.items = items
+            self._source = _source
+        }
+        diff.finish = configNestedIfNeeded
+        return diff
     }
 }
 
 final class RangeReplacableItemsCoordinator<SourceBase: DataSource>: ItemsCoordinator<SourceBase>
-where SourceBase.Source: RangeReplaceableCollection, SourceBase.Source.Element == SourceBase.Item {
-    override func setup() {
-        super.setup()
-        rangeReplacable = true
-    }
-    
-    override func anyItemApplyMultiItem(changes: ValueChanges<Any, Int>) {
-        _source.apply(changes, indexTransform: { $0 }, valueTransform: { $0 as! Item })
-        items.apply(changes, indexTransform: { $0 }, valueTransform: { $0 as! Item })
-        configSourceIndices()
-    }
-    
-    override func anySectionApplyItem(changes: [ValueChanges<Any, Int>]) {
-        _source.apply(changes[0], indexTransform: { $0 }, valueTransform: { $0 as! Item })
-        items.apply(changes[0], indexTransform: { $0 }, valueTransform: { $0 as! Item })
-        configSourceIndices()
-    }
-    
-    override func itemApplyMultiItem(changes: ValueChanges<Item, Int>) {
-        _source.apply(changes, indexTransform: { $0 }, valueTransform: { $0 })
-        items.apply(changes, indexTransform: { $0 }, valueTransform: { $0 })
-        configSourceIndices()
-    }
-    
-    override func sectionApplyItem(changes: [ValueChanges<Item, Int>]) {
-        _source.apply(changes[0], indexTransform: { $0 }, valueTransform: { $0 })
-        items.apply(changes[0], indexTransform: { $0 }, valueTransform: { $0 })
-        configSourceIndices()
+where
+    SourceBase.SourceBase == SourceBase,
+    SourceBase.Source: RangeReplaceableCollection,
+    SourceBase.Source.Element == SourceBase.Item
+{
+    override func diff(
+        from coordinator: ItemsCoordinator<SourceBase>,
+        differ: Differ<Item>
+    ) -> ValueDifference<Item, ItemRelatedCache> {
+        let diff = super.diff(from: coordinator, differ: differ)
+        diff.applying = {
+            self.items.apply($0) { $0.value }
+            self._source.apply($0) { $0.value.value }
+        }
+        return diff
     }
 }
 

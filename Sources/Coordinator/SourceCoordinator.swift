@@ -6,7 +6,11 @@
 //
 
 final class SourceCoordinator<SourceBase: DataSource>: ItemTypedWrapperCoordinator<SourceBase>
-where SourceBase.Source: DataSource, SourceBase.Source.Item == SourceBase.Item {
+where
+    SourceBase.SourceBase == SourceBase,
+    SourceBase.Source: DataSource,
+    SourceBase.Source.Item == SourceBase.Item
+{
     var storedSource: SourceBase.Source
     var coordinator: ListCoordinator<SourceBase.Source.SourceBase>
     override var source: SourceBase.Source { storedSource }
@@ -18,5 +22,11 @@ where SourceBase.Source: DataSource, SourceBase.Source.Item == SourceBase.Item {
         coordinator = storedSource.makeListCoordinator()
         
         super.init(sourceBase, storage: storage)
+    }
+}
+
+extension SourceCoordinator where SourceBase: UpdatableDataSource {
+    convenience init(updatable sourceBase: SourceBase) {
+        self.init(sourceBase, storage: sourceBase.coordinatorStorage)
     }
 }

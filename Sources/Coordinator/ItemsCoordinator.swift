@@ -46,10 +46,10 @@ where
     ) -> ValueDifference<Item, ItemRelatedCache> {
         let diff = ValueDifference(source: coordinator.items, target: items, differ: differ)
         diff.starting = {
-            if coordinator.needUpdateCaches {
-                self.needUpdateCaches = true
-                self.configNestedNotNewIfNeeded()
-            }
+//            if coordinator.needUpdateCaches {
+//                self.needUpdateCaches = true
+//                self.configNestedNotNewIfNeeded()
+//            }
             self.items = coordinator.items
             self._source = coordinator._source
         }

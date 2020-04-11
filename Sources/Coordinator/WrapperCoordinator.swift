@@ -5,9 +5,9 @@
 //  Created by Frain on 2019/12/17.
 //
 
-class WrapperCoordinator<SourceBase: DataSource, OtherSourceBase: DataSource>: ListCoordinator<SourceBase>
-where SourceBase.SourceBase == SourceBase, OtherSourceBase.SourceBase == OtherSourceBase {
-    var wrappedCoodinator: ListCoordinator<OtherSourceBase>
+class WrapperCoordinator<SourceBase: DataSource, OtherSourceBase>: ListCoordinator<SourceBase>
+where SourceBase.SourceBase == SourceBase, OtherSourceBase: DataSource {
+    var wrappedCoodinator: ListCoordinator<OtherSourceBase.SourceBase>
     var itemTransform: (OtherSourceBase.Item) -> SourceBase.Item
     var others: SelectorSets { wrappedCoodinator.selectorSets }
     var _source: SourceBase.Source
@@ -22,8 +22,20 @@ where SourceBase.SourceBase == SourceBase, OtherSourceBase.SourceBase == OtherSo
         set { wrappedCoodinator.sourceType = newValue }
     }
     
+    override var source: SourceBase.Source { _source }
     override var multiType: SourceMultipleType { wrappedCoodinator.multiType }
     override var isEmpty: Bool { wrappedCoodinator.isEmpty }
+    
+    init(
+        source: SourceBase.Source,
+        wrappedCoodinator: ListCoordinator<OtherSourceBase.SourceBase>,
+        itemTransform: @escaping (OtherSourceBase.Item) -> SourceBase.Item
+    ) {
+        self._source = source
+        self.wrappedCoodinator = wrappedCoodinator
+        self.itemTransform = itemTransform
+        super.init()
+    }
     
     func subcoordinator<Object: AnyObject, Input, Output>(
         for delegate: Delegate<Object, Input, Output>,
@@ -82,31 +94,6 @@ where SourceBase.SourceBase == SourceBase, OtherSourceBase.SourceBase == OtherSo
     ) -> Difference<BaseCoordinator> {
         wrappedCoodinator.sourcesDifference(from: coordinator, differ: differ)
     }
-    
-
-//    override func anyItemSources<Source: DataSource>(source: Source) -> AnyItemSources {
-//        wrappedCoodinator.anyItemSources(source: source)
-//    }
-//
-//    override func anyItemApplyMultiItem(changes: ValueChanges<Any, Int>) {
-//        wrappedCoodinator.anyItemApplyMultiItem(changes: changes)
-//    }
-//
-//    override func anySectionSources<Source: DataSource>(source: Source) -> AnySectionSources {
-//        wrappedCoodinator.anySectionSources(source: source)
-//    }
-//
-//    override func anySectionApplyMultiSection(changes: ValueChanges<[Any], Int>) {
-//        wrappedCoodinator.anySectionApplyMultiSection(changes: changes)
-//    }
-//
-//    override func anySectionApplyItem(changes: [ValueChanges<Any, Int>]) {
-//        wrappedCoodinator.anySectionApplyItem(changes: changes)
-//    }
-//
-//    override func anySourceUpdate(to sources: [AnyDiffableSourceValue]) {
-//        wrappedCoodinator.anySourceUpdate(to: sources)
-//    }
 
     override func setup() {
         super.setup()

@@ -35,10 +35,12 @@ extension ItemContext {
     var itemValue: Source.Item { coordinator.item(at: Path(section: section, item: item)) }
     
     func setNestedCache(with key: AnyHashable, update: @escaping (Any) -> Void) {
-        coordinator.cacheValue(at: section, item).nestedAdapterItemUpdate[key] = (true, update)
+        coordinator
+            .itemRelatedCache(at: Path(section: section, item: item))
+            .nestedAdapterItemUpdate[key] = (true, update)
     }
     
     func cacheForItem(_ key: ObjectIdentifier) -> Any? {
-        coordinator.cacheForItem(key: key, at: section, item)
+        coordinator.itemRelatedCache(at: Path(section: section, item: item))
     }
 }

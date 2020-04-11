@@ -20,6 +20,6 @@ public struct AnySources: UpdatableDataSource {
         self.source = dataSource
         self.differ = .init(dataSource.differ) { (($0.source) as? Source)?.sourceBase }
         self.listUpdate = dataSource.listUpdate.diff.map { .init(diff: .init($0)) } ?? .reload
-        self.coordinatorMaker = { _ in fatalError() } // { AnySourceCoordinator(dataSource, source: $0) }
+        self.coordinatorMaker = { AnySourceCoordinator(dataSource, source: $0) }
     }
 }

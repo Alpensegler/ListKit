@@ -28,6 +28,7 @@ where
     typealias Element = SourceBase.Source.Element
     typealias Subcoordinator = ListCoordinator<Element.SourceBase>
     
+    var sourceIndices = [SourceIndices]()
     var subsources = [SourceBase.Source.Element]()
     var subcoordinators = [Subcoordinator]()
     var offsets = [Path]()
@@ -39,143 +40,9 @@ where
     override var multiType: SourceMultipleType { .sources }
     override var isEmpty: Bool { sourceIndices.isEmpty }
     
-    override func item(at path: PathConvertible) -> Item {
+    func pathAndCoordinator(path: PathConvertible) -> (path: Path, coordinator: Subcoordinator) {
         let indexAt = sourceIndices.index(of: path)
-        let offset = offsets[indexAt]
-        let subcoordinator = subcoordinators[indexAt]
-        return subcoordinator.item(at: path - offset)
-    }
-    
-//    override func anyItemSources<Source: DataSource>(source: Source) -> AnyItemSources {
-//        .inSource(.init(source: source, coordinator: self) {
-//            zip(self.subsources, self.subcoordinators).map { (source, coordinator) in
-//                coordinator.anyItemSources(source: source)
-//            }
-//        })
-//    }
-//
-//    override func anySectionSources<Source: DataSource>(source: Source) -> AnySectionSources {
-//        .inSource(.init(source: source, coordinator: self) {
-//            self.subsectionSources(
-//                subcoordinators: self.subcoordinators,
-//                getter: BaseCoordinator.anySectionSources
-//            )
-//        })
-//    }
-//
-//    override func anySourceUpdate(to sources: [AnyDiffableSourceValue]) {
-//        var anySubsources = [SourceBase.Source.Element]()
-//        var coordinators = [Subcoordinator]()
-//        for source in sources {
-//            anySubsources.append(source.value() as! SourceBase.Source.Element)
-//            coordinators.append(source.coordinator as! Subcoordinator)
-//        }
-//        subsources = anySubsources
-//        subcoordinators = coordinators
-//        resetAndConfigIndicesAndOffsets()
-//    }
-//
-//    override func itemSources<Source: DataSource>(
-//        source: Source
-//    ) -> ItemSource where Source.SourceBase.Item == Item {
-//        .inSource(.init(source: source, coordinator: self) {
-//            zip(self.subsources, self.subcoordinators).map { (source, coordinator) in
-//                coordinator.itemSources(source: source)
-//            }
-//        })
-//    }
-//
-//    override func sectionSources<Source: DataSource>(source: Source) -> SectionSource {
-//        .inSource(.init(source: source, coordinator: self) {
-//            self.subsectionSources(
-//                subcoordinators: self.subcoordinators,
-//                getter: ItemTypedCoorinator<Item>.sectionSources
-//            )
-//        })
-//    }
-//
-//    override func sourceUpdate(to sources: [DiffableSourceValue]) {
-//        var anySubsources = [SourceBase.Source.Element]()
-//        var coordinators = [Subcoordinator]()
-//        for source in sources {
-//            anySubsources.append(source.value() as! SourceBase.Source.Element)
-//            coordinators.append(source.coordinator as! Subcoordinator)
-//        }
-//        subsources = anySubsources
-//        subcoordinators = coordinators
-//        resetAndConfigIndicesAndOffsets()
-//    }
-    
-    override func setup(
-        listView: ListView,
-        key: ObjectIdentifier,
-        sectionOffset: Int = 0,
-        itemOffset: Int = 0,
-        isRoot: Bool
-    ) {
-        if let context = listContexts[key] {
-            context.sectionOffset = sectionOffset
-            context.itemOffset = itemOffset
-            configSubcoordinator(for: [(key, context)])
-            return
-        }
-        
-        let context = ListContext(
-            listView: listView,
-            sectionOffset: sectionOffset,
-            itemOffset: itemOffset,
-            isRoot: isRoot
-        )
-        listContexts[key] = context
-        if !didSetup {
-            setupCoordinators()
-            rangeReplacable = true
-            let hasSectioned = configSubcoordinator(
-                for: [(key, context)],
-                isReset: true
-            )
-            setupSelectorSets()
-            sourceType = (selectorSets.hasIndex || hasSectioned) ? .section : .cell
-            didSetup = true
-        } else {
-            configSubcoordinator(for: [(key, context)], isReset: false)
-        }
-    }
-    
-    override func selectorSets(applying: (inout SelectorSets) -> Void) {
-        super.selectorSets(applying: applying)
-        applying(&selfSelectorSets)
-    }
-    
-    override func apply<Object: AnyObject, Input, Output>(
-        _ keyPath: KeyPath<BaseCoordinator, Delegate<Object, Input, Output>>,
-        object: Object,
-        with input: Input
-    ) -> Output {
-        let closure = self[keyPath: keyPath]
-        let coordinator = subcoordinator(for: closure, object: object, with: input)
-        return coordinator?.apply(keyPath, object: object, with: input)
-            ?? super.apply(keyPath, object: object, with: input)
-    }
-    
-    override func apply<Object: AnyObject, Input>(
-        _ keyPath: KeyPath<BaseCoordinator, Delegate<Object, Input, Void>>,
-        object: Object,
-        with input: Input
-    ) {
-        let closure = self[keyPath: keyPath]
-        let coordinator = subcoordinator(for: closure, object: object, with: input)
-        coordinator?.apply(keyPath, object: object, with: input)
-        super.apply(keyPath, object: object, with: input)
-    }
-    
-    //Diff
-    override func sourcesDifference(
-        from coordinator: BaseCoordinator,
-        differ: Differ<Item>
-    ) -> Difference<BaseCoordinator> {
-        
-        fatalError()
+        return (path - offsets[indexAt], subcoordinators[indexAt])
     }
     
     func setupSelectorSets() {
@@ -255,7 +122,9 @@ where
         offsets.append(offset)
         switch (subcoordinator.sourceType, sourceIndices.last) {
         case (.section, _):
-            let sections = subcoordinator.sourceIndices.sections(with: offsets.count - 1)
+            let sections = (0..<subcoordinator.numbersOfSections()).map {
+                SourceIndices.section(index: offsets.count - 1, count: subcoordinator.numbersOfItems(in: $0))
+            }
             guard !sections.isEmpty else { break }
             hasSection = true
             sourceIndices.append(contentsOf: sections)
@@ -289,24 +158,89 @@ where
         )
     }
     
-    func subsectionSources<C: BaseCoordinator, V, D>(
-        subcoordinators: [C],
-        getter: (C) -> (SourceBase.Source.Element) -> SectionSourceValue<C, V, D>
-    ) -> [SectionSourceValue<C, V, D>] {
-        var results = [SourceValue<Other<C, V, D>, C, V, D>]()
-        for (source, coordinator) in zip(subsources, subcoordinators) {
-            let sectionSource = getter(coordinator)(source)
-            switch (sectionSource, results.last) {
-            case let (.other(other), .other(others))
-                where other.type == .cellContainer && others.type == .cellContainer:
-                let diffables = others.diffables() + other.diffables()
-                let resultOther = Other(type: .cellContainer, diffables: { diffables })
-                results[results.lastIndex] = .other(resultOther)
-            default:
-                results.append(getter(coordinator)(source))
-            }
+    override func item(at path: PathConvertible) -> Item {
+        let (path, subcoordinator) = pathAndCoordinator(path: path)
+        return subcoordinator.item(at: path)
+    }
+    
+    override func itemRelatedCache(at path: PathConvertible) -> ItemRelatedCache {
+        let (path, subcoordinator) = pathAndCoordinator(path: path)
+        return subcoordinator.itemRelatedCache(at: path)
+    }
+    
+    override func numbersOfSections() -> Int { sourceIndices.count }
+    override func numbersOfItems(in section: Int) -> Int { sourceIndices[section].count }
+    
+    override func setup(
+        listView: ListView,
+        key: ObjectIdentifier,
+        sectionOffset: Int = 0,
+        itemOffset: Int = 0,
+        supercoordinator: BaseCoordinator? = nil
+    ) {
+        if let context = listContexts[key] {
+            context.sectionOffset = sectionOffset
+            context.itemOffset = itemOffset
+            configSubcoordinator(for: [(key, context)])
+            return
         }
-        return results
+        
+        let context = ListContext(
+            listView: listView,
+            sectionOffset: sectionOffset,
+            itemOffset: itemOffset,
+            supercoordinator: supercoordinator
+        )
+        listContexts[key] = context
+        if !didSetup {
+            setupCoordinators()
+            //            rangeReplacable = true
+            let hasSectioned = configSubcoordinator(
+                for: [(key, context)],
+                isReset: true
+            )
+            setupSelectorSets()
+            sourceType = (selectorSets.hasIndex || hasSectioned) ? .section : .cell
+            didSetup = true
+        } else {
+            configSubcoordinator(for: [(key, context)], isReset: false)
+        }
+    }
+    
+    override func selectorSets(applying: (inout SelectorSets) -> Void) {
+        super.selectorSets(applying: applying)
+        applying(&selfSelectorSets)
+    }
+    
+    override func apply<Object: AnyObject, Input, Output>(
+        _ keyPath: KeyPath<BaseCoordinator, Delegate<Object, Input, Output>>,
+        object: Object,
+        with input: Input
+    ) -> Output {
+        let closure = self[keyPath: keyPath]
+        let coordinator = subcoordinator(for: closure, object: object, with: input)
+        return coordinator?.apply(keyPath, object: object, with: input)
+            ?? super.apply(keyPath, object: object, with: input)
+    }
+    
+    override func apply<Object: AnyObject, Input>(
+        _ keyPath: KeyPath<BaseCoordinator, Delegate<Object, Input, Void>>,
+        object: Object,
+        with input: Input
+    ) {
+        let closure = self[keyPath: keyPath]
+        let coordinator = subcoordinator(for: closure, object: object, with: input)
+        coordinator?.apply(keyPath, object: object, with: input)
+        super.apply(keyPath, object: object, with: input)
+    }
+    
+    //Diff
+    override func sourcesDifference(
+        from coordinator: BaseCoordinator,
+        differ: Differ<Item>
+    ) -> Difference<BaseCoordinator> {
+        
+        fatalError()
     }
 }
 

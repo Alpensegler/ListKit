@@ -12,7 +12,7 @@ extension Sources where Source: DataSource, Source.Item == Item {
         self.sourceSetter = { source = $0 }
         self.differ = id.map { id in .diff(id: { _ in id }) } ?? .none
         self.listUpdate = update
-        self.coordinatorMaker = { SourceCoordinator(updatable: $0) }
+        self.coordinatorMaker = { WrapperCoordinator(updatable: $0) }
     }
 }
 

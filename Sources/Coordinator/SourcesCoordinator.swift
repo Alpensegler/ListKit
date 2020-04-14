@@ -5,29 +5,22 @@
 //  Created by Frain on 2019/11/28.
 //
 
-final class SourcesCoordinator<SourceBase: DataSource>: SourceStoredListCoordinator<SourceBase>
+final class SourcesCoordinator<SourceBase: DataSource>: ListCoordinator<SourceBase>
 where
     SourceBase.SourceBase == SourceBase,
     SourceBase.Source: RangeReplaceableCollection,
     SourceBase.Source.Element: DataSource,
     SourceBase.Source.Element.SourceBase.Item == SourceBase.Item
 {
-    enum Source: DiffEquatable {
+    enum Source {
         case other
         case value(Diffable<Element>)
-        
-        func diffEqual(to other: Self, default value: Bool) -> Bool {
-            switch (self, other) {
-            case (.other, .other): return true
-            case let (.value(lhs), .value(rhs)): return lhs.diffEqual(to: rhs)
-            default: return false
-            }
-        }
     }
     
     typealias Element = SourceBase.Source.Element
     typealias Subcoordinator = ListCoordinator<Element.SourceBase>
     
+    var _source: SourceBase.Source
     var sourceIndices = [SourceIndices]()
     var subsources = [SourceBase.Source.Element]()
     var subcoordinators = [Subcoordinator]()
@@ -37,8 +30,16 @@ where
     lazy var selfSelectorSets = initialSelectorSets()
     var others = SelectorSets()
     
+    override var source: SourceBase.Source { _source }
     override var multiType: SourceMultipleType { .sources }
     override var isEmpty: Bool { sourceIndices.isEmpty }
+    
+    init(_ sourceBase: SourceBase, storage: CoordinatorStorage<SourceBase>? = nil) {
+        _source = sourceBase.source(storage: storage)
+        
+        super.init(storage: storage)
+        defaultUpdate = sourceBase.listUpdate
+    }
     
     func pathAndCoordinator(path: PathConvertible) -> (path: Path, coordinator: Subcoordinator) {
         let indexAt = sourceIndices.index(of: path)
@@ -241,6 +242,12 @@ where
     ) -> Difference<BaseCoordinator> {
         
         fatalError()
+    }
+}
+
+extension SourcesCoordinator where SourceBase: UpdatableDataSource {
+    convenience init(updatable sourceBase: SourceBase) {
+        self.init(sourceBase, storage: sourceBase.coordinatorStorage)
     }
 }
 

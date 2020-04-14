@@ -12,6 +12,7 @@ where SourceBase.SourceBase == SourceBase {
     var counts = [Int]()
     var caches = [[ItemRelatedCache]]()
     
+    override var source: Void { () }
     override var multiType: SourceMultipleType { .noneDiffable }
     
     override func item(at path: PathConvertible) -> Item {
@@ -35,7 +36,7 @@ where SourceBase.SourceBase == SourceBase {
             }
         }
         
-        super.init(sourceBase, storage: sourceBase.coordinatorStorage)
+        super.init(storage: sourceBase.coordinatorStorage)
         configSourceIndices(self)
         sourceType = .section
     }

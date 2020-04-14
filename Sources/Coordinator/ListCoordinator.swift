@@ -7,9 +7,9 @@
 
 final class ListContext {
     weak var listView: ListView?
+    weak var supercoordinator: BaseCoordinator?
     var sectionOffset: Int
     var itemOffset: Int
-    var supercoordinator: BaseCoordinator?
     
     init(listView: ListView?, sectionOffset: Int, itemOffset: Int, supercoordinator: BaseCoordinator?) {
         self.listView = listView
@@ -36,6 +36,12 @@ where SourceBase.SourceBase == SourceBase {
     var source: SourceBase.Source { fatalError() }
     
     override var id: AnyHashable { _id }
+    
+    init(id: AnyHashable = ObjectIdentifier(SourceBase.self), storage: CoordinatorStorage<SourceBase>? = nil) {
+        _id = id
+        super.init()
+        self.storage = storage
+    }
     
     func item(at path: PathConvertible) -> Item { fatalError() }
     
@@ -194,22 +200,5 @@ where SourceBase.SourceBase == SourceBase {
         )
         listContexts[key] = context
         if !didSetup { setup() }
-    }
-    
-    init(update: Update<Item> = .init(), storage: CoordinatorStorage<SourceBase>? = nil) {
-        _id = ObjectIdentifier(SourceBase.self)
-        super.init()
-        
-        self.storage = storage
-        self.defaultUpdate = update
-    }
-    
-    init(_ sourceBase: SourceBase, storage: CoordinatorStorage<SourceBase>?) {
-        _id = ObjectIdentifier(SourceBase.self)
-        
-        super.init()
-        
-        self.storage = storage
-        self.defaultUpdate = sourceBase.listUpdate
     }
 }

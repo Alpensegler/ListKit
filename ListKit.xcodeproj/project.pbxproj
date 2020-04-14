@@ -13,7 +13,7 @@
 		F304A6E1239E95DC00133D14 /* ListView+NSCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F304A6E0239E95DB00133D14 /* ListView+NSCollectionView.swift */; };
 		F304A6E3239E95ED00133D14 /* ListView+NSTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F304A6E2239E95ED00133D14 /* ListView+NSTableView.swift */; };
 		F304A6E5239E962300133D14 /* NSListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F304A6E4239E962300133D14 /* NSListView.swift */; };
-		F310D2502351E1DF00ED691C /* BaseCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F310D24F2351E1DF00ED691C /* BaseCoordinator.swift */; };
+		F310D2502351E1DF00ED691C /* Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F310D24F2351E1DF00ED691C /* Coordinator.swift */; };
 		F31250E9239C545200E77969 /* ListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31250E8239C545200E77969 /* ListView.swift */; };
 		F31250EE239C5EB200E77969 /* ListDelegates+UICollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31250ED239C5EB200E77969 /* ListDelegates+UICollectionView.swift */; };
 		F31250F0239C636100E77969 /* ListDelegate+UIScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31250EF239C636100E77969 /* ListDelegate+UIScrollView.swift */; };
@@ -93,7 +93,7 @@
 		F304A6E0239E95DB00133D14 /* ListView+NSCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ListView+NSCollectionView.swift"; sourceTree = "<group>"; };
 		F304A6E2239E95ED00133D14 /* ListView+NSTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ListView+NSTableView.swift"; sourceTree = "<group>"; };
 		F304A6E4239E962300133D14 /* NSListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSListView.swift; sourceTree = "<group>"; };
-		F310D24F2351E1DF00ED691C /* BaseCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseCoordinator.swift; sourceTree = "<group>"; };
+		F310D24F2351E1DF00ED691C /* Coordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coordinator.swift; sourceTree = "<group>"; };
 		F31250E8239C545200E77969 /* ListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListView.swift; sourceTree = "<group>"; };
 		F31250ED239C5EB200E77969 /* ListDelegates+UICollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ListDelegates+UICollectionView.swift"; sourceTree = "<group>"; };
 		F31250EF239C636100E77969 /* ListDelegate+UIScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ListDelegate+UIScrollView.swift"; sourceTree = "<group>"; };
@@ -197,7 +197,7 @@
 		F310D24E2351E1CC00ED691C /* Coordinator */ = {
 			isa = PBXGroup;
 			children = (
-				F310D24F2351E1DF00ED691C /* BaseCoordinator.swift */,
+				F310D24F2351E1DF00ED691C /* Coordinator.swift */,
 				F3040D80238B21560055E6E7 /* ListCoordinator.swift */,
 				F3A4940123A8CDEA00809E7F /* WrapperCoordinator.swift */,
 				F37BF3C9239686470095C419 /* ItemCoordinator.swift */,
@@ -588,7 +588,7 @@
 				F37A122A239FC0720001E9EE /* SrcollListAdapter+UIKit.swift in Sources */,
 				F351D87324092D8A0013DB4E /* DifferenceType.swift in Sources */,
 				F3EB15D823A2CF0000C9AC5E /* CollectionList+Source.swift in Sources */,
-				F310D2502351E1DF00ED691C /* BaseCoordinator.swift in Sources */,
+				F310D2502351E1DF00ED691C /* Coordinator.swift in Sources */,
 				F3D785CA2398FCA200D7A5CD /* NSDataSource.swift in Sources */,
 				F304A6E5239E962300133D14 /* NSListView.swift in Sources */,
 			);

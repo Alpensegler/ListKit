@@ -7,11 +7,11 @@
 
 final class ListContext {
     weak var listView: ListView?
-    weak var supercoordinator: BaseCoordinator?
+    weak var supercoordinator: Coordinator?
     var sectionOffset: Int
     var itemOffset: Int
     
-    init(listView: ListView?, sectionOffset: Int, itemOffset: Int, supercoordinator: BaseCoordinator?) {
+    init(listView: ListView?, sectionOffset: Int, itemOffset: Int, supercoordinator: Coordinator?) {
         self.listView = listView
         self.sectionOffset = sectionOffset
         self.itemOffset = itemOffset
@@ -19,29 +19,62 @@ final class ListContext {
     }
 }
 
-public class ListCoordinator<SourceBase: DataSource>: BaseCoordinator
+public class ListCoordinator<SourceBase: DataSource>: Coordinator
 where SourceBase.SourceBase == SourceBase {
     typealias Item = SourceBase.Item
     
     weak var storage: CoordinatorStorage<SourceBase>?
+    lazy var selectorSets = initialSelectorSets()
+    
+    #if os(iOS) || os(tvOS)
+    lazy var scrollListDelegate = UIScrollListDelegate()
+    lazy var collectionListDelegate = UICollectionListDelegate()
+    lazy var tableListDelegate = UITableListDelegate()
+    #endif
+    
+    //Source Diffing
+    var didUpdateToCoordinator = [(Coordinator, Coordinator) -> Void]()
+    var didUpdateIndices = [() -> Void]()
+    
+    var id: AnyHashable
+    
+    var sourceType = SourceType.cell
+    var multiType: SourceMultipleType { .sources }
+    var isEmpty: Bool { false }
     
     var cacheFromItem: ((Item) -> Any)?
     var listContexts = [ObjectIdentifier: ListContext]()
     var didSetup = false
     
-    var _id: AnyHashable
     var defaultUpdate = Update<Item>()
     var differ = Differ<SourceBase>()
     
-    var source: SourceBase.Source { fatalError() }
+    var source: SourceBase.Source
     
-    override var id: AnyHashable { _id }
-    
-    init(id: AnyHashable = ObjectIdentifier(SourceBase.self), storage: CoordinatorStorage<SourceBase>? = nil) {
-        _id = id
-        super.init()
+    init(
+        id: AnyHashable = ObjectIdentifier(SourceBase.self),
+        defaultUpdate: Update<Item> = .init(),
+        source: SourceBase.Source,
+        storage: CoordinatorStorage<SourceBase>?
+    ) {
+        self.id = id
         self.storage = storage
+        self.defaultUpdate = defaultUpdate
+        self.source = source
     }
+    
+    init(_ sourceBase: SourceBase, storage: CoordinatorStorage<SourceBase>? = nil) {
+        self.id = ObjectIdentifier(SourceBase.self)
+        self.storage = storage
+        self.defaultUpdate = sourceBase.listUpdate
+        self.source = sourceBase.source(storage: storage)
+    }
+    
+    func anyItem(at path: PathConvertible) -> Any { fatalError() }
+    func itemRelatedCache(at path: PathConvertible) -> ItemRelatedCache { fatalError() }
+    
+    func numbersOfSections() -> Int { fatalError() }
+    func numbersOfItems(in section: Int) -> Int { fatalError() }
     
     func item(at path: PathConvertible) -> Item { fatalError() }
     
@@ -79,23 +112,23 @@ where SourceBase.SourceBase == SourceBase {
     
     //Diffs:
     func itemDifference(
-        from coordinator: BaseCoordinator,
+        from coordinator: Coordinator,
         differ: Differ<Item>
     ) -> [Difference<ItemRelatedCache>] {
         fatalError()
     }
     
     func itemsDifference(
-        from coordinator: BaseCoordinator,
+        from coordinator: Coordinator,
         differ: Differ<Item>
     ) -> Difference<Void> {
         fatalError()
     }
     
     func sourcesDifference(
-        from coordinator: BaseCoordinator,
+        from coordinator: Coordinator,
         differ: Differ<Item>
-    ) -> Difference<BaseCoordinator> {
+    ) -> Difference<Coordinator> {
         fatalError()
     }
     
@@ -151,8 +184,24 @@ where SourceBase.SourceBase == SourceBase {
     }
     
     //Selectors
+    func apply<Object: AnyObject, Input, Output>(
+        _ keyPath: KeyPath<Coordinator, Delegate<Object, Input, Output>>,
+        object: Object,
+        with input: Input
+    ) -> Output {
+        self[keyPath: keyPath].closure!(object, input)
+    }
+    
+    func apply<Object: AnyObject, Input>(
+        _ keyPath: KeyPath<Coordinator, Delegate<Object, Input, Void>>,
+        object: Object,
+        with input: Input
+    ) {
+        self[keyPath: keyPath].closure?(object, input)
+    }
+    
     func set<Object: AnyObject, Input, Output>(
-        _ keyPath: ReferenceWritableKeyPath<BaseCoordinator, Delegate<Object, Input, Output>>,
+        _ keyPath: ReferenceWritableKeyPath<Coordinator, Delegate<Object, Input, Output>>,
         _ closure: @escaping (ListCoordinator<SourceBase>, Object, Input) -> Output
     ) {
         self[keyPath: keyPath].closure = { [unowned self] in closure(self, $0, $1) }
@@ -165,7 +214,7 @@ where SourceBase.SourceBase == SourceBase {
     }
 
     func set<Object: AnyObject, Input>(
-        _ keyPath: ReferenceWritableKeyPath<BaseCoordinator, Delegate<Object, Input, Void>>,
+        _ keyPath: ReferenceWritableKeyPath<Coordinator, Delegate<Object, Input, Void>>,
         _ closure: @escaping (ListCoordinator<SourceBase>, Object, Input) -> Void
     ) {
         self[keyPath: keyPath].closure = { [unowned self] in closure(self, $0, $1) }
@@ -177,14 +226,12 @@ where SourceBase.SourceBase == SourceBase {
         applying(&selectorSets)
     }
     
-    override func anyItem(at path: PathConvertible) -> Any { item(at: path) }
-    
-    override func setup(
+    func setup(
         listView: ListView,
         key: ObjectIdentifier,
         sectionOffset: Int = 0,
         itemOffset: Int = 0,
-        supercoordinator: BaseCoordinator? = nil
+        supercoordinator: Coordinator? = nil
     ) {
         if let context = listContexts[key] {
             context.sectionOffset = sectionOffset
@@ -200,5 +247,19 @@ where SourceBase.SourceBase == SourceBase {
         )
         listContexts[key] = context
         if !didSetup { setup() }
+    }
+    
+    func update(
+        from coordinator: Coordinator,
+        animated: Bool,
+        completion: ((Bool) -> Void)?
+    ) -> Bool {
+        false
+    }
+}
+
+extension ListCoordinator where SourceBase: UpdatableDataSource {
+    convenience init(updatable sourceBase: SourceBase) {
+        self.init(sourceBase, storage: sourceBase.coordinatorStorage)
     }
 }

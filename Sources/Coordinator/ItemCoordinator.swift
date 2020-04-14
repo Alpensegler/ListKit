@@ -7,22 +7,13 @@
 
 final class ItemCoordinator<SourceBase: DataSource>: ListCoordinator<SourceBase>
 where SourceBase.Item == SourceBase.Source, SourceBase.SourceBase == SourceBase  {
-    var item: DiffableValue<SourceBase.Item, ItemRelatedCache>
+    lazy var item = DiffableValue<SourceBase.Item, ItemRelatedCache>(
+        differ: defaultUpdate.diff,
+        value: source,
+        cache: .init()
+    )
     
-    override var source: SourceBase.Item { item.value }
     override var multiType: SourceMultipleType { .single }
-    
-    init(_ sourceBase: SourceBase, storage: CoordinatorStorage<SourceBase>? = nil) {
-        let update = sourceBase.listUpdate
-        item = .init(
-            differ: update.diff,
-            value: sourceBase.source(storage: storage),
-            cache: .init()
-        )
-        
-        super.init(storage: storage)
-        defaultUpdate = update
-    }
     
     override func item(at path: PathConvertible) -> Item { item.value }
     override func itemRelatedCache(at path: PathConvertible) -> ItemRelatedCache { item.cache }
@@ -33,11 +24,5 @@ where SourceBase.Item == SourceBase.Source, SourceBase.SourceBase == SourceBase 
     override func setup() {
         super.setup()
         sourceType = selectorSets.hasIndex ? .section : .cell
-    }
-}
-
-extension ItemCoordinator where SourceBase: UpdatableDataSource {
-    convenience init(updatable sourceBase: SourceBase) {
-        self.init(sourceBase, storage: sourceBase.coordinatorStorage)
     }
 }

@@ -13,17 +13,8 @@ where
     SourceBase.Source.Element.Element == SourceBase.Item
 {
     var sections = [[DiffableValue<Item, ItemRelatedCache>]]()
-    var _source: SourceBase.Source
-    
-    init(_ sourceBase: SourceBase, storage: CoordinatorStorage<SourceBase>? = nil) {
-        _source = sourceBase.source(storage: storage)
-        
-        super.init(storage: storage)
-        defaultUpdate = sourceBase.listUpdate
-    }
     
     override var multiType: SourceMultipleType { .multiple }
-    override var source: SourceBase.Source { _source }
     
     override func item(at path: PathConvertible) -> Item { sections[path].value }
     override func itemRelatedCache(at path: PathConvertible) -> ItemRelatedCache {
@@ -52,10 +43,4 @@ where
 {
     
     
-}
-
-extension SectionsCoordinator where SourceBase: UpdatableDataSource {
-    convenience init(updatable sourceBase: SourceBase) {
-        self.init(sourceBase, storage: sourceBase.coordinatorStorage)
-    }
 }

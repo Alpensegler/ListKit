@@ -5,19 +5,52 @@
 //  Created by Frain on 2019/11/25.
 //
 
-class ItemsCoordinator<SourceBase: DataSource>: SourceStoredListCoordinator<SourceBase>
+class ItemsCoordinator<SourceBase: DataSource>: ListCoordinator<SourceBase>
 where
     SourceBase.SourceBase == SourceBase,
     SourceBase.Source: Collection,
     SourceBase.Item == SourceBase.Source.Element
 {
     var items = [DiffableValue<Item, ItemRelatedCache>]()
+    var _source: SourceBase.Source
+    
+    override var source: SourceBase.Source { _source }
     
     override var multiType: SourceMultipleType {
         sourceType == .section ? .single : .multiple
     }
     
     override var isEmpty: Bool { sourceType == .cell && items.isEmpty }
+    
+    func difference(
+        to isTo: Bool,
+        items: [DiffableValue<Item, ItemRelatedCache>],
+        source: SourceBase.Source,
+        differ: Differ<Item>?
+    ) -> ValueDifference<Item, ItemRelatedCache> {
+        let (sourceItems, tagetItems) = isTo ? (items, self.items) : (self.items, items)
+        let targetSource = isTo ? source : self.source
+        let diff = ValueDifference(source: sourceItems, target: tagetItems, differ: differ)
+        diff.starting = {
+            self.configNestedNotNewIfNeeded()
+            if isTo { return }
+            self.items = items
+            self._source = source
+        }
+        diff.ending = {
+            self.items = sourceItems
+            self._source = targetSource
+        }
+        diff.finish = configNestedIfNeeded
+        return diff
+    }
+    
+    init(_ sourceBase: SourceBase, storage: CoordinatorStorage<SourceBase>? = nil) {
+        _source = sourceBase.source(storage: storage)
+        
+        super.init(storage: storage)
+        defaultUpdate = sourceBase.listUpdate
+    }
     
     override func item(at path: PathConvertible) -> Item { items[path.item].value }
     override func itemRelatedCache(at path: PathConvertible) -> ItemRelatedCache {
@@ -37,28 +70,9 @@ where
         from coordinator: BaseCoordinator,
         differ: Differ<Item>
     ) -> [Difference<ItemRelatedCache>] {
-        return [diff(from: coordinator as! ItemsCoordinator<SourceBase>, differ: differ)]
-    }
-    
-    func diff(
-        from coordinator: ItemsCoordinator<SourceBase>,
-        differ: Differ<Item>
-    ) -> ValueDifference<Item, ItemRelatedCache> {
-        let diff = ValueDifference(source: coordinator.items, target: items, differ: differ)
-        diff.starting = {
-//            if coordinator.needUpdateCaches {
-//                self.needUpdateCaches = true
-//                self.configNestedNotNewIfNeeded()
-//            }
-            self.items = coordinator.items
-            self._source = coordinator._source
-        }
-        diff.ending = { [items, _source] in
-            self.items = items
-            self._source = _source
-        }
-        diff.finish = configNestedIfNeeded
-        return diff
+        let coordinator = coordinator as! ItemsCoordinator<SourceBase>
+        let (items, source) = (coordinator.items, coordinator.source)
+        return [difference(to: false, items: items, source: source, differ: differ)]
     }
 }
 
@@ -68,16 +82,24 @@ where
     SourceBase.Source: RangeReplaceableCollection,
     SourceBase.Source.Element == SourceBase.Item
 {
-    override func diff(
-        from coordinator: ItemsCoordinator<SourceBase>,
-        differ: Differ<Item>
+    override func difference(
+        to isTo: Bool,
+        items: [DiffableValue<Item, ItemRelatedCache>],
+        source: SourceBase.Source,
+        differ: Differ<Item>?
     ) -> ValueDifference<Item, ItemRelatedCache> {
-        let diff = super.diff(from: coordinator, differ: differ)
+        let diff = super.difference(to: isTo, items: items, source: source, differ: differ)
         diff.applying = {
             self.items.apply($0) { $0.value }
             self._source.apply($0) { $0.value.value }
         }
         return diff
+    }
+}
+
+extension ItemsCoordinator where SourceBase: UpdatableDataSource {
+    convenience init(updatable sourceBase: SourceBase) {
+        self.init(sourceBase, storage: sourceBase.coordinatorStorage)
     }
 }
 

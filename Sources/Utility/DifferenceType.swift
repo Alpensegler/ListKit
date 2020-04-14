@@ -116,6 +116,46 @@ final class ValueDifference<Value, Cache>: Difference<Cache> {
     }
 }
 
+extension ValueDifference {
+    convenience init(
+        source: [DiffableValue<Value, Cache>],
+        target: [DiffableValue<Value, Cache>],
+        differ: Differ<Value>? = nil
+    ) {
+        let diffs = target.diff(from: source) { $0.isDiffEqual(with: $1, differ: differ) }
+        self.init(
+            source: source,
+            target: target,
+            insertionValues: diffs.map { .init($0._element, differ: differ, index: $0._offset) },
+            removalValues: diffs.map { .init($0._element, differ: differ, index: $0._offset)  }
+        )
+    }
+}
+
+extension RangeReplaceableCollection {
+    mutating func apply<Cache, Value>(
+        _ difference: ValueDifference<Value, Cache>,
+        valueTransform: (ValueChangeClass<Value, Cache>) -> Element
+    ) {
+        _apply(
+            difference,
+            insertion: \.insertionValues,
+            removals: \.removalValues
+        ) { valueTransform($0) }
+    }
+    
+    mutating func apply<Cache>(
+        _ difference: Difference<Cache>,
+        valueTransform: (DiffChange<Cache>) -> Element
+    ) {
+        _apply(
+            difference,
+            insertion: \.insertions,
+            removals: \.removals
+        ) { valueTransform($0) }
+    }
+}
+
 fileprivate extension DifferenceType {
     func _fastEnumeratedApply<Cache, Change: DiffChange<Cache>>(
         insertion: KeyPath<Self, [Change]>,
@@ -204,45 +244,5 @@ fileprivate extension RangeReplaceableCollection {
         append(into: &result, contentsOf: self, from: &currentIndex, count: origCount)
         
         self = result
-    }
-}
-
-extension ValueDifference {
-    convenience init(
-        source: [DiffableValue<Value, Cache>],
-        target: [DiffableValue<Value, Cache>],
-        differ: Differ<Value>? = nil
-    ) {
-        let diffs = target.diff(from: source) { $0.isDiffEqual(with: $1, differ: differ) }
-        self.init(
-            source: source,
-            target: target,
-            insertionValues: diffs.map { .init($0._element, differ: differ, index: $0._offset) },
-            removalValues: diffs.map { .init($0._element, differ: differ, index: $0._offset)  }
-        )
-    }
-}
-
-extension RangeReplaceableCollection {
-    mutating func apply<Cache, Value>(
-        _ difference: ValueDifference<Value, Cache>,
-        valueTransform: (ValueChangeClass<Value, Cache>) -> Element
-    ) {
-        _apply(
-            difference,
-            insertion: \.insertionValues,
-            removals: \.removalValues
-        ) { valueTransform($0) }
-    }
-    
-    mutating func apply<Cache>(
-        _ difference: Difference<Cache>,
-        valueTransform: (DiffChange<Cache>) -> Element
-    ) {
-        _apply(
-            difference,
-            insertion: \.insertions,
-            removals: \.removals
-        ) { valueTransform($0) }
     }
 }

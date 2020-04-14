@@ -29,12 +29,16 @@ where SourceBase.SourceBase == SourceBase, OtherSourceBase: DataSource {
     init(
         source: SourceBase.Source,
         wrappedCoodinator: ListCoordinator<OtherSourceBase.SourceBase>,
+        storage: CoordinatorStorage<SourceBase>? = nil,
         itemTransform: @escaping (OtherSourceBase.Item) -> SourceBase.Item
     ) {
         self._source = source
         self.wrappedCoodinator = wrappedCoodinator
         self.itemTransform = itemTransform
-        super.init()
+        super.init(
+            id: HashCombiner(ObjectIdentifier(SourceBase.self), ObjectIdentifier(OtherSourceBase.self)),
+            storage: storage
+        )
     }
     
     func subcoordinator<Object: AnyObject, Input, Output>(
@@ -149,5 +153,32 @@ where SourceBase.SourceBase == SourceBase, OtherSourceBase: DataSource {
         let coordinator = subcoordinator(for: closure, object: object, with: input)
         coordinator?.apply(keyPath, object: object, with: input)
         super.apply(keyPath, object: object, with: input)
+    }
+}
+
+extension WrapperCoordinator
+where
+    SourceBase.Source == OtherSourceBase,
+    SourceBase.Item == OtherSourceBase.Item
+{
+    convenience init(_ sourceBase: SourceBase, storage: CoordinatorStorage<SourceBase>? = nil) {
+        let source = sourceBase.source(storage: storage)
+        self.init(
+            source: source,
+            wrappedCoodinator: source.makeListCoordinator(),
+            storage: storage
+        ) { $0 }
+    }
+}
+
+extension WrapperCoordinator
+where
+    SourceBase.Source == OtherSourceBase,
+    SourceBase.Item == OtherSourceBase.Item,
+    SourceBase: UpdatableDataSource
+{
+    
+    convenience init(updatable sourceBase: SourceBase) {
+        self.init(sourceBase, storage: sourceBase.coordinatorStorage)
     }
 }

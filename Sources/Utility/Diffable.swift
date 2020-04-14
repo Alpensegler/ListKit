@@ -5,36 +5,53 @@
 //  Created by Frain on 2020/1/16.
 //
 
-protocol DiffEquatable: Hashable {
-    func diffEqual(to other: Self, default value: Bool) -> Bool
-    var shouldHash: Bool { get }
-}
-
-extension DiffEquatable {
-    var shouldHash: Bool { true }
-    func diffEqual(to other: Self) -> Bool { diffEqual(to: other, default: false) }
-}
-
-extension Never: DiffEquatable {
-    func diffEqual(to other: Self, default value: Bool) -> Bool { }
-}
-
-
-struct Diffable<Value>: DiffEquatable {
-    let id: AnyHashable
-    let differ: Differ<Value>
-    let value: Value
+class Diffable<Cache>: Hashable {
+    var cache: Cache
     
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
+    func hash(into hasher: inout Hasher) { }
+    func isEquatable(with other: Diffable<Cache>) -> Bool { false }
+    
+    static func == (lhs: Diffable<Cache>, rhs: Diffable<Cache>) -> Bool {
+        lhs.isEquatable(with: rhs)
+    }
+    
+    init(cache: Cache) {
+        self.cache = cache
+    }
+}
+
+final class DiffableValue<Value, Cache>: Diffable<Cache> {
+    var id: AnyHashable?
+    var differ: Differ<Value>
+    var value: Value
+    
+    init(id: AnyHashable?, differ: Differ<Value>, value: Value, cache: Cache) {
+        self.differ = differ
+        self.value = value
+        self.id = id
+        super.init(cache: cache)
+    }
+    
+    convenience init(differ: Differ<Value>?, value: Value, cache: Cache) {
+        let id = differ?.isNone != false ? nil : ObjectIdentifier(Value.self)
+        self.init(id: id, differ: differ ?? .init(), value: value, cache: cache)
+    }
+    
+    override func hash(into hasher: inout Hasher) {
+        id.map { hasher.combine($0) }
         differ.hash(value: value, into: &hasher)
     }
     
-    func diffEqual(to other: Self, default value: Bool) -> Bool {
-        id == other.id && differ.diffEqual(lhs: self.value, rhs: other.value, default: value)
+    override func isEquatable(with other: Diffable<Cache>) -> Bool {
+        guard let other = other as? Self else { return false }
+        return differ.diffEqual(lhs: value, rhs: other.value)
     }
     
-    static func == (lhs: Self, rhs: Self) -> Bool {
-        lhs.id == rhs.id && lhs.differ.equal(lhs: lhs.value, rhs: rhs.value)
+    func isDiffEqual(
+        with other: Diffable<Cache>,
+        differ: Differ<Value>?
+    ) -> Bool {
+        guard let other = other as? Self, id == other.id else { return false }
+        return (differ ?? self.differ).diffEqual(lhs: self.value, rhs: other.value)
     }
 }

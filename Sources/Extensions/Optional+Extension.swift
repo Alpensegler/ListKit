@@ -13,7 +13,7 @@ extension Optional: DataSource where Wrapped: DataSource {
     public var differ: Differ<Self> { (source?.differ).map { Differ($0) } ?? .none }
     public var listUpdate: Update<Item> { source?.listUpdate ?? .reload }
     
-    public func makeListCoordinator() -> ListCoordinator<Self> { .init() }
+    public func makeListCoordinator() -> ListCoordinator<Self> { fatalError() }
 }
 
 extension Optional: ScrollListAdapter where Wrapped: ScrollListAdapter { }

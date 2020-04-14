@@ -14,7 +14,7 @@ where
 {
     enum Source {
         case other
-        case value(DiffableValue<Element, BaseCoordinator>)
+        case value(DiffableValue<Element, Coordinator>)
     }
     
     typealias Element = SourceBase.Source.Element
@@ -76,14 +76,14 @@ where
 //        fatalError()
 //    }
 }
-
-class ItemSourcesCoordinator<Element>: BaseCoordinator where Element: DataSource {
-    var elements: [Element]
-    var coordinators: [ListCoordinator<Element.SourceBase>]
-    
-    init(elements: [Element], coordinators: [ListCoordinator<Element.SourceBase>]) {
-        self.elements = elements
-        self.coordinators = coordinators
-        super.init()
-    }
-}
+//
+//class ItemSourcesCoordinator<Element>: Coordinator where Element: DataSource {
+//    var elements: [Element]
+//    var coordinators: [ListCoordinator<Element.SourceBase>]
+//    
+//    init(elements: [Element], coordinators: [ListCoordinator<Element.SourceBase>]) {
+//        self.elements = elements
+//        self.coordinators = coordinators
+//        super.init()
+//    }
+//}

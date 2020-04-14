@@ -20,7 +20,6 @@ where
     typealias Element = SourceBase.Source.Element
     typealias Subcoordinator = ListCoordinator<Element.SourceBase>
     
-    var _source: SourceBase.Source
     var sourceIndices = [SourceIndices]()
     var subsources = [SourceBase.Source.Element]()
     var subcoordinators = [Subcoordinator]()
@@ -30,16 +29,8 @@ where
     lazy var selfSelectorSets = initialSelectorSets()
     var others = SelectorSets()
     
-    override var source: SourceBase.Source { _source }
     override var multiType: SourceMultipleType { .sources }
     override var isEmpty: Bool { sourceIndices.isEmpty }
-    
-    init(_ sourceBase: SourceBase, storage: CoordinatorStorage<SourceBase>? = nil) {
-        _source = sourceBase.source(storage: storage)
-        
-        super.init(storage: storage)
-        defaultUpdate = sourceBase.listUpdate
-    }
     
     func pathAndCoordinator(path: PathConvertible) -> (path: Path, coordinator: Subcoordinator) {
         let indexAt = sourceIndices.index(of: path)
@@ -61,7 +52,7 @@ where
         for delegate: Delegate<Object, Input, Output>,
         object: Object,
         with input: Input
-    ) -> BaseCoordinator? {
+    ) -> Coordinator? {
         guard let index = delegate.index else { return nil }
         let (sectionOffset, itemOffset) = offset(for: object)
         let offset: Int
@@ -116,7 +107,7 @@ where
     }
     
     func appendCoordinator(
-        _ subcoordinator: BaseCoordinator,
+        _ subcoordinator: Coordinator,
         offset: inout Path,
         hasSection: inout Bool
     ) {
@@ -146,7 +137,7 @@ where
     }
     
     func setCoordinator(
-        _ subcoordinator: BaseCoordinator,
+        _ subcoordinator: Coordinator,
         context: (ObjectIdentifier, ListContext),
         offset: Path
     ) {
@@ -177,7 +168,7 @@ where
         key: ObjectIdentifier,
         sectionOffset: Int = 0,
         itemOffset: Int = 0,
-        supercoordinator: BaseCoordinator? = nil
+        supercoordinator: Coordinator? = nil
     ) {
         if let context = listContexts[key] {
             context.sectionOffset = sectionOffset
@@ -214,7 +205,7 @@ where
     }
     
     override func apply<Object: AnyObject, Input, Output>(
-        _ keyPath: KeyPath<BaseCoordinator, Delegate<Object, Input, Output>>,
+        _ keyPath: KeyPath<Coordinator, Delegate<Object, Input, Output>>,
         object: Object,
         with input: Input
     ) -> Output {
@@ -225,7 +216,7 @@ where
     }
     
     override func apply<Object: AnyObject, Input>(
-        _ keyPath: KeyPath<BaseCoordinator, Delegate<Object, Input, Void>>,
+        _ keyPath: KeyPath<Coordinator, Delegate<Object, Input, Void>>,
         object: Object,
         with input: Input
     ) {
@@ -237,17 +228,11 @@ where
     
     //Diff
     override func sourcesDifference(
-        from coordinator: BaseCoordinator,
+        from coordinator: Coordinator,
         differ: Differ<Item>
-    ) -> Difference<BaseCoordinator> {
+    ) -> Difference<Coordinator> {
         
         fatalError()
-    }
-}
-
-extension SourcesCoordinator where SourceBase: UpdatableDataSource {
-    convenience init(updatable sourceBase: SourceBase) {
-        self.init(sourceBase, storage: sourceBase.coordinatorStorage)
     }
 }
 

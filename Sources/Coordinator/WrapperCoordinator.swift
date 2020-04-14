@@ -5,24 +5,19 @@
 //  Created by Frain on 2019/12/17.
 //
 
-class WrapperCoordinator<SourceBase: DataSource, OtherSourceBase>: ListCoordinator<SourceBase>
+final class WrapperCoordinator<SourceBase: DataSource, OtherSourceBase>: ListCoordinator<SourceBase>
 where SourceBase.SourceBase == SourceBase, OtherSourceBase: DataSource {
     var wrappedCoodinator: ListCoordinator<OtherSourceBase.SourceBase>
     var itemTransform: (OtherSourceBase.Item) -> SourceBase.Item
     var others: SelectorSets { wrappedCoodinator.selectorSets }
-    var _source: SourceBase.Source
     
-    lazy var combinedID = HashCombiner(_id, wrappedCoodinator.id)
     lazy var selfSelectorSets = initialSelectorSets()
-    
-    override var id: AnyHashable { combinedID }
     
     override var sourceType: SourceType {
         get { wrappedCoodinator.sourceType }
         set { wrappedCoodinator.sourceType = newValue }
     }
     
-    override var source: SourceBase.Source { _source }
     override var multiType: SourceMultipleType { wrappedCoodinator.multiType }
     override var isEmpty: Bool { wrappedCoodinator.isEmpty }
     
@@ -32,11 +27,11 @@ where SourceBase.SourceBase == SourceBase, OtherSourceBase: DataSource {
         storage: CoordinatorStorage<SourceBase>? = nil,
         itemTransform: @escaping (OtherSourceBase.Item) -> SourceBase.Item
     ) {
-        self._source = source
         self.wrappedCoodinator = wrappedCoodinator
         self.itemTransform = itemTransform
         super.init(
             id: HashCombiner(ObjectIdentifier(SourceBase.self), ObjectIdentifier(OtherSourceBase.self)),
+            source: source,
             storage: storage
         )
     }
@@ -45,7 +40,7 @@ where SourceBase.SourceBase == SourceBase, OtherSourceBase: DataSource {
         for delegate: Delegate<Object, Input, Output>,
         object: Object,
         with input: Input
-    ) -> BaseCoordinator? {
+    ) -> Coordinator? {
         others.contains(delegate.selector) ? nil : wrappedCoodinator
     }
     
@@ -76,28 +71,6 @@ where SourceBase.SourceBase == SourceBase, OtherSourceBase: DataSource {
     override func numbersOfItems(in section: Int) -> Int {
         wrappedCoodinator.numbersOfItems(in: section)
     }
-    
-    //Diffs
-    override func itemDifference<Value>(
-        from coordinator: BaseCoordinator,
-        differ: Differ<Value>
-    ) -> [Difference<ItemRelatedCache>] {
-        wrappedCoodinator.itemDifference(from: coordinator, differ: differ)
-    }
-    
-    override func itemsDifference<Value>(
-        from coordinator: BaseCoordinator,
-        differ: Differ<Value>
-    ) -> Difference<Void> {
-        wrappedCoodinator.itemsDifference(from: coordinator, differ: differ)
-    }
-    
-    override func sourcesDifference<Value>(
-        from coordinator: BaseCoordinator,
-        differ: Differ<Value>
-    ) -> Difference<BaseCoordinator> {
-        wrappedCoodinator.sourcesDifference(from: coordinator, differ: differ)
-    }
 
     override func setup() {
         super.setup()
@@ -109,7 +82,7 @@ where SourceBase.SourceBase == SourceBase, OtherSourceBase: DataSource {
         key: ObjectIdentifier,
         sectionOffset: Int = 0,
         itemOffset: Int = 0,
-        supercoordinator: BaseCoordinator? = nil
+        supercoordinator: Coordinator? = nil
     ) {
         wrappedCoodinator.setup(
             listView: listView,
@@ -134,7 +107,7 @@ where SourceBase.SourceBase == SourceBase, OtherSourceBase: DataSource {
     }
     
     override func apply<Object: AnyObject, Input, Output>(
-        _ keyPath: KeyPath<BaseCoordinator, Delegate<Object, Input, Output>>,
+        _ keyPath: KeyPath<Coordinator, Delegate<Object, Input, Output>>,
         object: Object,
         with input: Input
     ) -> Output {
@@ -145,7 +118,7 @@ where SourceBase.SourceBase == SourceBase, OtherSourceBase: DataSource {
     }
     
     override func apply<Object: AnyObject, Input>(
-        _ keyPath: KeyPath<BaseCoordinator, Delegate<Object, Input, Void>>,
+        _ keyPath: KeyPath<Coordinator, Delegate<Object, Input, Void>>,
         object: Object,
         with input: Input
     ) {
@@ -161,7 +134,7 @@ where
     SourceBase.Source == OtherSourceBase,
     SourceBase.Item == OtherSourceBase.Item
 {
-    convenience init(_ sourceBase: SourceBase, storage: CoordinatorStorage<SourceBase>? = nil) {
+    convenience init(wrapperSourceBase sourceBase: SourceBase, storage: CoordinatorStorage<SourceBase>? = nil) {
         let source = sourceBase.source(storage: storage)
         self.init(
             source: source,
@@ -178,7 +151,7 @@ where
     SourceBase: UpdatableDataSource
 {
     
-    convenience init(updatable sourceBase: SourceBase) {
-        self.init(sourceBase, storage: sourceBase.coordinatorStorage)
+    convenience init(updatableWrapper sourceBase: SourceBase) {
+        self.init(wrapperSourceBase: sourceBase, storage: sourceBase.coordinatorStorage)
     }
 }

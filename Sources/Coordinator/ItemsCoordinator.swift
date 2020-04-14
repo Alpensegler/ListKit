@@ -12,9 +12,6 @@ where
     SourceBase.Item == SourceBase.Source.Element
 {
     var items = [DiffableValue<Item, ItemRelatedCache>]()
-    var _source: SourceBase.Source
-    
-    override var source: SourceBase.Source { _source }
     
     override var multiType: SourceMultipleType {
         sourceType == .section ? .single : .multiple
@@ -35,21 +32,14 @@ where
             self.configNestedNotNewIfNeeded()
             if isTo { return }
             self.items = items
-            self._source = source
+            self.source = source
         }
         diff.ending = {
             self.items = sourceItems
-            self._source = targetSource
+            self.source = targetSource
         }
         diff.finish = configNestedIfNeeded
         return diff
-    }
-    
-    init(_ sourceBase: SourceBase, storage: CoordinatorStorage<SourceBase>? = nil) {
-        _source = sourceBase.source(storage: storage)
-        
-        super.init(storage: storage)
-        defaultUpdate = sourceBase.listUpdate
     }
     
     override func item(at path: PathConvertible) -> Item { items[path.item].value }
@@ -67,7 +57,7 @@ where
     }
     
     override func itemDifference(
-        from coordinator: BaseCoordinator,
+        from coordinator: Coordinator,
         differ: Differ<Item>
     ) -> [Difference<ItemRelatedCache>] {
         let coordinator = coordinator as! ItemsCoordinator<SourceBase>
@@ -91,15 +81,9 @@ where
         let diff = super.difference(to: isTo, items: items, source: source, differ: differ)
         diff.applying = {
             self.items.apply($0) { $0.value }
-            self._source.apply($0) { $0.value.value }
+            self.source.apply($0) { $0.value.value }
         }
         return diff
-    }
-}
-
-extension ItemsCoordinator where SourceBase: UpdatableDataSource {
-    convenience init(updatable sourceBase: SourceBase) {
-        self.init(sourceBase, storage: sourceBase.coordinatorStorage)
     }
 }
 

@@ -13,7 +13,7 @@ protocol ListAdapter: UpdatableDataSource where Source == SourceBase {
     associatedtype ItemContext
     
     var coordinatorSetups: [(ListCoordinator<Source>) -> Void] { get }
-    static var rootKeyPath: ReferenceWritableKeyPath<BaseCoordinator, ViewDelegates> { get }
+    static var rootKeyPath: ReferenceWritableKeyPath<Coordinator, ViewDelegates> { get }
     
     static func toContext(_ view: View, _ coordinator: ListCoordinator<Source>) -> Context
     

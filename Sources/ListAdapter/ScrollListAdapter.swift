@@ -48,7 +48,7 @@ where Source.SourceBase == Source {
 import UIKit
 
 extension ScrollList: ListAdapter {
-    static var rootKeyPath: ReferenceWritableKeyPath<BaseCoordinator, UIScrollListDelegate> {
+    static var rootKeyPath: ReferenceWritableKeyPath<Coordinator, UIScrollListDelegate> {
         \.scrollListDelegate
     }
     

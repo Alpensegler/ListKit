@@ -70,7 +70,7 @@ public extension CollectionListAdapter {
 #if os(iOS) || os(tvOS)
 
 extension CollectionList: ListAdapter {
-    static var rootKeyPath: ReferenceWritableKeyPath<BaseCoordinator, UICollectionListDelegate> {
+    static var rootKeyPath: ReferenceWritableKeyPath<Coordinator, UICollectionListDelegate> {
         \.collectionListDelegate
     }
     

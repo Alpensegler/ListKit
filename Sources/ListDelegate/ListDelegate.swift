@@ -9,14 +9,14 @@ import Foundation
 
 final class ListDelegate: NSObject {
     unowned let listView: SetuptableListView
-    private(set) var coordinator: BaseCoordinator!
+    private(set) var coordinator: Coordinator!
     
     init(_ listView: SetuptableListView) {
         self.listView = listView
     }
     
     func setCoordinator(
-        coordinator: BaseCoordinator,
+        coordinator: Coordinator,
         animated: Bool,
         completion: ((Bool) -> Void)?
     ) {
@@ -34,7 +34,7 @@ final class ListDelegate: NSObject {
     }
     
     func apply<Object: AnyObject, Input, Output>(
-        _ keyPath: KeyPath<BaseCoordinator, Delegate<Object, Input, Output>>,
+        _ keyPath: KeyPath<Coordinator, Delegate<Object, Input, Output>>,
         object: Object,
         with input: Input
     ) -> Output {
@@ -42,7 +42,7 @@ final class ListDelegate: NSObject {
     }
     
     func apply<Object: AnyObject, Input>(
-        _ keyPath: KeyPath<BaseCoordinator, Delegate<Object, Input, Void>>,
+        _ keyPath: KeyPath<Coordinator, Delegate<Object, Input, Void>>,
         object: Object,
         with input: Input
     ) {
@@ -50,14 +50,14 @@ final class ListDelegate: NSObject {
     }
     
     func apply<Object: AnyObject, Output>(
-        _ keyPath: KeyPath<BaseCoordinator, Delegate<Object, Void, Output>>,
+        _ keyPath: KeyPath<Coordinator, Delegate<Object, Void, Output>>,
         object: Object
     ) -> Output {
         apply(keyPath, object: object, with: ())
     }
     
     func apply<Object: AnyObject>(
-        _ keyPath: KeyPath<BaseCoordinator, Delegate<Object, Void, Void>>,
+        _ keyPath: KeyPath<Coordinator, Delegate<Object, Void, Void>>,
         object: Object
     ) {
         apply(keyPath, object: object, with: ())

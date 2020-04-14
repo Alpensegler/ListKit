@@ -8,7 +8,7 @@
 public extension DataSource
 where SourceBase.Source: DataSource, SourceBase.Source.Item == Item {
     func makeListCoordinator() -> ListCoordinator<SourceBase> {
-        WrapperCoordinator(sourceBase)
+        WrapperCoordinator(wrapperSourceBase: sourceBase)
     }
 }
 
@@ -19,6 +19,6 @@ where
     SourceBase.Source.Item == Item
 {
     func makeListCoordinator() -> ListCoordinator<SourceBase> {
-        WrapperCoordinator(updatable: sourceBase)
+        WrapperCoordinator(updatableWrapper: sourceBase)
     }
 }

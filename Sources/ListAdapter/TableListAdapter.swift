@@ -70,7 +70,7 @@ public extension TableListAdapter {
 #if os(iOS) || os(tvOS)
 
 extension TableList: ListAdapter {
-    static var rootKeyPath: ReferenceWritableKeyPath<BaseCoordinator, UITableListDelegate> {
+    static var rootKeyPath: ReferenceWritableKeyPath<Coordinator, UITableListDelegate> {
         \.tableListDelegate
     }
     

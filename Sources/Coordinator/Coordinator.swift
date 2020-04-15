@@ -17,11 +17,6 @@ enum SourceMultipleType {
     case noneDiffable
 }
 
-final class ItemRelatedCache {
-    var nestedAdapterItemUpdate = [AnyHashable: (Bool, (Any) -> Void)]()
-    var cacheForItem = [ObjectIdentifier: Any]()
-}
-
 protocol Coordinator: AnyObject {
     var sourceType: SourceType { get }
     var selectorSets: SelectorSets { get }

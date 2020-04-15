@@ -19,6 +19,11 @@ final class ListContext {
     }
 }
 
+final class ItemRelatedCache {
+    var nestedAdapterItemUpdate = [AnyHashable: (Bool, (Any) -> Void)]()
+    var cacheForItem = [ObjectIdentifier: Any]()
+}
+
 public class ListCoordinator<SourceBase: DataSource>: Coordinator
 where SourceBase.SourceBase == SourceBase {
     typealias Item = SourceBase.Item

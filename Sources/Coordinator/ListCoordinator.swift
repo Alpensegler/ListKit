@@ -75,7 +75,6 @@ where SourceBase.SourceBase == SourceBase {
         self.source = sourceBase.source(storage: storage)
     }
     
-    func anyItem(at path: PathConvertible) -> Any { fatalError() }
     func itemRelatedCache(at path: PathConvertible) -> ItemRelatedCache { fatalError() }
     
     func numbersOfSections() -> Int { fatalError() }
@@ -119,21 +118,7 @@ where SourceBase.SourceBase == SourceBase {
     func itemDifference(
         from coordinator: Coordinator,
         differ: Differ<Item>
-    ) -> [Difference<ItemRelatedCache>] {
-        fatalError()
-    }
-    
-    func itemsDifference(
-        from coordinator: Coordinator,
-        differ: Differ<Item>
-    ) -> Difference<Void> {
-        fatalError()
-    }
-    
-    func sourcesDifference(
-        from coordinator: Coordinator,
-        differ: Differ<Item>
-    ) -> Difference<Coordinator> {
+    ) -> [ItemCacheDifference] {
         fatalError()
     }
     

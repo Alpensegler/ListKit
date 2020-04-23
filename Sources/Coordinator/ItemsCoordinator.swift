@@ -24,10 +24,10 @@ where
         items: [DiffableValue<Item, ItemRelatedCache>],
         source: SourceBase.Source,
         differ: Differ<Item>?
-    ) -> ValueDifference<Item, ItemRelatedCache> {
+    ) -> ItemValueDifference<Item> {
         let (sourceItems, tagetItems) = isTo ? (items, self.items) : (self.items, items)
         let targetSource = isTo ? source : self.source
-        let diff = ValueDifference(source: sourceItems, target: tagetItems, differ: differ)
+        let diff = ItemValueDifference(source: sourceItems, target: tagetItems, differ: differ)
         diff.starting = {
             self.configNestedNotNewIfNeeded()
             if isTo { return }
@@ -59,7 +59,7 @@ where
     override func itemDifference(
         from coordinator: Coordinator,
         differ: Differ<Item>
-    ) -> [Difference<ItemRelatedCache>] {
+    ) -> [ItemCacheDifference] {
         let coordinator = coordinator as! ItemsCoordinator<SourceBase>
         let (items, source) = (coordinator.items, coordinator.source)
         return [difference(to: false, items: items, source: source, differ: differ)]
@@ -77,11 +77,11 @@ where
         items: [DiffableValue<Item, ItemRelatedCache>],
         source: SourceBase.Source,
         differ: Differ<Item>?
-    ) -> ValueDifference<Item, ItemRelatedCache> {
+    ) -> ItemValueDifference<Item> {
         let diff = super.difference(to: isTo, items: items, source: source, differ: differ)
         diff.applying = {
-            self.items.apply($0) { $0.value }
-            self.source.apply($0) { $0.value.value }
+            self.items.apply($0, indexTransform: Path.transform) { $0.value }
+            self.source.apply($0, indexTransform: Path.transform) { $0.value.value }
         }
         return diff
     }

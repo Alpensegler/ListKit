@@ -225,15 +225,6 @@ where
         coordinator?.apply(keyPath, object: object, with: input)
         super.apply(keyPath, object: object, with: input)
     }
-    
-    //Diff
-    override func sourcesDifference(
-        from coordinator: Coordinator,
-        differ: Differ<Item>
-    ) -> Difference<Coordinator> {
-        
-        fatalError()
-    }
 }
 
 fileprivate extension BidirectionalCollection {

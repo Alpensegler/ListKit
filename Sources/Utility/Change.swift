@@ -5,7 +5,7 @@
 //  Created by Frain on 2019/11/15.
 //
 
-class Change<Index> {
+class Change<Index: Equatable> {
     let index: Index
     var isReload = false
     var associated: Change<Index>? {
@@ -20,9 +20,9 @@ class Change<Index> {
     }
 }
 
-class DiffChange<Cache>: Change<Int> {
+class DiffChange<Cache, Index: Equatable>: Change<Index> {
     var diffable: Diffable<Cache>
-    var diffAssociated: DiffChange<Cache>? {
+    var diffAssociated: DiffChange<Cache, Index>? {
         didSet {
             if diffAssociated?.diffAssociated === self { return }
             associated = diffAssociated
@@ -30,16 +30,16 @@ class DiffChange<Cache>: Change<Int> {
         }
     }
     
-    init(diffable: Diffable<Cache>, index: Int) {
+    init(diffable: Diffable<Cache>, index: Index) {
         self.diffable = diffable
         super.init(index: index)
     }
 }
 
-final class ValueChangeClass<Value, Cache>: DiffChange<Cache> {
+final class ValueChange<Value, Cache, Index: Equatable>: DiffChange<Cache, Index> {
     var value: DiffableValue<Value, Cache>
     var differ: Differ<Value>
-    var valueAssociated: ValueChangeClass<Value, Cache>? {
+    var valueAssociated: ValueChange<Value, Cache, Index>? {
         didSet {
             if valueAssociated?.valueAssociated === self { return }
             diffAssociated = valueAssociated
@@ -47,7 +47,7 @@ final class ValueChangeClass<Value, Cache>: DiffChange<Cache> {
         }
     }
     
-    init(_ value: DiffableValue<Value, Cache>, differ: Differ<Value>?, index: Int) {
+    init(_ value: DiffableValue<Value, Cache>, differ: Differ<Value>?, index: Index) {
         self.value = value
         self.differ = differ ?? value.differ
         super.init(diffable: value, index: index)

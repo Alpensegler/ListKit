@@ -16,6 +16,8 @@ struct Path: Hashable, Comparable, PathConvertible {
     var item: Int = 0
     var path: Path { self }
     
+    static var transform: (Path) -> Int { { $0.item } }
+    
     static func < (lhs: Path, rhs: Path) -> Bool {
         lhs.section < rhs.section || (lhs.section == rhs.section && lhs.item < rhs.item)
     }
@@ -26,6 +28,10 @@ struct Path: Hashable, Comparable, PathConvertible {
 
     static func + (lhs: Path, rhs: Path) -> Path {
         Path(section: lhs.section + rhs.section, item: lhs.item + rhs.item)
+    }
+    
+    func adding(_ item: Int) -> Path {
+        Path(section: section, item: self.item + item)
     }
 }
 

@@ -11,6 +11,7 @@ import ListKit
 
 class ViewController: DemoViewController, UpdatableTableListAdapter {
     typealias Item = Any
+    typealias SourcesItem = (title: String, viewController: UIViewController.Type)
     var source: AnyTableSources {
         AnyTableSources {
             page("nested", NestedViewController.self)
@@ -22,7 +23,7 @@ class ViewController: DemoViewController, UpdatableTableListAdapter {
         apply(by: tableView)
     }
     
-    func page(_ title: String, _ viewController: UIViewController.Type) -> some TableListAdapter {
+    func page(_ title: String, _ viewController: UIViewController.Type) -> TableList<Sources<SourcesItem, SourcesItem>> {
         Sources(item: (title: title, viewController: viewController))
             .tableViewCellForRow { (context, item) -> UITableViewCell in
                 let labelCell = context.dequeueReusableCell(UITableViewCell.self)

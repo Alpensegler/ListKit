@@ -13,7 +13,6 @@ class DemoViewController: UIViewController {
         let tableView = UITableView(frame: view.bounds)
         view.addSubview(tableView)
         tableView.autoresizingMask = [.flexibleHeight, .flexibleWidth]
-        tableView.backgroundColor = .systemBackground
         return tableView
     }()
     
@@ -21,7 +20,6 @@ class DemoViewController: UIViewController {
         let collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: UICollectionViewLayout())
         view.addSubview(collectionView)
         collectionView.autoresizingMask = [.flexibleHeight, .flexibleWidth]
-        collectionView.backgroundColor = .systemBackground
         return collectionView
     }()
 }

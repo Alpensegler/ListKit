@@ -9,7 +9,7 @@
 import UIKit
 import ListKit
 
-class TestViewController: DemoViewController, UpdatableTableListAdapter {
+class TestListViewController: ExampleViewController, UpdatableTableListAdapter {
     typealias Item = Any
     var source: AnyTableSources {
         AnyTableSources {

@@ -37,13 +37,13 @@
 		F36550232451B4070038172F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F36550222451B4070038172F /* Assets.xcassets */; };
 		F36550262451B4070038172F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F36550242451B4070038172F /* LaunchScreen.storyboard */; };
 		F365502E2451B6710038172F /* Cell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F365502D2451B6710038172F /* Cell.swift */; };
-		F36550312451B6840038172F /* TestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F365502F2451B6840038172F /* TestViewController.swift */; };
-		F36550322451B6840038172F /* NestedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F36550302451B6840038172F /* NestedViewController.swift */; };
+		F36550312451B6840038172F /* TestListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F365502F2451B6840038172F /* TestListViewController.swift */; };
+		F36550322451B6840038172F /* NestedListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F36550302451B6840038172F /* NestedListViewController.swift */; };
 		F36550342451B6910038172F /* ListKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "ListKit::ListKit::Product" /* ListKit.framework */; };
 		F36550352451B6910038172F /* ListKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = "ListKit::ListKit::Product" /* ListKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		F365503A2451B6B20038172F /* DemoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F36550392451B6B20038172F /* DemoViewController.swift */; };
+		F365503A2451B6B20038172F /* ExampleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F36550392451B6B20038172F /* ExampleViewController.swift */; };
 		F365503E2451B78B0038172F /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F365503D2451B78B0038172F /* Default-568h@2x.png */; };
-		F36550402451BA2D0038172F /* ContentsViewControllerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F365503F2451BA2D0038172F /* ContentsViewControllerViewController.swift */; };
+		F36550402451BA2D0038172F /* ContentsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F365503F2451BA2D0038172F /* ContentsViewController.swift */; };
 		F37A122A239FC0720001E9EE /* SrcollListAdapter+UIKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = F37A1229239FC0720001E9EE /* SrcollListAdapter+UIKit.swift */; };
 		F37A122E239FC0CB0001E9EE /* CollectionListAdapter+UIKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = F37A122D239FC0CB0001E9EE /* CollectionListAdapter+UIKit.swift */; };
 		F37BF3CA239686470095C419 /* ItemCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F37BF3C9239686470095C419 /* ItemCoordinator.swift */; };
@@ -154,11 +154,11 @@
 		F36550252451B4070038172F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		F36550272451B4070038172F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F365502D2451B6710038172F /* Cell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Cell.swift; sourceTree = "<group>"; };
-		F365502F2451B6840038172F /* TestViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestViewController.swift; sourceTree = "<group>"; };
-		F36550302451B6840038172F /* NestedViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NestedViewController.swift; sourceTree = "<group>"; };
-		F36550392451B6B20038172F /* DemoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DemoViewController.swift; sourceTree = "<group>"; };
+		F365502F2451B6840038172F /* TestListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestListViewController.swift; sourceTree = "<group>"; };
+		F36550302451B6840038172F /* NestedListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NestedListViewController.swift; sourceTree = "<group>"; };
+		F36550392451B6B20038172F /* ExampleViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExampleViewController.swift; sourceTree = "<group>"; };
 		F365503D2451B78B0038172F /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
-		F365503F2451BA2D0038172F /* ContentsViewControllerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ContentsViewControllerViewController.swift; path = ListKitExample/ContentsViewControllerViewController.swift; sourceTree = SOURCE_ROOT; };
+		F365503F2451BA2D0038172F /* ContentsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ContentsViewController.swift; path = ListKitExample/ContentsViewController.swift; sourceTree = SOURCE_ROOT; };
 		F37A1229239FC0720001E9EE /* SrcollListAdapter+UIKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SrcollListAdapter+UIKit.swift"; sourceTree = "<group>"; };
 		F37A122D239FC0CB0001E9EE /* CollectionListAdapter+UIKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CollectionListAdapter+UIKit.swift"; sourceTree = "<group>"; };
 		F37BF3C9239686470095C419 /* ItemCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemCoordinator.swift; sourceTree = "<group>"; };
@@ -338,9 +338,9 @@
 			children = (
 				F365502B2451B51D0038172F /* SupportFiles */,
 				F365502C2451B6710038172F /* View */,
-				F365503F2451BA2D0038172F /* ContentsViewControllerViewController.swift */,
-				F36550302451B6840038172F /* NestedViewController.swift */,
-				F365502F2451B6840038172F /* TestViewController.swift */,
+				F365503F2451BA2D0038172F /* ContentsViewController.swift */,
+				F36550302451B6840038172F /* NestedListViewController.swift */,
+				F365502F2451B6840038172F /* TestListViewController.swift */,
 			);
 			path = ListKitExample;
 			sourceTree = "<group>";
@@ -360,7 +360,7 @@
 		F365502C2451B6710038172F /* View */ = {
 			isa = PBXGroup;
 			children = (
-				F36550392451B6B20038172F /* DemoViewController.swift */,
+				F36550392451B6B20038172F /* ExampleViewController.swift */,
 				F365502D2451B6710038172F /* Cell.swift */,
 			);
 			path = View;
@@ -654,10 +654,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				F365501A2451B4060038172F /* AppDelegate.swift in Sources */,
-				F36550402451BA2D0038172F /* ContentsViewControllerViewController.swift in Sources */,
-				F36550322451B6840038172F /* NestedViewController.swift in Sources */,
-				F365503A2451B6B20038172F /* DemoViewController.swift in Sources */,
-				F36550312451B6840038172F /* TestViewController.swift in Sources */,
+				F36550402451BA2D0038172F /* ContentsViewController.swift in Sources */,
+				F36550322451B6840038172F /* NestedListViewController.swift in Sources */,
+				F365503A2451B6B20038172F /* ExampleViewController.swift in Sources */,
+				F36550312451B6840038172F /* TestListViewController.swift in Sources */,
 				F365502E2451B6710038172F /* Cell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

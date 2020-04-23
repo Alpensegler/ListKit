@@ -8,7 +8,7 @@
 
 import UIKit
 
-class DemoViewController: UIViewController {
+class ExampleViewController: UIViewController {
     lazy var tableView: UITableView = {
         let tableView = UITableView(frame: view.bounds)
         view.addSubview(tableView)

@@ -9,7 +9,7 @@
 import UIKit
 import ListKit
 
-class NestedViewController: DemoViewController, UpdatableTableListAdapter {
+class NestedListViewController: ExampleViewController, UpdatableTableListAdapter {
     typealias Item = Any
     
     let nestedSources = Sources(items: 0..<10)

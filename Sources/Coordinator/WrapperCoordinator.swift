@@ -56,10 +56,6 @@ where SourceBase.SourceBase == SourceBase, OtherSourceBase: DataSource {
         itemTransform(wrappedCoodinator.item(at: path))
     }
     
-    override func anyItem(at path: PathConvertible) -> Any {
-        wrappedCoodinator.anyItem(at: path)
-    }
-    
     override func itemRelatedCache(at path: PathConvertible) -> ItemRelatedCache {
         wrappedCoodinator.itemRelatedCache(at: path)
     }

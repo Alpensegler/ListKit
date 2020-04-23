@@ -7,53 +7,51 @@
 
 protocol DifferenceType { }
 
-class Difference<Cache>: DifferenceType {
-    var insertions: [DiffChange<Cache>] { fatalError() }
-    var removals: [DiffChange<Cache>] { fatalError() }
+class Difference<Index: Equatable>: DifferenceType {
+    var insertions: [Change<Index>] { fatalError() }
+    var removals: [Change<Index>] { fatalError() }
+    var isEmpty: Bool { true }
+}
+
+class CacheDifference<Cache, Index: Equatable>: Difference<Index> {
+    var insertionsChange: [DiffChange<Cache, Index>] { fatalError() }
+    var removalsChange: [DiffChange<Cache, Index>] { fatalError() }
+    
+    override var insertions: [Change<Index>] { insertionsChange }
+    override var removals: [Change<Index>] { removalsChange }
     
     func add(to
-        uniqueRemovals: inout [AnyHashable: DiffChange<Cache>?],
-        uniqueInsertions: inout [AnyHashable: DiffChange<Cache>?]
+        uniqueRemovals: inout [AnyHashable: DiffChange<Cache, Index>?],
+        uniqueInsertions: inout [AnyHashable: DiffChange<Cache, Index>?]
     ) { }
     
     func applying(
-        uniqueRemovals: [AnyHashable: DiffChange<Cache>?],
-        uniqueInsertions: [AnyHashable: DiffChange<Cache>?]
+        uniqueRemovals: [AnyHashable: DiffChange<Cache, Index>?],
+        uniqueInsertions: [AnyHashable: DiffChange<Cache, Index>?]
     ) { }
+    
+    func toItemDifference() -> Difference<Path> { fatalError() }
 }
 
-final class SimpleDifference<Cache>: Difference<Cache> {
-    override var insertions: [DiffChange<Cache>] { insertionValues }
-    override var removals: [DiffChange<Cache>] { removalValues }
-    
-    var insertionValues: [DiffChange<Cache>]
-    var removalValues: [DiffChange<Cache>]
-    
-    init(insertionValues: [DiffChange<Cache>], removalValues: [DiffChange<Cache>]) {
-        self.insertionValues = insertionValues
-        self.removalValues = removalValues
-    }
-    
-}
+class ValueDifference<Value, Cache, Index: Equatable>: CacheDifference<Cache, Index> {
+    override var insertionsChange: [DiffChange<Cache, Index>] { insertionValues }
+    override var removalsChange: [DiffChange<Cache, Index>] { removalValues }
 
-final class ValueDifference<Value, Cache>: Difference<Cache> {
-    override var insertions: [DiffChange<Cache>] { insertionValues }
-    override var removals: [DiffChange<Cache>] { removalValues }
-
-    var insertionValues: [ValueChangeClass<Value, Cache>]
-    var removalValues: [ValueChangeClass<Value, Cache>]
+    var insertionValues: [ValueChange<Value, Cache, Index>]
+    var removalValues: [ValueChange<Value, Cache, Index>]
     
     var source: [DiffableValue<Value, Cache>]
     var target: [DiffableValue<Value, Cache>]
+    var differ: Differ<Value>?
     
-    var applying: ((ValueDifference<Value, Cache>) -> Void)?
+    var applying: ((ValueDifference<Value, Cache, Index>) -> Void)?
     var starting: (() -> Void)?
     var ending: (() -> Void)?
     var finish: (() -> Void)?
     
     override func add(to
-        uniqueRemovals: inout [AnyHashable: DiffChange<Cache>?],
-        uniqueInsertions: inout [AnyHashable: DiffChange<Cache>?]
+        uniqueRemovals: inout [AnyHashable: DiffChange<Cache, Index>?],
+        uniqueInsertions: inout [AnyHashable: DiffChange<Cache, Index>?]
     ) {
         for removal in removalValues {
             guard let id = removal.value.id else { continue }
@@ -75,8 +73,8 @@ final class ValueDifference<Value, Cache>: Difference<Cache> {
     }
     
     override func applying(
-        uniqueRemovals: [AnyHashable: DiffChange<Cache>?],
-        uniqueInsertions: [AnyHashable: DiffChange<Cache>?]
+        uniqueRemovals: [AnyHashable: DiffChange<Cache, Index>?],
+        uniqueInsertions: [AnyHashable: DiffChange<Cache, Index>?]
     ) {
         for removal in removalValues {
             guard let assoc = associated(for: removal, uniqueRemovals, uniqueInsertions) else {
@@ -94,29 +92,56 @@ final class ValueDifference<Value, Cache>: Difference<Cache> {
     }
     
     func associated(
-        for change: ValueChangeClass<Value, Cache>,
-        _ uniques: [AnyHashable: DiffChange<Cache>?],
-        _ assocUniques: [AnyHashable: DiffChange<Cache>?]
-    ) -> ValueChangeClass<Value, Cache>? {
+        for change: ValueChange<Value, Cache, Index>,
+        _ uniques: [AnyHashable: DiffChange<Cache, Index>?],
+        _ assocUniques: [AnyHashable: DiffChange<Cache, Index>?]
+    ) -> ValueChange<Value, Cache, Index>? {
         guard let id = change.value.id, uniques[id] != nil else { return nil }
-        return assocUniques[id] as? ValueChangeClass<Value, Cache>
+        return assocUniques[id] as? ValueChange<Value, Cache, Index>
     }
 
     init(
         source: [DiffableValue<Value, Cache>],
         target: [DiffableValue<Value, Cache>],
-        insertionValues: [ValueChangeClass<Value, Cache>] = [],
-        removalValues: [ValueChangeClass<Value, Cache>] = []
+        insertionValues: [ValueChange<Value, Cache, Index>],
+        removalValues: [ValueChange<Value, Cache, Index>],
+        differ: Differ<Value>?
     ) {
         self.source = source
         self.target = target
         self.insertionValues = insertionValues
         self.removalValues = removalValues
+        self.differ = differ
         super.init()
     }
 }
 
-extension ValueDifference {
+typealias ItemCacheDifference = CacheDifference<ItemRelatedCache, Path>
+
+class ItemValueDifference<Value>: ValueDifference<Value, ItemRelatedCache, Path> {
+    init(
+        source: [DiffableValue<Value, ItemRelatedCache>],
+        target: [DiffableValue<Value, ItemRelatedCache>],
+        differ: Differ<Value>? = nil,
+        insertOffset: Path = .init(),
+        deleteOffsey: Path = .init()
+    ) {
+        let diffs = target.diff(from: source) { $0.isDiffEqual(with: $1, differ: differ) }
+        super.init(
+            source: source,
+            target: target,
+            insertionValues: diffs.map {
+                .init($0._element, differ: differ, index: insertOffset.adding($0._offset))
+            },
+            removalValues: diffs.map {
+                .init($0._element, differ: differ, index: insertOffset.adding($0._offset))
+            },
+            differ: differ
+        )
+    }
+}
+
+extension ValueDifference where Index == Int {
     convenience init(
         source: [DiffableValue<Value, Cache>],
         target: [DiffableValue<Value, Cache>],
@@ -127,39 +152,45 @@ extension ValueDifference {
             source: source,
             target: target,
             insertionValues: diffs.map { .init($0._element, differ: differ, index: $0._offset) },
-            removalValues: diffs.map { .init($0._element, differ: differ, index: $0._offset)  }
+            removalValues: diffs.map { .init($0._element, differ: differ, index: $0._offset)  },
+            differ: differ
         )
     }
 }
 
 extension RangeReplaceableCollection {
-    mutating func apply<Cache, Value>(
-        _ difference: ValueDifference<Value, Cache>,
-        valueTransform: (ValueChangeClass<Value, Cache>) -> Element
+    mutating func apply<Cache, Value, Index>(
+        _ difference: ValueDifference<Value, Cache, Index>,
+        indexTransform: (Index) -> Int,
+        valueTransform: (ValueChange<Value, Cache, Index>) -> Element
     ) {
         _apply(
             difference,
             insertion: \.insertionValues,
-            removals: \.removalValues
-        ) { valueTransform($0) }
+            removals: \.removalValues,
+            indexTransform: indexTransform
+        ) { valueTransform($0.valueAssociated ?? $0) }
     }
     
-    mutating func apply<Cache>(
-        _ difference: Difference<Cache>,
-        valueTransform: (DiffChange<Cache>) -> Element
+    mutating func apply<Cache, Index>(
+        _ difference: CacheDifference<Cache, Index>,
+        indexTransform: (Index) -> Int,
+        valueTransform: (DiffChange<Cache, Index>) -> Element
     ) {
         _apply(
             difference,
-            insertion: \.insertions,
-            removals: \.removals
-        ) { valueTransform($0) }
+            insertion: \.insertionsChange,
+            removals: \.removalsChange,
+            indexTransform: indexTransform
+        ) { valueTransform($0.diffAssociated ?? $0) }
     }
 }
 
 fileprivate extension DifferenceType {
-    func _fastEnumeratedApply<Cache, Change: DiffChange<Cache>>(
+    func _fastEnumeratedApply<Cache, Index, Change: DiffChange<Cache, Index>>(
         insertion: KeyPath<Self, [Change]>,
         removals: KeyPath<Self, [Change]>,
+        indexTransform: (Index) -> Int,
         _ consume: (Bool, Change) -> Void
     ) {
         let removals = self[keyPath: removals]
@@ -173,9 +204,9 @@ fileprivate extension DifferenceType {
         while enumeratedRemoves < totalRemoves || enumeratedInserts < totalInserts {
             let (isInsert, change): (Bool, Change)
             if enumeratedRemoves < removals.count && enumeratedInserts < insertions.count {
-                let removeOffset = removals[enumeratedRemoves].index
-                let insertOffset = insertions[enumeratedInserts].index
-                if removeOffset - enumeratedRemoves <= insertOffset - enumeratedInserts {
+                let removeOffset = indexTransform(removals[enumeratedRemoves].index)
+                let insertOffset = indexTransform(insertions[enumeratedInserts].index)
+                if (removeOffset) - enumeratedRemoves <= insertOffset - enumeratedInserts {
                     (isInsert, change) = (false, removals[enumeratedRemoves])
                 } else {
                     (isInsert, change) = (true, insertions[enumeratedInserts])
@@ -201,10 +232,11 @@ fileprivate extension DifferenceType {
 }
 
 fileprivate extension RangeReplaceableCollection {
-    mutating func _apply<Cache, Change: DiffChange<Cache>, Difference: ListKit.Difference<Cache>>(
+    mutating func _apply<Cache, Index, Change: DiffChange<Cache, Index>, Difference: DifferenceType>(
         _ difference: Difference,
         insertion: KeyPath<Difference, [Change]>,
         removals: KeyPath<Difference, [Change]>,
+        indexTransform: (Index) -> Int,
         valueTransform: (Change) -> Element
     ) {
         var result = Self()
@@ -225,15 +257,17 @@ fileprivate extension RangeReplaceableCollection {
         
         difference._fastEnumeratedApply(
             insertion: insertion,
-            removals: removals) { (isInsert, change) in
+            removals: removals,
+            indexTransform: indexTransform
+        ) { (isInsert, change) in
             if isInsert {
-                let origCount = (change.index + enumeratedRemoves - enumeratedInserts) - enumeratedOriginals
+                let origCount = (indexTransform(change.index) + enumeratedRemoves - enumeratedInserts) - enumeratedOriginals
                 append(into: &result, contentsOf: self, from: &currentIndex, count: origCount)
                 result.append(valueTransform(change))
                 enumeratedOriginals += origCount
                 enumeratedInserts += 1
             } else {
-                let origCount = change.index - enumeratedOriginals
+                let origCount = indexTransform(change.index) - enumeratedOriginals
                 append(into: &result, contentsOf: self, from: &currentIndex, count: origCount)
                 enumeratedOriginals += origCount + 1 // Removal consumes an original element
                 currentIndex = index(after: currentIndex)

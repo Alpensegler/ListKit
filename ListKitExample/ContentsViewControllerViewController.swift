@@ -9,21 +9,14 @@
 import UIKit
 import ListKit
 
-class ViewController: DemoViewController, UpdatableTableListAdapter {
-    typealias Item = Any
-    typealias SourcesItem = (title: String, viewController: UIViewController.Type)
-    var source: AnyTableSources {
-        AnyTableSources {
-            page("nested", NestedViewController.self)
-            page("test", TestViewController.self)
-        }
-    }
+class ContentsViewController: DemoViewController, UpdatableTableListAdapter {
+    typealias Item = (title: String, viewController: UIViewController.Type)
+    lazy var source = [
+        page("nested", NestedViewController.self),
+        page("test", TestViewController.self)
+    ]
     
-    override func viewDidLoad() {
-        apply(by: tableView)
-    }
-    
-    func page(_ title: String, _ viewController: UIViewController.Type) -> TableList<Sources<SourcesItem, SourcesItem>> {
+    func page(_ title: String, _ viewController: UIViewController.Type) -> TableList<Sources<Item, Item>> {
         Sources(item: (title: title, viewController: viewController))
             .tableViewCellForRow { (context, item) -> UITableViewCell in
                 let labelCell = context.dequeueReusableCell(UITableViewCell.self)
@@ -33,5 +26,9 @@ class ViewController: DemoViewController, UpdatableTableListAdapter {
             .tableViewDidSelectRow { [unowned navigationController] (context, item) in
                 navigationController?.pushViewController(item.viewController.init(), animated: true)
             }
+    }
+    
+    override func viewDidLoad() {
+        apply(by: tableView)
     }
 }

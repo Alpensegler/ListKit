@@ -30,10 +30,6 @@ public struct AnyCollectionSourcesBuilder {
     public static func buildEither<FalseContent: CollectionListAdapter>(second: FalseContent) -> FalseContent {
         second
     }
-    
-    public static func buildBlock() -> CollectionList<Sources<[AnyCollectionSources], Any>> {
-        CollectionList(Sources(dataSources: []))
-    }
 
     public static func buildBlock<S: CollectionListAdapter>(_ content: S) -> S {
         content

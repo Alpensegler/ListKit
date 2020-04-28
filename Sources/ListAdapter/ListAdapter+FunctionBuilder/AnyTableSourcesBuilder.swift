@@ -30,10 +30,6 @@ public struct AnyTableSourcesBuilder {
     public static func buildEither<FalseContent: TableListAdapter>(second: FalseContent) -> FalseContent {
         second
     }
-    
-    public static func buildBlock() -> TableList<Sources<[AnyTableSources], Any>> {
-        TableList(Sources(dataSources: []))
-    }
 
     public static func buildBlock<S: TableListAdapter>(_ content: S) -> S {
         content

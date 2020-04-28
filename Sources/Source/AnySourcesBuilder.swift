@@ -25,10 +25,6 @@ public struct AnySourcesBuilder {
         second
     }
     
-    public static func buildBlock() -> Sources<[AnySources], Any>  {
-        Sources(dataSources: [])
-    }
-    
     public static func buildBlock<S: DataSource>(_ content: S) -> S {
         content
     }

@@ -13,7 +13,17 @@ extension Optional: DataSource where Wrapped: DataSource {
     public var differ: Differ<Self> { (source?.differ).map { Differ($0) } ?? .none }
     public var listUpdate: Update<Item> { source?.listUpdate ?? .reload }
     
-    public func makeListCoordinator() -> ListCoordinator<Self> { fatalError() }
+    public func makeListCoordinator() -> ListCoordinator<Self> {
+        switch self {
+        case .some(let dataSource):
+            return WrapperCoordinator<Self, Wrapped>(
+                source: dataSource,
+                wrappedCoodinator: dataSource.makeListCoordinator()
+            ) { $0 }
+        case .none:
+            return EmptyCoordinator(sourceBase: nil)
+        }
+    }
 }
 
 extension Optional: ScrollListAdapter where Wrapped: ScrollListAdapter { }

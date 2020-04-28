@@ -20,6 +20,8 @@ enum SourceMultipleType {
 protocol Coordinator: AnyObject {
     var sourceType: SourceType { get }
     var selectorSets: SelectorSets { get }
+    var isEmpty: Bool { get }
+    var didSetup: Bool { get set }
     
     #if os(iOS) || os(tvOS)
     var scrollListDelegate: UIScrollListDelegate { get set }
@@ -42,7 +44,9 @@ protocol Coordinator: AnyObject {
         with input: Input
     )
     
-    func setup(
+    func setup()
+    
+    func setupContext(
         listView: ListView,
         key: ObjectIdentifier,
         sectionOffset: Int,
@@ -58,13 +62,27 @@ protocol Coordinator: AnyObject {
 }
 
 extension Coordinator {
+    func setupIfNeeded() {
+        if didSetup { return }
+        setup()
+        didSetup = true
+    }
+    
     func setup(
         listView: ListView,
         key: ObjectIdentifier,
         sectionOffset: Int = 0,
-        itemOffset: Int = 0
+        itemOffset: Int = 0,
+        supercoordinator: Coordinator? = nil
     ) {
-        setup(listView: listView, key: key, sectionOffset: sectionOffset, itemOffset: itemOffset, supercoordinator: nil)
+        setupIfNeeded()
+        setupContext(
+            listView: listView,
+            key: key,
+            sectionOffset: sectionOffset,
+            itemOffset: itemOffset,
+            supercoordinator: supercoordinator
+        )
     }
     
     func initialSelectorSets(withoutIndex: Bool = false) -> SelectorSets {

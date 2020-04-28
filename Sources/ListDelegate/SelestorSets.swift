@@ -53,15 +53,12 @@ class SelectorSets {
         switch (closureDelegate.index, withoutIndex) {
         case (.none, _): value.insert(closureDelegate.selector)
         case (.indexPath, false): withIndexPath.insert(closureDelegate.selector)
-        case (.index, false):
-            withIndex.insert(closureDelegate.selector)
-            hasIndex = true
+        case (.index, false): withIndex.insert(closureDelegate.selector)
         default: break
         }
     }
     
     func add<Input, Object>(_ closureDelegate: Delegate<Object, Input, Void>) {
         void.insert(closureDelegate.selector)
-        if case .index = closureDelegate.index { hasIndex = true }
     }
 }

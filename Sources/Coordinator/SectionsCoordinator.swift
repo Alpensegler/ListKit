@@ -27,7 +27,6 @@ where
     override var isEmpty: Bool { sections.isEmpty }
     
     override func setup() {
-        super.setup()
         sections = source.map { $0.map { DiffableValue(differ: defaultUpdate.diff, value: $0, cache: .init()) } }
         sourceType = .section
     }

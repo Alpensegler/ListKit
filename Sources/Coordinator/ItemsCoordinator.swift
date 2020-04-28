@@ -51,7 +51,6 @@ where
     override func numbersOfItems(in section: Int) -> Int { items.count }
     
     override func setup() {
-        super.setup()
         sourceType = selectorSets.hasIndex ? .section : .cell
         items = source.map { DiffableValue(differ: defaultUpdate.diff, value: $0, cache: .init()) }
     }

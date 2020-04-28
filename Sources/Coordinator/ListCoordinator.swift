@@ -110,10 +110,6 @@ where SourceBase.SourceBase == SourceBase {
         return (context.sectionOffset, context.itemOffset)
     }
     
-    func setup() {
-        didSetup = true
-    }
-    
     //Diffs:
     func itemDifference(
         from coordinator: Coordinator,
@@ -198,8 +194,12 @@ where SourceBase.SourceBase == SourceBase {
         let delegate = self[keyPath: keyPath]
         switch delegate.index {
         case .none: selectorSets { $0.value.remove(delegate.selector) }
-        case .index: selectorSets { $0.withIndex.remove(delegate.selector) }
         case .indexPath: selectorSets { $0.withIndexPath.remove(delegate.selector) }
+        case .index:
+            selectorSets {
+                $0.withIndex.remove(delegate.selector)
+                $0.hasIndex = true
+            }
         }
     }
 
@@ -216,7 +216,11 @@ where SourceBase.SourceBase == SourceBase {
         applying(&selectorSets)
     }
     
-    func setup(
+    //Setup
+    
+    func setup() { }
+    
+    func setupContext(
         listView: ListView,
         key: ObjectIdentifier,
         sectionOffset: Int = 0,
@@ -236,7 +240,6 @@ where SourceBase.SourceBase == SourceBase {
             supercoordinator: supercoordinator
         )
         listContexts[key] = context
-        if !didSetup { setup() }
     }
     
     func update(

@@ -69,18 +69,18 @@ where SourceBase.SourceBase == SourceBase, OtherSourceBase: DataSource {
     }
 
     override func setup() {
-        super.setup()
+        wrappedCoodinator.setupIfNeeded()
         selectorSets = SelectorSets(merging: selfSelectorSets, others)
     }
     
-    override func setup(
+    override func setupContext(
         listView: ListView,
         key: ObjectIdentifier,
         sectionOffset: Int = 0,
         itemOffset: Int = 0,
         supercoordinator: Coordinator? = nil
     ) {
-        wrappedCoodinator.setup(
+        wrappedCoodinator.setupContext(
             listView: listView,
             key: key,
             sectionOffset: sectionOffset,
@@ -88,7 +88,7 @@ where SourceBase.SourceBase == SourceBase, OtherSourceBase: DataSource {
             supercoordinator: supercoordinator
         )
         
-        super.setup(
+        super.setupContext(
             listView: listView,
             key: key,
             sectionOffset: sectionOffset,

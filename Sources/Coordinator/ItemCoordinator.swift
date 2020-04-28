@@ -22,7 +22,6 @@ where SourceBase.Item == SourceBase.Source, SourceBase.SourceBase == SourceBase 
     override func numbersOfItems(in section: Int) -> Int { 1 }
     
     override func setup() {
-        super.setup()
         sourceType = selectorSets.hasIndex ? .section : .cell
     }
 }

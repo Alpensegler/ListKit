@@ -75,7 +75,8 @@ where
     func resetAndConfigIndicesAndOffsets() {
         offsets.removeAll(keepingCapacity: true)
         sourceIndices.removeAll(keepingCapacity: true)
-        configSubcoordinator(for: listContexts, isReset: true)
+        setup()
+        configSubcoordinator(for: listContexts)
     }
     
     func setupCoordinators() {
@@ -85,25 +86,19 @@ where
         }
     }
     
-    @discardableResult
-    func configSubcoordinator<C: Collection>(
-        for collection: C,
-        isReset: Bool = true
-    ) -> Bool where C.Element == (key: ObjectIdentifier, value: ListContext) {
-        var hasSectioned = false
-        if isReset {
-            var offset = Path()
-            for coordinator in subcoordinators {
-                collection.forEach { setCoordinator(coordinator, context: $0, offset: offset) }
-                appendCoordinator(coordinator, offset: &offset, hasSection: &hasSectioned)
-            }
-        } else {
-            for (subcoordinator, offset) in zip(subcoordinators, offsets) {
-                collection.forEach { setCoordinator(subcoordinator, context: $0, offset: offset) }
+    func configSubcoordinator(for contexts: [ObjectIdentifier: ListContext]) {
+        for (subcoordinator, offset) in zip(subcoordinators, offsets) {
+            for (key, value) in contexts {
+                guard let listView = value.listView else { continue }
+                subcoordinator.setupContext(
+                    listView: listView,
+                    key: key,
+                    sectionOffset: offset.section + value.sectionOffset,
+                    itemOffset: offset.item + value.itemOffset,
+                    supercoordinator: self
+                )
             }
         }
-        
-        return hasSectioned
     }
     
     func appendCoordinator(
@@ -111,43 +106,33 @@ where
         offset: inout Path,
         hasSection: inout Bool
     ) {
-        offsets.append(offset)
+        if subcoordinator.isEmpty { return }
         switch (subcoordinator.sourceType, sourceIndices.last) {
+        case (.section, .cell):
+            offset = Path(section: offset.section + 1, item: 0)
+            fallthrough
         case (.section, _):
-            let sections = (0..<subcoordinator.numbersOfSections()).map {
-                SourceIndices.section(index: offsets.count - 1, count: subcoordinator.numbersOfItems(in: $0))
+            offsets.append(offset)
+            sourceIndices += (0..<subcoordinator.numbersOfSections()).map {
+                .section(index: offsets.count - 1, count: subcoordinator.numbersOfItems(in: $0))
             }
-            guard !sections.isEmpty else { break }
             hasSection = true
-            sourceIndices.append(contentsOf: sections)
             offset = Path(section: sourceIndices.count)
         case (.cell, .cell(var cells)?):
+            offsets.append(offset)
             let cellCounts = subcoordinator.numbersOfItems(in: 0)
             guard cellCounts != 0 else { break }
             cells.append(contentsOf: repeatElement(offsets.count - 1, count: cellCounts))
             offset.item = cells.count
             sourceIndices[sourceIndices.lastIndex] = .cell(indices: cells)
         case (.cell, _):
+            offsets.append(offset)
             let cellCounts = subcoordinator.numbersOfItems(in: 0)
             guard cellCounts != 0 else { break }
             let indices = Array(repeating: offset.section, count: cellCounts)
             sourceIndices.append(.cell(indices: indices))
-            offset = Path(section: sourceIndices.count)
+            offset = Path(item: sourceIndices.count)
         }
-    }
-    
-    func setCoordinator(
-        _ subcoordinator: Coordinator,
-        context: (ObjectIdentifier, ListContext),
-        offset: Path
-    ) {
-        guard let listView = context.1.listView else { return }
-        subcoordinator.setup(
-            listView: listView,
-            key: context.0,
-            sectionOffset: offset.section + context.1.sectionOffset,
-            itemOffset: offset.item + context.1.itemOffset
-        )
     }
     
     override func item(at path: PathConvertible) -> Item {
@@ -163,7 +148,21 @@ where
     override func numbersOfSections() -> Int { sourceIndices.count }
     override func numbersOfItems(in section: Int) -> Int { sourceIndices[section].count }
     
-    override func setup(
+    override func setup() {
+        if !didSetup { setupCoordinators() }
+        var hasSectioned = false
+        var offset = Path()
+        for coordinator in subcoordinators {
+            coordinator.setupIfNeeded()
+            appendCoordinator(coordinator, offset: &offset, hasSection: &hasSectioned)
+        }
+        
+        setupSelectorSets()
+        if didSetup { return }
+        sourceType = (hasSectioned || selectorSets.hasIndex) ? .section : .cell
+    }
+    
+    override func setupContext(
         listView: ListView,
         key: ObjectIdentifier,
         sectionOffset: Int = 0,
@@ -173,7 +172,7 @@ where
         if let context = listContexts[key] {
             context.sectionOffset = sectionOffset
             context.itemOffset = itemOffset
-            configSubcoordinator(for: [(key, context)])
+            configSubcoordinator(for: [key: context])
             return
         }
         
@@ -184,19 +183,7 @@ where
             supercoordinator: supercoordinator
         )
         listContexts[key] = context
-        if !didSetup {
-            setupCoordinators()
-            //            rangeReplacable = true
-            let hasSectioned = configSubcoordinator(
-                for: [(key, context)],
-                isReset: true
-            )
-            setupSelectorSets()
-            sourceType = (selectorSets.hasIndex || hasSectioned) ? .section : .cell
-            didSetup = true
-        } else {
-            configSubcoordinator(for: [(key, context)], isReset: false)
-        }
+        configSubcoordinator(for: [key: context])
     }
     
     override func selectorSets(applying: (inout SelectorSets) -> Void) {

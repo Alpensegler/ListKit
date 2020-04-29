@@ -121,17 +121,15 @@ where
         case (.cell, .cell(var cells)?):
             offsets.append(offset)
             let cellCounts = subcoordinator.numbersOfItems(in: 0)
-            guard cellCounts != 0 else { break }
             cells.append(contentsOf: repeatElement(offsets.count - 1, count: cellCounts))
-            offset.item = cells.count
             sourceIndices[sourceIndices.lastIndex] = .cell(indices: cells)
+            offset.item = cells.count
         case (.cell, _):
             offsets.append(offset)
             let cellCounts = subcoordinator.numbersOfItems(in: 0)
-            guard cellCounts != 0 else { break }
-            let indices = Array(repeating: offset.section, count: cellCounts)
-            sourceIndices.append(.cell(indices: indices))
-            offset = Path(item: sourceIndices.count)
+            let cells = Array(repeating: offsets.count - 1, count: cellCounts)
+            sourceIndices.append(.cell(indices: cells))
+            offset.item = cells.count
         }
     }
     

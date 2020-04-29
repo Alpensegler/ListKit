@@ -13,11 +13,6 @@ where SourceBase.SourceBase == SourceBase, OtherSourceBase: DataSource {
     
     lazy var selfSelectorSets = initialSelectorSets()
     
-    override var sourceType: SourceType {
-        get { wrappedCoodinator.sourceType }
-        set { wrappedCoodinator.sourceType = newValue }
-    }
-    
     override var multiType: SourceMultipleType { wrappedCoodinator.multiType }
     override var isEmpty: Bool { wrappedCoodinator.isEmpty }
     
@@ -71,6 +66,7 @@ where SourceBase.SourceBase == SourceBase, OtherSourceBase: DataSource {
     override func setup() {
         wrappedCoodinator.setupIfNeeded()
         selectorSets = SelectorSets(merging: selfSelectorSets, others)
+        sourceType = (wrappedCoodinator.sourceType == .section || selectorSets.hasIndex) ? .section : wrappedCoodinator.sourceType
     }
     
     override func setupContext(

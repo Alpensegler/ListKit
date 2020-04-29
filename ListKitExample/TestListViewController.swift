@@ -13,7 +13,7 @@ class TestListViewController: ExampleViewController, UpdatableTableListAdapter {
     typealias Item = Any
     var source: AnyTableSources {
         AnyTableSources {
-            Sources(item: 2.2)
+            Sources(item: 1.0)
                 .tableViewCellForRow()
                 .tableViewDidSelectRow { (context, item) in
                     context.deselectItem(animated: false)
@@ -36,6 +36,22 @@ class TestListViewController: ExampleViewController, UpdatableTableListAdapter {
                 .tableViewHeaderTitleForSection { (context) -> String? in
                     "sections"
                 }
+            AnyTableSources {
+                Sources(item: 2)
+                    .tableViewCellForRow()
+                    .tableViewDidSelectRow { (context, item) in
+                        context.deselectItem(animated: false)
+                        print(item)
+                    }
+                Sources(items: ["a", "b", "c"])
+                    .tableViewCellForRow()
+                    .tableViewDidSelectRow { (context, item) in
+                        context.deselectItem(animated: false)
+                        print(item)
+                    }
+            }.tableViewHeaderTitleForSection { (context) -> String? in
+                "sources"
+            }
         }
     }
     

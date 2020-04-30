@@ -17,6 +17,7 @@ where Source.SourceBase == Source {
     public typealias SourceBase = Source
     let coordinatorSetups: [(ListCoordinator<Source>) -> Void]
     let storage = ListAdapterStorage<Source>()
+    let erasedGetter: (Self) -> TableList<AnySources>
     
     public let source: Source
     public var sourceBase: Source { source }
@@ -33,9 +34,14 @@ where Source.SourceBase == Source {
         source[keyPath: path]
     }
     
-    init(coordinatorSetups: [(ListCoordinator<Source>) -> Void], source: Source) {
+    init(
+        coordinatorSetups: [(ListCoordinator<Source>) -> Void],
+        source: Source,
+        erasedGetter: @escaping (Self) -> TableList<AnySources> = Self.defaultErasedGetter
+    ) {
         self.coordinatorSetups = coordinatorSetups
         self.source = source
+        self.erasedGetter = erasedGetter
         storage.makeListCoordinator = makeCoordinator
     }
 }
@@ -67,9 +73,15 @@ public extension TableListAdapter {
     }
 }
 
+extension TableList: ListAdapter {
+    static var defaultErasedGetter: (Self) -> TableList<AnySources> {
+        { .init(AnySources($0)) { $0 } }
+    }
+}
+
 #if os(iOS) || os(tvOS)
 
-extension TableList: ListAdapter {
+extension TableList {
     static var rootKeyPath: ReferenceWritableKeyPath<Coordinator, UITableListDelegate> {
         \.tableListDelegate
     }

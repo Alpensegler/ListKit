@@ -23,7 +23,7 @@ where
     typealias Subcoordinator = ListCoordinator<Element.SourceBase>
     
     var sourceIndices = [SourceIndices]()
-    var subsources = [SourceBase.Source.Element]()
+    var subsources = [Element]()
     var subcoordinators = [Subcoordinator]()
     var offsets = [IndexPath]()
     var isAnyType = Item.self == Any.self

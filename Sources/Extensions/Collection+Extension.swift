@@ -37,7 +37,7 @@ extension RangeReplaceableCollection {
 }
 
 extension RandomAccessCollection where Element: RandomAccessCollection {
-    subscript(path: Path) -> Element.Element {
+    subscript(path: IndexPath) -> Element.Element {
         let element = self[index(startIndex, offsetBy: path[0])]
         return element[element.index(element.startIndex, offsetBy: path[1])]
     }

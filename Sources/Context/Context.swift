@@ -5,6 +5,8 @@
 //  Created by Frain on 2019/10/10.
 //
 
+import Foundation
+
 public protocol Context {
     associatedtype List
     associatedtype Source: DataSource where Source.SourceBase == Source
@@ -32,15 +34,15 @@ public extension Context {
 }
 
 extension ItemContext {
-    var itemValue: Source.Item { coordinator.item(at: Path(section: section, item: item)) }
+    var itemValue: Source.Item { coordinator.item(at: IndexPath(section: section, item: item)) }
     
     func setNestedCache(with key: AnyHashable, update: @escaping (Any) -> Void) {
         coordinator
-            .itemRelatedCache(at: Path(section: section, item: item))
+            .itemRelatedCache(at: IndexPath(section: section, item: item))
             .nestedAdapterItemUpdate[key] = (true, update)
     }
     
     func cacheForItem(_ key: ObjectIdentifier) -> Any? {
-        coordinator.itemRelatedCache(at: Path(section: section, item: item))
+        coordinator.itemRelatedCache(at: IndexPath(section: section, item: item))
     }
 }

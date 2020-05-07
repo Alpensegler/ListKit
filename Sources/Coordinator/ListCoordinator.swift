@@ -5,6 +5,8 @@
 //  Created by Frain on 2019/11/25.
 //
 
+import Foundation
+
 final class ListContext {
     weak var listView: ListView?
     weak var supercoordinator: Coordinator?
@@ -75,15 +77,15 @@ where SourceBase.SourceBase == SourceBase {
         self.source = sourceBase.source(storage: storage)
     }
     
-    func itemRelatedCache(at path: Path) -> ItemRelatedCache { fatalError() }
+    func itemRelatedCache(at path: IndexPath) -> ItemRelatedCache { fatalError() }
     
     func numbersOfSections() -> Int { fatalError() }
     func numbersOfItems(in section: Int) -> Int { fatalError() }
     
-    func subsourceOffset(at index: Int) -> Path { fatalError() }
+    func subsourceOffset(at index: Int) -> IndexPath { fatalError() }
     func subsource(at index: Int) -> Coordinator { fatalError() }
     
-    func item(at path: Path) -> Item { fatalError() }
+    func item(at path: IndexPath) -> Item { fatalError() }
     
     func configNestedIfNeeded() {
 //        guard needUpdateCaches else { return }
@@ -122,8 +124,8 @@ where SourceBase.SourceBase == SourceBase {
     }
     
     func sourceDifference(
-        sourceOffset: Path,
-        targetOffset: Path,
+        sourceOffset: IndexPath,
+        targetOffset: IndexPath,
         sourcePaths: [Int],
         targetPaths: [Int],
         from coordinator: Coordinator

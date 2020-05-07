@@ -5,6 +5,8 @@
 //  Created by Frain on 2020/2/28.
 //
 
+import Foundation
+
 protocol DifferenceType { }
 
 class Difference<Index: Equatable>: DifferenceType {
@@ -33,7 +35,7 @@ class CacheDifference<Cache, Index: Equatable>: Difference<Index> {
         uniqueInsertions: [AnyHashable: DiffChange<Cache, Index>?]
     ) { }
     
-    func toItemDifference() -> Difference<Path> { fatalError() }
+    func toItemDifference() -> Difference<IndexPath> { fatalError() }
 }
 
 class ValueDifference<Value, Cache, Index: Equatable>: CacheDifference<Cache, Index> {
@@ -121,15 +123,15 @@ class ValueDifference<Value, Cache, Index: Equatable>: CacheDifference<Cache, In
     }
 }
 
-typealias ItemCacheDifference = CacheDifference<ItemRelatedCache, Path>
+typealias ItemCacheDifference = CacheDifference<ItemRelatedCache, IndexPath>
 
-class ItemValueDifference<Value>: ValueDifference<Value, ItemRelatedCache, Path> {
+class ItemValueDifference<Value>: ValueDifference<Value, ItemRelatedCache, IndexPath> {
     init(
         source: [DiffableValue<Value, ItemRelatedCache>],
         target: [DiffableValue<Value, ItemRelatedCache>],
         differ: Differ<Value>? = nil,
-        insertOffset: Path = .init(),
-        deleteOffsey: Path = .init()
+        insertOffset: IndexPath = .init(),
+        deleteOffsey: IndexPath = .init()
     ) {
         let diffs = target.diff(from: source) { $0.isDiffEqual(with: $1, differ: differ) }
         super.init(
@@ -439,7 +441,7 @@ fileprivate extension Array where Element == Values {
 }
 
 fileprivate extension Coordinator {
-    subscript(indexPath: [Int]) -> Path {
+    subscript(indexPath: [Int]) -> IndexPath {
         var coordinator: Coordinator = self
         for (offset, index) in indexPath.enumerated() {
             if offset == indexPath.count - 1 { return coordinator.subsourceOffset(at: index) }

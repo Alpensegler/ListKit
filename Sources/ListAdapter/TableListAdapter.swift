@@ -110,7 +110,7 @@ extension TableList {
     static func toItemContext(
         _ view: TableView,
         _ coordinator: ListCoordinator<Source>,
-        path: PathConvertible
+        path: Path
     ) -> TableItemContext<Source> {
         let (sectionOffset, itemOffset) = coordinator.offset(for: view)
         return .init(

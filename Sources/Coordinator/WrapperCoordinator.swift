@@ -47,11 +47,11 @@ where SourceBase.SourceBase == SourceBase, OtherSourceBase: DataSource {
         wrappedCoodinator.configNestedNotNewIfNeeded()
     }
     
-    override func item(at path: PathConvertible) -> Item {
+    override func item(at path: Path) -> Item {
         itemTransform(wrappedCoodinator.item(at: path))
     }
     
-    override func itemRelatedCache(at path: PathConvertible) -> ItemRelatedCache {
+    override func itemRelatedCache(at path: Path) -> ItemRelatedCache {
         wrappedCoodinator.itemRelatedCache(at: path)
     }
     

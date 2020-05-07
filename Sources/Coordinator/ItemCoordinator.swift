@@ -15,8 +15,8 @@ where SourceBase.Item == SourceBase.Source, SourceBase.SourceBase == SourceBase 
     
     override var multiType: SourceMultipleType { .single }
     
-    override func item(at path: PathConvertible) -> Item { item.value }
-    override func itemRelatedCache(at path: PathConvertible) -> ItemRelatedCache { item.cache }
+    override func item(at path: Path) -> Item { item.value }
+    override func itemRelatedCache(at path: Path) -> ItemRelatedCache { item.cache }
     
     override func numbersOfSections() -> Int { 1 }
     override func numbersOfItems(in section: Int) -> Int { 1 }

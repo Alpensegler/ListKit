@@ -42,8 +42,8 @@ where
         return diff
     }
     
-    override func item(at path: PathConvertible) -> Item { items[path.item].value }
-    override func itemRelatedCache(at path: PathConvertible) -> ItemRelatedCache {
+    override func item(at path: Path) -> Item { items[path.item].value }
+    override func itemRelatedCache(at path: Path) -> ItemRelatedCache {
         items[path.item].cache
     }
     

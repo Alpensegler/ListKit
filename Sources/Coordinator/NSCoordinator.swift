@@ -14,10 +14,10 @@ where SourceBase.SourceBase == SourceBase {
     
     override var multiType: SourceMultipleType { .noneDiffable }
     
-    override func item(at path: PathConvertible) -> Item {
+    override func item(at path: Path) -> Item {
         itemClosure(path.section, path.item)
     }
-    override func itemRelatedCache(at path: PathConvertible) -> ItemRelatedCache {
+    override func itemRelatedCache(at path: Path) -> ItemRelatedCache {
         caches[path]
     }
     

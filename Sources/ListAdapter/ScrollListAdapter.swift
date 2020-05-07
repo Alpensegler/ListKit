@@ -80,7 +80,7 @@ extension ScrollList {
     static func toItemContext(
         _ view: UIScrollView,
         _ coordinator: ListCoordinator<Source>,
-        path: PathConvertible
+        path: Path
     ) -> Never {
         fatalError()
     }

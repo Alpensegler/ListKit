@@ -80,6 +80,9 @@ where SourceBase.SourceBase == SourceBase {
     func numbersOfSections() -> Int { fatalError() }
     func numbersOfItems(in section: Int) -> Int { fatalError() }
     
+    func subsourceOffset(at index: Int) -> Path { fatalError() }
+    func subsource(at index: Int) -> Coordinator { fatalError() }
+    
     func item(at path: PathConvertible) -> Item { fatalError() }
     
     func configNestedIfNeeded() {
@@ -115,6 +118,16 @@ where SourceBase.SourceBase == SourceBase {
         from coordinator: Coordinator,
         differ: Differ<Item>
     ) -> [ItemCacheDifference] {
+        fatalError()
+    }
+    
+    func sourceDifference(
+        sourceOffset: Path,
+        targetOffset: Path,
+        sourcePaths: [Int],
+        targetPaths: [Int],
+        from coordinator: Coordinator
+    ) -> DataSourceDifference {
         fatalError()
     }
     

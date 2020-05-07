@@ -19,6 +19,7 @@ enum SourceMultipleType {
 
 protocol Coordinator: AnyObject {
     var sourceType: SourceType { get }
+    var multiType: SourceMultipleType { get  }
     var selectorSets: SelectorSets { get }
     var isEmpty: Bool { get }
     var didSetup: Bool { get set }
@@ -31,6 +32,9 @@ protocol Coordinator: AnyObject {
     
     func numbersOfSections() -> Int
     func numbersOfItems(in section: Int) -> Int
+    
+    func subsourceOffset(at index: Int) -> Path
+    func subsource(at index: Int) -> Coordinator
     
     func apply<Object: AnyObject, Input, Output>(
         _ keyPath: KeyPath<Coordinator, Delegate<Object, Input, Output>>,
@@ -59,6 +63,15 @@ protocol Coordinator: AnyObject {
         animated: Bool,
         completion: ((Bool) -> Void)?
     ) -> Bool
+    
+    //Diff
+    func sourceDifference(
+        sourceOffset: Path,
+        targetOffset: Path,
+        sourcePaths: [Int],
+        targetPaths: [Int],
+        from coordinator: Coordinator
+    ) -> DataSourceDifference
 }
 
 extension Coordinator {

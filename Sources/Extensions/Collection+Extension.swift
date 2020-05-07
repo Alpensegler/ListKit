@@ -8,7 +8,10 @@
 protocol PathConvertible {
     var section: Int { get }
     var item: Int { get }
-    var path: Path { get }
+}
+
+extension PathConvertible {
+    var path: Path { Path(section: section, item: item) }
 }
 
 struct Path: Hashable, Comparable, PathConvertible {
@@ -33,6 +36,10 @@ struct Path: Hashable, Comparable, PathConvertible {
     func adding(_ item: Int) -> Path {
         Path(section: section, item: self.item + item)
     }
+    
+    func adding(_ path: PathConvertible) -> Path {
+        Path(section: section + path.section, item: item + path.item)
+    }
 }
 
 func < (lhs: PathConvertible, rhs: PathConvertible) -> Bool { lhs.path < rhs.path }
@@ -56,8 +63,6 @@ extension RandomAccessCollection where Element: RandomAccessCollection {
 #if canImport(Foundation)
 import Foundation
 
-extension IndexPath: PathConvertible {
-    var path: Path { Path(section: section, item: item) }
-}
+extension IndexPath: PathConvertible { }
 
 #endif

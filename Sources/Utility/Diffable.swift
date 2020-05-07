@@ -21,11 +21,16 @@ class Diffable<Cache>: Hashable {
 }
 
 final class DiffableValue<Value, Cache>: Diffable<Cache> {
-    var id: AnyHashable?
+    var id: AnyHashable
     var differ: Differ<Value>
     var value: Value
     
-    init(id: AnyHashable?, differ: Differ<Value>, value: Value, cache: Cache) {
+    init(
+        id: AnyHashable = ObjectIdentifier(Value.self),
+        differ: Differ<Value>,
+        value: Value,
+        cache: Cache
+    ) {
         self.differ = differ
         self.value = value
         self.id = id
@@ -38,7 +43,7 @@ final class DiffableValue<Value, Cache>: Diffable<Cache> {
     }
     
     override func hash(into hasher: inout Hasher) {
-        id.map { hasher.combine($0) }
+        hasher.combine(id)
         differ.hash(value: value, into: &hasher)
     }
     

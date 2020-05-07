@@ -41,3 +41,10 @@ extension IndexPath {
         return path
     }
 }
+
+extension RandomAccessCollection where Element: RandomAccessCollection {
+    subscript(path: IndexPath) -> Element.Element {
+        let element = self[index(startIndex, offsetBy: path.section)]
+        return element[element.index(element.startIndex, offsetBy: path.item)]
+    }
+}

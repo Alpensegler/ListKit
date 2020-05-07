@@ -110,7 +110,7 @@ extension CollectionList {
     static func toItemContext(
         _ view: CollectionView,
         _ coordinator: ListCoordinator<Source>,
-        path: PathConvertible
+        path: Path
     ) -> CollectionItemContext<Source> {
         let (sectionOffset, itemOffset) = coordinator.offset(for: view)
         return .init(

@@ -32,7 +32,7 @@ where
     override var multiType: SourceMultipleType { .sources }
     override var isEmpty: Bool { sourceIndices.isEmpty }
     
-    func pathAndCoordinator(path: PathConvertible) -> (path: Path, coordinator: Subcoordinator) {
+    func pathAndCoordinator(path: Path) -> (path: Path, coordinator: Subcoordinator) {
         let indexAt = sourceIndices.index(of: path)
         return (path - offsets[indexAt], subcoordinators[indexAt])
     }
@@ -65,7 +65,7 @@ where
             offset = index
         case let .indexPath(keyPath):
             let path = input[keyPath: keyPath]
-            let index = Path(section: path.section - sectionOffset, item: path.item - itemOffset)
+            let index = path.adding(section: -sectionOffset, item: -itemOffset)
             offset = sourceIndices.index(of: index)
         }
         let coordinator = subcoordinators[offset]
@@ -110,7 +110,7 @@ where
         if subcoordinator.isEmpty { return }
         switch (subcoordinator.sourceType, sourceIndices.last) {
         case (.section, .cell):
-            offset = Path(section: offset.section + 1, item: 0)
+            offset = Path(section: offset.section + 1)
             fallthrough
         case (.section, _):
             offsets.append(offset)
@@ -134,12 +134,12 @@ where
         }
     }
     
-    override func item(at path: PathConvertible) -> Item {
+    override func item(at path: Path) -> Item {
         let (path, subcoordinator) = pathAndCoordinator(path: path)
         return subcoordinator.item(at: path)
     }
     
-    override func itemRelatedCache(at path: PathConvertible) -> ItemRelatedCache {
+    override func itemRelatedCache(at path: Path) -> ItemRelatedCache {
         let (path, subcoordinator) = pathAndCoordinator(path: path)
         return subcoordinator.itemRelatedCache(at: path)
     }

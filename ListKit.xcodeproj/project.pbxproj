@@ -68,6 +68,7 @@
 		F3A4941023A8E68900809E7F /* DataSource+SourcesCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A4940F23A8E68900809E7F /* DataSource+SourcesCoordinator.swift */; };
 		F3A4941223A8E69900809E7F /* DataSource+NSCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A4941123A8E69900809E7F /* DataSource+NSCoordinator.swift */; };
 		F3A4941423A906A900809E7F /* NestedAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A4941323A906A900809E7F /* NestedAdapter.swift */; };
+		F3A4A2EC2463AD22007FAB3B /* IndexPath+extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A4A2EB2463AD22007FAB3B /* IndexPath+extension.swift */; };
 		F3AC673823D057450070B991 /* Sources+Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3AC673723D057450070B991 /* Sources+Item.swift */; };
 		F3AC673A23D0574E0070B991 /* Sources+Items.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3AC673923D0574E0070B991 /* Sources+Items.swift */; };
 		F3AC673C23D057580070B991 /* Sources+Sections.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3AC673B23D057580070B991 /* Sources+Sections.swift */; };
@@ -185,6 +186,7 @@
 		F3A4940F23A8E68900809E7F /* DataSource+SourcesCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataSource+SourcesCoordinator.swift"; sourceTree = "<group>"; };
 		F3A4941123A8E69900809E7F /* DataSource+NSCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataSource+NSCoordinator.swift"; sourceTree = "<group>"; };
 		F3A4941323A906A900809E7F /* NestedAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NestedAdapter.swift; sourceTree = "<group>"; };
+		F3A4A2EB2463AD22007FAB3B /* IndexPath+extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "IndexPath+extension.swift"; sourceTree = "<group>"; };
 		F3AC673723D057450070B991 /* Sources+Item.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Sources+Item.swift"; sourceTree = "<group>"; };
 		F3AC673923D0574E0070B991 /* Sources+Items.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Sources+Items.swift"; sourceTree = "<group>"; };
 		F3AC673B23D057580070B991 /* Sources+Sections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Sources+Sections.swift"; sourceTree = "<group>"; };
@@ -450,6 +452,7 @@
 		F3841D5B2355E0C4006386E3 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				F3A4A2EB2463AD22007FAB3B /* IndexPath+extension.swift */,
 				F3841D5C2355E0DA006386E3 /* Collection+Extension.swift */,
 				F39A23F523A16D1F0024F9AF /* CoreData+Extension.swift */,
 				F3EB15D923A2CF8D00C9AC5E /* Optional+Extension.swift */,
@@ -728,6 +731,7 @@
 				F37BF3CA239686470095C419 /* ItemCoordinator.swift in Sources */,
 				F3D787032399327200D7A5CD /* ListViewStorage.swift in Sources */,
 				F314E8EB23A62200003C203B /* SelestorSets.swift in Sources */,
+				F3A4A2EC2463AD22007FAB3B /* IndexPath+extension.swift in Sources */,
 				F3D786FE239931CE00D7A5CD /* UIListView.swift in Sources */,
 				F3A458F523C2E8B8008BF3C6 /* Change.swift in Sources */,
 				F37A122E239FC0CB0001E9EE /* CollectionListAdapter+UIKit.swift in Sources */,

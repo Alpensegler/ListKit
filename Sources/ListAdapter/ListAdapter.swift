@@ -29,7 +29,7 @@ protocol ListAdapter: UpdatableDataSource where Source == SourceBase {
     static func toItemContext(
         _ view: View,
         _ coordinator: ListCoordinator<Source>,
-        path: PathConvertible
+        path: Path
     ) -> ItemContext
     
     init(

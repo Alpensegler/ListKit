@@ -5,46 +5,29 @@
 //  Created by Frain on 2019/10/15.
 //
 
-protocol PathConvertible {
-    var section: Int { get }
-    var item: Int { get }
+import Foundation
+
+extension Collection {
+    var nonNilFirst: Element { self[startIndex] }
 }
 
-extension PathConvertible {
-    var path: Path { Path(section: section, item: item) }
-}
-
-struct Path: Hashable, Comparable, PathConvertible {
-    var section: Int = 0
-    var item: Int = 0
-    var path: Path { self }
-    
-    static var transform: (Path) -> Int { { $0.item } }
-    
-    static func < (lhs: Path, rhs: Path) -> Bool {
-        lhs.section < rhs.section || (lhs.section == rhs.section && lhs.item < rhs.item)
-    }
-
-    static func - (lhs: Path, rhs: Path) -> Path {
-        Path(section: lhs.section - rhs.section, item: lhs.item - rhs.item)
-    }
-
-    static func + (lhs: Path, rhs: Path) -> Path {
-        Path(section: lhs.section + rhs.section, item: lhs.item + rhs.item)
-    }
-    
-    func adding(_ item: Int) -> Path {
-        Path(section: section, item: self.item + item)
-    }
-    
-    func adding(_ path: PathConvertible) -> Path {
-        Path(section: section + path.section, item: item + path.item)
+extension MutableCollection {
+    var nonNilFirst: Element {
+        get { self[startIndex] }
+        set { self[startIndex] = newValue }
     }
 }
 
-func < (lhs: PathConvertible, rhs: PathConvertible) -> Bool { lhs.path < rhs.path }
-func - (lhs: PathConvertible, rhs: PathConvertible) -> Path { lhs.path - rhs.path }
-func + (lhs: PathConvertible, rhs: PathConvertible) -> Path { lhs.path + rhs.path }
+extension BidirectionalCollection {
+    var nonNilLast: Element { self[index(before: endIndex)] }
+}
+
+extension BidirectionalCollection where Self: MutableCollection {
+    var nonNilLast: Element {
+        get { self[index(before: endIndex)] }
+        set { self[index(before: endIndex)] = newValue }
+    }
+}
 
 extension RangeReplaceableCollection {
     subscript(safe index: Index) -> Element? {
@@ -54,15 +37,8 @@ extension RangeReplaceableCollection {
 }
 
 extension RandomAccessCollection where Element: RandomAccessCollection {
-    subscript(path: PathConvertible) -> Element.Element {
-        let element = self[index(startIndex, offsetBy: path.section)]
-        return element[element.index(element.startIndex, offsetBy: path.item)]
+    subscript(path: Path) -> Element.Element {
+        let element = self[index(startIndex, offsetBy: path[0])]
+        return element[element.index(element.startIndex, offsetBy: path[1])]
     }
 }
-
-#if canImport(Foundation)
-import Foundation
-
-extension IndexPath: PathConvertible { }
-
-#endif

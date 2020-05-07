@@ -16,8 +16,8 @@ where
     
     override var multiType: SourceMultipleType { .multiple }
     
-    override func item(at path: PathConvertible) -> Item { sections[path].value }
-    override func itemRelatedCache(at path: PathConvertible) -> ItemRelatedCache {
+    override func item(at path: Path) -> Item { sections[path].value }
+    override func itemRelatedCache(at path: Path) -> ItemRelatedCache {
         sections[path].cache
     }
     

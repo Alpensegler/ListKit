@@ -75,7 +75,7 @@ where SourceBase.SourceBase == SourceBase {
         self.source = sourceBase.source(storage: storage)
     }
     
-    func itemRelatedCache(at path: PathConvertible) -> ItemRelatedCache { fatalError() }
+    func itemRelatedCache(at path: Path) -> ItemRelatedCache { fatalError() }
     
     func numbersOfSections() -> Int { fatalError() }
     func numbersOfItems(in section: Int) -> Int { fatalError() }
@@ -83,7 +83,7 @@ where SourceBase.SourceBase == SourceBase {
     func subsourceOffset(at index: Int) -> Path { fatalError() }
     func subsource(at index: Int) -> Coordinator { fatalError() }
     
-    func item(at path: PathConvertible) -> Item { fatalError() }
+    func item(at path: Path) -> Item { fatalError() }
     
     func configNestedIfNeeded() {
 //        guard needUpdateCaches else { return }

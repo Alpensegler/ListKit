@@ -136,10 +136,10 @@ class ItemValueDifference<Value>: ValueDifference<Value, ItemRelatedCache, Path>
             source: source,
             target: target,
             insertionValues: diffs.map {
-                .init($0._element, differ: differ, index: insertOffset.adding($0._offset))
+                .init($0._element, differ: differ, index: insertOffset.adding(item: $0._offset))
             },
             removalValues: diffs.map {
-                .init($0._element, differ: differ, index: insertOffset.adding($0._offset))
+                .init($0._element, differ: differ, index: insertOffset.adding(item: $0._offset))
             },
             differ: differ
         )
@@ -201,7 +201,7 @@ class DataSourceValueDifference<Value>: ValueDifference<Value, Coordinator, [Int
             let values = isSource ? difference.removalsChange : difference.insertionsChange
             return (isSource ? difference.source : difference.target).enumerated().map { arg in
                 if enumerated < values.count,
-                arg.offset == values[enumerated].index.index {
+                arg.offset == values[enumerated].index.nonNilLast {
                     let change = values[enumerated]
                     let associated = change.diffAssociated
                     enumerated += 1
@@ -410,10 +410,6 @@ fileprivate extension RangeReplaceableCollection {
     }
 }
 
-fileprivate extension Array {
-    var index: Element { self[count - 1] }
-}
-
 fileprivate extension Array where Element == Values {
     subscript(safe indexPath: [Int]) -> Values? {
         var values = self
@@ -449,6 +445,6 @@ fileprivate extension Coordinator {
             if offset == indexPath.count - 1 { return coordinator.subsourceOffset(at: index) }
             coordinator = coordinator.subsource(at: index)
         }
-        return coordinator.subsourceOffset(at: indexPath.index)
+        return coordinator.subsourceOffset(at: indexPath.nonNilLast)
     }
 }

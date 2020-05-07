@@ -77,6 +77,7 @@ where
         sourceIndices.removeAll(keepingCapacity: true)
         setup()
         configSubcoordinator(for: listContexts)
+        setupSelectorSets()
     }
     
     func setupCoordinators() {
@@ -145,6 +146,9 @@ where
     
     override func numbersOfSections() -> Int { sourceIndices.count }
     override func numbersOfItems(in section: Int) -> Int { sourceIndices[section].count }
+    
+    override func subsourceOffset(at index: Int) -> Path { offsets[index] }
+    override func subsource(at index: Int) -> Coordinator { subcoordinators[index] }
     
     override func setup() {
         if !didSetup { setupCoordinators() }

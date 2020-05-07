@@ -21,6 +21,7 @@ class Change<Index: Equatable> {
 }
 
 class DiffChange<Cache, Index: Equatable>: Change<Index> {
+    var cache: Diffable<Cache> { fatalError() }
     var diffable: Diffable<Cache>
     var diffAssociated: DiffChange<Cache, Index>? {
         didSet {
@@ -46,6 +47,8 @@ final class ValueChange<Value, Cache, Index: Equatable>: DiffChange<Cache, Index
             valueAssociated?.valueAssociated = self
         }
     }
+    
+    override var cache: Diffable<Cache> { value }
     
     init(_ value: DiffableValue<Value, Cache>, differ: Differ<Value>?, index: Index) {
         self.value = value

@@ -17,10 +17,13 @@ class CacheDifference<Cache, Index: Equatable>: Difference<Index> {
     var insertionsChange: [DiffChange<Cache, Index>] { fatalError() }
     var removalsChange: [DiffChange<Cache, Index>] { fatalError() }
     
+    var source: [Diffable<Cache>] { fatalError() }
+    var target: [Diffable<Cache>] { fatalError() }
+    
     override var insertions: [Change<Index>] { insertionsChange }
     override var removals: [Change<Index>] { removalsChange }
     
-    func add(to
+    func addTo(
         uniqueRemovals: inout [AnyHashable: DiffChange<Cache, Index>?],
         uniqueInsertions: inout [AnyHashable: DiffChange<Cache, Index>?]
     ) { }
@@ -36,12 +39,14 @@ class CacheDifference<Cache, Index: Equatable>: Difference<Index> {
 class ValueDifference<Value, Cache, Index: Equatable>: CacheDifference<Cache, Index> {
     override var insertionsChange: [DiffChange<Cache, Index>] { insertionValues }
     override var removalsChange: [DiffChange<Cache, Index>] { removalValues }
-
+    override var source: [Diffable<Cache>] { sourceValue }
+    override var target: [Diffable<Cache>] { targetValue }
+    
     var insertionValues: [ValueChange<Value, Cache, Index>]
     var removalValues: [ValueChange<Value, Cache, Index>]
     
-    var source: [DiffableValue<Value, Cache>]
-    var target: [DiffableValue<Value, Cache>]
+    var sourceValue: [DiffableValue<Value, Cache>]
+    var targetValue: [DiffableValue<Value, Cache>]
     var differ: Differ<Value>?
     
     var applying: ((ValueDifference<Value, Cache, Index>) -> Void)?
@@ -49,25 +54,24 @@ class ValueDifference<Value, Cache, Index: Equatable>: CacheDifference<Cache, In
     var ending: (() -> Void)?
     var finish: (() -> Void)?
     
-    override func add(to
+    override func addTo(
         uniqueRemovals: inout [AnyHashable: DiffChange<Cache, Index>?],
         uniqueInsertions: inout [AnyHashable: DiffChange<Cache, Index>?]
     ) {
+        guard applying != nil else { return }
         for removal in removalValues {
-            guard let id = removal.value.id else { continue }
-            if case .none = uniqueRemovals[id] {
-                uniqueRemovals[id] = .some(removal)
+            if case .none = uniqueRemovals[removal.cache] {
+                uniqueRemovals[removal.cache] = .some(removal)
             } else {
-                uniqueRemovals[id] = .some(.none)
+                uniqueRemovals[removal.cache] = .some(.none)
             }
         }
         
         for insertion in insertionValues {
-            guard let id = insertion.value.id else { continue }
-            if case .none = uniqueRemovals[id] {
-                uniqueRemovals[id] = .some(insertion)
+            if case .none = uniqueRemovals[insertion.cache] {
+                uniqueRemovals[insertion.cache] = .some(insertion)
             } else {
-                uniqueRemovals[id] = .some(.none)
+                uniqueRemovals[insertion.cache] = .some(.none)
             }
         }
     }
@@ -76,6 +80,7 @@ class ValueDifference<Value, Cache, Index: Equatable>: CacheDifference<Cache, In
         uniqueRemovals: [AnyHashable: DiffChange<Cache, Index>?],
         uniqueInsertions: [AnyHashable: DiffChange<Cache, Index>?]
     ) {
+        guard applying != nil else { return }
         for removal in removalValues {
             guard let assoc = associated(for: removal, uniqueRemovals, uniqueInsertions) else {
                 continue
@@ -96,8 +101,8 @@ class ValueDifference<Value, Cache, Index: Equatable>: CacheDifference<Cache, In
         _ uniques: [AnyHashable: DiffChange<Cache, Index>?],
         _ assocUniques: [AnyHashable: DiffChange<Cache, Index>?]
     ) -> ValueChange<Value, Cache, Index>? {
-        guard let id = change.value.id, uniques[id] != nil else { return nil }
-        return assocUniques[id] as? ValueChange<Value, Cache, Index>
+        guard uniques[change.cache] != nil else { return nil }
+        return assocUniques[change.cache] as? ValueChange<Value, Cache, Index>
     }
 
     init(
@@ -107,8 +112,8 @@ class ValueDifference<Value, Cache, Index: Equatable>: CacheDifference<Cache, In
         removalValues: [ValueChange<Value, Cache, Index>],
         differ: Differ<Value>?
     ) {
-        self.source = source
-        self.target = target
+        self.sourceValue = source
+        self.targetValue = target
         self.insertionValues = insertionValues
         self.removalValues = removalValues
         self.differ = differ
@@ -141,20 +146,144 @@ class ItemValueDifference<Value>: ValueDifference<Value, ItemRelatedCache, Path>
     }
 }
 
-extension ValueDifference where Index == Int {
-    convenience init(
-        source: [DiffableValue<Value, Cache>],
-        target: [DiffableValue<Value, Cache>],
-        differ: Differ<Value>? = nil
+typealias DataSourceDifference = CacheDifference<Coordinator, [Int]>
+
+enum Values {
+    case value(Diffable<Coordinator>, DiffChange<Coordinator, [Int]>?? = nil)
+    case values([Values], DiffChange<Coordinator, [Int]>? = nil)
+    
+    mutating func set(value newValue: Values, at indexPath: [Int]) {
+        guard case .values(var values, let change) = self else { fatalError() }
+        values.set(value: newValue, at: indexPath)
+        self = .values(values, change)
+    }
+}
+
+class DataSourceValueDifference<Value>: ValueDifference<Value, Coordinator, [Int]> {
+    var sourceCoordinator: Coordinator
+    var targetCoordinator: Coordinator
+    
+    init(
+        sourceCoordinator: Coordinator,
+        targetCoordinator: Coordinator,
+        sourcePaths: [Int],
+        targetPaths: [Int],
+        source: [DiffableValue<Value, Coordinator>],
+        target: [DiffableValue<Value, Coordinator>]
     ) {
-        let diffs = target.diff(from: source) { $0.isDiffEqual(with: $1, differ: differ) }
-        self.init(
+        self.sourceCoordinator = sourceCoordinator
+        self.targetCoordinator = targetCoordinator
+        let diffs = target.diff(from: source) { $0.isDiffEqual(with: $1, differ: nil) }
+        super.init(
             source: source,
             target: target,
-            insertionValues: diffs.map { .init($0._element, differ: differ, index: $0._offset) },
-            removalValues: diffs.map { .init($0._element, differ: differ, index: $0._offset)  },
-            differ: differ
+            insertionValues: diffs.map {
+                .init($0._element, differ: nil, index: targetPaths + [$0._offset])
+            },
+            removalValues: diffs.map {
+                .init($0._element, differ: nil, index: sourcePaths + [$0._offset])
+            },
+            differ: nil
         )
+    }
+    
+    func generateValues() -> ([Values], [Values]) {
+        var uniqueRemovals = [AnyHashable: DiffChange<Coordinator, [Int]>?]()
+        var uniqueInsertions = [AnyHashable: DiffChange<Coordinator, [Int]>?]()
+        var (unhandledSource, unhandledTarget) = ([[Int]](), [[Int]]())
+        var unhandledMoved = [AnyHashable: (DiffChange<Coordinator, [Int]>, DiffChange<Coordinator, [Int]>)]()
+        
+        addTo(uniqueRemovals: &uniqueRemovals, uniqueInsertions: &uniqueInsertions)
+        applying(uniqueRemovals: uniqueRemovals, uniqueInsertions: uniqueInsertions)
+        
+        func values(difference: DataSourceDifference, index: [Int], isSource: Bool) -> [Values] {
+            var enumerated = 0
+            let values = isSource ? difference.removalsChange : difference.insertionsChange
+            return (isSource ? difference.source : difference.target).enumerated().map { arg in
+                if enumerated < values.count,
+                arg.offset == values[enumerated].index.index {
+                    let change = values[enumerated]
+                    let associated = change.diffAssociated
+                    enumerated += 1
+                    if let associated = associated {
+                        unhandledMoved[change.cache] = isSource
+                            ? (change, associated)
+                            : (associated, change)
+                    }
+                    return .value(arg.element, .some(associated))
+                } else {
+                    if arg.element.cache.multiType == .sources {
+                        isSource
+                            ? unhandledSource.append(index + [arg.offset])
+                            : unhandledTarget.append(index + [arg.offset])
+                    }
+                    return .value(arg.element)
+                }
+            }
+        }
+        
+        var sourceValues = values(difference: self, index: [], isSource: true)
+        var targetValues = values(difference: self, index: [], isSource: false)
+        
+        func handleSubdifferences() {
+            let unhandled = zip(unhandledSource, unhandledTarget)
+            var operations = [() -> Void]()
+            unhandledSource.removeAll()
+            unhandledTarget.removeAll()
+            
+            func handle(
+                sourceIndex: [Int],
+                targetIndex: [Int],
+                sourceChange: DiffChange<Coordinator, [Int]>? = nil,
+                targetChange: DiffChange<Coordinator, [Int]>? = nil
+            ) {
+                guard case let .value(sourceValue, nil)? = sourceValues[safe: sourceIndex],
+                    case let .value(targetValue, nil)? = targetValues[safe: targetIndex]
+                else {
+                    fatalError()
+                }
+                let difference = targetValue.cache.sourceDifference(
+                    sourceOffset: sourceCoordinator[sourceIndex],
+                    targetOffset: targetCoordinator[targetIndex],
+                    sourcePaths: sourceIndex,
+                    targetPaths: targetIndex,
+                    from: sourceValue.cache
+                )
+                
+                difference.addTo(uniqueRemovals: &uniqueRemovals, uniqueInsertions: &uniqueInsertions)
+                
+                operations.append {
+                    difference.applying(uniqueRemovals: uniqueRemovals, uniqueInsertions: uniqueInsertions)
+                    let source = values(difference: difference, index: sourceIndex, isSource: true)
+                    let target = values(difference: difference, index: targetIndex, isSource: false)
+                    sourceValues.set(value: .values(source, sourceChange), at: sourceIndex)
+                    targetValues.set(value: .values(target, targetChange), at: sourceIndex)
+                }
+            }
+            
+            for (sourceIndex, targetIndex) in unhandled {
+                handle(sourceIndex: sourceIndex, targetIndex: targetIndex)
+            }
+            
+            let moves = unhandledMoved
+            unhandledMoved.removeAll()
+            for ((sourceChange, targetChange)) in moves.values {
+                handle(
+                    sourceIndex: sourceChange.index,
+                    targetIndex: targetChange.index,
+                    sourceChange: sourceChange,
+                    targetChange: targetChange
+                )
+            }
+            
+            operations.forEach { $0() }
+        }
+        
+        while !unhandledSource.isEmpty || !unhandledTarget.isEmpty || !unhandledMoved.isEmpty {
+            handleSubdifferences()
+        }
+        
+        return (sourceValues, targetValues)
     }
 }
 
@@ -278,5 +407,48 @@ fileprivate extension RangeReplaceableCollection {
         append(into: &result, contentsOf: self, from: &currentIndex, count: origCount)
         
         self = result
+    }
+}
+
+fileprivate extension Array {
+    var index: Element { self[count - 1] }
+}
+
+fileprivate extension Array where Element == Values {
+    subscript(safe indexPath: [Int]) -> Values? {
+        var values = self
+        for (offset, index) in indexPath.enumerated() {
+            guard let value = values[safe: index] else { return nil }
+            switch value {
+            case .value where offset == indexPath.count - 1:
+                return value
+            case let .values(subvalues):
+                values = subvalues.0
+                continue
+            default:
+                return nil
+            }
+        }
+        return nil
+    }
+    
+    mutating func set(value newValue: Values, at indexPath: [Int]) {
+        var indexPath = indexPath
+        let index = indexPath.remove(at: 0)
+        if indexPath.isEmpty {
+            self[index] = newValue
+        }
+        self[index].set(value: newValue, at: indexPath)
+    }
+}
+
+fileprivate extension Coordinator {
+    subscript(indexPath: [Int]) -> Path {
+        var coordinator: Coordinator = self
+        for (offset, index) in indexPath.enumerated() {
+            if offset == indexPath.count - 1 { return coordinator.subsourceOffset(at: index) }
+            coordinator = coordinator.subsource(at: index)
+        }
+        return coordinator.subsourceOffset(at: indexPath.index)
     }
 }

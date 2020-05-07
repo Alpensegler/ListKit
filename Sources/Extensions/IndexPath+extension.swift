@@ -7,22 +7,20 @@
 
 import Foundation
 
-typealias Path = IndexPath
-
-extension Path {
-    static var transform: (Path) -> Int { { $0.item } }
+extension IndexPath {
+    static var transform: (IndexPath) -> Int { { $0.item } }
     
-    static func + (lhs: Path, rhs: Path) -> IndexPath {
+    static func + (lhs: IndexPath, rhs: IndexPath) -> IndexPath {
         guard lhs.count == rhs.count else { fatalError() }
         return .init(indexes: zip(lhs, rhs).map { $0 + $1 })
     }
     
-    static func - (lhs: Path, rhs: Path) -> IndexPath {
+    static func - (lhs: IndexPath, rhs: IndexPath) -> IndexPath {
         guard lhs.count == rhs.count else { fatalError() }
         return .init(indexes: zip(lhs, rhs).map { $0 - $1 })
     }
     
-    init(section: Int, item: Int = 0) {
+    init(section: Int = 0, item: Int = 0) {
         self = [section, item]
     }
     

@@ -81,6 +81,8 @@ extension CollectionList: ListAdapter {
 
 #if os(iOS) || os(tvOS)
 
+import UIKit
+
 extension CollectionList {
     static var rootKeyPath: ReferenceWritableKeyPath<Coordinator, UICollectionListDelegate> {
         \.collectionListDelegate
@@ -110,7 +112,7 @@ extension CollectionList {
     static func toItemContext(
         _ view: CollectionView,
         _ coordinator: ListCoordinator<Source>,
-        path: Path
+        path: IndexPath
     ) -> CollectionItemContext<Source> {
         let (sectionOffset, itemOffset) = coordinator.offset(for: view)
         return .init(

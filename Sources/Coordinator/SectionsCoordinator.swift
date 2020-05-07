@@ -5,6 +5,8 @@
 //  Created by Frain on 2019/12/3.
 //
 
+import Foundation
+
 class SectionsCoordinator<SourceBase: DataSource>: ListCoordinator<SourceBase>
 where
     SourceBase.SourceBase == SourceBase,
@@ -16,8 +18,8 @@ where
     
     override var multiType: SourceMultipleType { .multiple }
     
-    override func item(at path: Path) -> Item { sections[path].value }
-    override func itemRelatedCache(at path: Path) -> ItemRelatedCache {
+    override func item(at path: IndexPath) -> Item { sections[path].value }
+    override func itemRelatedCache(at path: IndexPath) -> ItemRelatedCache {
         sections[path].cache
     }
     

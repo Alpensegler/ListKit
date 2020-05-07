@@ -5,6 +5,8 @@
 //  Created by Frain on 2019/10/12.
 //
 
+import Foundation
+
 enum SourceType {
     case cell
     case section
@@ -33,7 +35,7 @@ protocol Coordinator: AnyObject {
     func numbersOfSections() -> Int
     func numbersOfItems(in section: Int) -> Int
     
-    func subsourceOffset(at index: Int) -> Path
+    func subsourceOffset(at index: Int) -> IndexPath
     func subsource(at index: Int) -> Coordinator
     
     func apply<Object: AnyObject, Input, Output>(
@@ -66,8 +68,8 @@ protocol Coordinator: AnyObject {
     
     //Diff
     func sourceDifference(
-        sourceOffset: Path,
-        targetOffset: Path,
+        sourceOffset: IndexPath,
+        targetOffset: IndexPath,
         sourcePaths: [Int],
         targetPaths: [Int],
         from coordinator: Coordinator

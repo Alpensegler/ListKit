@@ -5,6 +5,8 @@
 //  Created by Frain on 2019/12/17.
 //
 
+import Foundation
+
 final class WrapperCoordinator<SourceBase: DataSource, OtherSourceBase>: ListCoordinator<SourceBase>
 where SourceBase.SourceBase == SourceBase, OtherSourceBase: DataSource {
     var wrappedCoodinator: ListCoordinator<OtherSourceBase.SourceBase>
@@ -47,11 +49,11 @@ where SourceBase.SourceBase == SourceBase, OtherSourceBase: DataSource {
         wrappedCoodinator.configNestedNotNewIfNeeded()
     }
     
-    override func item(at path: Path) -> Item {
+    override func item(at path: IndexPath) -> Item {
         itemTransform(wrappedCoodinator.item(at: path))
     }
     
-    override func itemRelatedCache(at path: Path) -> ItemRelatedCache {
+    override func itemRelatedCache(at path: IndexPath) -> ItemRelatedCache {
         wrappedCoodinator.itemRelatedCache(at: path)
     }
     

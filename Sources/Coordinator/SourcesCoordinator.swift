@@ -5,6 +5,8 @@
 //  Created by Frain on 2019/11/28.
 //
 
+import Foundation
+
 final class SourcesCoordinator<SourceBase: DataSource>: ListCoordinator<SourceBase>
 where
     SourceBase.SourceBase == SourceBase,
@@ -23,7 +25,7 @@ where
     var sourceIndices = [SourceIndices]()
     var subsources = [SourceBase.Source.Element]()
     var subcoordinators = [Subcoordinator]()
-    var offsets = [Path]()
+    var offsets = [IndexPath]()
     var isAnyType = Item.self == Any.self
     
     lazy var selfSelectorSets = initialSelectorSets()
@@ -32,7 +34,7 @@ where
     override var multiType: SourceMultipleType { .sources }
     override var isEmpty: Bool { sourceIndices.isEmpty }
     
-    func pathAndCoordinator(path: Path) -> (path: Path, coordinator: Subcoordinator) {
+    func pathAndCoordinator(path: IndexPath) -> (path: IndexPath, coordinator: Subcoordinator) {
         let indexAt = sourceIndices.index(of: path)
         return (path - offsets[indexAt], subcoordinators[indexAt])
     }
@@ -104,13 +106,13 @@ where
     
     func appendCoordinator(
         _ subcoordinator: Coordinator,
-        offset: inout Path,
+        offset: inout IndexPath,
         hasSection: inout Bool
     ) {
         if subcoordinator.isEmpty { return }
         switch (subcoordinator.sourceType, sourceIndices.last) {
         case (.section, .cell):
-            offset = Path(section: offset.section + 1)
+            offset = IndexPath(section: offset.section + 1)
             fallthrough
         case (.section, _):
             offsets.append(offset)
@@ -118,7 +120,7 @@ where
                 .section(index: offsets.count - 1, count: subcoordinator.numbersOfItems(in: $0))
             }
             hasSection = true
-            offset = Path(section: sourceIndices.count)
+            offset = IndexPath(section: sourceIndices.count)
         case (.cell, .cell(var cells)?):
             offsets.append(offset)
             let cellCounts = subcoordinator.numbersOfItems(in: 0)
@@ -134,12 +136,12 @@ where
         }
     }
     
-    override func item(at path: Path) -> Item {
+    override func item(at path: IndexPath) -> Item {
         let (path, subcoordinator) = pathAndCoordinator(path: path)
         return subcoordinator.item(at: path)
     }
     
-    override func itemRelatedCache(at path: Path) -> ItemRelatedCache {
+    override func itemRelatedCache(at path: IndexPath) -> ItemRelatedCache {
         let (path, subcoordinator) = pathAndCoordinator(path: path)
         return subcoordinator.itemRelatedCache(at: path)
     }
@@ -147,13 +149,13 @@ where
     override func numbersOfSections() -> Int { sourceIndices.count }
     override func numbersOfItems(in section: Int) -> Int { sourceIndices[section].count }
     
-    override func subsourceOffset(at index: Int) -> Path { offsets[index] }
+    override func subsourceOffset(at index: Int) -> IndexPath { offsets[index] }
     override func subsource(at index: Int) -> Coordinator { subcoordinators[index] }
     
     override func setup() {
         if !didSetup { setupCoordinators() }
         var hasSectioned = false
-        var offset = Path()
+        var offset = IndexPath(section: 0, item: 0)
         for coordinator in subcoordinators {
             coordinator.setupIfNeeded()
             appendCoordinator(coordinator, offset: &offset, hasSection: &hasSectioned)

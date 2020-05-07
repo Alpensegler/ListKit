@@ -81,6 +81,8 @@ extension TableList: ListAdapter {
 
 #if os(iOS) || os(tvOS)
 
+import UIKit
+
 extension TableList {
     static var rootKeyPath: ReferenceWritableKeyPath<Coordinator, UITableListDelegate> {
         \.tableListDelegate
@@ -110,7 +112,7 @@ extension TableList {
     static func toItemContext(
         _ view: TableView,
         _ coordinator: ListCoordinator<Source>,
-        path: Path
+        path: IndexPath
     ) -> TableItemContext<Source> {
         let (sectionOffset, itemOffset) = coordinator.offset(for: view)
         return .init(

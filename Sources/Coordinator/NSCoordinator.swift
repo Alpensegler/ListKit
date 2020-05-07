@@ -5,6 +5,8 @@
 //  Created by Frain on 2019/12/3.
 //
 
+import Foundation
+
 final class NSCoordinator<SourceBase: NSDataSource>: ListCoordinator<SourceBase>
 where SourceBase.SourceBase == SourceBase {
     let itemClosure: (Int, Int) -> Item
@@ -14,10 +16,10 @@ where SourceBase.SourceBase == SourceBase {
     
     override var multiType: SourceMultipleType { .noneDiffable }
     
-    override func item(at path: Path) -> Item {
+    override func item(at path: IndexPath) -> Item {
         itemClosure(path.section, path.item)
     }
-    override func itemRelatedCache(at path: Path) -> ItemRelatedCache {
+    override func itemRelatedCache(at path: IndexPath) -> ItemRelatedCache {
         caches[path]
     }
     

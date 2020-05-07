@@ -5,6 +5,8 @@
 //  Created by Frain on 2019/11/25.
 //
 
+import Foundation
+
 class ItemsCoordinator<SourceBase: DataSource>: ListCoordinator<SourceBase>
 where
     SourceBase.SourceBase == SourceBase,
@@ -42,8 +44,8 @@ where
         return diff
     }
     
-    override func item(at path: Path) -> Item { items[path.item].value }
-    override func itemRelatedCache(at path: Path) -> ItemRelatedCache {
+    override func item(at path: IndexPath) -> Item { items[path.item].value }
+    override func itemRelatedCache(at path: IndexPath) -> ItemRelatedCache {
         items[path.item].cache
     }
     
@@ -79,8 +81,8 @@ where
     ) -> ItemValueDifference<Item> {
         let diff = super.difference(to: isTo, items: items, source: source, differ: differ)
         diff.applying = {
-            self.items.apply($0, indexTransform: Path.transform) { $0.value }
-            self.source.apply($0, indexTransform: Path.transform) { $0.value.value }
+            self.items.apply($0, indexTransform: IndexPath.transform) { $0.value }
+            self.source.apply($0, indexTransform: IndexPath.transform) { $0.value.value }
         }
         return diff
     }

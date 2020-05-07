@@ -5,6 +5,8 @@
 //  Created by Frain on 2019/12/16.
 //
 
+import Foundation
+
 protocol ListAdapter: UpdatableDataSource where Source == SourceBase {
     associatedtype View: AnyObject
     associatedtype ViewDelegates: AnyObject
@@ -29,7 +31,7 @@ protocol ListAdapter: UpdatableDataSource where Source == SourceBase {
     static func toItemContext(
         _ view: View,
         _ coordinator: ListCoordinator<Source>,
-        path: Path
+        path: IndexPath
     ) -> ItemContext
     
     init(

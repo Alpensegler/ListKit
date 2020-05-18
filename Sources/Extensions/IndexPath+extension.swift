@@ -9,6 +9,7 @@ import Foundation
 
 extension IndexPath {
     static var transform: (IndexPath) -> Int { { $0.item } }
+    static var listZero: IndexPath { IndexPath(section: 0, item: 0) }
     
     static func + (lhs: IndexPath, rhs: IndexPath) -> IndexPath {
         guard lhs.count == rhs.count else { fatalError() }

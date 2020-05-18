@@ -14,13 +14,14 @@ where
     SourceBase.Source.Element: DataSource,
     SourceBase.Source.Element.SourceBase.Item == SourceBase.Item
 {
-    enum Source {
+    enum SourceElement {
         case other
-        case value(Diffable<Element>)
+        case value(value: Element, related: Coordinator)
     }
     
     typealias Element = SourceBase.Source.Element
     typealias Subcoordinator = ListCoordinator<Element.SourceBase>
+    typealias Value = (value: SourceElement, related: Coordinator)
     
     var sourceIndices = [SourceIndices]()
     var subsources = [Element]()
@@ -149,13 +150,10 @@ where
     override func numbersOfSections() -> Int { sourceIndices.count }
     override func numbersOfItems(in section: Int) -> Int { sourceIndices[section].count }
     
-    override func subsourceOffset(at index: Int) -> IndexPath { offsets[index] }
-    override func subsource(at index: Int) -> Coordinator { subcoordinators[index] }
-    
     override func setup() {
         if !didSetup { setupCoordinators() }
         var hasSectioned = false
-        var offset = IndexPath(section: 0, item: 0)
+        var offset = IndexPath.listZero
         for coordinator in subcoordinators {
             coordinator.setupIfNeeded()
             appendCoordinator(coordinator, offset: &offset, hasSection: &hasSectioned)

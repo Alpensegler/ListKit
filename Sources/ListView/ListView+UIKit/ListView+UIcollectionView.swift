@@ -26,7 +26,7 @@ extension UICollectionView: UIListView, SetuptableListView {
 
 public extension UICollectionView {
     var defaultAnimation: Bool {
-        get { return Associator.getValue(key: &Self.listViewDefaultAnimationKey, from: self) ?? true }
+        get { Associator.getValue(key: &Self.listViewDefaultAnimationKey, from: self) ?? true }
         set { Associator.set(value: newValue, key: &Self.listViewDefaultAnimationKey, to: self) }
     }
     

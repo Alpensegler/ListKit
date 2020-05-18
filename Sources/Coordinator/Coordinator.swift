@@ -8,15 +8,11 @@
 import Foundation
 
 enum SourceType {
-    case cell
-    case section
+    case cell, section
 }
 
 enum SourceMultipleType {
-    case single
-    case multiple
-    case sources
-    case noneDiffable
+    case single, multiple, sources, noneDiffable
 }
 
 protocol Coordinator: AnyObject {
@@ -34,9 +30,6 @@ protocol Coordinator: AnyObject {
     
     func numbersOfSections() -> Int
     func numbersOfItems(in section: Int) -> Int
-    
-    func subsourceOffset(at index: Int) -> IndexPath
-    func subsource(at index: Int) -> Coordinator
     
     func apply<Object: AnyObject, Input, Output>(
         _ keyPath: KeyPath<Coordinator, Delegate<Object, Input, Output>>,
@@ -67,13 +60,7 @@ protocol Coordinator: AnyObject {
     ) -> Bool
     
     //Diff
-    func sourceDifference(
-        sourceOffset: IndexPath,
-        targetOffset: IndexPath,
-        sourcePaths: [Int],
-        targetPaths: [Int],
-        from coordinator: Coordinator
-    ) -> DataSourceDifference
+    func difference<Value>(from: Coordinator, differ: Differ<Value>?) -> CoordinatorDifference?
 }
 
 extension Coordinator {

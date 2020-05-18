@@ -27,7 +27,7 @@ where SourceBase.SourceBase == SourceBase, OtherSourceBase: DataSource {
         self.wrappedCoodinator = wrappedCoodinator
         self.itemTransform = itemTransform
         super.init(
-            id: HashCombiner(ObjectIdentifier(SourceBase.self), ObjectIdentifier(OtherSourceBase.self)),
+            id: HashCombiner(ObjectIdentifier(SourceBase.self), wrappedCoodinator.id),
             source: source,
             storage: storage
         )
@@ -39,14 +39,6 @@ where SourceBase.SourceBase == SourceBase, OtherSourceBase: DataSource {
         with input: Input
     ) -> Coordinator? {
         others.contains(delegate.selector) ? nil : wrappedCoodinator
-    }
-    
-    override func configNestedIfNeeded() {
-        wrappedCoodinator.configNestedIfNeeded()
-    }
-    
-    override func configNestedNotNewIfNeeded() {
-        wrappedCoodinator.configNestedNotNewIfNeeded()
     }
     
     override func item(at path: IndexPath) -> Item {
@@ -63,6 +55,53 @@ where SourceBase.SourceBase == SourceBase, OtherSourceBase: DataSource {
     
     override func numbersOfItems(in section: Int) -> Int {
         wrappedCoodinator.numbersOfItems(in: section)
+    }
+    
+    //Diffs:
+    override func difference<Value>(
+        from: Coordinator,
+        differ: Differ<Value>?
+    ) -> CoordinatorDifference? {
+        fatalError("should be implemented by subclass")
+    }
+    
+    override func difference(
+        to source: SourceBase.Source,
+        differ: Differ<Item>
+    ) -> CoordinatorDifference {
+        fatalError("should be implemented by subclass")
+    }
+    
+    override func updateTo(_ source: SourceBase.Source) {
+        fatalError("should be implemented by subclass")
+    }
+    
+    //Selectors
+    override func apply<Object: AnyObject, Input, Output>(
+        _ keyPath: KeyPath<Coordinator, Delegate<Object, Input, Output>>,
+        object: Object,
+        with input: Input
+    ) -> Output {
+        let closure = self[keyPath: keyPath]
+        let coordinator = subcoordinator(for: closure, object: object, with: input)
+        return coordinator?.apply(keyPath, object: object, with: input)
+            ?? super.apply(keyPath, object: object, with: input)
+    }
+    
+    override func apply<Object: AnyObject, Input>(
+        _ keyPath: KeyPath<Coordinator, Delegate<Object, Input, Void>>,
+        object: Object,
+        with input: Input
+    ) {
+        let closure = self[keyPath: keyPath]
+        let coordinator = subcoordinator(for: closure, object: object, with: input)
+        coordinator?.apply(keyPath, object: object, with: input)
+        super.apply(keyPath, object: object, with: input)
+    }
+    
+    override func selectorSets(applying: (inout SelectorSets) -> Void) {
+        super.selectorSets(applying: applying)
+        applying(&selfSelectorSets)
     }
 
     override func setup() {
@@ -94,33 +133,6 @@ where SourceBase.SourceBase == SourceBase, OtherSourceBase: DataSource {
             supercoordinator: supercoordinator
         )
     }
-    
-    override func selectorSets(applying: (inout SelectorSets) -> Void) {
-        super.selectorSets(applying: applying)
-        applying(&selfSelectorSets)
-    }
-    
-    override func apply<Object: AnyObject, Input, Output>(
-        _ keyPath: KeyPath<Coordinator, Delegate<Object, Input, Output>>,
-        object: Object,
-        with input: Input
-    ) -> Output {
-        let closure = self[keyPath: keyPath]
-        let coordinator = subcoordinator(for: closure, object: object, with: input)
-        return coordinator?.apply(keyPath, object: object, with: input)
-            ?? super.apply(keyPath, object: object, with: input)
-    }
-    
-    override func apply<Object: AnyObject, Input>(
-        _ keyPath: KeyPath<Coordinator, Delegate<Object, Input, Void>>,
-        object: Object,
-        with input: Input
-    ) {
-        let closure = self[keyPath: keyPath]
-        let coordinator = subcoordinator(for: closure, object: object, with: input)
-        coordinator?.apply(keyPath, object: object, with: input)
-        super.apply(keyPath, object: object, with: input)
-    }
 }
 
 extension WrapperCoordinator
@@ -128,7 +140,10 @@ where
     SourceBase.Source == OtherSourceBase,
     SourceBase.Item == OtherSourceBase.Item
 {
-    convenience init(wrapperSourceBase sourceBase: SourceBase, storage: CoordinatorStorage<SourceBase>? = nil) {
+    convenience init(
+        wrapper sourceBase: SourceBase,
+        storage: CoordinatorStorage<SourceBase>? = nil
+    ) {
         let source = sourceBase.source(storage: storage)
         self.init(
             source: source,
@@ -146,6 +161,6 @@ where
 {
     
     convenience init(updatableWrapper sourceBase: SourceBase) {
-        self.init(wrapperSourceBase: sourceBase, storage: sourceBase.coordinatorStorage)
+        self.init(wrapper: sourceBase, storage: sourceBase.coordinatorStorage)
     }
 }

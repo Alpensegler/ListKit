@@ -28,7 +28,7 @@ extension UITableView: UIListView, SetuptableListView {
 public extension UITableView {
     
     var defaultAnimation: Animation {
-        get { return Associator.getValue(key: &listViewDefaultAnimationKey, from: self) ?? .fade }
+        get { Associator.getValue(key: &listViewDefaultAnimationKey, from: self) ?? .fade }
         set { Associator.set(value: newValue, key: &listViewDefaultAnimationKey, to: self) }
     }
     

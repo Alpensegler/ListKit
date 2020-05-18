@@ -14,14 +14,12 @@ where
     SourceBase.Source.Element: Collection,
     SourceBase.Source.Element.Element == SourceBase.Item
 {
-    var sections = [[DiffableValue<Item, ItemRelatedCache>]]()
+    var sections = [[(value: Item, related: ItemRelatedCache)]]()
     
     override var multiType: SourceMultipleType { .multiple }
     
     override func item(at path: IndexPath) -> Item { sections[path].value }
-    override func itemRelatedCache(at path: IndexPath) -> ItemRelatedCache {
-        sections[path].cache
-    }
+    override func itemRelatedCache(at path: IndexPath) -> ItemRelatedCache { sections[path].related }
     
     override func numbersOfSections() -> Int { sections.count }
     override func numbersOfItems(in section: Int) -> Int { sections[section].count }
@@ -29,7 +27,7 @@ where
     override var isEmpty: Bool { sections.isEmpty }
     
     override func setup() {
-        sections = source.map { $0.map { DiffableValue(differ: defaultUpdate.diff, value: $0, cache: .init()) } }
+        sections = source.map { $0.map { ($0, related: .init()) } }
         sourceType = .section
     }
 }

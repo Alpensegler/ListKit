@@ -20,6 +20,15 @@ class ExampleViewController: UIViewController {
         let collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: UICollectionViewLayout())
         view.addSubview(collectionView)
         collectionView.autoresizingMask = [.flexibleHeight, .flexibleWidth]
+        collectionView.backgroundColor = .white
         return collectionView
     }()
+    
+    func addRefreshAction() {
+        navigationItem.rightBarButtonItem = .init(barButtonSystemItem: .refresh, target: self, action: #selector(refresh))
+    }
+    
+    @objc func refresh() {
+        
+    }
 }

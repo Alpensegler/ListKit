@@ -22,8 +22,29 @@ final class ListContext {
 }
 
 final class ItemRelatedCache {
-    var nestedAdapterItemUpdate = [AnyHashable: (Bool, (Any) -> Void)]()
-    var cacheForItem = [ObjectIdentifier: Any]()
+    var nestedAdapterItemUpdateDidConfig = false
+    var cacheForItemDidConfig = false
+    
+    lazy var nestedAdapterItemUpdate: [AnyHashable: (Bool, (Any) -> Void)] = {
+        nestedAdapterItemUpdateDidConfig = true
+        return .init()
+    }()
+    
+    lazy var cacheForItem: [ObjectIdentifier: Any] = {
+        cacheForItemDidConfig = true
+        return .init()
+    }()
+    
+    func from(cache: ItemRelatedCache) {
+        if cache.nestedAdapterItemUpdateDidConfig {
+            nestedAdapterItemUpdate = cache.nestedAdapterItemUpdate
+            nestedAdapterItemUpdateDidConfig = true
+        }
+        if cache.cacheForItemDidConfig {
+            cacheForItem = cache.cacheForItem
+            cacheForItemDidConfig = true
+        }
+    }
 }
 
 public class ListCoordinator<SourceBase: DataSource>: Coordinator
@@ -68,6 +89,7 @@ where SourceBase.SourceBase == SourceBase {
         self.storage = storage
         self.defaultUpdate = defaultUpdate
         self.source = source
+        storage?.coordinators.append(self)
     }
     
     init(_ sourceBase: SourceBase, storage: CoordinatorStorage<SourceBase>? = nil) {
@@ -75,113 +97,26 @@ where SourceBase.SourceBase == SourceBase {
         self.storage = storage
         self.defaultUpdate = sourceBase.listUpdate
         self.source = sourceBase.source(storage: storage)
+        storage?.coordinators.append(self)
     }
-    
-    func itemRelatedCache(at path: IndexPath) -> ItemRelatedCache { fatalError() }
     
     func numbersOfSections() -> Int { fatalError() }
     func numbersOfItems(in section: Int) -> Int { fatalError() }
     
-    func subsourceOffset(at index: Int) -> IndexPath { fatalError() }
-    func subsource(at index: Int) -> Coordinator { fatalError() }
-    
     func item(at path: IndexPath) -> Item { fatalError() }
-    
-    func configNestedIfNeeded() {
-//        guard needUpdateCaches else { return }
-//        itemCaches.enumerated().forEach { (arg) in
-//            let section = arg.offset
-//            arg.element.enumerated().forEach { (arg) in
-//                let item = arg.offset
-//                arg.element.nestedAdapterItemUpdate.values.forEach {
-//                    if $0.0 { return }
-//                    $0.1(self.item(at: Path(section: section, item: item)))
-//                }
-//            }
-//        }
-    }
-    
-    func configNestedNotNewIfNeeded() {
-//        guard needUpdateCaches else { return }
-//        for cache in itemCaches.lazy.flatMap({ $0 }) {
-//            cache.nestedAdapterItemUpdate.keys.forEach {
-//                cache.nestedAdapterItemUpdate[$0]?.0 = false
-//            }
-//        }
-    }
-    
-    func offset(for object: AnyObject) -> (Int, Int) {
-        guard let context = listContexts[ObjectIdentifier(object)] else { return (0, 0) }
-        return (context.sectionOffset, context.itemOffset)
-    }
+    func itemRelatedCache(at path: IndexPath) -> ItemRelatedCache { fatalError() }
     
     //Diffs:
-    func itemDifference(
-        from coordinator: Coordinator,
-        differ: Differ<Item>
-    ) -> [ItemCacheDifference] {
-        fatalError()
+    func difference<Value>(from: Coordinator, differ: Differ<Value>?) -> CoordinatorDifference? {
+        fatalError("should be implemented by subclass")
     }
     
-    func sourceDifference(
-        sourceOffset: IndexPath,
-        targetOffset: IndexPath,
-        sourcePaths: [Int],
-        targetPaths: [Int],
-        from coordinator: Coordinator
-    ) -> DataSourceDifference {
-        fatalError()
+    func difference(to source: SourceBase.Source, differ: Differ<Item>) -> CoordinatorDifference {
+        fatalError("should be implemented by subclass")
     }
     
-    func performReload(
-        to sourceBase: SourceBase,
-        _ animated: Bool,
-        _ completion: ((ListView, Bool) -> Void)?,
-        _ updateData: ((SourceBase.Source) -> Void)?
-    ) {
-        for context in listContexts.values {
-            guard let listView = context.listView else { continue }
-            if let coordinator = context.supercoordinator {
-                _ = coordinator
-            } else {
-                updateTo(sourceBase, with: updateData)
-                context.listView?.reloadSynchronously(animated: animated)
-                completion?(listView, true)
-            }
-        }
-    }
-    
-    func perform(
-        diff: Differ<Item>,
-        to sourceBase: SourceBase,
-        _ animated: Bool,
-        _ completion: ((ListView, Bool) -> Void)?,
-        _ updateData: ((SourceBase.Source) -> Void)?
-    ) {
-        fatalError()
-    }
-    
-    func perform(
-        _ update: Update<Item>,
-        to sourceBase: SourceBase,
-        _ animated: Bool,
-        _ completion: ((ListView, Bool) -> Void)?,
-        _ updateData: ((SourceBase.Source) -> Void)?
-    ) {
-        switch update.way {
-        case .diff(let diff):
-            perform(diff: diff, to: sourceBase, animated, completion, updateData)
-        case .reload:
-            performReload(to: sourceBase, animated, completion, updateData)
-        }
-    }
-    
-    func updateTo(_ sourceBase: SourceBase, with updateData: ((SourceBase.Source) -> Void)?) {
-        
-    }
-    
-    func removeCurrent(animated: Bool, completion: ((ListView, Bool) -> Void)?) {
-        
+    func updateTo(_ source: SourceBase.Source) {
+        fatalError("should be implemented by subclass")
     }
     
     //Selectors
@@ -199,32 +134,6 @@ where SourceBase.SourceBase == SourceBase {
         with input: Input
     ) {
         self[keyPath: keyPath].closure?(object, input)
-    }
-    
-    func set<Object: AnyObject, Input, Output>(
-        _ keyPath: ReferenceWritableKeyPath<Coordinator, Delegate<Object, Input, Output>>,
-        _ closure: @escaping (ListCoordinator<SourceBase>, Object, Input) -> Output
-    ) {
-        self[keyPath: keyPath].closure = { [unowned self] in closure(self, $0, $1) }
-        let delegate = self[keyPath: keyPath]
-        switch delegate.index {
-        case .none: selectorSets { $0.value.remove(delegate.selector) }
-        case .indexPath: selectorSets { $0.withIndexPath.remove(delegate.selector) }
-        case .index:
-            selectorSets {
-                $0.withIndex.remove(delegate.selector)
-                $0.hasIndex = true
-            }
-        }
-    }
-
-    func set<Object: AnyObject, Input>(
-        _ keyPath: ReferenceWritableKeyPath<Coordinator, Delegate<Object, Input, Void>>,
-        _ closure: @escaping (ListCoordinator<SourceBase>, Object, Input) -> Void
-    ) {
-        self[keyPath: keyPath].closure = { [unowned self] in closure(self, $0, $1) }
-        let delegate = self[keyPath: keyPath]
-        selectorSets { $0.void.remove(delegate.selector) }
     }
     
     func selectorSets(applying: (inout SelectorSets) -> Void) {
@@ -256,6 +165,94 @@ where SourceBase.SourceBase == SourceBase {
         )
         listContexts[key] = context
     }
+}
+
+extension ListCoordinator {
+    func offset(for object: AnyObject) -> (Int, Int) {
+        guard let context = listContexts[ObjectIdentifier(object)] else { return (0, 0) }
+        return (context.sectionOffset, context.itemOffset)
+    }
+    
+    func set<Object: AnyObject, Input, Output>(
+        _ keyPath: ReferenceWritableKeyPath<Coordinator, Delegate<Object, Input, Output>>,
+        _ closure: @escaping (ListCoordinator<SourceBase>, Object, Input) -> Output
+    ) {
+        self[keyPath: keyPath].closure = { [unowned self] in closure(self, $0, $1) }
+        let delegate = self[keyPath: keyPath]
+        switch delegate.index {
+        case .none: selectorSets { $0.value.remove(delegate.selector) }
+        case .indexPath: selectorSets { $0.withIndexPath.remove(delegate.selector) }
+        case .index:
+            selectorSets {
+                $0.withIndex.remove(delegate.selector)
+                $0.hasIndex = true
+            }
+        }
+    }
+
+    func set<Object: AnyObject, Input>(
+        _ keyPath: ReferenceWritableKeyPath<Coordinator, Delegate<Object, Input, Void>>,
+        _ closure: @escaping (ListCoordinator<SourceBase>, Object, Input) -> Void
+    ) {
+        self[keyPath: keyPath].closure = { [unowned self] in closure(self, $0, $1) }
+        let delegate = self[keyPath: keyPath]
+        selectorSets { $0.void.remove(delegate.selector) }
+    }
+}
+
+//Updating
+extension ListCoordinator {
+    func performReload(
+        to sourceBase: SourceBase.Source,
+        _ animated: Bool,
+        _ completion: ((ListView, Bool) -> Void)?,
+        _ updateData: ((SourceBase.Source) -> Void)?
+    ) {
+        updateTo(sourceBase)
+        updateData?(sourceBase)
+        for context in listContexts.values {
+            guard let listView = context.listView else { continue }
+            if let coordinator = context.supercoordinator {
+                _ = coordinator
+            } else {
+                context.listView?.reloadSynchronously(animated: animated)
+                completion?(listView, true)
+            }
+        }
+    }
+    
+    func perform(
+        diff differ: Differ<Item>,
+        to sourceBase: SourceBase.Source,
+        _ animated: Bool,
+        _ completion: ((ListView, Bool) -> Void)?,
+        _ updateData: ((SourceBase.Source) -> Void)?
+    ) {
+        let update = difference(to: sourceBase, differ: differ).generateUpdate()
+        for context in listContexts.values {
+            guard let listView = context.listView else { continue }
+            listView.perform(update: update, animated: animated, completion: completion)
+        }
+    }
+    
+    func perform(
+        _ update: Update<Item>,
+        to sourceBase: SourceBase.Source,
+        _ animated: Bool,
+        _ completion: ((ListView, Bool) -> Void)?,
+        _ updateData: ((SourceBase.Source) -> Void)?
+    ) {
+        switch update.way {
+        case .diff(let diff):
+            perform(diff: diff, to: sourceBase, animated, completion, updateData)
+        case .reload:
+            performReload(to: sourceBase, animated, completion, updateData)
+        }
+    }
+    
+    func removeCurrent(animated: Bool, completion: ((ListView, Bool) -> Void)?) {
+        
+    }
     
     func update(
         from coordinator: Coordinator,
@@ -264,6 +261,7 @@ where SourceBase.SourceBase == SourceBase {
     ) -> Bool {
         false
     }
+    
 }
 
 extension ListCoordinator where SourceBase: UpdatableDataSource {

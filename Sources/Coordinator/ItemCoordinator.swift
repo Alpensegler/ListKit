@@ -9,16 +9,12 @@ import Foundation
 
 final class ItemCoordinator<SourceBase: DataSource>: ListCoordinator<SourceBase>
 where SourceBase.Item == SourceBase.Source, SourceBase.SourceBase == SourceBase  {
-    lazy var item = DiffableValue<SourceBase.Item, ItemRelatedCache>(
-        differ: defaultUpdate.diff,
-        value: source,
-        cache: .init()
-    )
+    lazy var item = (value: source, related: ItemRelatedCache())
     
     override var multiType: SourceMultipleType { .single }
     
     override func item(at path: IndexPath) -> Item { item.value }
-    override func itemRelatedCache(at path: IndexPath) -> ItemRelatedCache { item.cache }
+    override func itemRelatedCache(at path: IndexPath) -> ItemRelatedCache { item.related }
     
     override func numbersOfSections() -> Int { 1 }
     override func numbersOfItems(in section: Int) -> Int { 1 }

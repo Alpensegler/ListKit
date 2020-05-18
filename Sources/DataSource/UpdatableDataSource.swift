@@ -32,10 +32,10 @@ public extension UpdatableDataSource {
         completion: ((ListView, Bool) -> Void)? = nil,
         updateData: ((SourceBase.Source) -> Void)? = nil
     ) {
-        cancelUpdate()
+        let source = sourceBase.source
         coordinatorStorage.source = nil
         coordinatorStorage.coordinators.forEach {
-            $0.perform(update, to: sourceBase, animated, completion, updateData)
+            $0.perform(update, to: source, animated, completion, updateData)
         }
     }
     

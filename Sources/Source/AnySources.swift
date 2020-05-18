@@ -18,7 +18,7 @@ public struct AnySources: UpdatableDataSource {
     
     public init<Source: DataSource>(_ dataSource: Source) {
         self.source = dataSource
-        self.differ = .init(dataSource.differ) { (($0.source) as? Source)?.sourceBase }
+        self.differ = .init(dataSource.differ) { (($0.source) as! Source).sourceBase }
         self.listUpdate = dataSource.listUpdate.diff.map { .init(diff: .init($0)) } ?? .reload
         self.coordinatorMaker = {
             WrapperCoordinator<AnySources, Source>(

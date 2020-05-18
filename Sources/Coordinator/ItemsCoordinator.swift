@@ -13,7 +13,7 @@ where
     SourceBase.Source: Collection,
     SourceBase.Item == SourceBase.Source.Element
 {
-    var items = [DiffableValue<Item, ItemRelatedCache>]()
+    var items = [(value: Item, related: ItemRelatedCache)]()
     
     override var multiType: SourceMultipleType {
         sourceType == .section ? .single : .multiple
@@ -22,31 +22,24 @@ where
     override var isEmpty: Bool { sourceType == .cell && items.isEmpty }
     
     func difference(
-        to isTo: Bool,
-        items: [DiffableValue<Item, ItemRelatedCache>],
+        to: Bool,
+        items: [(value: Item, related: ItemRelatedCache)],
         source: SourceBase.Source,
-        differ: Differ<Item>?
-    ) -> ItemValueDifference<Item> {
-        let (sourceItems, tagetItems) = isTo ? (items, self.items) : (self.items, items)
-        let targetSource = isTo ? source : self.source
-        let diff = ItemValueDifference(source: sourceItems, target: tagetItems, differ: differ)
-        diff.starting = {
-            self.configNestedNotNewIfNeeded()
-            if isTo { return }
-            self.items = items
-            self.source = source
-        }
-        diff.ending = {
-            self.items = sourceItems
+        differ: Differ<Item>
+    ) -> ItemsCoornatorDifference<Item> {
+        let mapping = to ? (source: items, target: self.items) : (source: self.items, target: items)
+        let targetSource = to ? source : self.source
+        let diff = ItemsCoornatorDifference(mapping: mapping, differ: differ)
+        diff.coordinatorChange = {
+            self.items = mapping.target
             self.source = targetSource
         }
-        diff.finish = configNestedIfNeeded
         return diff
     }
     
     override func item(at path: IndexPath) -> Item { items[path.item].value }
     override func itemRelatedCache(at path: IndexPath) -> ItemRelatedCache {
-        items[path.item].cache
+        items[path.item].related
     }
     
     override func numbersOfSections() -> Int { 1 }
@@ -54,16 +47,29 @@ where
     
     override func setup() {
         sourceType = selectorSets.hasIndex ? .section : .cell
-        items = source.map { DiffableValue(differ: defaultUpdate.diff, value: $0, cache: .init()) }
+        items = source.map { ($0, .init()) }
     }
     
-    override func itemDifference(
-        from coordinator: Coordinator,
-        differ: Differ<Item>
-    ) -> [ItemCacheDifference] {
-        let coordinator = coordinator as! ItemsCoordinator<SourceBase>
+    override func updateTo(_ source: SourceBase.Source) {
+        self.source = source
+        items = source.map { ($0, .init()) }
+    }
+    
+    override func difference<Value>(
+        from: Coordinator,
+        differ: Differ<Value>?
+    ) -> CoordinatorDifference? {
+        let coordinator = from as! ItemsCoordinator<SourceBase>
         let (items, source) = (coordinator.items, coordinator.source)
-        return [difference(to: false, items: items, source: source, differ: differ)]
+        guard let differ = (differ.map { .init($0) }) ?? defaultUpdate.diff else { return nil }
+        return difference(to: false, items: items, source: source, differ: differ)
+    }
+    
+    override func difference(
+        to source: SourceBase.Source,
+        differ: Differ<Item>
+    ) -> CoordinatorDifference {
+        difference(to: true, items: source.map { ($0, .init()) }, source: source, differ: differ)
     }
 }
 
@@ -75,14 +81,15 @@ where
 {
     override func difference(
         to isTo: Bool,
-        items: [DiffableValue<Item, ItemRelatedCache>],
+        items: [(value: Item, related: ItemRelatedCache)],
         source: SourceBase.Source,
-        differ: Differ<Item>?
-    ) -> ItemValueDifference<Item> {
+        differ: Differ<Item>
+    ) -> ItemsCoornatorDifference<Item> {
         let diff = super.difference(to: isTo, items: items, source: source, differ: differ)
-        diff.applying = {
-            self.items.apply($0, indexTransform: IndexPath.transform) { $0.value }
-            self.source.apply($0, indexTransform: IndexPath.transform) { $0.value.value }
+        diff.rangeRelplacable = true
+        diff.internalCoordinatorChange = { items in
+            self.items = items
+            self.source = .init(items.lazy.map { $0.value })
         }
         return diff
     }

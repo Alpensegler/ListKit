@@ -28,12 +28,12 @@ protocol SetuptableListView: ListView {
 
 extension ListView {
     func perform(update: ListUpdate, animated: Bool, completion: ((ListView, Bool) -> Void)?) {
-        for (offset, batchUpdate) in update.batches.enumerated() {
-            let complete = offset < update.batches.count - 1 ? nil : { [weak self] (finish: Bool) in
+        for (isLast, batchUpdate) in update.updates {
+            let completion: ((Bool) -> Void)? = isLast ? { [weak self] finish in
                 self.map { completion?($0, finish) }
                 update.complete?()
-            }
-            perform(update: { perform(batchUpdate) }, animated: animated, completion: complete)
+            } : nil
+            perform(update: { perform(batchUpdate) }, animated: animated, completion: completion)
         }
     }
     
@@ -41,14 +41,14 @@ extension ListView {
         update.change?()
         
         if !update.section.deletions.isEmpty { deleteSections(update.section.deletions) }
-        if !update.section.insertions.isEmpty { deleteSections(update.section.insertions) }
-        if !update.section.updates.isEmpty { deleteSections(update.section.updates) }
+        if !update.section.insertions.isEmpty { insertSections(update.section.insertions) }
+        if !update.section.updates.isEmpty { reloadSections(update.section.updates) }
         update.section.moves.forEach { moveSection($0.source, toSection: $0.target) }
         
         
         if !update.item.deletions.isEmpty { deleteItems(at: update.item.deletions) }
-        if !update.item.insertions.isEmpty { deleteItems(at: update.item.insertions) }
-        if !update.item.updates.isEmpty { deleteItems(at: update.item.updates) }
+        if !update.item.insertions.isEmpty { insertItems(at: update.item.insertions) }
+        if !update.item.updates.isEmpty { reloadItems(at: update.item.updates) }
         update.item.moves.forEach { moveItem(at: $0.source, to: $0.target) }
     }
 }

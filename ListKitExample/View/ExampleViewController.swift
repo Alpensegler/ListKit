@@ -9,6 +9,8 @@
 import UIKit
 
 class ExampleViewController: UIViewController {
+    var toggle = true
+    
     lazy var tableView: UITableView = {
         let tableView = UITableView(frame: view.bounds)
         view.addSubview(tableView)
@@ -17,7 +19,7 @@ class ExampleViewController: UIViewController {
     }()
     
     lazy var collectionView: UICollectionView = {
-        let collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: UICollectionViewLayout())
+        let collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: UICollectionViewFlowLayout())
         view.addSubview(collectionView)
         collectionView.autoresizingMask = [.flexibleHeight, .flexibleWidth]
         collectionView.backgroundColor = .white
@@ -29,6 +31,6 @@ class ExampleViewController: UIViewController {
     }
     
     @objc func refresh() {
-        
+        toggle.toggle()
     }
 }

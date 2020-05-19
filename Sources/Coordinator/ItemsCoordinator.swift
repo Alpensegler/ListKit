@@ -22,17 +22,23 @@ where
     override var isEmpty: Bool { sourceType == .cell && items.isEmpty }
     
     func difference(
-        to: Bool,
+        to isTo: Bool,
         items: [(value: Item, related: ItemRelatedCache)],
         source: SourceBase.Source,
         differ: Differ<Item>
-    ) -> ItemsCoornatorDifference<Item> {
-        let mapping = to ? (source: items, target: self.items) : (source: self.items, target: items)
-        let targetSource = to ? source : self.source
-        let diff = ItemsCoornatorDifference(mapping: mapping, differ: differ)
+    ) -> ItemsCoordinatorDifference<Item> {
+        let mapping = isTo
+            ? (source: self.items, target: items)
+            : (source: items, target: self.items)
+        let source: Mapping = isTo ? (self.source, source) : (source, self.source)
+        let diff = ItemsCoordinatorDifference(mapping: mapping, differ: differ)
         diff.coordinatorChange = {
             self.items = mapping.target
-            self.source = targetSource
+            self.source = source.target
+        }
+        if !isTo {
+            self.items = items
+            self.source = source.source
         }
         return diff
     }
@@ -84,7 +90,7 @@ where
         items: [(value: Item, related: ItemRelatedCache)],
         source: SourceBase.Source,
         differ: Differ<Item>
-    ) -> ItemsCoornatorDifference<Item> {
+    ) -> ItemsCoordinatorDifference<Item> {
         let diff = super.difference(to: isTo, items: items, source: source, differ: differ)
         diff.rangeRelplacable = true
         diff.internalCoordinatorChange = { items in

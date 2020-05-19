@@ -32,7 +32,7 @@ final class SourcesCoordinatorDifference<Value, Item>: CoordinatorDifference {
         (changes, uniqueChanges) = toChanges(mapping: mapping, differ: differ)
     }
     
-    override func prepareForGenerate(context: CoordinatorDifference.Context) {
+    override func inferringMoves(context: CoordinatorDifference.Context) {
         
     }
 }

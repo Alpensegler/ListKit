@@ -70,20 +70,14 @@ extension Coordinator {
         didSetup = true
     }
     
-    func setup(
-        listView: ListView,
-        key: ObjectIdentifier,
-        sectionOffset: Int = 0,
-        itemOffset: Int = 0,
-        supercoordinator: Coordinator? = nil
-    ) {
+    func setup(listView: ListView, key: ObjectIdentifier) {
         setupIfNeeded()
         setupContext(
             listView: listView,
             key: key,
-            sectionOffset: sectionOffset,
-            itemOffset: itemOffset,
-            supercoordinator: supercoordinator
+            sectionOffset: 0,
+            itemOffset: 0,
+            supercoordinator: nil
         )
     }
     

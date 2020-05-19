@@ -7,6 +7,10 @@
 
 import Foundation
 
+protocol Offsetable {
+    func adding(offset: Self) -> Self
+}
+
 extension IndexPath {
     static var transform: (IndexPath) -> Int { { $0.item } }
     static var listZero: IndexPath { IndexPath(section: 0, item: 0) }
@@ -40,6 +44,18 @@ extension IndexPath {
         path.section += section
         path.item += item
         return path
+    }
+}
+
+extension IndexPath: Offsetable {
+    func adding(offset: IndexPath) -> IndexPath {
+        adding(section: offset.section, item: offset.item)
+    }
+}
+
+extension Int: Offsetable {
+    func adding(offset: Int) -> Int {
+        self + offset
     }
 }
 

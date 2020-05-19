@@ -223,12 +223,12 @@ extension ListCoordinator {
     
     func perform(
         diff differ: Differ<Item>,
-        to sourceBase: SourceBase.Source,
+        to source: SourceBase.Source,
         _ animated: Bool,
         _ completion: ((ListView, Bool) -> Void)?,
         _ updateData: ((SourceBase.Source) -> Void)?
     ) {
-        let update = difference(to: sourceBase, differ: differ).generateUpdate()
+        let update = difference(to: source, differ: differ).generateUpdate()
         for context in listContexts.values {
             guard let listView = context.listView else { continue }
             listView.perform(update: update, animated: animated, completion: completion)
@@ -237,16 +237,18 @@ extension ListCoordinator {
     
     func perform(
         _ update: Update<Item>,
-        to sourceBase: SourceBase.Source,
+        to source: SourceBase.Source,
         _ animated: Bool,
         _ completion: ((ListView, Bool) -> Void)?,
         _ updateData: ((SourceBase.Source) -> Void)?
     ) {
+//        print("update from \(self.source)")
+//        print("update to \(source)")
         switch update.way {
         case .diff(let diff):
-            perform(diff: diff, to: sourceBase, animated, completion, updateData)
+            perform(diff: diff, to: source, animated, completion, updateData)
         case .reload:
-            performReload(to: sourceBase, animated, completion, updateData)
+            performReload(to: source, animated, completion, updateData)
         }
     }
     

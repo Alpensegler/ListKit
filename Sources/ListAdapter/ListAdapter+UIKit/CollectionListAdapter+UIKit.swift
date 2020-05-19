@@ -308,21 +308,21 @@ public extension CollectionListAdapter {
     
     //Getting the Section Spacing
     @discardableResult
-    func collectionViewLayoutInset(
+    func collectionViewLayoutInsetForSection(
         _ closure: @escaping (CollectionSectionContext<SourceBase>, UICollectionViewLayout) -> UIEdgeInsets
     ) -> CollectionList<SourceBase> {
         collectionList.set(\.layoutInsetForSectionAt) { closure($0.0, $0.1.0) }
     }
     
     @discardableResult
-    func collectionViewLayoutMinimumLineSpacing(
+    func collectionViewLayoutMinimumLineSpacingForSection(
         _ closure: @escaping (CollectionSectionContext<SourceBase>, UICollectionViewLayout) -> CGFloat
     ) -> CollectionList<SourceBase> {
         collectionList.set(\.layoutMinimumLineSpacingForSectionAt) { closure($0.0, $0.1.0) }
     }
     
     @discardableResult
-    func collectionViewLayoutMinimumInteritemSpacing(
+    func collectionViewLayoutMinimumInteritemSpacingForSection(
         _ closure: @escaping (CollectionSectionContext<SourceBase>, UICollectionViewLayout) -> CGFloat
     ) -> CollectionList<SourceBase> {
         collectionList.set(\.layoutMinimumInteritemSpacingForSectionAt) { closure($0.0, $0.1.0) }
@@ -330,14 +330,14 @@ public extension CollectionListAdapter {
     
     //Getting the Header and Footer Sizes
     @discardableResult
-    func collectionViewLayoutReferenceSizeForHeader(
+    func collectionViewLayoutReferenceSizeForHeaderInSection(
         _ closure: @escaping (CollectionSectionContext<SourceBase>, UICollectionViewLayout) -> CGSize
     ) -> CollectionList<SourceBase> {
         collectionList.set(\.layoutReferenceSizeForHeaderInSection) { closure($0.0, $0.1.0) }
     }
     
     @discardableResult
-    func collectionViewLayoutReferenceSizeForFooterIn(
+    func collectionViewLayoutReferenceSizeForFooterInSection(
         _ closure: @escaping (CollectionSectionContext<SourceBase>, UICollectionViewLayout) -> CGSize
     ) -> CollectionList<SourceBase> {
         collectionList.set(\.layoutReferenceSizeForFooterInSection) { closure($0.0, $0.1.0) }

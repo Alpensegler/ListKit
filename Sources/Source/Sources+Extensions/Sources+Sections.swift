@@ -7,7 +7,7 @@
 
 extension Sources
 where
-    Source: Collection,
+    Source: RangeReplaceableCollection,
     Source.Element: Collection,
     Source.Element.Element == Item
 {
@@ -39,7 +39,7 @@ where
 
 public extension Sources
 where
-    Source: Collection,
+    Source: RangeReplaceableCollection,
     Source.Element: Collection,
     Source.Element.Element == Item
 {
@@ -70,7 +70,7 @@ where
 //Equatable
 public extension Sources
 where
-    Source: Collection,
+    Source: RangeReplaceableCollection,
     Source.Element: Collection,
     Source.Element.Element == Item,
     Item: Equatable
@@ -95,7 +95,7 @@ where
 //Hashable
 public extension Sources
 where
-    Source: Collection,
+    Source: RangeReplaceableCollection,
     Source.Element: Collection,
     Source.Element.Element == Item,
     Item: Hashable
@@ -121,7 +121,7 @@ where
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public extension Sources
 where
-    Source: Collection,
+    Source: RangeReplaceableCollection,
     Source.Element: Collection,
     Source.Element.Element == Item,
     Item: Identifiable
@@ -148,7 +148,7 @@ where
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public extension Sources
 where
-    Source: Collection,
+    Source: RangeReplaceableCollection,
     Source.Element: Collection,
     Source.Element.Element == Item,
     Item: Identifiable,
@@ -177,7 +177,7 @@ where
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public extension Sources
 where
-    Source: Collection,
+    Source: RangeReplaceableCollection,
     Source.Element: Collection,
     Source.Element.Element == Item,
     Item: Identifiable,

@@ -18,19 +18,18 @@ class CoordinatorDifference {
         lazy var updates = [ObjectIdentifier: ListUpdate]()
     }
     
-    enum ChangeState {
+    enum ChangeState: Equatable {
         case change(moveAndRelod: Bool?)
         case reload
         case none
     }
     
-    class Element<Value, Related> {
+    class Element<Value, Related>: CustomDebugStringConvertible {
         var index: Int
         var value: Value
         var related: Related
         var state = ChangeState.none
-        var asTuple: (Value, Related) { (value, related) }
-        
+        var offset = IndexPath.listZero
         var associated: Element<Value, Related>? {
             didSet {
                 if associated?.associated === self { return }
@@ -38,15 +37,29 @@ class CoordinatorDifference {
             }
         }
         
+        var asTuple: (Value, Related) { (value, related) }
+        var indexPath: IndexPath { IndexPath(section: offset.section, item: offset.item + index) }
+        
         required init(value: Value, related: Related, index: Int) {
             self.value = value
             self.related = related
             self.index = index
         }
+        
+        
+        var description: String {
+            "\(value), \(index), \(state)"
+        }
+        
+        var debugDescription: String {
+            associated.map { "\(description), \($0.index)" } ?? description
+        }
     }
     
     func prepareForGenerate() { }
-    func prepareForGenerate(context: Context) { }
+    func inferringMoves(context: Context) { }
+    func addingSection(offset: Mapping<Int>) { }
+    func addingItem(offset: Mapping<Int>) { }
     
     func generateUpdate(isSectioned: Bool, isMoved: Bool) -> ListUpdate {
         fatalError("should be implement by subclass")
@@ -90,11 +103,12 @@ extension CoordinatorDifference {
             let targetChange = uniqueChanges.target[id]?.map(toChange)
             switch (sourceChange, targetChange) {
             case let (source??, target??):
+                let isEqual = differ.equal(lhs: source.asTuple, rhs: target.asTuple)
                 switch (isAllCurrent, source.state, target.state) {
-                case (true, _, _) where source.index == target.index:
+                case (true, _, _) where !isEqual && source.index == target.index:
                     (source.state, target.state) = (.reload, .reload)
                 case let (_, .change, .change(moveAndRelod)):
-                    if differ.equal(lhs: source.asTuple, rhs: target.asTuple) { break }
+                    if isEqual { break }
                     guard moveAndRelod != false else { return nil }
                     target.state = .change(moveAndRelod: true)
                     source.state = .change(moveAndRelod: true)
@@ -136,7 +150,7 @@ extension CoordinatorDifference {
         var uniqueChanges: UniqueChange<Element> = ([:], [:])
         var changedResult: Mapping<[Element]> = ([], [])
         
-        let diffs = mapping.target.diff(from: mapping.target, by: differ.diffEqual)
+        let diffs = mapping.target.diff(from: mapping.source, by: differ.diffEqual)
         
         func toValue(_ arg: (Int, (value: Value, related: Related)), isSource: Bool) -> Element? {
             let (offset, element) = arg
@@ -156,8 +170,8 @@ extension CoordinatorDifference {
             return nil
         }
         
-        let source = mapping.source.enumerated().lazy.compactMap { toValue($0, isSource: true) }
-        let target = mapping.target.enumerated().lazy.compactMap { toValue($0, isSource: false) }
+        let source = mapping.source.enumerated().compactMap { toValue($0, isSource: true) }
+        let target = mapping.target.enumerated().compactMap { toValue($0, isSource: false) }
         
         for (source, target) in zip(source, target) {
             source.associated = target

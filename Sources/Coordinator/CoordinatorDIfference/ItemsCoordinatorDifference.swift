@@ -7,7 +7,7 @@
 
 import Foundation
 
-final class ItemsCoornatorDifference<Item>: CoordinatorDifference {
+final class ItemsCoordinatorDifference<Item>: CoordinatorDifference {
     typealias ValueElement = Element<Item, ItemRelatedCache>
     typealias MapValue = (value: Item, related: ItemRelatedCache)
     
@@ -27,13 +27,22 @@ final class ItemsCoornatorDifference<Item>: CoordinatorDifference {
         super.init()
     }
     
+    override func addingSection(offset: Mapping<Int>) {
+        changes.source.forEach { $0.offset.section += offset.source }
+        changes.target.forEach { $0.offset.section += offset.target }
+    }
+    
+    override func addingItem(offset: Mapping<Int>) {
+        changes.source.forEach { $0.offset.item += offset.source }
+        changes.target.forEach { $0.offset.item += offset.target }
+    }
+    
     override func prepareForGenerate() {
         let bool = rangeRelplacable ? nil : false
         (changes, uniqueChange) = toChanges(mapping: mapping, differ: differ, moveAndRelod: bool)
     }
     
-    override func prepareForGenerate(context: Context) {
-        prepareForGenerate()
+    override func inferringMoves(context: Context) {
         guard let id = differ.identifier else { return }
         uniqueChange.source.forEach {
             add(to: &context.uniqueChange, key: id($0.asTuple), change: $0, isSource: true)
@@ -59,70 +68,66 @@ final class ItemsCoornatorDifference<Item>: CoordinatorDifference {
         
         if moveSection {
             var update = BatchUpdate.Section()
-            update.deletions.append(0)
-            update.insertions.append(0)
-            listUpdate.batches.append(.init(section: update))
+            update.deletions.insert(0)
+            update.insertions.insert(0)
+            listUpdate.first.section = update
         }
         
-        func addToUpdate(arg: (Int, Element<Item, ItemRelatedCache>), isSource: Bool) {
-            let (item, element) = arg
-            let index = IndexPath(item: item)
+        func addToUpdate(element: Element<Item, ItemRelatedCache>, isSource: Bool) {
             switch (element.state, element.associated) {
             case let (.change(moveAndRelod), associaed?):
                 if isSource { return }
                 if moveAndRelod == true {
-                    firstUpdate.moves.append((IndexPath(item: associaed.index), index))
-                    secondUpdate.updates.append(index)
+                    firstUpdate.moves.append((associaed.indexPath, element.indexPath))
+                    secondUpdate.updates.append(element.indexPath)
                     mapping.append(associaed.asTuple)
                 } else {
-                    firstUpdate.moves.append((IndexPath(item: associaed.index), index))
+                    firstUpdate.moves.append((associaed.indexPath, element.indexPath))
                     mapping.append(element.asTuple)
                 }
             case let (.reload, associaed?):
                 switch (moveItem, rangeRelplacable, isSource) {
                 case (true, false, true):
-                    firstUpdate.deletions.append(index)
+                    firstUpdate.deletions.append(element.indexPath)
                 case (true, false, false):
-                    firstUpdate.insertions.append(index)
+                    firstUpdate.insertions.append(element.indexPath)
                     mapping.append(element.asTuple)
                 case (true, true, false):
-                    firstUpdate.moves.append((IndexPath(item: associaed.index), index))
-                    secondUpdate.updates.append(index)
+                    firstUpdate.moves.append((associaed.indexPath, element.indexPath))
+                    secondUpdate.updates.append(element.indexPath)
                     mapping.append(associaed.asTuple)
                 case (_, _, false):
-                    firstUpdate.updates.append(index)
+                    firstUpdate.updates.append(element.indexPath)
                     mapping.append(element.asTuple)
                 default:
                     return
                 }
             case let (_, associaed?):
                 if isSource { return }
-                if moveItem {
-                    firstUpdate.moves.append((IndexPath(item: associaed.index), index))
-                }
+                if moveItem { firstUpdate.moves.append((associaed.indexPath, element.indexPath)) }
                 mapping.append(element.asTuple)
             default:
                 if isSource {
-                    firstUpdate.deletions.append(index)
+                    firstUpdate.deletions.append(element.indexPath)
                 } else {
-                    firstUpdate.insertions.append(index)
+                    firstUpdate.insertions.append(element.indexPath)
                     mapping.append(element.asTuple)
                 }
             }
         }
         
-        changes.source.enumerated().forEach { addToUpdate(arg: $0, isSource: true) }
-        changes.target.enumerated().forEach { addToUpdate(arg: $0, isSource: false) }
+        changes.source.forEach { addToUpdate(element: $0, isSource: true) }
+        changes.target.forEach { addToUpdate(element: $0, isSource: false) }
         
         switch (firstUpdate.isEmpty, secondUpdate.isEmpty) {
         case (true, _):
             break
         case (false, true):
-            listUpdate.batches.append(.init(item: firstUpdate, change: coordinatorChange))
+            listUpdate.second = .init(item: firstUpdate, change: coordinatorChange)
         case (false, false):
             let change = internalCoordinatorChange
-            listUpdate.batches.append(.init(item: firstUpdate) { change?(mapping) })
-            listUpdate.batches.append(.init(item: secondUpdate, change: coordinatorChange))
+            listUpdate.second = .init(item: firstUpdate) { change?(mapping) }
+            listUpdate.third = .init(item: secondUpdate, change: coordinatorChange)
         }
         
         return listUpdate

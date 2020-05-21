@@ -7,11 +7,11 @@
 
 extension Sources
 where
-    Source: RangeReplaceableCollection,
+    Source: Collection,
     Source.Element: Collection,
     Source.Element.Element == Item
 {
-    init(_ id: AnyHashable? = nil, sections: Source, update: Update<Item>) {
+    init(_ id: AnyHashable? = nil, sections: Source, update: ListUpdate<Item>) {
         var source = sections
         self.sourceGetter = { source }
         self.sourceSetter = { source = $0 }
@@ -27,7 +27,7 @@ where
     Source.Element: RangeReplaceableCollection,
     Source.Element.Element == Item
 {
-    init(_ id: AnyHashable? = nil, sections: Source, update: Update<Item>) {
+    init(_ id: AnyHashable? = nil, sections: Source, update: ListUpdate<Item>) {
         var source = sections
         self.sourceGetter = { source }
         self.sourceSetter = { source = $0 }
@@ -39,11 +39,11 @@ where
 
 public extension Sources
 where
-    Source: RangeReplaceableCollection,
+    Source: Collection,
     Source.Element: Collection,
     Source.Element.Element == Item
 {
-    init(id: AnyHashable? = nil, sections: Source, update: Update<Item>) {
+    init(id: AnyHashable? = nil, sections: Source, update: ListUpdate<Item>) {
         self.init(id, sections: sections, update: update)
     }
     
@@ -58,7 +58,7 @@ where
     Source.Element: RangeReplaceableCollection,
     Source.Element.Element == Item
 {
-    init(id: AnyHashable? = nil, sections: Source, update: Update<Item>) {
+    init(id: AnyHashable? = nil, sections: Source, update: ListUpdate<Item>) {
         self.init(id, sections: sections, update: update)
     }
     
@@ -70,7 +70,7 @@ where
 //Equatable
 public extension Sources
 where
-    Source: RangeReplaceableCollection,
+    Source: Collection,
     Source.Element: Collection,
     Source.Element.Element == Item,
     Item: Equatable
@@ -95,7 +95,7 @@ where
 //Hashable
 public extension Sources
 where
-    Source: RangeReplaceableCollection,
+    Source: Collection,
     Source.Element: Collection,
     Source.Element.Element == Item,
     Item: Hashable
@@ -121,7 +121,7 @@ where
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public extension Sources
 where
-    Source: RangeReplaceableCollection,
+    Source: Collection,
     Source.Element: Collection,
     Source.Element.Element == Item,
     Item: Identifiable
@@ -148,7 +148,7 @@ where
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public extension Sources
 where
-    Source: RangeReplaceableCollection,
+    Source: Collection,
     Source.Element: Collection,
     Source.Element.Element == Item,
     Item: Identifiable,
@@ -177,7 +177,7 @@ where
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public extension Sources
 where
-    Source: RangeReplaceableCollection,
+    Source: Collection,
     Source.Element: Collection,
     Source.Element.Element == Item,
     Item: Identifiable,

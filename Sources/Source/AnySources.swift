@@ -12,7 +12,7 @@ public struct AnySources: UpdatableDataSource {
     
     public let source: Any
     public let differ: Differ<AnySources>
-    public let listUpdate: Update<Any>
+    public let listUpdate: ListUpdate<Any>
     public var coordinatorStorage = CoordinatorStorage<AnySources>()
     public func makeListCoordinator() -> ListCoordinator<Self> { coordinatorMaker() }
     

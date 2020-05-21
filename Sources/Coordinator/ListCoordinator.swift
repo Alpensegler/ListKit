@@ -74,14 +74,14 @@ where SourceBase.SourceBase == SourceBase {
     var listContexts = [ObjectIdentifier: ListContext]()
     var didSetup = false
     
-    var defaultUpdate = Update<Item>()
+    var defaultUpdate = ListUpdate<Item>()
     var differ = Differ<SourceBase>()
     
     var source: SourceBase.Source
     
     init(
         id: AnyHashable = ObjectIdentifier(SourceBase.self),
-        defaultUpdate: Update<Item> = .init(),
+        defaultUpdate: ListUpdate<Item> = .init(),
         source: SourceBase.Source,
         storage: CoordinatorStorage<SourceBase>?
     ) {
@@ -228,22 +228,22 @@ extension ListCoordinator {
         _ completion: ((ListView, Bool) -> Void)?,
         _ updateData: ((SourceBase.Source) -> Void)?
     ) {
-        let update = difference(to: source, differ: differ).generateUpdate()
+        let updates = difference(to: source, differ: differ).generateUpdates()
         for context in listContexts.values {
             guard let listView = context.listView else { continue }
-            listView.perform(update: update, animated: animated, completion: completion)
+            listView.perform(updates: updates, animated: animated, completion: completion)
         }
     }
     
     func perform(
-        _ update: Update<Item>,
+        _ update: ListUpdate<Item>,
         to source: SourceBase.Source,
         _ animated: Bool,
         _ completion: ((ListView, Bool) -> Void)?,
         _ updateData: ((SourceBase.Source) -> Void)?
     ) {
-//        print("update from \(self.source)")
-//        print("update to \(source)")
+        print("update from \(self.source)")
+        print("update to \(source)")
         switch update.way {
         case .diff(let diff):
             perform(diff: diff, to: source, animated, completion, updateData)

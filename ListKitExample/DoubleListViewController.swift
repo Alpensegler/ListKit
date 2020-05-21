@@ -46,3 +46,17 @@ class DoubleListViewController: ExampleViewController, TableListAdapter, Collect
         performUpdate()
     }
 }
+
+
+#if canImport(SwiftUI) && DEBUG
+
+import SwiftUI
+
+@available(iOS 13.0, *)
+struct DoubleList_Preview: PreviewProvider {
+    static var previews: some View {
+        ExampleView(viewController: DoubleListViewController())
+    }
+}
+
+#endif

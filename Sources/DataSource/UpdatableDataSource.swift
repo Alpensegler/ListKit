@@ -27,7 +27,7 @@ public extension UpdatableDataSource {
     }
     
     func perform(
-        _ update: Update<Item>,
+        _ update: ListUpdate<Item>,
         animated: Bool = true,
         completion: ((ListView, Bool) -> Void)? = nil,
         updateData: ((SourceBase.Source) -> Void)? = nil

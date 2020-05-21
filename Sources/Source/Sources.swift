@@ -14,7 +14,7 @@ public struct Sources<Source, Item>: UpdatableDataSource {
     let coordinatorMaker: (Self) -> ListCoordinator<Self>
     
     public let differ: Differ<Self>
-    public let listUpdate: Update<Item>
+    public let listUpdate: ListUpdate<Item>
     public let coordinatorStorage = CoordinatorStorage<Self>()
     public var source: Source {
         get { sourceGetter() }

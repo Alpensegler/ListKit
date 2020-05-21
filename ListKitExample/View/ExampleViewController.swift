@@ -34,3 +34,21 @@ class ExampleViewController: UIViewController {
         toggle.toggle()
     }
 }
+
+
+#if canImport(SwiftUI) && DEBUG
+
+import SwiftUI
+
+struct ExampleView: UIViewControllerRepresentable {
+    var viewController: ExampleViewController
+    
+    func makeUIViewController(context: Context) -> UINavigationController {
+        UINavigationController(rootViewController: viewController)
+    }
+    
+    func updateUIViewController(_ uiViewController: UINavigationController, context: Context) { }
+}
+
+
+#endif

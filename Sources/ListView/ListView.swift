@@ -27,29 +27,20 @@ protocol SetuptableListView: ListView {
 }
 
 extension ListView {
-    func perform(update: ListUpdate, animated: Bool, completion: ((ListView, Bool) -> Void)?) {
-        for (isLast, batchUpdate) in update.updates {
+    func perform(updates: ListUpdates, animated: Bool, completion: ((ListView, Bool) -> Void)?) {
+        for (offset, batchUpdate) in updates.enumerated() {
+            debugPrint("------------------------------")
+            debugPrint(batchUpdate.update)
+            let isLast = offset == updates.count - 1
             let completion: ((Bool) -> Void)? = isLast ? { [weak self] finish in
                 self.map { completion?($0, finish) }
-                update.complete?()
+//                update.complete?()
             } : nil
-            perform(update: { perform(batchUpdate) }, animated: animated, completion: completion)
+            perform(update: {
+                batchUpdate.change?()
+                batchUpdate.update.apply(by: self)
+            }, animated: animated, completion: completion)
         }
-    }
-    
-    func perform(_ update: BatchUpdate) {
-        update.change?()
-        
-        if !update.section.deletions.isEmpty { deleteSections(update.section.deletions) }
-        if !update.section.insertions.isEmpty { insertSections(update.section.insertions) }
-        if !update.section.updates.isEmpty { reloadSections(update.section.updates) }
-        update.section.moves.forEach { moveSection($0.source, toSection: $0.target) }
-        
-        
-        if !update.item.deletions.isEmpty { deleteItems(at: update.item.deletions) }
-        if !update.item.insertions.isEmpty { insertItems(at: update.item.insertions) }
-        if !update.item.updates.isEmpty { reloadItems(at: update.item.updates) }
-        update.item.moves.forEach { moveItem(at: $0.source, to: $0.target) }
     }
 }
 

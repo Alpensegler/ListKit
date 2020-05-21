@@ -7,7 +7,7 @@
 
 public extension DataSource {
     var differ: Differ<SourceBase> { .none }
-    var listUpdate: Update<Item> { .reload }
+    var listUpdate: ListUpdate<Item> { .reload }
 }
 
 //Equatable
@@ -16,7 +16,7 @@ public extension DataSource where SourceBase: Equatable {
 }
 
 public extension DataSource where SourceBase.Item: Equatable {
-    var listUpdate: Update<Item> { .diff }
+    var listUpdate: ListUpdate<Item> { .diff }
 }
 
 //Hashable
@@ -25,7 +25,7 @@ public extension DataSource where SourceBase: Hashable {
 }
 
 public extension DataSource where SourceBase.Item: Hashable {
-    var listUpdate: Update<Item> { .diff }
+    var listUpdate: ListUpdate<Item> { .diff }
 }
 
 //Identifiable
@@ -36,7 +36,7 @@ public extension DataSource where SourceBase: Identifiable {
 
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public extension DataSource where SourceBase.Item: Identifiable {
-    var listUpdate: Update<Item> { .diff }
+    var listUpdate: ListUpdate<Item> { .diff }
 }
 
 //Identifiable + Equatable
@@ -47,7 +47,7 @@ public extension DataSource where SourceBase: Identifiable, SourceBase: Equatabl
 
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public extension DataSource where SourceBase.Item: Identifiable, SourceBase.Item: Equatable {
-    var listUpdate: Update<Item> { .diff }
+    var listUpdate: ListUpdate<Item> { .diff }
 }
 
 //Identifiable + Hashable
@@ -58,5 +58,5 @@ public extension DataSource where SourceBase: Identifiable, SourceBase: Hashable
 
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public extension DataSource where SourceBase.Item: Identifiable, SourceBase.Item: Hashable {
-    var listUpdate: Update<Item> { .diff }
+    var listUpdate: ListUpdate<Item> { .diff }
 }

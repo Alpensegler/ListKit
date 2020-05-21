@@ -13,18 +13,16 @@ class SectionListViewControlle: ExampleViewController, CollectionListAdapter, Up
     static let numbers = (0...10)
     
     typealias Item = UnicodeScalar
-    var source: [[Item]] {
-        (0..<Int.random(in: 3...5)).map { _ in
+    var source: [[UnicodeScalar]] {
+        (0..<Int.random(in: 2...4)).map { _ in
             Array(Self.emojis.shuffled()[0..<Int.random(in: 20...30)])
         }
     }
     
     var collectionList: CollectionList<SectionListViewControlle> {
-        collectionViewCellForItem(CenterLabelCell.self) { (cell, context, item) in
-            cell.text = "\(item)"
-        }
-        .collectionViewLayoutSizeForItem { (_, _, _) -> CGSize in CGSize(width: 30, height: 30) }
-        .collectionViewLayoutInsetForSection { (_, _) -> UIEdgeInsets in UIEdgeInsets(top: 20, left: 10, bottom: 20, right: 10) }
+        collectionViewCellForItem(CenterLabelCell.self) { (cell, _, item) in cell.text = "\(item)" }
+        .collectionViewLayoutSizeForItem { (_, _, _) in CGSize(width: 30, height: 30) }
+        .collectionViewLayoutInsetForSection { (_, _) in UIEdgeInsets(top: 20, left: 10, bottom: 20, right: 10) }
     }
     
     override func viewDidLoad() {
@@ -38,3 +36,16 @@ class SectionListViewControlle: ExampleViewController, CollectionListAdapter, Up
         performUpdate()
     }
 }
+
+#if canImport(SwiftUI) && DEBUG
+
+import SwiftUI
+
+@available(iOS 13.0, *)
+struct SectionList_Preview: PreviewProvider {
+    static var previews: some View {
+        ExampleView(viewController: SectionListViewControlle())
+    }
+}
+
+#endif

@@ -11,7 +11,7 @@ where
     Source.Element: DataSource,
     Source.Element.Item == Item
 {
-    init(_ id: AnyHashable? = nil, dataSources: Source, update: Update<Item>) {
+    init(_ id: AnyHashable? = nil, dataSources: Source, update: ListUpdate<Item>) {
         var source = dataSources
         self.sourceGetter = { source }
         self.sourceSetter = { source = $0 }
@@ -27,7 +27,7 @@ where
     Source.Element: DataSource,
     Source.Element.Item == Item
 {
-    init(id: AnyHashable? = nil, dataSources: Source, update: Update<Item>) {
+    init(id: AnyHashable? = nil, dataSources: Source, update: ListUpdate<Item>) {
         self.init(id, dataSources: dataSources, update: update)
     }
     
@@ -44,7 +44,7 @@ where
     Source.Element.Item == Item,
     Item: Equatable
 {
-    init(id: AnyHashable? = nil, dataSources: Source, update: Update<Item>) {
+    init(id: AnyHashable? = nil, dataSources: Source, update: ListUpdate<Item>) {
         self.init(id, dataSources: dataSources, update: .diff)
     }
 }
@@ -57,7 +57,7 @@ where
     Source.Element.Item == Item,
     Item: Hashable
 {
-    init(id: AnyHashable? = nil, dataSources: Source, update: Update<Item>) {
+    init(id: AnyHashable? = nil, dataSources: Source, update: ListUpdate<Item>) {
         self.init(id, dataSources: dataSources, update: .diff)
     }
 }
@@ -71,7 +71,7 @@ where
     Source.Element.Item == Item,
     Item: Identifiable
 {
-    init(id: AnyHashable? = nil, dataSources: Source, update: Update<Item>) {
+    init(id: AnyHashable? = nil, dataSources: Source, update: ListUpdate<Item>) {
         self.init(id, dataSources: dataSources, update: .diff)
     }
 }
@@ -86,7 +86,7 @@ where
     Item: Identifiable,
     Item: Equatable
 {
-    init(id: AnyHashable? = nil, dataSources: Source, update: Update<Item>) {
+    init(id: AnyHashable? = nil, dataSources: Source, update: ListUpdate<Item>) {
         self.init(id, dataSources: dataSources, update: .diff)
     }
 }
@@ -101,7 +101,7 @@ where
     Item: Identifiable,
     Item: Hashable
 {
-    init(id: AnyHashable? = nil, dataSources: Source, update: Update<Item>) {
+    init(id: AnyHashable? = nil, dataSources: Source, update: ListUpdate<Item>) {
         self.init(id, dataSources: dataSources, update: .diff)
     }
 }

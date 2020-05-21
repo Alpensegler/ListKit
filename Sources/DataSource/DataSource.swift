@@ -13,7 +13,7 @@ public protocol DataSource {
     
     var source: Source { get }
     var sourceBase: SourceBase { get }
-    var listUpdate: Update<Item> { get }
+    var listUpdate: ListUpdate<Item> { get }
     var differ: Differ<SourceBase> { get }
     
     func makeListCoordinator() -> ListCoordinator<SourceBase>

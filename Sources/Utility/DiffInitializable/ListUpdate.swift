@@ -5,7 +5,7 @@
 //  Created by Frain on 2020/1/13.
 //
 
-public struct Update<Item> {
+public struct ListUpdate<Item> {
     enum Way {
         case reload
         case diff(Differ<Item>)
@@ -18,7 +18,7 @@ public struct Update<Item> {
     }
 }
 
-extension Update {
+extension ListUpdate {
     init(id: ((Item) -> AnyHashable)? = nil, by areEquivalent: ((Item, Item) -> Bool)? = nil) {
         self.init(diff: Differ(identifier: id, areEquivalent: areEquivalent))
     }
@@ -28,35 +28,26 @@ extension Update {
     }
 }
 
-extension Update: DiffInitializable {
+extension ListUpdate: DiffInitializable {
     public typealias Value = Item
-    public static var reload: Update<Item> { .init(way: .reload) }
+    public static var reload: ListUpdate<Item> { .init(way: .reload) }
     
     public static func diff(
         by areEquivalent: @escaping (Item, Item) -> Bool
-    ) -> Update<Item> {
+    ) -> ListUpdate<Item> {
         .init(id: nil, by: areEquivalent)
     }
     
     public static func diff<ID: Hashable>(
         id: @escaping (Item) -> ID
-    ) -> Update<Item> {
+    ) -> ListUpdate<Item> {
         .init(id: id, by: nil)
     }
     
     public static func diff<ID: Hashable>(
         id: @escaping (Item) -> ID,
         by areEquivalent: @escaping (Item, Item) -> Bool
-    ) -> Update<Item> {
+    ) -> ListUpdate<Item> {
         .init(id: id, by: areEquivalent)
     }
 }
-
-//Item Equatable
-
-//Item Hashable
-
-//Item Identifiable
-
-//Item Identifiable + Equatable
-//Item Identifiable + Equatable

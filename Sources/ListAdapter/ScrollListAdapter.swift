@@ -26,7 +26,7 @@ where Source.SourceBase == Source {
     public let source: Source
     public var sourceBase: Source { source }
     public var differ: Differ<Source> { source.differ }
-    public var listUpdate: Update<Item> { source.listUpdate }
+    public var listUpdate: ListUpdate<Item> { source.listUpdate }
     public var scrollList: ScrollList<SourceBase> { self }
     public var coordinatorStorage: CoordinatorStorage<Source> { storage.coordinatorStorage }
     public func makeListCoordinator() -> ListCoordinator<Source> { storage.listCoordinator }

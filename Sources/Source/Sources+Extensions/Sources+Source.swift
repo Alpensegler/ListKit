@@ -6,7 +6,7 @@
 //
 
 extension Sources where Source: DataSource, Source.Item == Item {
-    init(_ id: AnyHashable? = nil, dataSource: Source, update: Update<Item>) {
+    init(_ id: AnyHashable? = nil, dataSource: Source, update: ListUpdate<Item>) {
         var source = dataSource
         self.sourceGetter = { source }
         self.sourceSetter = { source = $0 }
@@ -17,7 +17,7 @@ extension Sources where Source: DataSource, Source.Item == Item {
 }
 
 public extension Sources where Source: DataSource, Source.Item == Item {
-    init(id: AnyHashable? = nil, dataSource: Source, update: Update<Item>) {
+    init(id: AnyHashable? = nil, dataSource: Source, update: ListUpdate<Item>) {
         self.init(id, dataSource: dataSource, update: update)
     }
     

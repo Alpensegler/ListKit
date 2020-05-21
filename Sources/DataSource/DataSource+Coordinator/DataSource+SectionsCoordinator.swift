@@ -7,7 +7,7 @@
 
 public extension DataSource
 where
-    SourceBase.Source: RangeReplaceableCollection,
+    SourceBase.Source: Collection,
     SourceBase.Source.Element: Collection,
     SourceBase.Source.Element.Element == Item
 {
@@ -30,7 +30,7 @@ where
 public extension DataSource
 where
     SourceBase: UpdatableDataSource,
-    SourceBase.Source: RangeReplaceableCollection,
+    SourceBase.Source: Collection,
     SourceBase.Source.Element: Collection,
     SourceBase.Source.Element.Element == Item
 {

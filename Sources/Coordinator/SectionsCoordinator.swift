@@ -10,7 +10,7 @@ import Foundation
 class SectionsCoordinator<SourceBase: DataSource>: ListCoordinator<SourceBase>
 where
     SourceBase.SourceBase == SourceBase,
-    SourceBase.Source: RangeReplaceableCollection,
+    SourceBase.Source: Collection,
     SourceBase.Source.Element: Collection,
     SourceBase.Source.Element.Element == SourceBase.Item
 {
@@ -36,22 +36,6 @@ where
         diff.coordinatorChange = {
             self.sections = mapping.target
             self.source = source.target
-        }
-        diff.coordinatorBatchChange = { (count, isSource) in
-            func longRange<C: Collection>(for source: C) -> Range<C.Index> {
-                source.index(source.startIndex, offsetBy: source.count - count)..<source.endIndex
-            }
-
-            let section = mapping.source
-            if isSource {
-                self.source.replaceSubrange(longRange(for: source.source), with: EmptyCollection())
-                self.sections.replaceSubrange(longRange(for: section), with: EmptyCollection())
-            } else {
-                let collection = source.target[longRange(for: source.target)]
-                let targetRest = mapping.target[longRange(for: mapping.target)]
-                self.source.append(contentsOf: collection)
-                self.sections.append(contentsOf: targetRest)
-            }
         }
         if !isTo {
             self.sections = mapping.source

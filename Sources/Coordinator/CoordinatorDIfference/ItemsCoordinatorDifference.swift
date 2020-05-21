@@ -21,25 +21,48 @@ final class ItemsCoordinatorDifference<Item>: CoordinatorDifference {
     var changes: Mapping<[ValueElement]> = ([], [])
     var uniqueChange: Mapping<[ValueElement]> = ([], [])
     
+    var sourceSection = 0
+    var targetSection = 0
+    
+    lazy var itemsCount = mapping.source.count
+    
+    lazy var needThirdUpdate = false
+    lazy var thirdItems = [MapValue]()
+    lazy var thirdUpdates = [IndexPath]()
+    
     init(mapping: Mapping<[MapValue]>, differ: Differ<Item>) {
         self.mapping = mapping
         self.differ = .init(differ) { $0.value }
         super.init()
     }
     
-    override func addingSection(offset: Mapping<Int>) {
-        changes.source.forEach { $0.offset.section += offset.source }
-        changes.target.forEach { $0.offset.section += offset.target }
-    }
-    
-    override func addingItem(offset: Mapping<Int>) {
-        changes.source.forEach { $0.offset.item += offset.source }
-        changes.target.forEach { $0.offset.item += offset.target }
-    }
-    
     override func prepareForGenerate() {
-        let bool = rangeRelplacable ? nil : false
-        (changes, uniqueChange) = toChanges(mapping: mapping, differ: differ, moveAndRelod: bool)
+        let moveAndRelod = rangeRelplacable ? nil : false
+        
+        switch (mapping.source.isEmpty, mapping.target.isEmpty) {
+        case (false, true):
+            (changes.source, uniqueChange.source) = toChanges(
+                values: mapping.source,
+                differ: differ,
+                isSource: true,
+                moveAndRelod: moveAndRelod
+            )
+        case (true, false):
+            (changes.target, uniqueChange.target) = toChanges(
+                values: mapping.target,
+                differ: differ,
+                isSource: false,
+                moveAndRelod: moveAndRelod
+            )
+        case (false, false):
+            (changes, uniqueChange) = toChanges(
+                mapping: mapping,
+                differ: differ,
+                moveAndRelod: moveAndRelod
+            )
+        case (true, true):
+            return
+        }
     }
     
     override func inferringMoves(context: Context) {
@@ -54,82 +77,140 @@ final class ItemsCoordinatorDifference<Item>: CoordinatorDifference {
         applying(to: &context.uniqueChange, with: &uniqueChange, id: id, differ: differ)
     }
     
-    override func generateUpdate(isSectioned: Bool, isMoved: Bool) -> ListUpdate {
-        let moveSection = isMoved && isSectioned
-        let moveItem = isMoved && !isSectioned
-        
-        var listUpdate = ListUpdate()
-        var completions = [() -> Void]()
-        
-        var mapping = [MapValue]()
-        
-        var firstUpdate = BatchUpdate.Item()
-        var secondUpdate = BatchUpdate.Item()
-        
-        if moveSection {
-            var update = BatchUpdate.Section()
-            update.deletions.insert(0)
-            update.insertions.insert(0)
-            listUpdate.first.section = update
+    override func generateUpdates() -> ListUpdates {
+        prepareForGenerate()
+        return [Order.second, Order.third].compactMap { order in
+            let source = generateSourceItemUpdate(order: order)
+            let target = generateTargetItemUpdate(order: order)
+            guard source.update != nil || target.update != nil else { return nil }
+            var itemUpdate = ItemUpdate()
+            source.update.map { itemUpdate.source = $0 }
+            target.update.map { itemUpdate.target = $0 }
+            return (itemUpdate, target.change)
         }
-        
-        func addToUpdate(element: Element<Item, ItemRelatedCache>, isSource: Bool) {
+    }
+    
+    override func generateSourceSectionUpdate(
+        order: Order,
+        sectionOffset: Int = 0,
+        isMoved: Bool = false
+    ) -> (count: Int, update: SourceBatchUpdates?) {
+        sourceSection = sectionOffset
+        guard order == .second, case let (_, itemUpdate?) = generateSourceItemUpdate(
+            order: .second,
+            sectionOffset: sectionOffset,
+            itemOffset: 0,
+            isMoved: false
+        ) else { return (1, nil) }
+        return (1, .init(item: itemUpdate))
+    }
+    
+    override func generateTargetSectionUpdate(
+        order: Order,
+        sectionOffset: Int = 0,
+        isMoved: Bool = false
+    ) -> (count: Int, update: TargetBatchUpdates?, change: (() -> Void)?) {
+        targetSection = sectionOffset
+        switch order {
+        case .first where isMoved:
+            return (1, .init(section: .init(moves: [(sourceSection, targetSection)])), nil)
+        case .second, .third:
+            guard case let (_, itemUpdate?, change) = generateTargetItemUpdate(
+                order: order,
+                sectionOffset: sectionOffset,
+                itemOffset: 0,
+                isMoved: false
+            ) else { fallthrough }
+            return (1, .init(item: itemUpdate), change)
+        default:
+            return (1, nil, nil)
+        }
+    }
+    
+    override func generateSourceItemUpdate(
+        order: Order,
+        sectionOffset: Int = 0,
+        itemOffset: Int = 0,
+        isMoved: Bool = false
+    ) -> (count: Int, update: ItemSourceUpdate?) {
+        guard order == .second else { return (itemsCount, nil) }
+        var update = ItemSourceUpdate()
+        for element in changes.source {
+            element.sectionOffset = sectionOffset
+            element.itemOffset = itemOffset
             switch (element.state, element.associated) {
-            case let (.change(moveAndRelod), associaed?):
-                if isSource { return }
-                if moveAndRelod == true {
-                    firstUpdate.moves.append((associaed.indexPath, element.indexPath))
-                    secondUpdate.updates.append(element.indexPath)
-                    mapping.append(associaed.asTuple)
+            case (.reload, .some):
+                if isMoved && !rangeRelplacable {
+                    update.deletions.append(element.indexPath)
                 } else {
-                    firstUpdate.moves.append((associaed.indexPath, element.indexPath))
-                    mapping.append(element.asTuple)
+                    needThirdUpdate = true
                 }
-            case let (.reload, associaed?):
-                switch (moveItem, rangeRelplacable, isSource) {
-                case (true, false, true):
-                    firstUpdate.deletions.append(element.indexPath)
-                case (true, false, false):
-                    firstUpdate.insertions.append(element.indexPath)
-                    mapping.append(element.asTuple)
-                case (true, true, false):
-                    firstUpdate.moves.append((associaed.indexPath, element.indexPath))
-                    secondUpdate.updates.append(element.indexPath)
-                    mapping.append(associaed.asTuple)
-                case (_, _, false):
-                    firstUpdate.updates.append(element.indexPath)
-                    mapping.append(element.asTuple)
-                default:
-                    return
-                }
-            case let (_, associaed?):
-                if isSource { return }
-                if moveItem { firstUpdate.moves.append((associaed.indexPath, element.indexPath)) }
-                mapping.append(element.asTuple)
+            case (.change, .none):
+                update.deletions.append(element.indexPath)
             default:
-                if isSource {
-                    firstUpdate.deletions.append(element.indexPath)
-                } else {
-                    firstUpdate.insertions.append(element.indexPath)
-                    mapping.append(element.asTuple)
-                }
+                continue
             }
         }
-        
-        changes.source.forEach { addToUpdate(element: $0, isSource: true) }
-        changes.target.forEach { addToUpdate(element: $0, isSource: false) }
-        
-        switch (firstUpdate.isEmpty, secondUpdate.isEmpty) {
-        case (true, _):
-            break
-        case (false, true):
-            listUpdate.second = .init(item: firstUpdate, change: coordinatorChange)
-        case (false, false):
-            let change = internalCoordinatorChange
-            listUpdate.second = .init(item: firstUpdate) { change?(mapping) }
-            listUpdate.third = .init(item: secondUpdate, change: coordinatorChange)
+        return (itemsCount, update)
+    }
+    
+    override func generateTargetItemUpdate(
+        order: Order,
+        sectionOffset: Int = 0,
+        itemOffset: Int = 0,
+        isMoved: Bool = false
+    ) -> (count: Int, update: ItemTargetUpdate?, change: (() -> Void)?) {
+        switch order {
+        case .second:
+            itemsCount = mapping.target.count
+            var update = ItemTargetUpdate()
+            for element in changes.target {
+                element.sectionOffset = sectionOffset
+                element.itemOffset = itemOffset
+                switch (element.state, element.associated) {
+                case let (.change(moveAndRelod), associaed?):
+                    if moveAndRelod == true {
+                        update.moves.append((associaed.indexPath, element.indexPath))
+                        thirdUpdates.append(element.indexPath)
+                        if needThirdUpdate { thirdItems.append(associaed.asTuple) }
+                    } else {
+                        update.moves.append((associaed.indexPath, element.indexPath))
+                        if needThirdUpdate { thirdItems.append(element.asTuple) }
+                    }
+                case let (.reload, associaed?):
+                    switch (isMoved, rangeRelplacable) {
+                    case (true, false):
+                        update.insertions.append(element.indexPath)
+                    case (true, true):
+                        update.moves.append((associaed.indexPath, element.indexPath))
+                        thirdUpdates.append(element.indexPath)
+                        if needThirdUpdate { thirdItems.append(associaed.asTuple) }
+                    case (_, _):
+                        update.updates.append(element.indexPath)
+                        if needThirdUpdate { thirdItems.append(element.asTuple) }
+                    }
+                case let (_, associaed?):
+                    if isMoved { update.moves.append((associaed.indexPath, element.indexPath)) }
+                    if needThirdUpdate { thirdItems.append(element.asTuple) }
+                default:
+                    update.insertions.append(element.indexPath)
+                    if needThirdUpdate { thirdItems.append(element.asTuple) }
+                }
+            }
+            
+            if needThirdUpdate {
+                let change = internalCoordinatorChange
+                let items = thirdItems
+                return (itemsCount, update, { change?(items) })
+            } else {
+                return (itemsCount, update, coordinatorChange)
+            }
+        case .third where needThirdUpdate:
+            var update = ItemTargetUpdate()
+            update.updates = thirdUpdates
+            return (itemsCount, update, coordinatorChange)
+        default:
+            return (0, nil, nil)
         }
-        
-        return listUpdate
     }
 }

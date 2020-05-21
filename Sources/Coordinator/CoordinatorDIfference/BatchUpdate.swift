@@ -7,59 +7,76 @@
 
 import Foundation
 
-protocol IndexCollection: Collection {
+protocol DefaultInitializable {
     init()
-    
+}
+
+protocol IndexCollection: DefaultInitializable, Collection {
     mutating func formUnion(_ other: Self)
 }
+
+protocol BatchUpdate: DefaultInitializable {
+    mutating func add(other: Self)
+    
+    var isEmpty: Bool { get }
+}
+
+protocol ListViewApplyable {
+    func apply(by listView: ListView)
+}
+
+typealias ListUpdates = [(update: ListViewApplyable, change: (() -> Void)?)]
 
 extension IndexSet: IndexCollection { }
 extension Array: IndexCollection {
     mutating func formUnion(_ other: [Element]) { self += other }
 }
 
-
-struct BatchUpdate {
-    typealias Section = Update<IndexSet>
-    typealias Item = Update<[IndexPath]>
+struct SourceUpdate<Collection: IndexCollection>: BatchUpdate {
+    var deletions = Collection()
     
-    struct Update<Collection: IndexCollection> {
-        typealias Index = Collection.Element
-        var deletions = Collection()
-        var insertions = Collection()
-        var updates = Collection()
-        var moves = [Mapping<Index>]()
-        
-        var isEmpty: Bool {
-            deletions.isEmpty && insertions.isEmpty && moves.isEmpty && updates.isEmpty
-        }
-        
-        mutating func adding(other: Update<Collection>, isSource: Bool? = nil) {
-            if isSource != false {
-                if !other.deletions.isEmpty { deletions.formUnion(other.deletions) }
-            }
-            if isSource != true {
-                if !other.insertions.isEmpty { insertions.formUnion(other.insertions) }
-                if !other.updates.isEmpty { updates.formUnion(other.updates) }
-                if !other.moves.isEmpty { moves += other.moves }
-            }
-        }
+    var isEmpty: Bool { deletions.isEmpty }
+    
+    mutating func add(other: SourceUpdate) {
+        if !other.deletions.isEmpty { deletions.formUnion(other.deletions) }
     }
+}
+
+typealias SectionSourceUpdate = SourceUpdate<IndexSet>
+typealias ItemSourceUpdate = SourceUpdate<[IndexPath]>
+
+struct TargetUpdate<Collection: IndexCollection>: BatchUpdate {
+    var insertions = Collection()
+    var updates = Collection()
+    var moves = [Mapping<Collection.Element>]()
     
-    var section = Section()
-    var item = Item()
+    var isEmpty: Bool { insertions.isEmpty && updates.isEmpty && moves.isEmpty }
+    
+    mutating func add(other: TargetUpdate) {
+        if !other.insertions.isEmpty { insertions.formUnion(other.insertions) }
+        if !other.updates.isEmpty { updates.formUnion(other.updates) }
+        if !other.moves.isEmpty { moves += other.moves }
+    }
+}
+
+typealias SectionTargetUpdate = TargetUpdate<IndexSet>
+typealias ItemTargetUpdate = TargetUpdate<[IndexPath]>
+
+struct Update<Collection: IndexCollection>: BatchUpdate {
+    var source = SourceUpdate<Collection>()
+    var target = TargetUpdate<Collection>()
     var change: (() -> Void)?
-
-    var isEmpty: Bool { section.isEmpty && item.isEmpty }
     
-    mutating func adding(other: BatchUpdate) {
-        if !other.section.isEmpty { section.adding(other: other.section) }
-        if !other.item.isEmpty { item.adding(other: other.item) }
+    var isEmpty: Bool { source.isEmpty && target.isEmpty }
+    
+    mutating func add(other: Update<Collection>) {
+        source.add(other: other.source)
+        target.add(other: other.target)
         guard let otherChange = other.change else { return }
-        adding(otherChange: otherChange)
+        add(otherChange: otherChange)
     }
     
-    mutating func adding(otherChange: (() -> Void)?) {
+    mutating func add(otherChange: (() -> Void)?) {
         guard let otherChange = otherChange else { return }
         change = change.map { change in
             {
@@ -70,43 +87,82 @@ struct BatchUpdate {
     }
 }
 
-struct ListUpdate {
-    var first = BatchUpdate()
-    var second = BatchUpdate()
-    var third = BatchUpdate()
+typealias ItemUpdate = Update<[IndexPath]>
+typealias SectionUpdate = Update<IndexSet>
+
+extension Update: ListViewApplyable where Collection == [IndexPath] {
+    func apply(by listView: ListView) {
+        if !source.deletions.isEmpty { listView.deleteItems(at: source.deletions) }
+        if !target.insertions.isEmpty { listView.insertItems(at: target.insertions) }
+        if !target.updates.isEmpty { listView.reloadItems(at: target.updates) }
+        target.moves.forEach { listView.moveItem(at: $0, to: $1) }
+    }
+}
+
+struct BatchUpdates<Section: BatchUpdate, Item: BatchUpdate>: BatchUpdate {
+    var section = Section()
+    var item = Item()
+
+    var isEmpty: Bool { section.isEmpty && item.isEmpty }
+    
+    mutating func add(other: BatchUpdates) {
+        section.add(other: other.section)
+        item.add(other: other.item)
+    }
+}
+
+typealias SourceBatchUpdates = BatchUpdates<SectionSourceUpdate, ItemSourceUpdate>
+typealias TargetBatchUpdates = BatchUpdates<SectionTargetUpdate, ItemTargetUpdate>
+
+typealias ListBatchUpdates = BatchUpdates<SectionUpdate, ItemUpdate>
+
+extension BatchUpdates: ListViewApplyable where Section == SectionUpdate, Item == ItemUpdate {
+    func apply(by listView: ListView) {
+        if !section.source.deletions.isEmpty { listView.deleteSections(section.source.deletions) }
+        if !section.target.insertions.isEmpty { listView.insertSections(section.target.insertions) }
+        if !section.target.updates.isEmpty { listView.reloadSections(section.target.updates) }
+        section.target.moves.forEach { listView.moveSection($0, toSection: $1) }
+        
+        item.apply(by: listView)
+    }
+}
+
+struct Updates<Update: BatchUpdate> {
+    var first = Update()
+    var second = Update()
+    var third = Update()
     var complete: (() -> Void)?
     
-    var updates: [(isLast: Bool, update: BatchUpdate)] {
-        [first, second, third]
-            .enumerated()
-            .filter { !$0.element.isEmpty }
-            .map { ($0.offset == 2, $0.element) }
+    var updates: [(isLast: Bool, update: Update)] {
+        let notEmptys = [first, second, third].filter { !$0.isEmpty }
+        return notEmptys.enumerated().map { ($0.offset == notEmptys.count - 1, $0.element) }
     }
     
-    mutating func adding(other: ListUpdate) {
-        if !other.first.isEmpty { first.adding(other: other.first) }
-        if !other.second.isEmpty { second.adding(other: other.second) }
-        if !other.third.isEmpty { third.adding(other: other.third) }
+    mutating func adding(other: Self) {
+        first.add(other: other.first)
+        second.add(other: other.second)
+        third.add(other: other.third)
     }
 }
 
-extension BatchUpdate.Update: CustomDebugStringConvertible {
+extension Update: CustomDebugStringConvertible {
     var debugDescription: String {
         """
-        D \(deletions.reduce("") { $0 + "\($1) " })
-        I \(insertions.reduce("") { $0 + "\($1) " })
-        U \(updates.reduce("") { $0 + "\($1) " })
-        M \(moves.reduce("") { $0 + "(\($1.source), \($1.target)) " })
+        D \(source.deletions.reduce("") { $0 + "\($1) " })
+        I \(target.insertions.reduce("") { $0 + "\($1) " })
+        U \(target.updates.reduce("") { $0 + "\($1) " })
+        M \(target.moves.reduce("") { $0 + "(\($1.source), \($1.target)) " })
         """
     }
 }
 
-extension BatchUpdate: CustomDebugStringConvertible {
+extension BatchUpdates: CustomDebugStringConvertible {
     var debugDescription: String {
         """
-        D \(item.deletions.reduce("") { $0 + "\($1) " })
-        I \(item.insertions.reduce("") { $0 + "\($1) " })
-        M \(item.moves.reduce("") { $0 + "(\($1.source), \($1.target)) " })
+        section:
+        \(section)
+        item:
+        \(item)
         """
     }
 }

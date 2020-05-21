@@ -11,7 +11,7 @@ extension Optional: DataSource where Wrapped: DataSource {
     
     public var source: Source { self }
     public var differ: Differ<Self> { (source?.differ).map { Differ($0) } ?? .none }
-    public var listUpdate: Update<Item> { source?.listUpdate ?? .reload }
+    public var listUpdate: ListUpdate<Item> { source?.listUpdate ?? .reload }
     
     public func makeListCoordinator() -> ListCoordinator<Self> {
         switch self {
@@ -33,4 +33,20 @@ extension Optional: TableListAdapter where Wrapped: TableListAdapter {
 
 extension Optional: CollectionListAdapter where Wrapped: CollectionListAdapter {
     public var collectionList: CollectionList<Self> { .init(self) }
+}
+
+func + (lhs: (() -> Void)?, rhs: (() -> Void)?) -> (() -> Void)? {
+    switch (lhs, rhs) {
+    case let (lhs?, rhs?):
+        return {
+            lhs()
+            rhs()
+        }
+    case let (lhs?, .none):
+        return lhs
+    case let (.none, rhs?):
+        return rhs
+    case (.none, .none):
+        return nil
+    }
 }

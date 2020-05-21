@@ -15,7 +15,10 @@ class CoordinatorDifference {
         lazy var uniqueChange: UniqueChange<Any> = ([:], [:])
         lazy var unhandled: Mapping<[Coordinator]> = ([], [])
         lazy var unhandledMoved = [HashCombiner: Mapping<Coordinator?>]()
-        lazy var updates = [ObjectIdentifier: ListUpdate]()
+    }
+    
+    enum Order: CaseIterable {
+        case first, second, third
     }
     
     enum ChangeState: Equatable {
@@ -29,7 +32,8 @@ class CoordinatorDifference {
         var value: Value
         var related: Related
         var state = ChangeState.none
-        var offset = IndexPath.listZero
+        var sectionOffset = 0
+        var itemOffset = 0
         var associated: Element<Value, Related>? {
             didSet {
                 if associated?.associated === self { return }
@@ -38,7 +42,7 @@ class CoordinatorDifference {
         }
         
         var asTuple: (Value, Related) { (value, related) }
-        var indexPath: IndexPath { IndexPath(section: offset.section, item: offset.item + index) }
+        var indexPath: IndexPath { IndexPath(section: sectionOffset, item: itemOffset + index) }
         
         required init(value: Value, related: Related, index: Int) {
             self.value = value
@@ -58,16 +62,43 @@ class CoordinatorDifference {
     
     func prepareForGenerate() { }
     func inferringMoves(context: Context) { }
-    func addingSection(offset: Mapping<Int>) { }
-    func addingItem(offset: Mapping<Int>) { }
     
-    func generateUpdate(isSectioned: Bool, isMoved: Bool) -> ListUpdate {
+    func generateUpdates() -> ListUpdates {
         fatalError("should be implement by subclass")
     }
     
-    func generateUpdate() -> ListUpdate {
-        prepareForGenerate()
-        return generateUpdate(isSectioned: true, isMoved: false)
+    func generateSourceSectionUpdate(
+        order: Order,
+        sectionOffset: Int = 0,
+        isMoved: Bool = false
+    ) -> (count: Int, update: SourceBatchUpdates?) {
+        fatalError("should be implement by subclass")
+    }
+    
+    func generateTargetSectionUpdate(
+        order: Order,
+        sectionOffset: Int = 0,
+        isMoved: Bool = false
+    ) -> (count: Int, update: TargetBatchUpdates?, change: (() -> Void)?) {
+        fatalError("should be implement by subclass")
+    }
+    
+    func generateSourceItemUpdate(
+        order: Order,
+        sectionOffset: Int = 0,
+        itemOffset: Int = 0,
+        isMoved: Bool = false
+    ) -> (count: Int, update: ItemSourceUpdate?) {
+        fatalError("should be implement by subclass")
+    }
+    
+    func generateTargetItemUpdate(
+        order: Order,
+        sectionOffset: Int = 0,
+        itemOffset: Int = 0,
+        isMoved: Bool = false
+    ) -> (count: Int, update: ItemTargetUpdate?, change: (() -> Void)?) {
+        fatalError("should be implement by subclass")
     }
 }
 
@@ -191,5 +222,39 @@ extension CoordinatorDifference {
         
         
         return (result, changedResult)
+    }
+    
+    func toChanges<Value, Related, Element: CoordinatorDifference.Element<Value, Related>>(
+        values: [(value: Value, related: Related)],
+        differ: Differ<(value: Value, related: Related)>,
+        isSource: Bool,
+        moveAndRelod: Bool? = nil
+    ) -> ([Element], [Element]) {
+        var uniqueChanges: UniqueChange<Element> = ([:], [:])
+        var changedResult: Mapping<[Element]> = ([], [])
+        
+        let element: [Element] = values.enumerated().map {
+            let (offset, element) = $0
+            let value = Element(value: element.value, related: element.related, index: offset)
+            if let id = differ.identifier {
+                isSource ? changedResult.source.append(value) : changedResult.target.append(value)
+                add(to: &uniqueChanges, key: id(element), change: value, isSource: isSource)
+            }
+            value.state = .change(moveAndRelod: moveAndRelod)
+            return value
+        }
+        
+        if let id = differ.identifier {
+            applying(
+                to: &uniqueChanges,
+                with: &changedResult,
+                id: id,
+                differ: differ,
+                isAllCurrent: true
+            ) { $0 }
+        }
+        
+        
+        return (element, isSource ? changedResult.source : changedResult.target)
     }
 }

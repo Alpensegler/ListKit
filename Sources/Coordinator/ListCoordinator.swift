@@ -242,8 +242,8 @@ extension ListCoordinator {
         _ completion: ((ListView, Bool) -> Void)?,
         _ updateData: ((SourceBase.Source) -> Void)?
     ) {
-        print("update from \(self.source)")
-        print("update to \(source)")
+        Log.log("update from \(self.source)")
+        Log.log("update to   \(source)")
         switch update.way {
         case .diff(let diff):
             perform(diff: diff, to: source, animated, completion, updateData)

@@ -29,8 +29,8 @@ protocol SetuptableListView: ListView {
 extension ListView {
     func perform(updates: ListUpdates, animated: Bool, completion: ((ListView, Bool) -> Void)?) {
         for (offset, batchUpdate) in updates.enumerated() {
-            debugPrint("------------------------------")
-            debugPrint(batchUpdate.update)
+            Log.log("------------------------------")
+            Log.log(batchUpdate.update.debugDescription)
             let isLast = offset == updates.count - 1
             let completion: ((Bool) -> Void)? = isLast ? { [weak self] finish in
                 self.map { completion?($0, finish) }

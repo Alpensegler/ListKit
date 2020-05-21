@@ -107,7 +107,9 @@ where SourceBase.SourceBase == SourceBase, OtherSourceBase: DataSource {
     override func setup() {
         wrappedCoodinator.setupIfNeeded()
         selectorSets = SelectorSets(merging: selfSelectorSets, others)
-        sourceType = (wrappedCoodinator.sourceType == .section || selectorSets.hasIndex) ? .section : wrappedCoodinator.sourceType
+        sourceType = (wrappedCoodinator.sourceType == .section || selectorSets.hasIndex)
+            ? .section
+            : wrappedCoodinator.sourceType
     }
     
     override func setupContext(

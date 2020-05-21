@@ -8,9 +8,8 @@
 import UIKit
 import ListKit
 
-class SectionListViewControlle: ExampleViewController, CollectionListAdapter, UpdatableDataSource {
+class SectionListViewControlle: ExampleViewController, UpdatableCollectionListAdapter {
     static let emojis = (0x1F600...0x1F647).compactMap { UnicodeScalar($0) }
-    static let numbers = (0...10)
     
     typealias Item = UnicodeScalar
     var source: [[UnicodeScalar]] {
@@ -27,13 +26,9 @@ class SectionListViewControlle: ExampleViewController, CollectionListAdapter, Up
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        addRefreshAction()
+        addRefreshAction { [unowned self] in self.performUpdate() }
         
         apply(by: collectionView)
-    }
-    
-    override func refresh() {
-        performUpdate()
     }
 }
 

@@ -21,7 +21,7 @@ protocol BatchUpdate: DefaultInitializable {
     var isEmpty: Bool { get }
 }
 
-protocol ListViewApplyable {
+protocol ListViewApplyable: CustomDebugStringConvertible {
     func apply(by listView: ListView)
 }
 
@@ -147,22 +147,32 @@ struct Updates<Update: BatchUpdate> {
 
 extension Update: CustomDebugStringConvertible {
     var debugDescription: String {
-        """
-        D \(source.deletions.reduce("") { $0 + "\($1) " })
-        I \(target.insertions.reduce("") { $0 + "\($1) " })
-        U \(target.updates.reduce("") { $0 + "\($1) " })
-        M \(target.moves.reduce("") { $0 + "(\($1.source), \($1.target)) " })
-        """
+        var descriptions = [String]()
+        if !source.deletions.isEmpty {
+            descriptions.append("D \(source.deletions.reduce("") { $0 + "\($1) " })")
+        }
+        if !target.insertions.isEmpty {
+            descriptions.append("I \(target.insertions.reduce("") { $0 + "\($1) " })")
+        }
+        if !target.updates.isEmpty {
+            descriptions.append("U \(target.updates.reduce("") { $0 + "\($1) " })")
+        }
+        if !target.moves.isEmpty {
+            descriptions.append("M \(target.moves.reduce("") { $0 + "(\($1.source), \($1.target)) " })")
+        }
+        return descriptions.joined(separator: "\n")
     }
 }
 
 extension BatchUpdates: CustomDebugStringConvertible {
     var debugDescription: String {
-        """
-        section:
-        \(section)
-        item:
-        \(item)
-        """
+        var descriptions = [String]()
+        if !section.isEmpty {
+            descriptions.append("Section:\n\(section)")
+        }
+        if !item.isEmpty {
+            descriptions.append("Item:\n\(item)")
+        }
+        return descriptions.joined(separator: "\n")
     }
 }

@@ -32,7 +32,8 @@ class DoubleListViewController: ExampleViewController, TableListAdapter, Collect
     }
     
     override func viewDidLoad() {
-        addRefreshAction()
+        super.viewDidLoad()
+        addRefreshAction { [unowned self] in self.performUpdate() }
         
         let halfHeight = view.bounds.height / 2
         tableView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: halfHeight)
@@ -40,10 +41,6 @@ class DoubleListViewController: ExampleViewController, TableListAdapter, Collect
         
         apply(by: collectionView)
         apply(by: tableView)
-    }
-    
-    override func refresh() {
-        performUpdate()
     }
 }
 

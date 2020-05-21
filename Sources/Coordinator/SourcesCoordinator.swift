@@ -16,7 +16,7 @@ where
 {
     enum SourceElement {
         case other
-        case value(value: Element, related: Coordinator)
+        case value(value: Element)
     }
     
     typealias Element = SourceBase.Source.Element

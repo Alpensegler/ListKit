@@ -145,6 +145,8 @@ final class ItemsCoordinatorDifference<Item>: CoordinatorDifference {
                 } else {
                     needThirdUpdate = true
                 }
+            case let (.change, associaed?):
+                if associaed.state == .change(moveAndRelod: true) { needThirdUpdate = true }
             case (.change, .none):
                 update.deletions.append(element.indexPath)
             default:

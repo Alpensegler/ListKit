@@ -67,9 +67,9 @@ where
         differ: Differ<Value>?
     ) -> CoordinatorDifference? {
         let coordinator = from as! SectionsCoordinator<SourceBase>
-        let (sections, source) = (coordinator.sections, coordinator.source)
+        let sections = coordinator.sections
         guard let differ = (differ.map { .init($0) }) ?? defaultUpdate.diff else { return nil }
-        return difference(to: false, sections: sections, source: source, differ: differ)
+        return difference(to: false, sections: sections, source: coordinator.source, differ: differ)
     }
     
     override func difference(

@@ -9,7 +9,7 @@ import Foundation
 
 final class ItemCoordinator<SourceBase: DataSource>: ListCoordinator<SourceBase>
 where SourceBase.Item == SourceBase.Source, SourceBase.SourceBase == SourceBase  {
-    lazy var item = (value: source, related: ItemRelatedCache())
+    lazy var item = (value: source!, related: ItemRelatedCache())
     
     override var multiType: SourceMultipleType { .single }
     

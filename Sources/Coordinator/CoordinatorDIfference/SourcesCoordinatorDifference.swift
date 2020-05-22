@@ -7,7 +7,8 @@
 
 import Foundation
 
-final class SourcesCoordinatorDifference<Value, Item>: CoordinatorDifference {
+final class SourcesCoordinatorDifference<Value, Item, Coordinator>: CoordinatorDifference
+where Coordinator: ListKit.Coordinator {
     typealias MapValue = (value: Value, related: Coordinator)
     final class DataSourceElement: Element<Value, Coordinator> {
         var difference: CoordinatorDifference?
@@ -21,7 +22,7 @@ final class SourcesCoordinatorDifference<Value, Item>: CoordinatorDifference {
     var changes: Mapping<[DataSourceElement]> = ([], [])
     var uniqueChanges: Mapping<[DataSourceElement]> = ([], [])
     
-    init(mapping: Mapping<[MapValue]>, offsets: Mapping<[Int]>, differ: Differ<MapValue>, itemDiffer: Differ<Item>?) {
+    init(mapping: Mapping<[MapValue]>, differ: Differ<MapValue>, itemDiffer: Differ<Item>?) {
         self.mapping = mapping
         self.differ = differ
         self.itemDiffer = itemDiffer
@@ -32,7 +33,7 @@ final class SourcesCoordinatorDifference<Value, Item>: CoordinatorDifference {
         (changes, uniqueChanges) = toChanges(mapping: mapping, differ: differ)
     }
     
-    override func inferringMoves(context: CoordinatorDifference.Context) {
+    override func inferringMoves(context: Context) {
         
     }
 }

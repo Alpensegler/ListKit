@@ -77,12 +77,12 @@ where SourceBase.SourceBase == SourceBase {
     var defaultUpdate = ListUpdate<Item>()
     var differ = Differ<SourceBase>()
     
-    var source: SourceBase.Source
+    var source: SourceBase.Source!
     
     init(
         id: AnyHashable = ObjectIdentifier(SourceBase.self),
         defaultUpdate: ListUpdate<Item> = .init(),
-        source: SourceBase.Source,
+        source: SourceBase.Source!,
         storage: CoordinatorStorage<SourceBase>?
     ) {
         self.id = id
@@ -242,7 +242,7 @@ extension ListCoordinator {
         _ completion: ((ListView, Bool) -> Void)?,
         _ updateData: ((SourceBase.Source) -> Void)?
     ) {
-        Log.log("update from \(self.source)")
+        Log.log("update from \(self.source!)")
         Log.log("update to   \(source)")
         switch update.way {
         case .diff(let diff):

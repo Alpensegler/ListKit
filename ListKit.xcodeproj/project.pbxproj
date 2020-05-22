@@ -32,7 +32,6 @@
 		F3346823246D2627002BC8F5 /* CoordinatorDifference.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3346822246D2627002BC8F5 /* CoordinatorDifference.swift */; };
 		F33FBC3D234F33A70054BA38 /* DataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F33FBC3C234F33A70054BA38 /* DataSource.swift */; };
 		F33FBC43234F3A600054BA38 /* Sources.swift in Sources */ = {isa = PBXBuildFile; fileRef = F33FBC42234F3A600054BA38 /* Sources.swift */; };
-		F35180BA23CC1A6100CB2F7A /* ItemSourcesCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35180B923CC1A6100CB2F7A /* ItemSourcesCoordinator.swift */; };
 		F35180BC23CC539400CB2F7A /* ListUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35180BB23CC539400CB2F7A /* ListUpdate.swift */; };
 		F35A7A3E246581F200A0A6A1 /* BatchUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35A7A3D246581F200A0A6A1 /* BatchUpdate.swift */; };
 		F35BBA03239FD05C0024EA7D /* TableContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35BBA02239FD05C0024EA7D /* TableContext.swift */; };
@@ -65,7 +64,6 @@
 		F39A23F623A16D1F0024F9AF /* CoreData+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = F39A23F523A16D1F0024F9AF /* CoreData+Extension.swift */; };
 		F3A4933823A6A95700809E7F /* ListAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A4933723A6A95700809E7F /* ListAdapter.swift */; };
 		F3A4933A23A6D3B400809E7F /* ScollContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A4933923A6D3B400809E7F /* ScollContext.swift */; };
-		F3A4939A23A79EBF00809E7F /* SourceType.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A4939923A79EBF00809E7F /* SourceType.swift */; };
 		F3A4940223A8CDEA00809E7F /* WrapperCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A4940123A8CDEA00809E7F /* WrapperCoordinator.swift */; };
 		F3A4940823A8E5FC00809E7F /* DataSource+ItemCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A4940723A8E5FC00809E7F /* DataSource+ItemCoordinator.swift */; };
 		F3A4940A23A8E63300809E7F /* DataSource+ItemsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A4940923A8E63300809E7F /* DataSource+ItemsCoordinator.swift */; };
@@ -154,7 +152,6 @@
 		F33FBC3A234F26B60054BA38 /* ListKitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListKitTests.swift; sourceTree = "<group>"; };
 		F33FBC3C234F33A70054BA38 /* DataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSource.swift; sourceTree = "<group>"; };
 		F33FBC42234F3A600054BA38 /* Sources.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources.swift; sourceTree = "<group>"; };
-		F35180B923CC1A6100CB2F7A /* ItemSourcesCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemSourcesCoordinator.swift; sourceTree = "<group>"; };
 		F35180BB23CC539400CB2F7A /* ListUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListUpdate.swift; sourceTree = "<group>"; };
 		F35A7A3D246581F200A0A6A1 /* BatchUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatchUpdate.swift; sourceTree = "<group>"; };
 		F35BBA02239FD05C0024EA7D /* TableContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableContext.swift; sourceTree = "<group>"; };
@@ -188,7 +185,6 @@
 		F39A23F523A16D1F0024F9AF /* CoreData+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CoreData+Extension.swift"; sourceTree = "<group>"; };
 		F3A4933723A6A95700809E7F /* ListAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListAdapter.swift; sourceTree = "<group>"; };
 		F3A4933923A6D3B400809E7F /* ScollContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScollContext.swift; sourceTree = "<group>"; };
-		F3A4939923A79EBF00809E7F /* SourceType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourceType.swift; sourceTree = "<group>"; };
 		F3A4940123A8CDEA00809E7F /* WrapperCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WrapperCoordinator.swift; sourceTree = "<group>"; };
 		F3A4940723A8E5FC00809E7F /* DataSource+ItemCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataSource+ItemCoordinator.swift"; sourceTree = "<group>"; };
 		F3A4940923A8E63300809E7F /* DataSource+ItemsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataSource+ItemsCoordinator.swift"; sourceTree = "<group>"; };
@@ -273,7 +269,6 @@
 				F3AD0139238BE6FE000AF1B3 /* ItemsCoordinator.swift */,
 				F37BF3CB23968B7E0095C419 /* SectionsCoordinator.swift */,
 				F3AD067F238FF3DA000AF1B3 /* SourcesCoordinator.swift */,
-				F35180B923CC1A6100CB2F7A /* ItemSourcesCoordinator.swift */,
 				F37BF3CD23969DFD0095C419 /* NSCoordinator.swift */,
 				F3EC388B24582C5A00DFE1B0 /* EmptyCoordinator.swift */,
 			);
@@ -466,7 +461,6 @@
 				F3D785C42398F54C00D7A5CD /* Diff */,
 				F3AC673F23D0591C0070B991 /* HashCombiner.swift */,
 				F3D786FB2399318B00D7A5CD /* Associator.swift */,
-				F3A4939923A79EBF00809E7F /* SourceType.swift */,
 				F374B1432471A0FA0009420D /* Mapping.swift */,
 			);
 			path = Utility;
@@ -718,7 +712,6 @@
 				F3EB15DA23A2CF8D00C9AC5E /* Optional+Extension.swift in Sources */,
 				F304A6E3239E95ED00133D14 /* ListView+NSTableView.swift in Sources */,
 				F314FAE723BDC66C0060985E /* AnyCollectionSourcesBuilder.swift in Sources */,
-				F35180BA23CC1A6100CB2F7A /* ItemSourcesCoordinator.swift in Sources */,
 				F3D786972399263B00D7A5CD /* CollectionContext.swift in Sources */,
 				F3AC674223D066AC0070B991 /* Sources+Source.swift in Sources */,
 				F314FAE223BC71EA0060985E /* ListDelegate.swift in Sources */,
@@ -729,7 +722,6 @@
 				F3AC673823D057450070B991 /* Sources+Item.swift in Sources */,
 				F329598323A10B7D001D6063 /* ListViewStorage+UIKit.swift in Sources */,
 				F374B1442471A0FA0009420D /* Mapping.swift in Sources */,
-				F3A4939A23A79EBF00809E7F /* SourceType.swift in Sources */,
 				F383064323506BAC00AE8B97 /* CollectionDifference.swift in Sources */,
 				F30352F62473E48E004042AA /* SectionsCoordinatorDifference.swift in Sources */,
 				F3A4940E23A8E67200809E7F /* DataSource+SourceCoordinator.swift in Sources */,

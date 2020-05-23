@@ -16,10 +16,7 @@ enum SourceMultipleType {
 }
 
 protocol Coordinator: AnyObject {
-    var sourceType: SourceType { get }
-    var multiType: SourceMultipleType { get  }
     var selectorSets: SelectorSets { get }
-    var isEmpty: Bool { get }
     var didSetup: Bool { get set }
     
     #if os(iOS) || os(tvOS)

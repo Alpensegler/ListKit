@@ -79,11 +79,15 @@ extension ListAdapter {
     var erased: ErasedType { erasedGetter(self) }
     var cacheFromItem: ((Item) -> Any)? { nil }
     
-    nonmutating func makeCoordinator() -> ListCoordinator<Source> {
-        let coordinator = sourceBase.makeListCoordinator()
-        coordinatorSetups.forEach { $0(coordinator) }
-        coordinator.cacheFromItem = cacheFromItem
-        return coordinator
+    func makeCoordinator(
+        for source: SourceBase,
+        setups: [(ListCoordinator<SourceBase>) -> Void]
+    ) -> () -> ListCoordinator<SourceBase> {
+        {
+            let coordinator = source.makeListCoordinator()
+            setups.forEach { $0(coordinator) }
+            return coordinator
+        }
     }
 
     func set<Input, Output>(

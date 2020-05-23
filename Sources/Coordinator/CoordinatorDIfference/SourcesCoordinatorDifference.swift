@@ -7,10 +7,13 @@
 
 import Foundation
 
-final class SourcesCoordinatorDifference<Value, Item, Coordinator>: CoordinatorDifference
-where Coordinator: ListKit.Coordinator {
+final class SourcesCoordinatorDifference<Element: DataSource>: CoordinatorDifference {
+    typealias Coordinator = ListCoordinator<Element.SourceBase>
+    typealias Value = SourcesSubelement<Element>
     typealias MapValue = (value: Value, related: Coordinator)
-    final class DataSourceElement: Element<Value, Coordinator> {
+    typealias Item = Element.SourceBase.Item
+    
+    final class DataSourceElement: CoordinatorDifference.Element<Value, Coordinator> {
         var difference: CoordinatorDifference?
     }
     

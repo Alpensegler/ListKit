@@ -46,7 +46,7 @@ where Source.SourceBase == Source {
         self.coordinatorSetups = coordinatorSetups
         self.source = source
         self.erasedGetter = erasedGetter
-        storage.makeListCoordinator = makeCoordinator
+        storage.makeListCoordinator = makeCoordinator(for: source, setups: coordinatorSetups)
     }
 }
 

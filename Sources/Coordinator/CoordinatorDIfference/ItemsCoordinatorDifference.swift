@@ -9,13 +9,13 @@ import Foundation
 
 final class ItemsCoordinatorDifference<Item>: CoordinatorDifference {
     typealias ValueElement = Element<Item, ItemRelatedCache>
-    typealias MapValue = (value: Item, related: ItemRelatedCache)
+    typealias Diffable = ListKit.Diffable<Item, ItemRelatedCache>
     
-    let mapping: Mapping<[MapValue]>
-    let differ: Differ<MapValue>
+    let mapping: Mapping<[Diffable]>
+    let differ: Differ<Diffable>
     
     var rangeRelplacable = false
-    var internalCoordinatorChange: (([MapValue]) -> Void)?
+    var internalCoordinatorChange: (([Diffable]) -> Void)?
     var coordinatorChange: (() -> Void)?
     
     var changes: Mapping<[ValueElement]> = ([], [])
@@ -27,10 +27,10 @@ final class ItemsCoordinatorDifference<Item>: CoordinatorDifference {
     lazy var itemsCount = mapping.source.count
     
     lazy var needThirdUpdate = false
-    lazy var thirdItems = [MapValue]()
+    lazy var thirdItems = [Diffable]()
     lazy var thirdUpdates = [IndexPath]()
     
-    init(mapping: Mapping<[MapValue]>, differ: Differ<Item>) {
+    init(mapping: Mapping<[Diffable]>, differ: Differ<Item>) {
         self.mapping = mapping
         self.differ = .init(differ) { $0.value }
         super.init()

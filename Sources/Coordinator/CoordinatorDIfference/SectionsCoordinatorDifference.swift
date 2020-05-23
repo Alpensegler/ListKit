@@ -9,21 +9,17 @@ import Foundation
 
 final class SectionsCoordinatorDifference<Item>: CoordinatorDifference {
     typealias ValueElement = Element<Item, ItemRelatedCache>
-    typealias MapValue = (value: Item, related: ItemRelatedCache)
+    typealias Diffable = ListKit.Diffable<Item, ItemRelatedCache>
     
     class DifferenceMapping {
         let difference: ItemsCoordinatorDifference<Item>
-        var values: [MapValue]
+        var values: [Diffable]
         
-        init(_ mapping: Mapping<[MapValue]>, differ: Differ<Item>, rangeRelplacable: Bool) {
+        init(_ mapping: Mapping<[Diffable]>, differ: Differ<Item>, rangeRelplacable: Bool) {
             values = mapping.source
             difference = .init(mapping: mapping, differ: differ)
-            difference.coordinatorChange = {
-                self.values = mapping.target
-            }
-            difference.internalCoordinatorChange = {
-                self.values = $0
-            }
+            difference.coordinatorChange = { [unowned self] in self.values = mapping.target }
+            difference.internalCoordinatorChange = { [unowned self] in self.values = $0 }
             difference.rangeRelplacable = rangeRelplacable
             difference.prepareForGenerate()
         }
@@ -40,11 +36,11 @@ final class SectionsCoordinatorDifference<Item>: CoordinatorDifference {
         }
     }
     
-    let mapping: Mapping<[[MapValue]]>
+    let mapping: Mapping<[[Diffable]]>
     let differ: Differ<Item>
     
     var rangeRelplacable = false
-    var internalCoordinatorChange: (([[MapValue]]) -> Void)?
+    var internalCoordinatorChange: (([[Diffable]]) -> Void)?
     var coordinatorBatchChange: ((Int, Bool) -> Void)?
     var coordinatorChange: (() -> Void)?
     
@@ -60,7 +56,7 @@ final class SectionsCoordinatorDifference<Item>: CoordinatorDifference {
     
     lazy var sectionCount = mapping.source.count
     
-    var valuesFromDifferenceMapping: [[MapValue]] {
+    var valuesFromDifferenceMapping: [[Diffable]] {
         var values = differenceMapping.map { $0.values }
         if case let .differences(rests, _) = rests {
             values += rests.indices.map { _ in [] }
@@ -68,7 +64,7 @@ final class SectionsCoordinatorDifference<Item>: CoordinatorDifference {
         return values
     }
     
-    init(mapping: Mapping<[[MapValue]]>, differ: Differ<Item>) {
+    init(mapping: Mapping<[[Diffable]]>, differ: Differ<Item>) {
         self.mapping = mapping
         self.differ = differ
         super.init()

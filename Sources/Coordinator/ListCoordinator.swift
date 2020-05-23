@@ -82,12 +82,14 @@ where SourceBase.SourceBase == SourceBase {
     init(
         id: AnyHashable = ObjectIdentifier(SourceBase.self),
         defaultUpdate: ListUpdate<Item> = .init(),
+        differ: Differ<SourceBase> = .init(),
         source: SourceBase.Source!,
         storage: CoordinatorStorage<SourceBase>?
     ) {
         self.id = id
         self.storage = storage
         self.defaultUpdate = defaultUpdate
+        self.differ = differ
         self.source = source
         storage?.coordinators.append(self)
     }
@@ -96,6 +98,7 @@ where SourceBase.SourceBase == SourceBase {
         self.id = ObjectIdentifier(SourceBase.self)
         self.storage = storage
         self.defaultUpdate = sourceBase.listUpdate
+        self.differ = sourceBase.differ
         self.source = sourceBase.source(storage: storage)
         storage?.coordinators.append(self)
     }

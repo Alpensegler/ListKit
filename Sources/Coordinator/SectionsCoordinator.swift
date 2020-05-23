@@ -14,17 +14,17 @@ where
     SourceBase.Source.Element: Collection,
     SourceBase.Source.Element.Element == SourceBase.Item
 {
-    var sections = [[(value: Item, related: ItemRelatedCache)]]()
+    var sections = [[Diffable<Item, ItemRelatedCache>]]()
     
     override var multiType: SourceMultipleType { .multiple }
     
-    func toSections(_ source: SourceBase.Source) -> [[(value: Item, related: ItemRelatedCache)]] {
+    func toSections(_ source: SourceBase.Source) -> [[Diffable<Item, ItemRelatedCache>]] {
         source.map { $0.map { ($0, related: .init()) } }
     }
     
     func difference(
         to isTo: Bool,
-        sections: [[(value: Item, related: ItemRelatedCache)]],
+        sections: [[Diffable<Item, ItemRelatedCache>]],
         source: SourceBase.Source,
         differ: Differ<Item>
     ) -> SectionsCoordinatorDifference<Item> {
@@ -90,7 +90,7 @@ where
 {
     override func difference(
         to isTo: Bool,
-        sections: [[(value: Item, related: ItemRelatedCache)]],
+        sections: [[Diffable<Item, ItemRelatedCache>]],
         source: SourceBase.Source,
         differ: Differ<Item>
     ) -> SectionsCoordinatorDifference<Item> {

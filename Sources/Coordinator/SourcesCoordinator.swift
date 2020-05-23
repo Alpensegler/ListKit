@@ -7,6 +7,11 @@
 
 import Foundation
 
+enum SourcesSubelement<Element> {
+    case items(() -> [Element])
+    case element(Element)
+}
+
 final class SourcesCoordinator<SourceBase: DataSource, Source>: ListCoordinator<SourceBase>
 where
     SourceBase.SourceBase == SourceBase,
@@ -14,21 +19,16 @@ where
     Source.Element: DataSource,
     Source.Element.SourceBase.Item == SourceBase.Item
 {
-    enum SourcesElement {
-        case items(() -> [Source.Element])
-        case element(Source.Element)
-    }
-    
     enum SubsourceType {
         case fromSourceBase((SourceBase.Source) -> Source)
         case values(Int)
     }
     
     typealias Subcoordinator = ListCoordinator<Source.Element.SourceBase>
-    typealias Value = (value: SourcesElement, related: Subcoordinator)
+    typealias Subsource = (value: SourcesSubelement<Source.Element>, related: Subcoordinator)
     
     var subsourceType: SubsourceType
-    var subsources = [Value]()
+    var subsources = [Subsource]()
     var offsets = [Int]()
     var indices = [Int]()
     var isSectioned = false
@@ -41,10 +41,8 @@ where
         var sources = [Source.Element]()
         for element in subsources {
             switch element.value {
-            case .items(let items):
-                sources += items()
-            case .element(let element):
-                sources.append(element)
+            case .items(let items): sources += items()
+            case .element(let element): sources.append(element)
             }
         }
         return sources
@@ -119,19 +117,20 @@ where
         }
     }
     
-    func values(for source: Source) -> (isSectiond: Bool, values: [Value]) {
+    func subsources(for source: Source) -> (isSectiond: Bool, values: [Subsource]) {
         var isSectioned = false
         var itemSources = [(element: Source.Element, coordinator: Subcoordinator)]()
-        var values = [Value]()
+        var subsources = [Subsource]()
         var id = 0
         func addItemSources() {
             let coordinator = SourcesCoordinator<Source.Element.SourceBase, [Source.Element]>(
-                values: itemSources,
+                elements: itemSources,
                 defaultUpdate: defaultUpdate,
                 id: id
             )
-            values.append((.items { coordinator.subsourcesArray }, coordinator))
+            subsources.append((.items { coordinator.subsourcesArray }, coordinator))
             itemSources.removeAll()
+            id += 1
         }
         
         for element in source {
@@ -140,7 +139,7 @@ where
             switch coordinator.sourceType {
             case .section:
                 if !itemSources.isEmpty { addItemSources() }
-                values.append((.element(element), coordinator))
+                subsources.append((.element(element), coordinator))
                 isSectioned = true
             case .cell:
                 itemSources.append((element, coordinator))
@@ -148,15 +147,12 @@ where
         }
         
         switch (isSectioned, itemSources.isEmpty) {
-        case (true, false):
-            addItemSources()
-        case (false, false):
-            values = itemSources.map { (.element($0.element), $0.coordinator) }
-        default:
-            break
+        case (true, false): addItemSources()
+        case (false, false): subsources = itemSources.map { (.element($0.element), $0.coordinator) }
+        default: break
         }
         
-        return (isSectioned, values)
+        return (isSectioned, subsources)
     }
     
     func configOffsetAndIndices() {
@@ -184,13 +180,13 @@ where
     }
     
     init(
-        values: [(element: Source.Element, coordinator: Subcoordinator)],
+        elements: [(element: Source.Element, coordinator: Subcoordinator)],
         defaultUpdate: ListUpdate<SourceBase.Item>,
         id: Int
     ) {
         subsourceType = .values(id)
         super.init(defaultUpdate: defaultUpdate, source: nil, storage: nil)
-        subsources = values.map { (.element($0.element), $0.coordinator) }
+        subsources = elements.map { (.element($0.element), $0.coordinator) }
     }
     
     override func item(at path: IndexPath) -> Item {
@@ -213,7 +209,7 @@ where
     
     override func setup() {
         if case let .fromSourceBase(closure) = subsourceType {
-            (isSectioned, subsources) = values(for: closure(source))
+            (isSectioned, subsources) = subsources(for: closure(source))
         }
         
         configOffsetAndIndices()

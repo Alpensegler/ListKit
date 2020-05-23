@@ -13,7 +13,7 @@ where
     SourceBase.Source: Collection,
     SourceBase.Item == SourceBase.Source.Element
 {
-    var items = [(value: Item, related: ItemRelatedCache)]()
+    var items = [Diffable<Item, ItemRelatedCache>]()
     
     override var multiType: SourceMultipleType {
         sourceType == .section ? .single : .multiple
@@ -23,7 +23,7 @@ where
     
     func difference(
         to isTo: Bool,
-        items: [(value: Item, related: ItemRelatedCache)],
+        items: [Diffable<Item, ItemRelatedCache>],
         source: SourceBase.Source,
         differ: Differ<Item>
     ) -> ItemsCoordinatorDifference<Item> {
@@ -87,7 +87,7 @@ where
 {
     override func difference(
         to isTo: Bool,
-        items: [(value: Item, related: ItemRelatedCache)],
+        items: [Diffable<Item, ItemRelatedCache>],
         source: SourceBase.Source,
         differ: Differ<Item>
     ) -> ItemsCoordinatorDifference<Item> {

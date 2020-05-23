@@ -34,7 +34,7 @@ class CoordinatorDifference {
         var state = ChangeState.none
         var sectionOffset = 0
         var itemOffset = 0
-        var associated: Element<Value, Related>? {
+        weak var associated: Element<Value, Related>? {
             didSet {
                 if associated?.associated === self { return }
                 associated?.associated = self
@@ -121,8 +121,8 @@ extension CoordinatorDifference {
     func applying<Change, Value, Related, Element: CoordinatorDifference.Element<Value, Related>>(
         to uniqueChanges: inout UniqueChange<Change>,
         with elements: inout Mapping<[Element]>,
-        id: ((value: Value, related: Related)) -> AnyHashable,
-        differ: Differ<(value: Value, related: Related)>,
+        id: (Diffable<Value, Related>) -> AnyHashable,
+        differ: Differ<Diffable<Value, Related>>,
         isAllCurrent: Bool = false,
         associating: ((Mapping<Element>) -> Void)? = nil,
         toChange: (Change) -> Element? = { $0 as? Element }
@@ -171,8 +171,8 @@ extension CoordinatorDifference {
     }
     
     func toChanges<Value, Related, Element: CoordinatorDifference.Element<Value, Related>>(
-        mapping: Mapping<[(value: Value, related: Related)]>,
-        differ: Differ<(value: Value, related: Related)>,
+        mapping: Mapping<[Diffable<Value, Related>]>,
+        differ: Differ<Diffable<Value, Related>>,
         moveAndRelod: Bool? = nil,
         associating: ((Mapping<Element>) -> Void)? = nil
     ) -> (Mapping<[Element]>, Mapping<[Element]>) {
@@ -183,7 +183,7 @@ extension CoordinatorDifference {
         
         let diffs = mapping.target.diff(from: mapping.source, by: differ.diffEqual)
         
-        func toValue(_ arg: (Int, (value: Value, related: Related)), isSource: Bool) -> Element? {
+        func toValue(_ arg: (Int, Diffable<Value, Related>), isSource: Bool) -> Element? {
             let (offset, element) = arg
             let value = Element(value: element.value, related: element.related, index: offset)
             isSource ? result.source.append(value) : result.target.append(value)
@@ -225,8 +225,8 @@ extension CoordinatorDifference {
     }
     
     func toChanges<Value, Related, Element: CoordinatorDifference.Element<Value, Related>>(
-        values: [(value: Value, related: Related)],
-        differ: Differ<(value: Value, related: Related)>,
+        values: [Diffable<Value, Related>],
+        differ: Differ<Diffable<Value, Related>>,
         isSource: Bool,
         moveAndRelod: Bool? = nil
     ) -> ([Element], [Element]) {

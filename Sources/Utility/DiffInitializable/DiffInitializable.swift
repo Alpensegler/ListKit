@@ -30,20 +30,20 @@ public extension DiffInitializable where Value: Hashable {
 //Value Identifiable
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public extension DiffInitializable where Value: Identifiable {
-    static var diff: Self { diff(id: { $0.id }) }
+    static var diff: Self { diff(id: \.id) }
     static func diff(by areEquivalent: @escaping (Value, Value) -> Bool) -> Self {
-        diff(id: { $0.id }, by: areEquivalent)
+        diff(id: \.id, by: areEquivalent)
     }
 }
 
 //Value Identifiable + Equatable
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public extension DiffInitializable where Value: Identifiable, Value: Equatable {
-    static var diff: Self { diff(id: { $0.id }, by: ==) }
+    static var diff: Self { diff(id: \.id, by: ==) }
 }
 
 //Value Identifiable + Hashable
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public extension DiffInitializable where Value: Identifiable, Value: Hashable {
-    static var diff: Self { diff(id: { $0.id }, by: ==) }
+    static var diff: Self { diff(id: \.id, by: ==) }
 }

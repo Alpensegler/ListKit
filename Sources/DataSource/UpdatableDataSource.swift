@@ -10,7 +10,7 @@ public protocol UpdatableDataSource: DataSource {
 }
 
 public final class CoordinatorStorage<SourceBase: DataSource> where SourceBase.SourceBase == SourceBase {
-    var coordinators = [ListCoordinator<SourceBase>]()
+    var coordinators = [ObjectIdentifier: ListCoordinator<SourceBase>]()
     var source: SourceBase.Source!
     var stagingUpdate: [(ListCoordinator<SourceBase>) -> Void]?
     
@@ -34,7 +34,7 @@ public extension UpdatableDataSource {
     ) {
         let source = sourceBase.source
         coordinatorStorage.source = nil
-        coordinatorStorage.coordinators.forEach {
+        coordinatorStorage.coordinators.values.forEach {
             $0.perform(update, to: source, animated, completion, updateData)
         }
     }
@@ -49,7 +49,7 @@ public extension UpdatableDataSource {
     
     func removeCurrent(animated: Bool = true, completion: ((ListView, Bool) -> Void)? = nil) {
         cancelUpdate()
-        coordinatorStorage.coordinators.forEach {
+        coordinatorStorage.coordinators.values.forEach {
             $0.removeCurrent(animated: animated, completion: completion)
         }
     }

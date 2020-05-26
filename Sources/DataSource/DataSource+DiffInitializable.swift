@@ -60,3 +60,18 @@ public extension DataSource where SourceBase: Identifiable, SourceBase: Hashable
 public extension DataSource where SourceBase.Item: Identifiable, SourceBase.Item: Hashable {
     var listUpdate: ListUpdate<Item> { .diff }
 }
+
+//Object
+public extension DataSource where SourceBase: AnyObject {
+    var differ: Differ<SourceBase> { .diff(id: { ObjectIdentifier($0) }) }
+}
+
+//Object + Equatable
+public extension DataSource where SourceBase: AnyObject, SourceBase: Equatable {
+    var differ: Differ<SourceBase> { .diff }
+}
+
+//Object + Hashable
+public extension DataSource where SourceBase: AnyObject, SourceBase: Hashable {
+    var differ: Differ<SourceBase> { .diff }
+}

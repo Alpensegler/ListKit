@@ -50,13 +50,14 @@ public extension CollectionListAdapter {
     @discardableResult
     func apply(
         by collectionView: CollectionView,
-        update: ListUpdate<Item>,
+        update: ListUpdate<Item>?,
         animated: Bool = true,
         completion: ((Bool) -> Void)? = nil
     ) -> CollectionList<SourceBase> {
         let collectionList = self.collectionList
         collectionView.listDelegate.setCoordinator(
             coordinator: collectionList.storage.listCoordinator,
+            update: update,
             animated: animated,
             completion: completion
         )
@@ -98,10 +99,11 @@ extension CollectionList {
     static func toSectionContext(
         _ view: CollectionView,
         _ coordinator: ListCoordinator<Source>,
-        section: Int
+        _ section: Int,
+        _ sectionOffset: Int,
+        _ itemOffset: Int
     ) -> CollectionSectionContext<Source> {
-        let (sectionOffset, _) = coordinator.offset(for: view)
-        return .init(
+        .init(
             listView: view,
             coordinator: coordinator,
             section: section - sectionOffset,
@@ -112,10 +114,11 @@ extension CollectionList {
     static func toItemContext(
         _ view: CollectionView,
         _ coordinator: ListCoordinator<Source>,
-        path: IndexPath
+        _ path: IndexPath,
+        _ sectionOffset: Int,
+        _ itemOffset: Int
     ) -> CollectionItemContext<Source> {
-        let (sectionOffset, itemOffset) = coordinator.offset(for: view)
-        return .init(
+        .init(
             listView: view,
             coordinator: coordinator,
             section: path.section - sectionOffset,

@@ -27,18 +27,23 @@ protocol SetuptableListView: ListView {
 }
 
 extension ListView {
-    func perform(updates: ListUpdates, animated: Bool, completion: ((ListView, Bool) -> Void)?) {
+    func perform(
+        updates: ListBatchUpdates,
+        sectionOffset: Int,
+        itemOffset: Int,
+        animated: Bool,
+        completion: ((ListView, Bool) -> Void)?
+    ) {
         for (offset, batchUpdate) in updates.enumerated() {
             Log.log("------------------------------")
             Log.log(batchUpdate.update.debugDescription)
             let isLast = offset == updates.count - 1
             let completion: ((Bool) -> Void)? = isLast ? { [weak self] finish in
                 self.map { completion?($0, finish) }
-//                update.complete?()
             } : nil
             perform(update: {
                 batchUpdate.change?()
-                batchUpdate.update.apply(by: self)
+                batchUpdate.update.offseted(by: sectionOffset, itemOffset).apply(by: self)
             }, animated: animated, completion: completion)
         }
     }

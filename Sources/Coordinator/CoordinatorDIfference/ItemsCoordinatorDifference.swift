@@ -15,18 +15,22 @@ final class ItemsCoordinatorDifference<Item>: CoordinatorDifference {
     let differ: Differ<Diffable>
     
     var rangeRelplacable = false
-    var internalCoordinatorChange: (([Diffable]) -> Void)?
+    var keepSectionIfEmpty: Mapping<Bool> = (false, false)
+    var extraCoordinatorChange: (([Diffable]) -> Void)?
     var coordinatorChange: (() -> Void)?
     
     var changes: Mapping<[ValueElement]> = ([], [])
-    var uniqueChange: Mapping<[ValueElement]> = ([], [])
+    var uniques: Mapping<[ValueElement]> = ([], [])
     
     var sourceSection = 0
-    var targetSection = 0
+    var needThirdUpdate = false
+    
+    var sourceIsEmpty: Bool { mapping.source.isEmpty && !keepSectionIfEmpty.source }
+    var targetIsEmpty: Bool { mapping.target.isEmpty && !keepSectionIfEmpty.target }
     
     lazy var itemsCount = mapping.source.count
+    lazy var sectionCount = sourceIsEmpty ? 0 : 1
     
-    lazy var needThirdUpdate = false
     lazy var thirdItems = [Diffable]()
     lazy var thirdUpdates = [IndexPath]()
     
@@ -37,56 +41,42 @@ final class ItemsCoordinatorDifference<Item>: CoordinatorDifference {
     }
     
     override func prepareForGenerate() {
-        let moveAndRelod = rangeRelplacable ? nil : false
-        
-        switch (mapping.source.isEmpty, mapping.target.isEmpty) {
-        case (false, true):
-            (changes.source, uniqueChange.source) = toChanges(
-                values: mapping.source,
-                differ: differ,
-                isSource: true,
-                moveAndRelod: moveAndRelod
-            )
-        case (true, false):
-            (changes.target, uniqueChange.target) = toChanges(
-                values: mapping.target,
-                differ: differ,
-                isSource: false,
-                moveAndRelod: moveAndRelod
-            )
-        case (false, false):
-            (changes, uniqueChange) = toChanges(
-                mapping: mapping,
-                differ: differ,
-                moveAndRelod: moveAndRelod
-            )
-        case (true, true):
-            return
-        }
+        let reloadable = rangeRelplacable ? nil : false
+        (changes, uniques) = toChanges(mapping: mapping, differ: differ, moveAndRelod: reloadable)
     }
     
     override func inferringMoves(context: Context) {
         guard let id = differ.identifier else { return }
-        uniqueChange.source.forEach {
+        uniques.source.forEach {
             add(to: &context.uniqueChange, key: id($0.asTuple), change: $0, isSource: true)
         }
-        uniqueChange.target.forEach {
+        uniques.target.forEach {
             add(to: &context.uniqueChange, key: id($0.asTuple), change: $0, isSource: false)
         }
         
-        applying(to: &context.uniqueChange, with: &uniqueChange, id: id, differ: differ)
+        applying(to: &context.uniqueChange, with: &uniques, id: id, equal: differ.areEquivalent)
     }
     
-    override func generateUpdates() -> ListUpdates {
-        prepareForGenerate()
-        return [Order.second, Order.third].compactMap { order in
-            let source = generateSourceItemUpdate(order: order)
-            let target = generateTargetItemUpdate(order: order)
-            guard source.update != nil || target.update != nil else { return nil }
-            var itemUpdate = ItemUpdate()
-            source.update.map { itemUpdate.source = $0 }
-            target.update.map { itemUpdate.target = $0 }
-            return (itemUpdate, target.change)
+    override func generateUpdates(_ change: (() -> Void)?) -> ListUpdates? {
+        switch (sourceIsEmpty, targetIsEmpty) {
+        case (false, false):
+            prepareForGenerate()
+            let batchUpdates: ListBatchUpdates = [Order.second, Order.third].compactMap { order in
+                let source = generateSourceItemUpdate(order: order)
+                let target = generateTargetItemUpdate(order: order)
+                guard source.update != nil || target.update != nil else { return nil }
+                var itemUpdate = ItemUpdate()
+                source.update.map { itemUpdate.source = $0 }
+                target.update.map { itemUpdate.target = $0 }
+                return (itemUpdate, target.change + change)
+            }
+            return batchUpdates.isEmpty ? nil : .batchUpdates(batchUpdates)
+        case (true, false):
+            return .changeAll(.insert, coordinatorChange + change)
+        case (false, true):
+            return .changeAll(.remove, coordinatorChange + change)
+        case (true, true):
+            return nil
         }
     }
     
@@ -96,13 +86,20 @@ final class ItemsCoordinatorDifference<Item>: CoordinatorDifference {
         isMoved: Bool = false
     ) -> (count: Int, update: SourceBatchUpdates?) {
         sourceSection = sectionOffset
-        guard order == .second, case let (_, itemUpdate?) = generateSourceItemUpdate(
-            order: .second,
-            sectionOffset: sectionOffset,
-            itemOffset: 0,
-            isMoved: false
-        ) else { return (1, nil) }
-        return (1, .init(item: itemUpdate))
+        switch order {
+        case .second:
+            guard case let (_, itemUpdate?) = generateSourceItemUpdate(
+                order: .second,
+                sectionOffset: sectionOffset,
+                itemOffset: 0,
+                isMoved: false
+            ) else { return (sectionCount, nil) }
+            return (sectionCount, .init(item: itemUpdate))
+        case .third where targetIsEmpty:
+            return (0, .init(section: .init(deletions: .init(integer: sectionOffset))))
+        default:
+            return (sectionCount, nil)
+        }
     }
     
     override func generateTargetSectionUpdate(
@@ -110,20 +107,27 @@ final class ItemsCoordinatorDifference<Item>: CoordinatorDifference {
         sectionOffset: Int = 0,
         isMoved: Bool = false
     ) -> (count: Int, update: TargetBatchUpdates?, change: (() -> Void)?) {
-        targetSection = sectionOffset
         switch order {
-        case .first where isMoved:
-            return (1, .init(section: .init(moves: [(sourceSection, targetSection)])), nil)
-        case .second, .third:
+        case .first where !sourceIsEmpty && targetIsEmpty:
+            sectionCount = 1
+            let section = SectionTargetUpdate(insertions: .init(integer: sectionOffset))
+            return (sectionCount, .init(section: section), nil)
+        case .first where isMoved && !sourceIsEmpty:
+            return (1, .init(section: .init(moves: [(sourceSection, sectionOffset)])), nil)
+        case .third where !sourceIsEmpty && targetIsEmpty:
+            sectionCount = 0
+            return (0, nil, nil)
+        case .second,
+             .third where needThirdUpdate:
             guard case let (_, itemUpdate?, change) = generateTargetItemUpdate(
                 order: order,
                 sectionOffset: sectionOffset,
                 itemOffset: 0,
                 isMoved: false
-            ) else { fallthrough }
-            return (1, .init(item: itemUpdate), change)
+            ) else { return (sectionCount, nil, nil) }
+            return (sectionCount, .init(item: itemUpdate), change)
         default:
-            return (1, nil, nil)
+            return (sectionCount, nil, nil)
         }
     }
     
@@ -139,14 +143,14 @@ final class ItemsCoordinatorDifference<Item>: CoordinatorDifference {
             element.sectionOffset = sectionOffset
             element.itemOffset = itemOffset
             switch (element.state, element.associated) {
-            case (.reload, .some):
-                if isMoved && !rangeRelplacable {
-                    update.deletions.append(element.indexPath)
-                } else {
+            case (.reload, .some) where isMoved:
+                if rangeRelplacable {
                     needThirdUpdate = true
+                } else {
+                    update.deletions.append(element.indexPath)
                 }
-            case let (.change, associaed?):
-                if associaed.state == .change(moveAndRelod: true) { needThirdUpdate = true }
+            case let (.change(moveAndRelod), .some) where moveAndRelod == true:
+                needThirdUpdate = true
             case (.change, .none):
                 update.deletions.append(element.indexPath)
             default:
@@ -164,6 +168,7 @@ final class ItemsCoordinatorDifference<Item>: CoordinatorDifference {
     ) -> (count: Int, update: ItemTargetUpdate?, change: (() -> Void)?) {
         switch order {
         case .second:
+            var change: (() -> Void)?
             itemsCount = mapping.target.count
             var update = ItemTargetUpdate()
             for element in changes.target {
@@ -171,13 +176,13 @@ final class ItemsCoordinatorDifference<Item>: CoordinatorDifference {
                 element.itemOffset = itemOffset
                 switch (element.state, element.associated) {
                 case let (.change(moveAndRelod), associaed?):
+                    update.moves.append((associaed.indexPath, element.indexPath))
                     if moveAndRelod == true {
-                        update.moves.append((associaed.indexPath, element.indexPath))
                         thirdUpdates.append(element.indexPath)
                         if needThirdUpdate { thirdItems.append(associaed.asTuple) }
                     } else {
-                        update.moves.append((associaed.indexPath, element.indexPath))
                         if needThirdUpdate { thirdItems.append(element.asTuple) }
+                        change = change + { element.related.updateFrom(associaed.related) }
                     }
                 case let (.reload, associaed?):
                     switch (isMoved, rangeRelplacable) {
@@ -187,13 +192,14 @@ final class ItemsCoordinatorDifference<Item>: CoordinatorDifference {
                         update.moves.append((associaed.indexPath, element.indexPath))
                         thirdUpdates.append(element.indexPath)
                         if needThirdUpdate { thirdItems.append(associaed.asTuple) }
-                    case (_, _):
+                    default:
                         update.updates.append(element.indexPath)
                         if needThirdUpdate { thirdItems.append(element.asTuple) }
                     }
                 case let (_, associaed?):
                     if isMoved { update.moves.append((associaed.indexPath, element.indexPath)) }
                     if needThirdUpdate { thirdItems.append(element.asTuple) }
+                    change = change + { element.related.updateFrom(associaed.related) }
                 default:
                     update.insertions.append(element.indexPath)
                     if needThirdUpdate { thirdItems.append(element.asTuple) }
@@ -201,11 +207,11 @@ final class ItemsCoordinatorDifference<Item>: CoordinatorDifference {
             }
             
             if needThirdUpdate {
-                let change = internalCoordinatorChange
+                let extraChange = extraCoordinatorChange
                 let items = thirdItems
-                return (itemsCount, update, { change?(items) })
+                return (itemsCount, update, change + { extraChange?(items) })
             } else {
-                return (itemsCount, update, coordinatorChange)
+                return (itemsCount, update, change + coordinatorChange)
             }
         case .third where needThirdUpdate:
             var update = ItemTargetUpdate()

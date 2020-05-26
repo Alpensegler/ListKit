@@ -19,7 +19,8 @@ final class SectionsCoordinatorDifference<Item>: CoordinatorDifference {
             values = mapping.source
             difference = .init(mapping: mapping, differ: differ)
             difference.coordinatorChange = { [unowned self] in self.values = mapping.target }
-            difference.internalCoordinatorChange = { [unowned self] in self.values = $0 }
+            difference.extraCoordinatorChange = { [unowned self] in self.values = $0 }
+            difference.keepSectionIfEmpty = (true, true)
             difference.rangeRelplacable = rangeRelplacable
             difference.prepareForGenerate()
         }
@@ -40,8 +41,7 @@ final class SectionsCoordinatorDifference<Item>: CoordinatorDifference {
     let differ: Differ<Item>
     
     var rangeRelplacable = false
-    var internalCoordinatorChange: (([[Diffable]]) -> Void)?
-    var coordinatorBatchChange: ((Int, Bool) -> Void)?
+    var extraCoordinatorChange: (([[Diffable]]) -> Void)?
     var coordinatorChange: (() -> Void)?
     
     var differenceMapping = [DifferenceMapping]()
@@ -56,7 +56,7 @@ final class SectionsCoordinatorDifference<Item>: CoordinatorDifference {
     
     lazy var sectionCount = mapping.source.count
     
-    var valuesFromDifferenceMapping: [[Diffable]] {
+    var extraValues: [[Diffable]] {
         var values = differenceMapping.map { $0.values }
         if case let .differences(rests, _) = rests {
             values += rests.indices.map { _ in [] }
@@ -85,6 +85,7 @@ final class SectionsCoordinatorDifference<Item>: CoordinatorDifference {
                 let difference = ItemsCoordinatorDifference(mapping: mapping, differ: differ)
                 difference.rangeRelplacable = true
                 difference.prepareForGenerate()
+                difference.keepSectionIfEmpty = (true, true)
                 return difference
             }
             rests = .differences(differences, isSource: isSource)
@@ -100,23 +101,33 @@ final class SectionsCoordinatorDifference<Item>: CoordinatorDifference {
         differences.forEach { $0.inferringMoves(context: context) }
     }
     
-    override func generateUpdates() -> ListUpdates {
-        prepareForGenerate()
-        inferringMoves(context: .init())
-        return Order.allCases.compactMap { order in
-            let source = generateSourceSectionUpdate(order: order)
-            let target = generateTargetSectionUpdate(order: order)
-            guard source.update != nil || target.update != nil else { return nil }
-            var batchUpdate = ListBatchUpdates()
-            source.update.map {
-                batchUpdate.section.source = $0.section
-                batchUpdate.item.source = $0.item
+    override func generateUpdates(_ change: (() -> Void)?) -> ListUpdates? {
+        switch (mapping.source.isEmpty, mapping.target.isEmpty) {
+        case (false, false):
+            prepareForGenerate()
+            inferringMoves(context: .init())
+            let batchUpdates: ListBatchUpdates = Order.allCases.compactMap { order in
+                let source = generateSourceSectionUpdate(order: order)
+                let target = generateTargetSectionUpdate(order: order)
+                guard source.update != nil || target.update != nil else { return nil }
+                var batchUpdate = BatchUpdates<SectionUpdate, ItemUpdate>()
+                source.update.map {
+                    batchUpdate.section.source = $0.section
+                    batchUpdate.item.source = $0.item
+                }
+                target.update.map {
+                    batchUpdate.section.target = $0.section
+                    batchUpdate.item.target = $0.item
+                }
+                return (batchUpdate, target.change + change)
             }
-            target.update.map {
-                batchUpdate.section.target = $0.section
-                batchUpdate.item.target = $0.item
-            }
-            return (batchUpdate, target.change)
+            return batchUpdates.isEmpty ? nil : .batchUpdates(batchUpdates)
+        case (true, false):
+            return .changeAll(.insert, coordinatorChange + change)
+        case (false, true):
+            return .changeAll(.remove, coordinatorChange + change)
+        case (true, true):
+            return nil
         }
     }
     
@@ -184,8 +195,7 @@ final class SectionsCoordinatorDifference<Item>: CoordinatorDifference {
                 update.insertions = .init(integersIn: start..<end)
                 var source = mapping.source
                 source.append(contentsOf: (start..<end).map { _ in [] })
-                let internalChange = internalCoordinatorChange
-                change = change + { internalChange?(source) }
+                change = change + extraCoordinatorChange.map { change in { change(source) } }
             }
             return (sectionOffset, .init(section: update), change)
         case .second:
@@ -217,12 +227,9 @@ final class SectionsCoordinatorDifference<Item>: CoordinatorDifference {
                 if needInternalUpdate { change = change + itemChange }
             }
             
-            if needInternalUpdate {
-                let internalChange = internalCoordinatorChange
-                change = change + { internalChange?(self.valuesFromDifferenceMapping) }
-            } else {
-                change = coordinatorChange
-            }
+            change = needInternalUpdate
+                ? change + extraCoordinatorChange.map { change in { change(self.extraValues) } }
+                : coordinatorChange
             
             return (sectionCount, updates, change)
         case .third:

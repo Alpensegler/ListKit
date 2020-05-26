@@ -50,13 +50,14 @@ public extension TableListAdapter {
     @discardableResult
     func apply(
         by tableView: TableView,
-        update: ListUpdate<Item>,
+        update: ListUpdate<Item>?,
         animated: Bool = true,
         completion: ((Bool) -> Void)? = nil
     ) -> TableList<SourceBase> {
         let tableList = self.tableList
         tableView.listDelegate.setCoordinator(
             coordinator: tableList.storage.listCoordinator,
+            update: update,
             animated: animated,
             completion: completion
         )
@@ -98,10 +99,11 @@ extension TableList {
     static func toSectionContext(
         _ view: TableView,
         _ coordinator: ListCoordinator<Source>,
-        section: Int
+        _ section: Int,
+        _ sectionOffset: Int,
+        _ itemOffset: Int
     ) -> TableSectionContext<Source> {
-        let (sectionOffset, _) = coordinator.offset(for: view)
-        return .init(
+        .init(
             listView: view,
             coordinator: coordinator,
             section: section - sectionOffset,
@@ -109,13 +111,15 @@ extension TableList {
         )
     }
     
+    
     static func toItemContext(
         _ view: TableView,
         _ coordinator: ListCoordinator<Source>,
-        path: IndexPath
+        _ path: IndexPath,
+        _ sectionOffset: Int,
+        _ itemOffset: Int
     ) -> TableItemContext<Source> {
-        let (sectionOffset, itemOffset) = coordinator.offset(for: view)
-        return .init(
+        .init(
             listView: view,
             coordinator: coordinator,
             section: path.section - sectionOffset,

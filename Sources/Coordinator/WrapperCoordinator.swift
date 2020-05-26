@@ -80,23 +80,27 @@ where SourceBase.SourceBase == SourceBase, OtherSourceBase: DataSource {
     override func apply<Object: AnyObject, Input, Output>(
         _ keyPath: KeyPath<Coordinator, Delegate<Object, Input, Output>>,
         object: Object,
-        with input: Input
+        with input: Input,
+        _ sectionOffset: Int,
+        _ itemOffset: Int
     ) -> Output {
         let closure = self[keyPath: keyPath]
         let coordinator = subcoordinator(for: closure, object: object, with: input)
-        return coordinator?.apply(keyPath, object: object, with: input)
-            ?? super.apply(keyPath, object: object, with: input)
+        return coordinator?.apply(keyPath, object: object, with: input, sectionOffset, itemOffset)
+            ?? super.apply(keyPath, object: object, with: input, sectionOffset, itemOffset)
     }
     
     override func apply<Object: AnyObject, Input>(
         _ keyPath: KeyPath<Coordinator, Delegate<Object, Input, Void>>,
         object: Object,
-        with input: Input
+        with input: Input,
+        _     sectionOffset: Int,
+        _     itemOffset: Int
     ) {
         let closure = self[keyPath: keyPath]
         let coordinator = subcoordinator(for: closure, object: object, with: input)
-        coordinator?.apply(keyPath, object: object, with: input)
-        super.apply(keyPath, object: object, with: input)
+        coordinator?.apply(keyPath, object: object, with: input, sectionOffset, itemOffset)
+        super.apply(keyPath, object: object, with: input, sectionOffset, itemOffset)
     }
     
     override func selectorSets(applying: (inout SelectorSets) -> Void) {
@@ -112,28 +116,14 @@ where SourceBase.SourceBase == SourceBase, OtherSourceBase: DataSource {
             : wrappedCoodinator.sourceType
     }
     
-    override func setupContext(
-        listView: ListView,
-        key: ObjectIdentifier,
-        sectionOffset: Int = 0,
-        itemOffset: Int = 0,
-        supercoordinator: Coordinator? = nil
-    ) {
-        wrappedCoodinator.setupContext(
-            listView: listView,
-            key: key,
-            sectionOffset: sectionOffset,
-            itemOffset: itemOffset,
-            supercoordinator: supercoordinator
-        )
-        
-        super.setupContext(
-            listView: listView,
-            key: key,
-            sectionOffset: sectionOffset,
-            itemOffset: itemOffset,
-            supercoordinator: supercoordinator
-        )
+    override func setupContext(listContext: ListContext) {
+        wrappedCoodinator.setupContext(listContext: listContext)
+        super.setupContext(listContext: listContext)
+    }
+    
+    override func removeContext(listContext: ListContext) {
+        wrappedCoodinator.removeContext(listContext: listContext)
+        super.removeContext(listContext: listContext)
     }
 }
 

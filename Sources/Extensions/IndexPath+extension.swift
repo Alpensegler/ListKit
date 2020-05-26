@@ -23,6 +23,10 @@ extension IndexPath {
         get { nonNilLast }
         set { nonNilLast = newValue }
     }
+    
+    func offseted(_ sectionOffset: Int, _ itemOffset: Int) -> IndexPath {
+        IndexPath(section: sectionOffset + section, item: itemOffset + itemOffset)
+    }
 }
 
 extension RandomAccessCollection where Element: RandomAccessCollection {

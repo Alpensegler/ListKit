@@ -15,7 +15,7 @@ struct Delegate<Object: AnyObject, Input, Output> {
     
     let selector: Selector
     let index: Index?
-    var closure: ((Object, Input) -> Output)?
+    var closure: ((Object, Input, Int, Int) -> Output)?
     
     init(index: Index? = nil, _ selector: Selector) {
         self.index = index

@@ -25,13 +25,17 @@ protocol ListAdapter: UpdatableDataSource where Source == SourceBase {
     static func toSectionContext(
         _ view: View,
         _ coordinator: ListCoordinator<Source>,
-        section: Int
+        _ section: Int,
+        _ sectionOffset: Int,
+        _ itemOffset: Int
     ) -> SectionContext
     
     static func toItemContext(
         _ view: View,
         _ coordinator: ListCoordinator<Source>,
-        path: IndexPath
+        _ path: IndexPath,
+        _ sectionOffset: Int,
+        _ itemOffset: Int
     ) -> ItemContext
     
     init(
@@ -47,7 +51,7 @@ final class ListAdapterStorage<Source: DataSource> where Source.SourceBase == So
     lazy var listCoordinator = makeListCoordinator()
     lazy var coordinatorStorage = listCoordinator.storage ?? {
         let storage = CoordinatorStorage<Source>()
-        storage.coordinators.append(listCoordinator)
+        listCoordinator.storage = storage
         return storage
     }()
 }
@@ -97,7 +101,9 @@ extension ListAdapter {
         var setups = coordinatorSetups
         setups.append {
             let keyPath = Self.rootKeyPath.appending(path: keyPath)
-            $0.set(keyPath) { closure((Self.toContext($1, $0), $2)) }
+            $0.set(keyPath) { (coordinator, object, input, sectionOffset, itemOffset) in
+                closure((Self.toContext(object, coordinator), input))
+            }
         }
         return .init(coordinatorSetups: setups, source: source, erasedGetter: erasedGetter)
     }
@@ -109,7 +115,9 @@ extension ListAdapter {
         var setups = coordinatorSetups
         setups.append {
             let keyPath = Self.rootKeyPath.appending(path: keyPath)
-            $0.set(keyPath) { closure((Self.toContext($1, $0), $2)) }
+            $0.set(keyPath) { (coordinator, object, input, sectionOffset, itemOffset) in
+                closure((Self.toContext(object, coordinator), input))
+            }
         }
         return .init(coordinatorSetups: setups, source: source, erasedGetter: erasedGetter)
     }
@@ -123,7 +131,7 @@ extension ListAdapter {
             let keyPath = Self.rootKeyPath.appending(path: keyPath)
             guard case let .index(path) = $0[keyPath: keyPath].index else { fatalError() }
             $0.set(keyPath) {
-                closure((Self.toSectionContext($1, $0, section: $2[keyPath: path]), $2))
+                closure((Self.toSectionContext($1, $0, $2[keyPath: path], $3, $4), $2))
             }
         }
         return .init(coordinatorSetups: setups, source: source, erasedGetter: erasedGetter)
@@ -138,7 +146,7 @@ extension ListAdapter {
             let keyPath = Self.rootKeyPath.appending(path: keyPath)
             guard case let .index(path) = $0[keyPath: keyPath].index else { fatalError() }
             $0.set(keyPath) {
-                closure((Self.toSectionContext($1, $0, section: $2[keyPath: path]), $2))
+                closure((Self.toSectionContext($1, $0, $2[keyPath: path], $3, $4), $2))
             }
         }
         return .init(coordinatorSetups: setups, source: source, erasedGetter: erasedGetter)
@@ -152,7 +160,7 @@ extension ListAdapter {
         setups.append {
             let keyPath = Self.rootKeyPath.appending(path: keyPath)
             guard case let .indexPath(path) = $0[keyPath: keyPath].index else { fatalError() }
-            $0.set(keyPath) { closure((Self.toItemContext($1, $0, path: $2[keyPath: path]), $2)) }
+            $0.set(keyPath) { closure((Self.toItemContext($1, $0, $2[keyPath: path], $3, $4), $2)) }
         }
         return .init(coordinatorSetups: setups, source: source, erasedGetter: erasedGetter)
     }
@@ -165,7 +173,7 @@ extension ListAdapter {
         setups.append {
             let keyPath = Self.rootKeyPath.appending(path: keyPath)
             guard case let .indexPath(path) = $0[keyPath: keyPath].index else { fatalError() }
-            $0.set(keyPath) { closure((Self.toItemContext($1, $0, path: $2[keyPath: path]), $2)) }
+            $0.set(keyPath) { closure((Self.toItemContext($1, $0, $2[keyPath: path], $3, $4), $2)) }
         }
         return .init(coordinatorSetups: setups, source: source, erasedGetter: erasedGetter)
     }

@@ -7,20 +7,6 @@
 
 import Foundation
 
-final class ListContext {
-    weak var listView: ListView?
-    weak var supercoordinator: Coordinator?
-    var sectionOffset: Int
-    var itemOffset: Int
-    
-    init(listView: ListView?, sectionOffset: Int, itemOffset: Int, supercoordinator: Coordinator?) {
-        self.listView = listView
-        self.sectionOffset = sectionOffset
-        self.itemOffset = itemOffset
-        self.supercoordinator = supercoordinator
-    }
-}
-
 final class ItemRelatedCache {
     var nestedAdapterItemUpdateDidConfig = false
     var cacheForItemDidConfig = false
@@ -35,7 +21,7 @@ final class ItemRelatedCache {
         return .init()
     }()
     
-    func from(cache: ItemRelatedCache) {
+    func updateFrom(_ cache: ItemRelatedCache) {
         if cache.nestedAdapterItemUpdateDidConfig {
             nestedAdapterItemUpdate = cache.nestedAdapterItemUpdate
             nestedAdapterItemUpdateDidConfig = true
@@ -52,6 +38,23 @@ where SourceBase.SourceBase == SourceBase {
     typealias Item = SourceBase.Item
     
     weak var storage: CoordinatorStorage<SourceBase>?
+    var listContexts = [ObjectIdentifier: ListContext]() {
+        didSet {
+            switch (oldValue.isEmpty, listContexts.isEmpty) {
+            case (true, false): storage?.coordinators[ObjectIdentifier(self)] = self
+            case (false, true): storage?.coordinators[ObjectIdentifier(self)] = nil
+            default: break
+            }
+        }
+    }
+    
+    var nonNilContexts: [(listView: ListView, context: ListContext)] {
+        listContexts.values.compactMap {
+            guard let listView = $0.listView() else { return nil }
+            return (listView, $0)
+        }
+    }
+    
     lazy var selectorSets = initialSelectorSets()
     
     #if os(iOS) || os(tvOS)
@@ -71,11 +74,11 @@ where SourceBase.SourceBase == SourceBase {
     var isEmpty: Bool { false }
     
     var cacheFromItem: ((Item) -> Any)?
-    var listContexts = [ObjectIdentifier: ListContext]()
     var didSetup = false
     
     var defaultUpdate = ListUpdate<Item>()
     var differ = Differ<SourceBase>()
+    var options = DataSourceOptions()
     
     var source: SourceBase.Source!
     
@@ -83,6 +86,7 @@ where SourceBase.SourceBase == SourceBase {
         id: AnyHashable = ObjectIdentifier(SourceBase.self),
         defaultUpdate: ListUpdate<Item> = .init(),
         differ: Differ<SourceBase> = .init(),
+        options: DataSourceOptions = .init(),
         source: SourceBase.Source!,
         storage: CoordinatorStorage<SourceBase>?
     ) {
@@ -91,7 +95,7 @@ where SourceBase.SourceBase == SourceBase {
         self.defaultUpdate = defaultUpdate
         self.differ = differ
         self.source = source
-        storage?.coordinators.append(self)
+        self.options = options
     }
     
     init(_ sourceBase: SourceBase, storage: CoordinatorStorage<SourceBase>? = nil) {
@@ -100,7 +104,7 @@ where SourceBase.SourceBase == SourceBase {
         self.defaultUpdate = sourceBase.listUpdate
         self.differ = sourceBase.differ
         self.source = sourceBase.source(storage: storage)
-        storage?.coordinators.append(self)
+        self.options = sourceBase.dataSourceOptions
     }
     
     func numbersOfSections() -> Int { fatalError() }
@@ -110,6 +114,15 @@ where SourceBase.SourceBase == SourceBase {
     func itemRelatedCache(at path: IndexPath) -> ItemRelatedCache { fatalError() }
     
     //Diffs:
+    func identifier(for sourceBase: SourceBase) -> AnyHashable {
+        guard let identifier = differ.identifier else { return id }
+        return identifier(sourceBase)
+    }
+    
+    func equal(lhs: SourceBase, rhs: SourceBase) -> Bool {
+        differ.areEquivalent?(lhs, rhs) ?? true
+    }
+    
     func difference<Value>(from: Coordinator, differ: Differ<Value>?) -> CoordinatorDifference? {
         fatalError("should be implemented by subclass")
     }
@@ -126,17 +139,21 @@ where SourceBase.SourceBase == SourceBase {
     func apply<Object: AnyObject, Input, Output>(
         _ keyPath: KeyPath<Coordinator, Delegate<Object, Input, Output>>,
         object: Object,
-        with input: Input
+        with input: Input,
+        _ sectionOffset: Int,
+        _ itemOffset: Int
     ) -> Output {
-        self[keyPath: keyPath].closure!(object, input)
+        self[keyPath: keyPath].closure!(object, input, sectionOffset, itemOffset)
     }
     
     func apply<Object: AnyObject, Input>(
         _ keyPath: KeyPath<Coordinator, Delegate<Object, Input, Void>>,
         object: Object,
-        with input: Input
+        with input: Input,
+        _ sectionOffset: Int,
+        _ itemOffset: Int
     ) {
-        self[keyPath: keyPath].closure?(object, input)
+        self[keyPath: keyPath].closure?(object, input, sectionOffset, itemOffset)
     }
     
     func selectorSets(applying: (inout SelectorSets) -> Void) {
@@ -147,44 +164,27 @@ where SourceBase.SourceBase == SourceBase {
     
     func setup() { }
     
-    func setupContext(
-        listView: ListView,
-        key: ObjectIdentifier,
-        sectionOffset: Int = 0,
-        itemOffset: Int = 0,
-        supercoordinator: Coordinator? = nil
-    ) {
-        if let context = listContexts[key] {
-            context.sectionOffset = sectionOffset
-            context.itemOffset = itemOffset
-            return
-        }
-        
-        let context = ListContext(
-            listView: listView,
-            sectionOffset: sectionOffset,
-            itemOffset: itemOffset,
-            supercoordinator: supercoordinator
-        )
-        listContexts[key] = context
+    func setupContext(listContext: ListContext) {
+        listContexts[ObjectIdentifier(listContext)] = listContext
+    }
+    
+    func removeContext(listContext: ListContext) {
+        listContexts[ObjectIdentifier(listContext)] = nil
     }
 }
 
 extension ListCoordinator {
-    func offset(for object: AnyObject) -> (Int, Int) {
-        guard let context = listContexts[ObjectIdentifier(object)] else { return (0, 0) }
-        return (context.sectionOffset, context.itemOffset)
-    }
-    
     func set<Object: AnyObject, Input, Output>(
         _ keyPath: ReferenceWritableKeyPath<Coordinator, Delegate<Object, Input, Output>>,
-        _ closure: @escaping (ListCoordinator<SourceBase>, Object, Input) -> Output
+        _ closure: @escaping (ListCoordinator<SourceBase>, Object, Input, Int, Int) -> Output
     ) {
-        self[keyPath: keyPath].closure = { [unowned self] in closure(self, $0, $1) }
+        self[keyPath: keyPath].closure = { [unowned self] in closure(self, $0, $1, $2, $3) }
         let delegate = self[keyPath: keyPath]
         switch delegate.index {
-        case .none: selectorSets { $0.value.remove(delegate.selector) }
-        case .indexPath: selectorSets { $0.withIndexPath.remove(delegate.selector) }
+        case .none:
+            selectorSets { $0.value.remove(delegate.selector) }
+        case .indexPath:
+            selectorSets { $0.withIndexPath.remove(delegate.selector) }
         case .index:
             selectorSets {
                 $0.withIndex.remove(delegate.selector)
@@ -195,9 +195,9 @@ extension ListCoordinator {
 
     func set<Object: AnyObject, Input>(
         _ keyPath: ReferenceWritableKeyPath<Coordinator, Delegate<Object, Input, Void>>,
-        _ closure: @escaping (ListCoordinator<SourceBase>, Object, Input) -> Void
+        _ closure: @escaping (ListCoordinator<SourceBase>, Object, Input, Int, Int) -> Void
     ) {
-        self[keyPath: keyPath].closure = { [unowned self] in closure(self, $0, $1) }
+        self[keyPath: keyPath].closure = { [unowned self] in closure(self, $0, $1, $2, $3) }
         let delegate = self[keyPath: keyPath]
         selectorSets { $0.void.remove(delegate.selector) }
     }
@@ -213,12 +213,11 @@ extension ListCoordinator {
     ) {
         updateTo(sourceBase)
         updateData?(sourceBase)
-        for context in listContexts.values {
-            guard let listView = context.listView else { continue }
-            if let coordinator = context.supercoordinator {
+        for (listView, context) in nonNilContexts {
+            if let coordinator = context.parentCoordinator {
                 _ = coordinator
             } else {
-                context.listView?.reloadSynchronously(animated: animated)
+                listView.reloadSynchronously(animated: animated)
                 completion?(listView, true)
             }
         }
@@ -231,10 +230,25 @@ extension ListCoordinator {
         _ completion: ((ListView, Bool) -> Void)?,
         _ updateData: ((SourceBase.Source) -> Void)?
     ) {
-        let updates = difference(to: source, differ: differ).generateUpdates()
-        for context in listContexts.values {
-            guard let listView = context.listView else { continue }
-            listView.perform(updates: updates, animated: animated, completion: completion)
+        let change = updateData.map { update in { update(self.source) } }
+        let contexts = nonNilContexts
+        guard let updates = difference(to: source, differ: differ).generateUpdates(change) else {
+            contexts.forEach { completion?($0.listView, true) }
+            return
+        }
+        for (listView, context) in contexts {
+            switch updates {
+            case let .batchUpdates(updates):
+                listView.perform(
+                    updates: updates,
+                    sectionOffset: context.sectionOffset,
+                    itemOffset: context.itemOffset,
+                    animated: animated,
+                    completion: completion
+                )
+            case let .changeAll(changeType, change):
+                break
+            }
         }
     }
     
@@ -257,14 +271,6 @@ extension ListCoordinator {
     
     func removeCurrent(animated: Bool, completion: ((ListView, Bool) -> Void)?) {
         
-    }
-    
-    func update(
-        from coordinator: Coordinator,
-        animated: Bool,
-        completion: ((Bool) -> Void)?
-    ) -> Bool {
-        false
     }
     
 }

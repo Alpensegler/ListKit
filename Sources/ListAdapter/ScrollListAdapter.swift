@@ -72,7 +72,10 @@ extension ScrollList {
     
     static func toSectionContext(
         _ view: UIScrollView,
-        _ coordinator: ListCoordinator<Source>, section: Int
+        _ coordinator: ListCoordinator<Source>,
+        _ section: Int,
+        _ sectionOffset: Int,
+        _ itemOffset: Int
     ) -> Never {
         fatalError()
     }
@@ -80,7 +83,9 @@ extension ScrollList {
     static func toItemContext(
         _ view: UIScrollView,
         _ coordinator: ListCoordinator<Source>,
-        path: IndexPath
+        _ path: IndexPath,
+        _ sectionOffset: Int,
+        _ itemOffset: Int
     ) -> Never {
         fatalError()
     }

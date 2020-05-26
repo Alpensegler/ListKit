@@ -16,16 +16,33 @@ protocol IndexCollection: DefaultInitializable, Collection {
 }
 
 protocol BatchUpdate: DefaultInitializable {
-    mutating func add(other: Self)
-    
     var isEmpty: Bool { get }
+    mutating func add(other: Self)
 }
 
 protocol ListViewApplyable: CustomDebugStringConvertible {
     func apply(by listView: ListView)
+    mutating func offset(sectionOffset: Int, itemOffset: Int)
 }
 
-typealias ListUpdates = [(update: ListViewApplyable, change: (() -> Void)?)]
+extension ListViewApplyable {
+    func offseted(by sectionOffset: Int, _ itemOffset: Int) -> Self {
+        var mutableSelf = self
+        mutableSelf.offset(sectionOffset: sectionOffset, itemOffset: itemOffset)
+        return mutableSelf
+    }
+}
+
+typealias ListBatchUpdates = [(update: ListViewApplyable, change: (() -> Void)?)]
+
+enum ListUpdates {
+    enum ChangeType {
+        case insert, remove
+    }
+    
+    case changeAll(ChangeType, (() -> Void)?)
+    case batchUpdates(ListBatchUpdates)
+}
 
 extension IndexSet: IndexCollection { }
 extension Array: IndexCollection {
@@ -97,6 +114,24 @@ extension Update: ListViewApplyable where Collection == [IndexPath] {
         if !target.updates.isEmpty { listView.reloadItems(at: target.updates) }
         target.moves.forEach { listView.moveItem(at: $0, to: $1) }
     }
+    
+    mutating func offset(sectionOffset: Int, itemOffset: Int) {
+        if sectionOffset == 0, itemOffset == 0 { return }
+        if !source.deletions.isEmpty {
+            source.deletions = source.deletions.map { $0.offseted(sectionOffset, itemOffset) }
+        }
+        if !target.insertions.isEmpty {
+            target.insertions = target.insertions.map { $0.offseted(sectionOffset, itemOffset) }
+        }
+        if !target.updates.isEmpty {
+            target.updates = target.updates.map { $0.offseted(sectionOffset, itemOffset) }
+        }
+        if !target.moves.isEmpty {
+            target.moves = target.moves.map {
+                ($0.offseted(sectionOffset, itemOffset), $1.offseted(sectionOffset, itemOffset))
+            }
+        }
+    }
 }
 
 struct BatchUpdates<Section: BatchUpdate, Item: BatchUpdate>: BatchUpdate {
@@ -114,8 +149,6 @@ struct BatchUpdates<Section: BatchUpdate, Item: BatchUpdate>: BatchUpdate {
 typealias SourceBatchUpdates = BatchUpdates<SectionSourceUpdate, ItemSourceUpdate>
 typealias TargetBatchUpdates = BatchUpdates<SectionTargetUpdate, ItemTargetUpdate>
 
-typealias ListBatchUpdates = BatchUpdates<SectionUpdate, ItemUpdate>
-
 extension BatchUpdates: ListViewApplyable where Section == SectionUpdate, Item == ItemUpdate {
     func apply(by listView: ListView) {
         if !section.source.deletions.isEmpty { listView.deleteSections(section.source.deletions) }
@@ -124,6 +157,26 @@ extension BatchUpdates: ListViewApplyable where Section == SectionUpdate, Item =
         section.target.moves.forEach { listView.moveSection($0, toSection: $1) }
         
         item.apply(by: listView)
+    }
+    
+    mutating func offset(sectionOffset: Int, itemOffset: Int) {
+        guard sectionOffset != 0 else { return }
+        if !section.source.deletions.isEmpty {
+            section.source.deletions = .init(section.source.deletions.map { $0 + sectionOffset })
+        }
+        if !section.target.insertions.isEmpty {
+            section.target.insertions = .init(section.target.insertions.map { $0 + sectionOffset })
+        }
+        if !section.target.updates.isEmpty {
+            section.target.updates = .init(section.target.updates.map { $0 + sectionOffset })
+        }
+        if !section.target.moves.isEmpty {
+            section.target.moves = section.target.moves.map {
+                ($0 + sectionOffset, $1 + sectionOffset)
+            }
+        }
+        
+        item.offset(sectionOffset: sectionOffset, itemOffset: itemOffset)
     }
 }
 

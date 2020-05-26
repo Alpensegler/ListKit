@@ -15,20 +15,27 @@ final class ListDelegate: NSObject {
         self.listView = listView
     }
     
-    func setCoordinator(
-        coordinator: Coordinator,
+    func setCoordinator<SourceBase: DataSource>(
+        coordinator: ListCoordinator<SourceBase>,
+        update: ListUpdate<SourceBase.Item>?,
         animated: Bool,
         completion: ((Bool) -> Void)?
     ) {
         let isDelegate = listView.isDelegate(self)
         let rawCoordinator = self.coordinator
         self.coordinator = coordinator
-        coordinator.setup(listView: listView, key: ObjectIdentifier(listView))
-        let updatable = isDelegate && rawCoordinator.map {
-            coordinator.update(from: $0, animated: animated, completion: completion)
-        } ?? false
-        if updatable { return }
+        coordinator.setupIfNeeded()
         if !isDelegate { listView.setup(with: self) }
+        let context = ListContext { [weak listView, weak coordinator] in
+            guard let listView = listView, let coordinator = coordinator else { return nil }
+            return listView.isCoordinator(coordinator) ? listView : nil
+        }
+        coordinator.setupContext(listContext: context)
+        if rawCoordinator === coordinator { return }
+//        let updatable = isDelegate && rawCoordinator.map {
+//            coordinator.update(from: $0, animated: animated, completion: completion)
+//        } ?? false
+//        if updatable { return }
         listView.reloadSynchronously(animated: animated)
         completion?(true)
     }

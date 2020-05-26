@@ -15,6 +15,19 @@ enum SourceMultipleType {
     case single, multiple, sources, noneDiffable
 }
 
+final class ListContext {
+    weak var parentCoordinator: Coordinator?
+    var sectionOffset: Int
+    var itemOffset: Int
+    var listView: () -> ListView?
+    
+    init(sectionOffset: Int = 0, itemOffset: Int = 0, listView: @escaping () -> ListView?) {
+        self.sectionOffset = sectionOffset
+        self.itemOffset = itemOffset
+        self.listView = listView
+    }
+}
+
 protocol Coordinator: AnyObject {
     var selectorSets: SelectorSets { get }
     var didSetup: Bool { get set }
@@ -31,51 +44,48 @@ protocol Coordinator: AnyObject {
     func apply<Object: AnyObject, Input, Output>(
         _ keyPath: KeyPath<Coordinator, Delegate<Object, Input, Output>>,
         object: Object,
-        with input: Input
+        with input: Input,
+        _ sectionOffset: Int,
+        _ itemOffset: Int
     ) -> Output
     
     func apply<Object: AnyObject, Input>(
         _ keyPath: KeyPath<Coordinator, Delegate<Object, Input, Void>>,
         object: Object,
-        with input: Input
+        with input: Input,
+        _ sectionOffset: Int,
+        _ itemOffset: Int
     )
     
     func setup()
     
-    func setupContext(
-        listView: ListView,
-        key: ObjectIdentifier,
-        sectionOffset: Int,
-        itemOffset: Int,
-        supercoordinator: Coordinator?
-    )
-    
-    func update(
-        from coordinator: Coordinator,
-        animated: Bool,
-        completion: ((Bool) -> Void)?
-    ) -> Bool
+    func setupContext(listContext: ListContext)
     
     //Diff
     func difference<Value>(from: Coordinator, differ: Differ<Value>?) -> CoordinatorDifference?
 }
 
 extension Coordinator {
+    func apply<Object: AnyObject, Input, Output>(
+        _ keyPath: KeyPath<Coordinator, Delegate<Object, Input, Output>>,
+        object: Object,
+        with input: Input
+    ) -> Output {
+        apply(keyPath, object: object, with: input, 0, 0)
+    }
+    
+    func apply<Object: AnyObject, Input>(
+        _ keyPath: KeyPath<Coordinator, Delegate<Object, Input, Void>>,
+        object: Object,
+        with input: Input
+    ) {
+        apply(keyPath, object: object, with: input, 0, 0)
+    }
+    
     func setupIfNeeded() {
         if didSetup { return }
         setup()
         didSetup = true
-    }
-    
-    func setup(listView: ListView, key: ObjectIdentifier) {
-        setupIfNeeded()
-        setupContext(
-            listView: listView,
-            key: key,
-            sectionOffset: 0,
-            itemOffset: 0,
-            supercoordinator: nil
-        )
     }
     
     func initialSelectorSets(withoutIndex: Bool = false) -> SelectorSets {

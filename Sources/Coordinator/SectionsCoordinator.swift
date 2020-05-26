@@ -96,7 +96,7 @@ where
     ) -> SectionsCoordinatorDifference<Item> {
         let diff = super.difference(to: isTo, sections: sections, source: source, differ: differ)
         diff.rangeRelplacable = true
-        diff.internalCoordinatorChange = { sections in
+        diff.extraCoordinatorChange = { sections in
             self.sections = sections
             self.source = .init(sections.map { .init($0.lazy.map { $0.value }) })
         }

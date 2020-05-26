@@ -13,13 +13,18 @@ public protocol DataSource {
     
     var source: Source { get }
     var sourceBase: SourceBase { get }
+    
     var listUpdate: ListUpdate<Item> { get }
     var differ: Differ<SourceBase> { get }
+    
+    var dataSourceOptions: DataSourceOptions { get }
     
     func makeListCoordinator() -> ListCoordinator<SourceBase>
 }
 
 public extension DataSource {
+    var dataSourceOptions: DataSourceOptions { .init() }
+    
     func makeListCoordinator() -> ListCoordinator<SourceBase> {
         fatalError("unsupported source \(Source.self) item \(Item.self)")
     }

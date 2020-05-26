@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F302B14A2479E079000C7304 /* DataSourceOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F302B1492479E079000C7304 /* DataSourceOptions.swift */; };
 		F30352F62473E48E004042AA /* SectionsCoordinatorDifference.swift in Sources */ = {isa = PBXBuildFile; fileRef = F30352F52473E48E004042AA /* SectionsCoordinatorDifference.swift */; };
 		F3040D27238904860055E6E7 /* CollectionListAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3040D26238904860055E6E7 /* CollectionListAdapter.swift */; };
 		F3040D81238B21560055E6E7 /* ListCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3040D80238B21560055E6E7 /* ListCoordinator.swift */; };
@@ -127,6 +128,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		F302B1492479E079000C7304 /* DataSourceOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSourceOptions.swift; sourceTree = "<group>"; };
 		F30352F52473E48E004042AA /* SectionsCoordinatorDifference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionsCoordinatorDifference.swift; sourceTree = "<group>"; };
 		F3040D26238904860055E6E7 /* CollectionListAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionListAdapter.swift; sourceTree = "<group>"; };
 		F3040D80238B21560055E6E7 /* ListCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListCoordinator.swift; sourceTree = "<group>"; };
@@ -462,6 +464,7 @@
 				F3AC673F23D0591C0070B991 /* HashCombiner.swift */,
 				F3D786FB2399318B00D7A5CD /* Associator.swift */,
 				F374B1432471A0FA0009420D /* Typealias.swift */,
+				F302B1492479E079000C7304 /* DataSourceOptions.swift */,
 			);
 			path = Utility;
 			sourceTree = "<group>";
@@ -712,6 +715,7 @@
 				F3EB15DA23A2CF8D00C9AC5E /* Optional+Extension.swift in Sources */,
 				F304A6E3239E95ED00133D14 /* ListView+NSTableView.swift in Sources */,
 				F314FAE723BDC66C0060985E /* AnyCollectionSourcesBuilder.swift in Sources */,
+				F302B14A2479E079000C7304 /* DataSourceOptions.swift in Sources */,
 				F3D786972399263B00D7A5CD /* CollectionContext.swift in Sources */,
 				F3AC674223D066AC0070B991 /* Sources+Source.swift in Sources */,
 				F314FAE223BC71EA0060985E /* ListDelegate.swift in Sources */,

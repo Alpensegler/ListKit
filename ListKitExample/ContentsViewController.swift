@@ -15,6 +15,7 @@ class ContentsViewController: ExampleViewController, UpdatableTableListAdapter {
         ("DoubleList", DoubleListViewController.self),
         ("SectionList", SectionListViewControlle.self),
         ("NestedList", NestedListViewController.self),
+        ("IdentifiableSectionList", IdentifiableSectionListViewController.self),
         ("TestList", TestListViewController.self)
     ]
     

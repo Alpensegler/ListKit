@@ -108,8 +108,10 @@ final class SourcesCoordinatorDifference<Element: DataSource>: CoordinatorDiffer
             prepareForGenerate()
             let context = Context()
             inferringMoves(context: context)
+            context.unhandled.removeAll()
             while !context.unhandled.isEmpty {
                 context.unhandled.forEach { $0.inferringMoves(context: context) }
+                context.unhandled.removeAll()
             }
             
             let batchUpdates: ListUpdates = Order.allCases.compactMap { order in

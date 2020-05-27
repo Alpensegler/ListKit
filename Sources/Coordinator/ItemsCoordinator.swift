@@ -14,6 +14,7 @@ where
     SourceBase.Item == SourceBase.Source.Element
 {
     var items = [Diffable<Item, ItemRelatedCache>]()
+    var updatingSectionCount: Int?
     lazy var keepSection = options.contains(.keepSectionIfEmpty)
     lazy var preferSection = options.contains(.preferSection)
     
@@ -40,6 +41,7 @@ where
             self.items = mapping.target
             self.source = source.target
         }
+        diff.updateSectionCount = { self.updatingSectionCount = $0 }
         if !isTo {
             self.items = items
             self.source = source.source
@@ -56,8 +58,10 @@ where
         items[path.item].related
     }
     
-    override func numbersOfSections() -> Int { isEmpty && !keepSection ? 0 : 1 }
     override func numbersOfItems(in section: Int) -> Int { items.count }
+    override func numbersOfSections() -> Int {
+        updatingSectionCount ?? (isEmpty && !keepSection ? 0 : 1)
+    }
     
     override func setup() {
         sourceType = preferSection || selectorSets.hasIndex ? .section : .cell

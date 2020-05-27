@@ -17,6 +17,7 @@ final class ItemsCoordinatorDifference<Item>: CoordinatorDifference {
     var rangeRelplacable = false
     var keepSectionIfEmpty: Mapping<Bool> = (false, false)
     var extraCoordinatorChange: (([Diffable]) -> Void)?
+    var updateSectionCount: ((Int?) -> Void)?
     var coordinatorChange: (() -> Void)?
     
     var changes: Mapping<[ValueElement]> = ([], [])
@@ -57,26 +58,50 @@ final class ItemsCoordinatorDifference<Item>: CoordinatorDifference {
         applying(to: &context.uniqueChange, with: &uniques, id: id, equal: differ.areEquivalent)
     }
     
-    override func generateUpdates(_ change: (() -> Void)?) -> ListUpdates? {
-        switch (sourceIsEmpty, targetIsEmpty) {
+    override func generateUpdates() -> Updates? {
+        switch (mapping.source.isEmpty, mapping.target.isEmpty) {
         case (false, false):
             prepareForGenerate()
-            let batchUpdates: ListBatchUpdates = [Order.second, Order.third].compactMap { order in
+            let batchUpdates: ListUpdates = [Order.second, Order.third].compactMap { order in
                 let source = generateSourceItemUpdate(order: order)
                 let target = generateTargetItemUpdate(order: order)
                 guard source.update != nil || target.update != nil else { return nil }
                 var itemUpdate = ItemUpdate()
                 source.update.map { itemUpdate.source = $0 }
                 target.update.map { itemUpdate.target = $0 }
-                return (itemUpdate, target.change + change)
+                return (itemUpdate, target.change)
             }
             return batchUpdates.isEmpty ? nil : .batchUpdates(batchUpdates)
         case (true, false):
-            return .changeAll(.insert, coordinatorChange + change)
+            return .insertAll
         case (false, true):
-            return .changeAll(.remove, coordinatorChange + change)
+            return .removeAll
         case (true, true):
             return nil
+        }
+    }
+    
+    override func generateListUpdates(itemSources: (Int, Bool)?) -> ListUpdates {
+        guard let update = updates else { return [] }
+        switch (update, itemSources) {
+        case let (.batchUpdates(batchUpdates), _):
+            return batchUpdates
+        case (.insertAll, (0, false)?),
+            (.insertAll, nil) where !keepSectionIfEmpty.source:
+            let section = SectionUpdate(target: .init(insertions: .init(integer: 0)))
+            return [(ListBatchUpdates(section: section), coordinatorChange)]
+        case (.insertAll, _):
+            let index = mapping.target.indices.map { IndexPath(item: $0) }
+            let item = ItemUpdate(target: .init(insertions: index))
+            return [(ListBatchUpdates(item: item), coordinatorChange)]
+        case (.removeAll, (mapping.source.count, false)?),
+             (.removeAll, nil) where !keepSectionIfEmpty.target:
+            let section = SectionUpdate(source: .init(deletions: .init(integer: 0)))
+            return [(ListBatchUpdates(section: section), coordinatorChange)]
+        case (.removeAll, _):
+            let index = mapping.source.indices.map { IndexPath(item: $0) }
+            let item = ItemUpdate(source: .init(deletions: index))
+            return [(ListBatchUpdates(item: item), coordinatorChange)]
         }
     }
     
@@ -111,12 +136,14 @@ final class ItemsCoordinatorDifference<Item>: CoordinatorDifference {
         case .first where !sourceIsEmpty && targetIsEmpty:
             sectionCount = 1
             let section = SectionTargetUpdate(insertions: .init(integer: sectionOffset))
-            return (sectionCount, .init(section: section), nil)
+            let countChange = updateSectionCount.map { change in { change(1) } }
+            return (sectionCount, .init(section: section), countChange)
         case .first where isMoved && !sourceIsEmpty:
             return (1, .init(section: .init(moves: [(sourceSection, sectionOffset)])), nil)
         case .third where !sourceIsEmpty && targetIsEmpty:
             sectionCount = 0
-            return (0, nil, nil)
+            let countChange = updateSectionCount.map { change in { change(1) } }
+            return (0, .init(), countChange)
         case .second,
              .third where needThirdUpdate:
             guard case let (_, itemUpdate?, change) = generateTargetItemUpdate(

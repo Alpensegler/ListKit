@@ -101,16 +101,16 @@ final class SectionsCoordinatorDifference<Item>: CoordinatorDifference {
         differences.forEach { $0.inferringMoves(context: context) }
     }
     
-    override func generateUpdates(_ change: (() -> Void)?) -> ListUpdates? {
+    override func generateUpdates() -> Updates? {
         switch (mapping.source.isEmpty, mapping.target.isEmpty) {
         case (false, false):
             prepareForGenerate()
             inferringMoves(context: .init())
-            let batchUpdates: ListBatchUpdates = Order.allCases.compactMap { order in
+            let batchUpdates: ListUpdates = Order.allCases.compactMap { order in
                 let source = generateSourceSectionUpdate(order: order)
                 let target = generateTargetSectionUpdate(order: order)
                 guard source.update != nil || target.update != nil else { return nil }
-                var batchUpdate = BatchUpdates<SectionUpdate, ItemUpdate>()
+                var batchUpdate = ListBatchUpdates()
                 source.update.map {
                     batchUpdate.section.source = $0.section
                     batchUpdate.item.source = $0.item
@@ -119,15 +119,31 @@ final class SectionsCoordinatorDifference<Item>: CoordinatorDifference {
                     batchUpdate.section.target = $0.section
                     batchUpdate.item.target = $0.item
                 }
-                return (batchUpdate, target.change + change)
+                return (batchUpdate, target.change)
             }
             return batchUpdates.isEmpty ? nil : .batchUpdates(batchUpdates)
         case (true, false):
-            return .changeAll(.insert, coordinatorChange + change)
+            return .insertAll
         case (false, true):
-            return .changeAll(.remove, coordinatorChange + change)
+            return .removeAll
         case (true, true):
             return nil
+        }
+    }
+    
+    override func generateListUpdates(itemSources: (Int, Bool)?) -> ListUpdates {
+        guard let update = updates else { return [] }
+        switch update {
+        case .batchUpdates(let batchUpdates):
+            return batchUpdates
+        case .insertAll:
+            let indexSet = IndexSet(integersIn: 0..<mapping.target.count)
+            let section = SectionUpdate(target: .init(insertions: indexSet))
+            return [(ListBatchUpdates(section: section), coordinatorChange)]
+        case .removeAll:
+            let indexSet = IndexSet(integersIn: 0..<mapping.source.count)
+            let section = SectionUpdate(source: .init(deletions: indexSet))
+            return [(ListBatchUpdates(section: section), coordinatorChange)]
         }
     }
     

@@ -8,12 +8,12 @@
 import Foundation
 
 final class SourcesCoordinatorDifference<Element: DataSource>: CoordinatorDifference {
-    typealias Coordinator = ListCoordinator<Element.SourceBase>
     typealias Value = SourcesSubelement<Element>
-    typealias MapValue = (value: Value, related: Coordinator)
+    typealias Related = SourcesContext<Element.SourceBase>
+    typealias MapValue = (value: Value, related: Related)
     typealias Item = Element.SourceBase.Item
     
-    final class DataSourceElement: CoordinatorDifference.Element<Value, Coordinator> {
+    final class DataSourceElement: CoordinatorDifference.Element<Value, Related> {
         var difference: CoordinatorDifference?
     }
     
@@ -42,7 +42,7 @@ final class SourcesCoordinatorDifference<Element: DataSource>: CoordinatorDiffer
         let identifier = { (arg: MapValue) -> AnyHashable in
             switch arg.value {
             case .element(let element):
-                return HashCombiner(0, arg.related.identifier(for: element.sourceBase))
+                return HashCombiner(0, arg.related.coordinator.identifier(for: element.sourceBase))
             case .items(let id, _):
                 return HashCombiner(1, id)
             }
@@ -51,7 +51,7 @@ final class SourcesCoordinatorDifference<Element: DataSource>: CoordinatorDiffer
             let related = lhs.related
             switch (lhs.value, rhs.value) {
             case let (.element(lhs), .element(rhs)):
-                return related.equal(lhs: lhs.sourceBase, rhs: rhs.sourceBase)
+                return related.coordinator.equal(lhs: lhs.sourceBase, rhs: rhs.sourceBase)
             case let (.items(lhs, _), .items(rhs, _)):
                 return lhs == rhs
             default:
@@ -67,7 +67,9 @@ final class SourcesCoordinatorDifference<Element: DataSource>: CoordinatorDiffer
     
     func associating(source: DataSourceElement, target: DataSourceElement) {
         guard source.state != .change(moveAndRelod: true), source.state != .reload else { return }
-        if let difference = target.related.difference(from: source.related, differ: itemDiffer) {
+        let toCoordinator = target.related.coordinator
+        let fromCoordinator = source.related.coordinator
+        if let difference = toCoordinator.difference(from: fromCoordinator, differ: itemDiffer) {
             source.difference = difference
             target.difference = difference
             unhandled.append(difference)
@@ -111,7 +113,7 @@ final class SourcesCoordinatorDifference<Element: DataSource>: CoordinatorDiffer
         
         func addToUpdate(_ element: DataSourceElement, isMoved move: Bool) {
             guard let difference = element.difference else {
-                sectionCount += element.related.numbersOfSections()
+                sectionCount += element.related.coordinator.numbersOfSections()
                 return
             }
             let (count, subupdate) = difference.generateSourceSectionUpdate(
@@ -139,16 +141,16 @@ final class SourcesCoordinatorDifference<Element: DataSource>: CoordinatorDiffer
                 switch (element.state, element.associated) {
                 case (.reload, .some):
                     if isMoved { needExtraUpdate = true }
-                    sectionCount += element.related.numbersOfSections()
+                    sectionCount += element.related.coordinator.numbersOfSections()
                 case let (.change(moveAndReload), .some):
                     if moveAndReload == true {
                         needExtraUpdate = true
-                        sectionCount += element.related.numbersOfSections()
+                        sectionCount += element.related.coordinator.numbersOfSections()
                     } else {
                         addToUpdate(element, isMoved: true)
                     }
                 case (.change, .none):
-                    let count = element.related.numbersOfSections()
+                    let count = element.related.coordinator.numbersOfSections()
                     guard count != 0 else { continue }
                     let range = section..<section + count
                     update.section.deletions.insert(integersIn: range)
@@ -161,9 +163,9 @@ final class SourcesCoordinatorDifference<Element: DataSource>: CoordinatorDiffer
             for element in changes.target {
                 switch (element.state, element.associated) {
                 case (.reload, let associated?) where isMoved:
-                    reload(from: associated.related, to: element.related)
+                    reload(from: associated.related.coordinator, to: element.related.coordinator)
                 case (.change(true), let associated?):
-                    reload(from: associated.related, to: element.related)
+                    reload(from: associated.related.coordinator, to: element.related.coordinator)
                 default:
                     addToUpdate(element, isMoved: false)
                 }
@@ -186,7 +188,7 @@ final class SourcesCoordinatorDifference<Element: DataSource>: CoordinatorDiffer
         
         func addToUpdate(_ element: DataSourceElement, isMoved move: Bool) {
             guard let difference = element.difference else {
-                sectionCount += element.related.numbersOfSections()
+                sectionCount += element.related.coordinator.numbersOfSections()
                 return
             }
             let (count, subupdate, subchange) = difference.generateTargetSectionUpdate(
@@ -213,8 +215,8 @@ final class SourcesCoordinatorDifference<Element: DataSource>: CoordinatorDiffer
             }
         }
         
-        func move(from associated: CoordinatorDifference.Element<Value, Coordinator>) {
-            let count = associated.related.numbersOfSections()
+        func move(from associated: CoordinatorDifference.Element<Value, Related>) {
+            let count = associated.related.coordinator.numbersOfSections()
             sectionCount += count
             if count == 0 { return }
             for i in 0..<count {
@@ -240,14 +242,14 @@ final class SourcesCoordinatorDifference<Element: DataSource>: CoordinatorDiffer
                         move(from: associated)
                         if needExtraUpdate { extraSources.append(associated.asTuple) }
                     } else {
-                        reload(from: associated.related, to: element.related)
+                        reload(from: associated.related.coordinator, to: element.related.coordinator)
                         if needExtraUpdate { extraSources.append(element.asTuple) }
                     }
                 case (_, .some):
                     addToUpdate(element, isMoved: isMoved)
                     if needExtraUpdate { extraSources.append(element.asTuple) }
                 default:
-                    let count = element.related.numbersOfSections()
+                    let count = element.related.coordinator.numbersOfSections()
                     if count == 0 { continue }
                     update.section.insertions.insert(integersIn: section..<section + count)
                     sectionCount += count
@@ -264,9 +266,9 @@ final class SourcesCoordinatorDifference<Element: DataSource>: CoordinatorDiffer
             for element in changes.target {
                 switch (element.state, element.associated) {
                 case (.reload, let associated?) where isMoved:
-                    reload(from: associated.related, to: element.related)
+                    reload(from: associated.related.coordinator, to: element.related.coordinator)
                 case (.change(true), let associated?):
-                    reload(from: associated.related, to: element.related)
+                    reload(from: associated.related.coordinator, to: element.related.coordinator)
                 default:
                     addToUpdate(element, isMoved: false)
                 }

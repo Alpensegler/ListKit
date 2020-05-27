@@ -28,10 +28,11 @@ protocol SetuptableListView: ListView {
 
 extension ListView {
     func perform(
-        updates: ListBatchUpdates,
+        updates: ListUpdates,
         sectionOffset: Int,
         itemOffset: Int,
         animated: Bool,
+        change: (() -> Void)?,
         completion: ((ListView, Bool) -> Void)?
     ) {
         for (offset, batchUpdate) in updates.enumerated() {
@@ -43,6 +44,7 @@ extension ListView {
             } : nil
             perform(update: {
                 batchUpdate.change?()
+                change?()
                 batchUpdate.update.offseted(by: sectionOffset, itemOffset).apply(by: self)
             }, animated: animated, completion: completion)
         }

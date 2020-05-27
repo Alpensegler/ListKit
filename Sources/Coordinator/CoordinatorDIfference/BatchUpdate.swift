@@ -33,16 +33,7 @@ extension ListViewApplyable {
     }
 }
 
-typealias ListBatchUpdates = [(update: ListViewApplyable, change: (() -> Void)?)]
-
-enum ListUpdates {
-    enum ChangeType {
-        case insert, remove
-    }
-    
-    case changeAll(ChangeType, (() -> Void)?)
-    case batchUpdates(ListBatchUpdates)
-}
+typealias ListUpdates = [(update: ListViewApplyable, change: (() -> Void)?)]
 
 extension IndexSet: IndexCollection { }
 extension Array: IndexCollection {
@@ -82,25 +73,12 @@ typealias ItemTargetUpdate = TargetUpdate<[IndexPath]>
 struct Update<Collection: IndexCollection>: BatchUpdate {
     var source = SourceUpdate<Collection>()
     var target = TargetUpdate<Collection>()
-    var change: (() -> Void)?
     
     var isEmpty: Bool { source.isEmpty && target.isEmpty }
     
     mutating func add(other: Update<Collection>) {
         source.add(other: other.source)
         target.add(other: other.target)
-        guard let otherChange = other.change else { return }
-        add(otherChange: otherChange)
-    }
-    
-    mutating func add(otherChange: (() -> Void)?) {
-        guard let otherChange = otherChange else { return }
-        change = change.map { change in
-            {
-                change()
-                otherChange()
-            }
-        } ?? otherChange
     }
 }
 
@@ -133,6 +111,8 @@ extension Update: ListViewApplyable where Collection == [IndexPath] {
         }
     }
 }
+
+typealias ListBatchUpdates = BatchUpdates<SectionUpdate, ItemUpdate>
 
 struct BatchUpdates<Section: BatchUpdate, Item: BatchUpdate>: BatchUpdate {
     var section = Section()

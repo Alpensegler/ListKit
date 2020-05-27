@@ -35,10 +35,18 @@ final class ItemRelatedCache {
 
 public class ListCoordinator<SourceBase: DataSource>: Coordinator
 where SourceBase.SourceBase == SourceBase {
+    struct UnownedListContext {
+        unowned var context: ListContext
+        
+        init(_ context: ListContext) {
+            self.context = context
+        }
+    }
+    
     typealias Item = SourceBase.Item
     
     weak var storage: CoordinatorStorage<SourceBase>?
-    var listContexts = [ObjectIdentifier: ListContext]() {
+    var listContexts = [ObjectIdentifier: UnownedListContext]() {
         didSet {
             switch (oldValue.isEmpty, listContexts.isEmpty) {
             case (true, false): storage?.coordinators[ObjectIdentifier(self)] = self
@@ -48,11 +56,8 @@ where SourceBase.SourceBase == SourceBase {
         }
     }
     
-    var nonNilContexts: [(listView: ListView, context: ListContext)] {
-        listContexts.values.compactMap {
-            guard let listView = $0.listView() else { return nil }
-            return (listView, $0)
-        }
+    var contexts: [(Int, Int, ListView, ListContext?)] {
+        listContexts.values.flatMap { $0.context.contexts() }
     }
     
     lazy var selectorSets = initialSelectorSets()
@@ -165,7 +170,7 @@ where SourceBase.SourceBase == SourceBase {
     func setup() { }
     
     func setupContext(listContext: ListContext) {
-        listContexts[ObjectIdentifier(listContext)] = listContext
+        listContexts[ObjectIdentifier(listContext)] = .init(listContext)
     }
     
     func removeContext(listContext: ListContext) {
@@ -213,14 +218,14 @@ extension ListCoordinator {
     ) {
         updateTo(sourceBase)
         updateData?(sourceBase)
-        for (listView, context) in nonNilContexts {
-            if let coordinator = context.parentCoordinator {
-                _ = coordinator
-            } else {
-                listView.reloadSynchronously(animated: animated)
-                completion?(listView, true)
-            }
-        }
+//        for (sectionOffset, itemOffset, listView, context) in contexts {
+//            if context != nil {
+//                
+//            } else {
+//                listView.reloadSynchronously(animated: animated)
+//                completion?(listView, true)
+//            }
+//        }
     }
     
     func perform(
@@ -230,25 +235,24 @@ extension ListCoordinator {
         _ completion: ((ListView, Bool) -> Void)?,
         _ updateData: ((SourceBase.Source) -> Void)?
     ) {
+        let contexts = self.contexts
+        if contexts.isEmpty { return }
         let change = updateData.map { update in { update(self.source) } }
-        let contexts = nonNilContexts
-        guard let updates = difference(to: source, differ: differ).generateUpdates(change) else {
-            contexts.forEach { completion?($0.listView, true) }
+        let difference = self.difference(to: source, differ: differ)
+        guard difference.updates != nil else {
+            contexts.forEach { completion?($0.2, true) }
             return
         }
-        for (listView, context) in contexts {
-            switch updates {
-            case let .batchUpdates(updates):
-                listView.perform(
-                    updates: updates,
-                    sectionOffset: context.sectionOffset,
-                    itemOffset: context.itemOffset,
-                    animated: animated,
-                    completion: completion
-                )
-            case let .changeAll(changeType, change):
-                break
-            }
+        for (sectionOffset, itemOffset, listView, context) in contexts {
+            let updates = difference.generateListUpdates(itemSources: context?.itemSources)
+            listView.perform(
+                updates: updates,
+                sectionOffset: sectionOffset,
+                itemOffset: itemOffset,
+                animated: animated,
+                change: change,
+                completion: completion
+            )
         }
     }
     

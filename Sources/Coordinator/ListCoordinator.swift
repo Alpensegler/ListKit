@@ -120,8 +120,10 @@ where SourceBase.SourceBase == SourceBase {
     
     //Diffs:
     func identifier(for sourceBase: SourceBase) -> AnyHashable {
-        guard let identifier = differ.identifier else { return id }
-        return identifier(sourceBase)
+        guard let identifier = differ.identifier else {
+            return HashCombiner(id, sourceType, multiType)
+        }
+        return HashCombiner(id, sourceType, multiType, identifier(sourceBase))
     }
     
     func equal(lhs: SourceBase, rhs: SourceBase) -> Bool {

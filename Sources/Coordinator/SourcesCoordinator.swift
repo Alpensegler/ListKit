@@ -12,6 +12,28 @@ enum SourcesSubelement<Element> {
     case element(Element)
 }
 
+final class SourcesContext<Source: DataSource>: ListContext where Source.SourceBase == Source {
+    let coordinator: ListCoordinator<Source>
+    let isSectiond: Bool
+    var offset = 0
+    var getContexts: () -> [ListContext] = { fatalError() }
+    var getItemSources: () -> (Int, Bool)? = { nil }
+    
+    var itemSources: (Int, Bool)? { getItemSources() }
+    var contextType: ListContextType {
+        .superContext(isSectiond ? offset : 0, isSectiond ? 0 : offset, getContexts())
+    }
+    
+    init(_ coordinator: ListCoordinator<Source>, isSectiond: Bool) {
+        self.coordinator = coordinator
+        self.isSectiond = isSectiond
+    }
+    
+    deinit {
+        coordinator.removeContext(listContext: self)
+    }
+}
+
 final class SourcesCoordinator<SourceBase: DataSource, Source>: ListCoordinator<SourceBase>
 where
     SourceBase.SourceBase == SourceBase,
@@ -25,11 +47,11 @@ where
     }
     
     typealias Subcoordinator = ListCoordinator<Source.Element.SourceBase>
-    typealias Subsource = (value: SourcesSubelement<Source.Element>, related: Subcoordinator)
+    typealias Related = SourcesContext<Source.Element.SourceBase>
+    typealias Subsource = (value: SourcesSubelement<Source.Element>, related: Related)
     
     var subsourceType: SubsourceType
     var subsources = [Subsource]()
-    var offsets = [Int]()
     var indices = [Int]()
     var isSectioned = false
     var isAnyType = Item.self == Any.self
@@ -57,9 +79,9 @@ where
     func pathAndCoordinator(path: IndexPath) -> (path: IndexPath, coordinator: Subcoordinator) {
         var path = path
         let index = sourceIndex(for: path)
-        let offset = offsets[index]
-        isSectioned ? (path.section -= offset) : (path.item -= offset)
-        return (path, subsources[index].related)
+        let context = subsources[index].related
+        isSectioned ? (path.section -= context.offset) : (path.item -= context.offset)
+        return (path, context.coordinator)
     }
     
     func sourceIndex(for path: IndexPath) -> Int {
@@ -68,59 +90,43 @@ where
     
     func setupSelectorSets() {
         others = initialSelectorSets(withoutIndex: true)
-        for (_, coordinator) in subsources where coordinator.isEmpty == false {
-            others.void.formIntersection(coordinator.selectorSets.void)
-            others.withIndex.formUnion(coordinator.selectorSets.withIndex)
-            others.withIndexPath.formUnion(coordinator.selectorSets.withIndexPath)
-            others.hasIndex = others.hasIndex || coordinator.selectorSets.hasIndex
+        for (_, context) in subsources where context.coordinator.isEmpty == false {
+            others.void.formIntersection(context.coordinator.selectorSets.void)
+            others.withIndex.formUnion(context.coordinator.selectorSets.withIndex)
+            others.withIndexPath.formUnion(context.coordinator.selectorSets.withIndexPath)
+            others.hasIndex = others.hasIndex || context.coordinator.selectorSets.hasIndex
         }
         selectorSets = SelectorSets(merging: selfSelectorSets, others)
     }
     
-    func subcoordinator<Object: AnyObject, Input, Output>(
-        for delegate: Delegate<Object, Input, Output>,
+    func subcoordinatorApply<Object: AnyObject, Input, Output>(
+        _ keyPath: KeyPath<Coordinator, Delegate<Object, Input, Output>>,
         object: Object,
         with input: Input,
         _ sectionOffset: Int,
         _ itemOffset: Int
-    ) -> Coordinator? {
+    ) -> Output? {
         var (sectionOffset, itemOffset) = (sectionOffset, itemOffset)
-        guard let index = delegate.index else { return nil }
-        let offset: Int
-        switch index {
+        guard let delegateIndex = self[keyPath: keyPath].index else { return nil }
+        let index: Int
+        switch delegateIndex {
         case let .index(keyPath):
-            offset = indices[input[keyPath: keyPath] - sectionOffset]
-            sectionOffset += offset
+            index = indices[input[keyPath: keyPath] - sectionOffset]
         case let .indexPath(keyPath):
             var indexPath = input[keyPath: keyPath]
-            itemOffset += indexPath.item
             indexPath.item -= itemOffset
-            offset = self.sourceIndex(for: indexPath)
+            index = sourceIndex(for: indexPath)
         }
-        let coordinator = subsources[offset].related
-        return coordinator.selectorSets.contains(delegate.selector) ? nil : coordinator
+        let context = subsources[index].related
+        context.isSectiond ? (sectionOffset += context.offset) : (itemOffset += context.offset)
+        let coordinator = context.coordinator
+        return coordinator.apply(keyPath, object: object, with: input, sectionOffset, itemOffset)
     }
     
     func resetAndConfigIndicesAndOffsets() {
-        offsets.removeAll(keepingCapacity: true)
         indices.removeAll(keepingCapacity: true)
-        setup()
-        configSubcoordinator(for: listContexts)
+        configOffsetAndIndices()
         setupSelectorSets()
-    }
-    
-    func configSubcoordinator(for contexts: [ObjectIdentifier: ListContext]) {
-//        for (_, context) in nonNilContexts {
-//            for ((_, subcoordinator), offset) in zip(subsources, offsets) {
-//                subcoordinator.setupContext(
-//                    listView: listView,
-//                    key: key,
-//                    sectionOffset: isSectioned ? offset + context.sectionOffset : 0,
-//                    itemOffset: isSectioned ? 0 : offset + context.itemOffset,
-//                    supercoordinator: self
-//                )
-//            }
-//        }
     }
     
     func subsources(for source: Source) -> (isSectiond: Bool, values: [Subsource]) {
@@ -133,7 +139,8 @@ where
                 elements: itemSources,
                 defaultUpdate: defaultUpdate
             )
-            subsources.append((.items(id: id) { coordinator.subsourcesArray }, coordinator))
+            let context = SourcesContext(coordinator, isSectiond: true)
+            subsources.append((.items(id: id) { coordinator.subsourcesArray }, context))
             itemSources.removeAll()
             id += 1
         }
@@ -144,7 +151,7 @@ where
             switch coordinator.sourceType {
             case .section:
                 if !itemSources.isEmpty { addItemSources() }
-                subsources.append((.element(element), coordinator))
+                subsources.append((.element(element), .init(coordinator, isSectiond: true)))
                 isSectioned = true
             case .cell:
                 itemSources.append((element, coordinator))
@@ -152,9 +159,14 @@ where
         }
         
         switch (isSectioned, itemSources.isEmpty) {
-        case (true, false): addItemSources()
-        case (false, false): subsources = itemSources.map { (.element($0.element), $0.coordinator) }
-        default: break
+        case (true, false):
+            addItemSources()
+        case (false, false):
+            subsources = itemSources.map {
+                (.element($0.element), .init($0.coordinator, isSectiond: false))
+            }
+        default:
+            break
         }
         
         return (isSectioned, subsources)
@@ -163,11 +175,11 @@ where
     func configOffsetAndIndices() {
         var offset = 0
         var indices = [Int]()
-        for (index, (_, coordinator)) in subsources.enumerated() {
-            offsets.append(offset)
+        for (index, (_, context)) in subsources.enumerated() {
+            context.offset = offset
             let count = isSectioned
-                ? coordinator.numbersOfSections()
-                : coordinator.numbersOfItems(in: 0)
+                ? context.coordinator.numbersOfSections()
+                : context.coordinator.numbersOfItems(in: 0)
             if count == 0 { continue }
             indices += .init(repeating: index, count: count)
             offset += count
@@ -191,7 +203,9 @@ where
     ) {
         subsourceType = .values
         super.init(defaultUpdate: defaultUpdate, source: nil, storage: nil)
-        subsources = elements.map { (.element($0.element), $0.coordinator) }
+        subsources = elements.map {
+            (.element($0.element), .init($0.coordinator, isSectiond: false))
+        }
     }
     
     override func item(at path: IndexPath) -> Item {
@@ -211,8 +225,8 @@ where
     override func numbersOfItems(in section: Int) -> Int {
         guard isSectioned else { return indices.count }
         let index = indices[section]
-        let offset = offsets[index]
-        return subsources[index].related.numbersOfItems(in: section - offset)
+        let context = subsources[index].related
+        return context.coordinator.numbersOfItems(in: section - context.offset)
     }
     
     override func setup() {
@@ -225,33 +239,19 @@ where
         sourceType = (isSectioned || selectorSets.hasIndex) ? .section : .cell
     }
     
-//    override func setupContext(listContext: ListContext) {
-//
-//    }
-    
-//    override func setupContext(
-//        listView: ListView,
-//        key: ObjectIdentifier,
-//        sectionOffset: Int = 0,
-//        itemOffset: Int = 0,
-//        supercoordinator: Coordinator? = nil
-//    ) {
-//        if let context = listContexts[key] {
-//            context.sectionOffset = sectionOffset
-//            context.itemOffset = itemOffset
-//            configSubcoordinator(for: [key: context])
-//            return
-//        }
-//
-//        let context = ListContext(
-//            listView: listView,
-//            sectionOffset: sectionOffset,
-//            itemOffset: itemOffset,
-//            supercoordinator: supercoordinator
-//        )
-//        listContexts[key] = context
-//        configSubcoordinator(for: [key: context])
-//    }
+    override func setupContext(listContext: ListContext) {
+        super.setupContext(listContext: listContext)
+        
+        subsources.forEach {
+            let context = $0.related
+            context.coordinator.setupContext(listContext: context)
+            context.getContexts = { [unowned self] in self.listContexts.values.map { $0.context } }
+            if isSectioned { return }
+            context.getItemSources = { [unowned self] in
+                (self.numbersOfItems(in: 0), self.keepSectionIfEmpty)
+            }
+        }
+    }
     
     override func selectorSets(applying: (inout SelectorSets) -> Void) {
         super.selectorSets(applying: applying)
@@ -265,9 +265,7 @@ where
         _ sectionOffset: Int,
         _ itemOffset: Int
     ) -> Output {
-        let closure = self[keyPath: keyPath]
-        let coordinator = subcoordinator(for: closure, object: object, with: input, sectionOffset, itemOffset)
-        return coordinator?.apply(keyPath, object: object, with: input, sectionOffset, itemOffset)
+        subcoordinatorApply(keyPath, object: object, with: input, sectionOffset, itemOffset)
             ?? super.apply(keyPath, object: object, with: input, sectionOffset, itemOffset)
     }
     
@@ -278,9 +276,7 @@ where
         _ sectionOffset: Int,
         _ itemOffset: Int
     ) {
-        let closure = self[keyPath: keyPath]
-        let coordinator = subcoordinator(for: closure, object: object, with: input, sectionOffset, itemOffset)
-        coordinator?.apply(keyPath, object: object, with: input, sectionOffset, itemOffset)
+        subcoordinatorApply(keyPath, object: object, with: input, sectionOffset, itemOffset)
         super.apply(keyPath, object: object, with: input, sectionOffset, itemOffset)
     }
 }

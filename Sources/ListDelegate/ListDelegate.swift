@@ -7,9 +7,13 @@
 
 import Foundation
 
-final class ListDelegate: NSObject {
+final class ListDelegate: NSObject, ListContext {
     unowned let listView: SetuptableListView
     private(set) var coordinator: Coordinator!
+    
+    var contextType: ListContextType {
+        .listView(listView.isDelegate(self) ? listView : nil)
+    }
     
     init(_ listView: SetuptableListView) {
         self.listView = listView
@@ -26,12 +30,9 @@ final class ListDelegate: NSObject {
         self.coordinator = coordinator
         coordinator.setupIfNeeded()
         if !isDelegate { listView.setup(with: self) }
-        let context = ListContext { [weak listView, weak coordinator] in
-            guard let listView = listView, let coordinator = coordinator else { return nil }
-            return listView.isCoordinator(coordinator) ? listView : nil
-        }
-        coordinator.setupContext(listContext: context)
         if rawCoordinator === coordinator { return }
+        coordinator.setupContext(listContext: self)
+        rawCoordinator?.removeContext(listContext: self)
 //        let updatable = isDelegate && rawCoordinator.map {
 //            coordinator.update(from: $0, animated: animated, completion: completion)
 //        } ?? false
@@ -75,4 +76,7 @@ final class ListDelegate: NSObject {
         return super.responds(to: aSelector)
     }
 
+    deinit {
+        coordinator.removeContext(listContext: self)
+    }
 }

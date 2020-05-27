@@ -15,17 +15,14 @@ enum SourceMultipleType {
     case single, multiple, sources, noneDiffable
 }
 
-final class ListContext {
-    weak var parentCoordinator: Coordinator?
-    var sectionOffset: Int
-    var itemOffset: Int
-    var listView: () -> ListView?
-    
-    init(sectionOffset: Int = 0, itemOffset: Int = 0, listView: @escaping () -> ListView?) {
-        self.sectionOffset = sectionOffset
-        self.itemOffset = itemOffset
-        self.listView = listView
-    }
+enum ListContextType {
+    case listView(ListView?)
+    case superContext(Int, Int, [ListContext])
+}
+
+protocol ListContext: AnyObject {
+    var itemSources: (Int, Bool)? { get }
+    var contextType: ListContextType { get }
 }
 
 protocol Coordinator: AnyObject {
@@ -58,11 +55,35 @@ protocol Coordinator: AnyObject {
     )
     
     func setup()
-    
     func setupContext(listContext: ListContext)
+    func removeContext(listContext: ListContext)
+}
+
+extension ListContext {
+    var itemSources: (Int, Bool)? { nil }
     
-    //Diff
-    func difference<Value>(from: Coordinator, differ: Differ<Value>?) -> CoordinatorDifference?
+    func contexts(
+        sectionOffset: Int = 0,
+        itemOffset: Int = 0,
+        sectionRootContext: ListContext? = nil
+    ) -> [(Int, Int, ListView, ListContext?)] {
+        var contexts = [(Int, Int, ListView, ListContext?)]()
+        switch contextType {
+        case let .listView(listView):
+            guard let listView = listView else { break }
+            contexts.append((sectionOffset, itemOffset, listView, sectionRootContext))
+        case let .superContext(section, item, values):
+            let rootContext = itemSources != nil ? self : (sectionRootContext ?? self)
+            contexts += values.flatMap {
+                $0.contexts(
+                    sectionOffset: sectionOffset + section,
+                    itemOffset: itemOffset + item,
+                    sectionRootContext: rootContext
+                )
+            }
+        }
+        return contexts
+    }
 }
 
 extension Coordinator {

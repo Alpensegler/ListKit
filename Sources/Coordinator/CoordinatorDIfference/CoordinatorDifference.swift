@@ -25,6 +25,12 @@ class CoordinatorDifference {
         case reload
         case none
     }
+
+    enum Updates {
+        case insertAll
+        case removeAll
+        case batchUpdates(ListUpdates)
+    }
     
     class Element<Value, Related>: CustomDebugStringConvertible {
         var index: Int
@@ -60,10 +66,16 @@ class CoordinatorDifference {
         }
     }
     
+    lazy var updates = generateUpdates()
+    
     func prepareForGenerate() { }
     func inferringMoves(context: Context) { }
     
-    func generateUpdates(_ change: (() -> Void)?) -> ListUpdates? {
+    func generateUpdates() -> Updates? {
+        fatalError("should be implement by subclass")
+    }
+    
+    func generateListUpdates(itemSources: (Int, Bool)?) -> ListUpdates {
         fatalError("should be implement by subclass")
     }
     

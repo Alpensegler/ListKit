@@ -102,6 +102,57 @@ final class SourcesCoordinatorDifference<Element: DataSource>: CoordinatorDiffer
         context.unhandled += unhandled
     }
     
+    override func generateUpdates() -> Updates? {
+        switch (mapping.source.isEmpty, mapping.target.isEmpty) {
+        case (false, false):
+            prepareForGenerate()
+            let context = Context()
+            inferringMoves(context: context)
+            while !context.unhandled.isEmpty {
+                context.unhandled.forEach { $0.inferringMoves(context: context) }
+            }
+            
+            let batchUpdates: ListUpdates = Order.allCases.compactMap { order in
+                let source = generateSourceSectionUpdate(order: order)
+                let target = generateTargetSectionUpdate(order: order)
+                guard source.update != nil || target.update != nil else { return nil }
+                var batchUpdate = ListBatchUpdates()
+                source.update.map {
+                    batchUpdate.section.source = $0.section
+                    batchUpdate.item.source = $0.item
+                }
+                target.update.map {
+                    batchUpdate.section.target = $0.section
+                    batchUpdate.item.target = $0.item
+                }
+                return (batchUpdate, target.change)
+            }
+            return batchUpdates.isEmpty ? nil : .batchUpdates(batchUpdates)
+        case (true, false):
+            return .insertAll
+        case (false, true):
+            return .removeAll
+        case (true, true):
+            return nil
+        }
+    }
+    
+    override func generateListUpdates(itemSources: (Int, Bool)?) -> ListUpdates {
+        guard let update = updates else { return [] }
+        switch update {
+        case .batchUpdates(let batchUpdates):
+            return batchUpdates
+        case .insertAll:
+            let indexSet = IndexSet(integersIn: 0..<mapping.target.count)
+            let section = SectionUpdate(target: .init(insertions: indexSet))
+            return [(ListBatchUpdates(section: section), coordinatorChange)]
+        case .removeAll:
+            let indexSet = IndexSet(integersIn: 0..<mapping.source.count)
+            let section = SectionUpdate(source: .init(deletions: indexSet))
+            return [(ListBatchUpdates(section: section), coordinatorChange)]
+        }
+    }
+    
     override func generateSourceSectionUpdate(
         order: Order,
         sectionOffset: Int = 0,

@@ -78,6 +78,7 @@ where
         differ: Differ<Value>?
     ) -> CoordinatorDifference? {
         let coordinator = from as! ItemsCoordinator<SourceBase>
+        coordinator.setupIfNeeded()
         let (source, items) = (coordinator.source, coordinator.items)
         let mapping = (coordinator.keepSection, keepSection)
         guard let differ = (differ.map { .init($0) }) ?? defaultUpdate.diff else { return nil }

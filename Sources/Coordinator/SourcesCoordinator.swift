@@ -42,7 +42,7 @@ where
     Source.Element.SourceBase.Item == SourceBase.Item
 {
     enum SubsourceType {
-        case fromSourceBase((SourceBase.Source) -> Source)
+        case fromSourceBase((SourceBase.Source) -> Source, (Source) -> SourceBase.Source)
         case values
     }
     
@@ -123,12 +123,6 @@ where
         return coordinator.apply(keyPath, object: object, with: input, sectionOffset, itemOffset)
     }
     
-    func resetAndConfigIndicesAndOffsets() {
-        indices.removeAll(keepingCapacity: true)
-        configOffsetAndIndices()
-        setupSelectorSets()
-    }
-    
     func subsources(for source: Source) -> (isSectiond: Bool, values: [Subsource]) {
         var isSectioned = false
         var itemSources = [(element: Source.Element, coordinator: Subcoordinator)]()
@@ -172,7 +166,7 @@ where
         return (isSectioned, subsources)
     }
     
-    func configOffsetAndIndices() {
+    func configOffsetAndIndicesFor(subsources: [Subsource]) -> [Int] {
         var offset = 0
         var indices = [Int]()
         for (index, (_, context)) in subsources.enumerated() {
@@ -184,16 +178,68 @@ where
             indices += .init(repeating: index, count: count)
             offset += count
         }
-        self.indices = indices
+        return indices
+    }
+    
+    func setupFor(subsources: [Subsource]) {
+        subsources.forEach {
+            let context = $0.related
+            context.coordinator.setupContext(listContext: context)
+            context.getContexts = { [unowned self] in self.listContexts.values.map { $0.context } }
+            if isSectioned { return }
+            context.getItemSources = { [unowned self] in
+                (self.numbersOfItems(in: 0), self.keepSectionIfEmpty)
+            }
+        }
+    }
+    
+    func difference(
+        to isTo: Bool,
+        _ subsources: [Subsource],
+        _ indices: [Int],
+        _ source: SourceBase.Source!,
+        _ differ: Differ<Item>
+    ) -> SourcesCoordinatorDifference<Source.Element> {
+        let mapping = isTo
+            ? (source: self.subsources, target: subsources)
+            : (source: subsources, target: self.subsources)
+        let source: Mapping = isTo ? (self.source, source) : (source, self.source)
+        let indices: Mapping = isTo ? (self.indices, indices) : (indices, self.indices)
+        let diff = SourcesCoordinatorDifference(mapping: mapping, itemDiffer: differ)
+        diff.coordinatorChange = {
+            self.subsources = mapping.target
+            self.source = source.target
+            self.indices = indices.target
+        }
+        diff.extraCoordinatorChange = {
+            self.subsources = $0
+            self.indices = self.configOffsetAndIndicesFor(subsources: $0)
+            guard case let .fromSourceBase(_, fromSource) = self.subsourceType else { return }
+            self.source = fromSource(.init($0.flatMap { (source: Subsource) -> [Source.Element] in
+                switch source.value {
+                case let .items(_, items):
+                    return items()
+                case let .element(element):
+                    return [element]
+                }
+            }))
+        }
+        
+        if !isTo {
+            self.source = source.source
+            self.subsources = subsources
+        }
+        return diff
     }
     
     init(
         _ sourceBase: SourceBase,
         storage: CoordinatorStorage<SourceBase>? = nil,
-        toSource: @escaping (SourceBase.Source) -> (Source)
+        toSource: @escaping (SourceBase.Source) -> (Source),
+        fromSource:  @escaping (Source) -> SourceBase.Source
     ) {
         let source = sourceBase.source(storage: storage)
-        subsourceType = .fromSourceBase(toSource)
+        subsourceType = .fromSourceBase(toSource, fromSource)
         super.init(defaultUpdate: sourceBase.listUpdate, source: source, storage: storage)
     }
     
@@ -230,27 +276,14 @@ where
     }
     
     override func setup() {
-        if case let .fromSourceBase(closure) = subsourceType {
-            (isSectioned, subsources) = subsources(for: closure(source))
+        if case let .fromSourceBase(fromSource, _) = subsourceType {
+            (isSectioned, subsources) = subsources(for: fromSource(source))
         }
         
-        configOffsetAndIndices()
+        indices = configOffsetAndIndicesFor(subsources: subsources)
         setupSelectorSets()
         sourceType = (isSectioned || selectorSets.hasIndex) ? .section : .cell
-    }
-    
-    override func setupContext(listContext: ListContext) {
-        super.setupContext(listContext: listContext)
-        
-        subsources.forEach {
-            let context = $0.related
-            context.coordinator.setupContext(listContext: context)
-            context.getContexts = { [unowned self] in self.listContexts.values.map { $0.context } }
-            if isSectioned { return }
-            context.getItemSources = { [unowned self] in
-                (self.numbersOfItems(in: 0), self.keepSectionIfEmpty)
-            }
-        }
+        setupFor(subsources: subsources)
     }
     
     override func selectorSets(applying: (inout SelectorSets) -> Void) {
@@ -279,16 +312,31 @@ where
         subcoordinatorApply(keyPath, object: object, with: input, sectionOffset, itemOffset)
         super.apply(keyPath, object: object, with: input, sectionOffset, itemOffset)
     }
+    
+    override func difference(
+        to source: SourceBase.Source,
+        differ: Differ<Item>
+    ) -> CoordinatorDifference {
+        guard case let .fromSourceBase(fromSource, _) = subsourceType else { fatalError() }
+        let (_, subsource) = subsources(for: fromSource(source))
+        let indices = configOffsetAndIndicesFor(subsources: subsource)
+        return difference(to: true, subsource, indices, source, differ)
+    }
 }
 
 extension SourcesCoordinator where SourceBase.Source == Source {
     convenience init(sources sourceBase: SourceBase) {
-        self.init(sourceBase, storage: nil) { $0 }
+        self.init(sourceBase, storage: nil, toSource: { $0 }, fromSource: { $0 })
     }
 }
 
 extension SourcesCoordinator where SourceBase.Source == Source, SourceBase: UpdatableDataSource {
     convenience init(updatableSources sourceBase: SourceBase) {
-        self.init(sourceBase, storage: sourceBase.coordinatorStorage) { $0 }
+        self.init(
+            sourceBase,
+            storage: sourceBase.coordinatorStorage,
+            toSource: { $0 },
+            fromSource: { $0 }
+        )
     }
 }

@@ -50,6 +50,7 @@ where
     typealias Related = SourcesContext<Source.Element.SourceBase>
     typealias Subsource = (value: SourcesSubelement<Source.Element>, related: Related)
     
+    var toCoordinator: (Source.Element) -> Subcoordinator
     var subsourceType: SubsourceType
     var subsources = [Subsource]()
     var indices = [Int]()
@@ -131,7 +132,8 @@ where
         func addItemSources() {
             let coordinator = SourcesCoordinator<Source.Element.SourceBase, [Source.Element]>(
                 elements: itemSources,
-                defaultUpdate: defaultUpdate
+                defaultUpdate: defaultUpdate,
+                toCoordinator: toCoordinator
             )
             let context = SourcesContext(coordinator, isSectiond: true)
             subsources.append((.items(id: id) { coordinator.subsourcesArray }, context))
@@ -140,7 +142,7 @@ where
         }
         
         for element in source {
-            let coordinator = element.makeListCoordinator()
+            let coordinator = toCoordinator(element)
             coordinator.setupIfNeeded()
             switch coordinator.sourceType {
             case .section:
@@ -211,6 +213,9 @@ where
             self.source = source.target
             self.indices = indices.target
         }
+        diff.updateIndices = {
+            self.indices = self.configOffsetAndIndicesFor(subsources: self.subsources)
+        }
         diff.extraCoordinatorChange = {
             self.subsources = $0
             self.indices = self.configOffsetAndIndicesFor(subsources: $0)
@@ -236,18 +241,22 @@ where
         _ sourceBase: SourceBase,
         storage: CoordinatorStorage<SourceBase>? = nil,
         toSource: @escaping (SourceBase.Source) -> (Source),
-        fromSource:  @escaping (Source) -> SourceBase.Source
+        fromSource:  @escaping (Source) -> SourceBase.Source,
+        toCoordinator: @escaping (Source.Element) -> Subcoordinator
     ) {
         let source = sourceBase.source(storage: storage)
         subsourceType = .fromSourceBase(toSource, fromSource)
+        self.toCoordinator = toCoordinator
         super.init(defaultUpdate: sourceBase.listUpdate, source: source, storage: storage)
     }
     
     init(
         elements: [(element: Source.Element, coordinator: Subcoordinator)],
-        defaultUpdate: ListUpdate<SourceBase.Item>
+        defaultUpdate: ListUpdate<SourceBase.Item>,
+        toCoordinator: @escaping (Source.Element) -> Subcoordinator
     ) {
         subsourceType = .values
+        self.toCoordinator = toCoordinator
         super.init(defaultUpdate: defaultUpdate, source: nil, storage: nil)
         subsources = elements.map {
             (.element($0.element), .init($0.coordinator, isSectiond: false))
@@ -325,18 +334,31 @@ where
 }
 
 extension SourcesCoordinator where SourceBase.Source == Source {
-    convenience init(sources sourceBase: SourceBase) {
-        self.init(sourceBase, storage: nil, toSource: { $0 }, fromSource: { $0 })
+    convenience init(
+        sources sourceBase: SourceBase,
+        toCoordinator: @escaping (Source.Element) -> Subcoordinator = { $0.makeListCoordinator() }
+    ) {
+        self.init(
+            sourceBase,
+            storage: nil,
+            toSource: { $0 },
+            fromSource: { $0 },
+            toCoordinator: toCoordinator
+        )
     }
 }
 
 extension SourcesCoordinator where SourceBase.Source == Source, SourceBase: UpdatableDataSource {
-    convenience init(updatableSources sourceBase: SourceBase) {
+    convenience init(
+        updatableSources sourceBase: SourceBase,
+        toCoordinator: @escaping (Source.Element) -> Subcoordinator = { $0.makeListCoordinator() }
+    ) {
         self.init(
             sourceBase,
             storage: sourceBase.coordinatorStorage,
             toSource: { $0 },
-            fromSource: { $0 }
+            fromSource: { $0 },
+            toCoordinator: toCoordinator
         )
     }
 }

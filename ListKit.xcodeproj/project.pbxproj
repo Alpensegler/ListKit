@@ -369,8 +369,8 @@
 				F31E7225246A7F5C00493C4D /* DoubleListViewController.swift */,
 				F31E7227246A7F7200493C4D /* SectionListViewControlle.swift */,
 				F36550302451B6840038172F /* NestedListViewController.swift */,
-				F365502F2451B6840038172F /* TestListViewController.swift */,
 				F368F05B247E2DE900CE2B8B /* IdentifiableSectionListViewController.swift */,
+				F365502F2451B6840038172F /* TestListViewController.swift */,
 			);
 			path = ListKitExample;
 			sourceTree = "<group>";

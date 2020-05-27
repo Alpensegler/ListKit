@@ -59,3 +59,16 @@ class TestListViewController: ExampleViewController, UpdatableTableListAdapter {
         apply(by: tableView)
     }
 }
+
+#if canImport(SwiftUI) && DEBUG
+
+import SwiftUI
+
+@available(iOS 13.0, *)
+struct TestList_Preview: PreviewProvider {
+    static var previews: some View {
+        ExampleView(viewController: TestListViewController())
+    }
+}
+
+#endif

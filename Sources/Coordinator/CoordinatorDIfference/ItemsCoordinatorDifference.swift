@@ -120,8 +120,8 @@ final class ItemsCoordinatorDifference<Item>: CoordinatorDifference {
                 isMoved: false
             ) else { return (sectionCount, nil) }
             return (sectionCount, .init(item: itemUpdate))
-        case .third where targetIsEmpty:
-            return (0, .init(section: .init(deletions: .init(integer: sectionOffset))))
+        case .third where !sourceIsEmpty && targetIsEmpty:
+            return (1, .init(section: .init(deletions: .init(integer: sectionOffset))))
         default:
             return (sectionCount, nil)
         }
@@ -133,16 +133,22 @@ final class ItemsCoordinatorDifference<Item>: CoordinatorDifference {
         isMoved: Bool = false
     ) -> (count: Int, update: TargetBatchUpdates?, change: (() -> Void)?) {
         switch order {
-        case .first where !sourceIsEmpty && targetIsEmpty:
+        case .first where sourceIsEmpty && !targetIsEmpty:
             sectionCount = 1
-            let section = SectionTargetUpdate(insertions: .init(integer: sectionOffset))
             let countChange = updateSectionCount.map { change in { change(1) } }
+            let section = SectionTargetUpdate(insertions: .init(integer: sectionOffset))
             return (sectionCount, .init(section: section), countChange)
+        case .first where !sourceIsEmpty && targetIsEmpty:
+            var change = TargetBatchUpdates()
+            sectionCount = 1
+            let countChange = updateSectionCount.map { change in { change(1) } }
+            if isMoved { change.section.moves.append((sourceSection, sectionOffset)) }
+            return (sectionCount, change, countChange)
         case .first where isMoved && !sourceIsEmpty:
             return (1, .init(section: .init(moves: [(sourceSection, sectionOffset)])), nil)
         case .third where !sourceIsEmpty && targetIsEmpty:
             sectionCount = 0
-            let countChange = updateSectionCount.map { change in { change(1) } }
+            let countChange = updateSectionCount.map { change in { change(nil) } }
             return (0, .init(), countChange)
         case .second,
              .third where needThirdUpdate:

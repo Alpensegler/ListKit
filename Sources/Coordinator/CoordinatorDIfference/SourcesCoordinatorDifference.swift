@@ -108,9 +108,11 @@ final class SourcesCoordinatorDifference<Element: DataSource>: CoordinatorDiffer
             prepareForGenerate()
             let context = Context()
             inferringMoves(context: context)
-            context.unhandled.removeAll()
             while !context.unhandled.isEmpty {
-                context.unhandled.forEach { $0.inferringMoves(context: context) }
+                context.unhandled.forEach {
+                    $0.prepareForGenerate()
+                    $0.inferringMoves(context: context)
+                }
                 context.unhandled.removeAll()
             }
             
@@ -311,9 +313,9 @@ final class SourcesCoordinatorDifference<Element: DataSource>: CoordinatorDiffer
             if needExtraUpdate {
                 change = change + extraCoordinatorChange.map { change in
                     { change(self.extraSources) }
-                }
+                } + updateIndices
             } else {
-                change = change + coordinatorChange
+                change = change + coordinatorChange + updateIndices
             }
         case .second where needExtraUpdate:
             for element in changes.target {
@@ -326,7 +328,7 @@ final class SourcesCoordinatorDifference<Element: DataSource>: CoordinatorDiffer
                     addToUpdate(element, isMoved: false)
                 }
             }
-            change = change + coordinatorChange
+            change = change + coordinatorChange + updateIndices
         default:
             changes.target.forEach { addToUpdate($0, isMoved: false) }
             change = change + updateIndices

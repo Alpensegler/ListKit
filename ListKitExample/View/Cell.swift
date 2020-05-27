@@ -49,7 +49,7 @@ final class CenterLabelCell: UICollectionViewCell {
     
 }
 
-class LabelCell: UICollectionViewCell {
+final class LabelCell: UICollectionViewCell {
     lazy var label: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -63,4 +63,22 @@ class LabelCell: UICollectionViewCell {
         ])
         return label
     }()
+}
+
+final class TitleHeader: UICollectionReusableView {
+    lazy private var label: UILabel = {
+        let view = UILabel()
+        view.backgroundColor = .clear
+        view.textAlignment = .center
+        view.textColor = .black
+        view.font = .boldSystemFont(ofSize: 18)
+        view.frame = bounds
+        self.addSubview(view)
+        return view
+    }()
+    
+    var text: String? {
+        get { return label.text }
+        set { label.text = newValue }
+    }
 }

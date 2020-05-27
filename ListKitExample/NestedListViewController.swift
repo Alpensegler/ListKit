@@ -36,3 +36,15 @@ class NestedListViewController: ExampleViewController, UpdatableTableListAdapter
 }
 
 
+#if canImport(SwiftUI) && DEBUG
+
+import SwiftUI
+
+@available(iOS 13.0, *)
+struct NestedList_Preview: PreviewProvider {
+    static var previews: some View {
+        ExampleView(viewController: NestedListViewController())
+    }
+}
+
+#endif

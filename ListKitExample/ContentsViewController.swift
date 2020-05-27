@@ -38,3 +38,17 @@ class ContentsViewController: ExampleViewController, UpdatableTableListAdapter {
         title = "Contents"
     }
 }
+
+
+#if canImport(SwiftUI) && DEBUG
+
+import SwiftUI
+
+@available(iOS 13.0, *)
+struct Contents_Preview: PreviewProvider {
+    static var previews: some View {
+        ExampleView(viewController: ContentsViewController())
+    }
+}
+
+#endif

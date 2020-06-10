@@ -15,17 +15,21 @@ public struct CollectionList<Source: DataSource>: CollectionListAdapter, Updatab
 where Source.SourceBase == Source {
     public typealias Item = Source.Item
     public typealias SourceBase = Source
-    let coordinatorSetups: [(ListCoordinator<Source>) -> Void]
     let storage = ListAdapterStorage<Source>()
     let erasedGetter: (Self) -> CollectionList<AnySources>
     
     public let source: Source
     public var sourceBase: Source { source }
-    public var differ: Differ<Source> { source.differ }
+    
     public var listUpdate: ListUpdate<Item> { source.listUpdate }
-    public var collectionList: CollectionList<Source> { self }
+    public var listOptions: ListOptions<Source> { source.listOptions }
+    
+    public var listCoordinator: ListCoordinator<Source> { storage.listCoordinator }
+    public let listContextSetups: [(ListCoordinatorContext<SourceBase>) -> Void]
+    
     public var coordinatorStorage: CoordinatorStorage<Source> { storage.coordinatorStorage }
-    public func makeListCoordinator() -> ListCoordinator<Source> { storage.listCoordinator }
+    
+    public var collectionList: CollectionList<Source> { self }
     
     public var wrappedValue: Source { source }
     public var projectedValue: Source.Source { source.source }
@@ -35,14 +39,14 @@ where Source.SourceBase == Source {
     }
     
     init(
-        coordinatorSetups: [(ListCoordinator<Source>) -> Void],
+        listContextSetups: [(ListCoordinatorContext<SourceBase>) -> Void],
         source: Source,
         erasedGetter: @escaping (Self) -> CollectionList<AnySources> = Self.defaultErasedGetter
     ) {
-        self.coordinatorSetups = coordinatorSetups
+        self.listContextSetups = listContextSetups
         self.source = source
         self.erasedGetter = erasedGetter
-        storage.makeListCoordinator = makeCoordinator(for: source, setups: coordinatorSetups)
+        storage.makeListCoordinator = { source.listCoordinator }
     }
 }
 
@@ -57,6 +61,7 @@ public extension CollectionListAdapter {
         let collectionList = self.collectionList
         collectionView.listDelegate.setCoordinator(
             coordinator: collectionList.storage.listCoordinator,
+            setups: listContextSetups,
             update: update,
             animated: animated,
             completion: completion
@@ -85,7 +90,7 @@ extension CollectionList: ListAdapter {
 import UIKit
 
 extension CollectionList {
-    static var rootKeyPath: ReferenceWritableKeyPath<Coordinator, UICollectionListDelegate> {
+    static var rootKeyPath: ReferenceWritableKeyPath<CoordinatorContext, UICollectionListDelegate> {
         \.collectionListDelegate
     }
     

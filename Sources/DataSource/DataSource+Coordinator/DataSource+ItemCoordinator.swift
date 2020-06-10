@@ -6,13 +6,13 @@
 //
 
 public extension DataSource where SourceBase.Source == Item {
-    func makeListCoordinator() -> ListCoordinator<SourceBase> {
+    var listCoordinator: ListCoordinator<SourceBase> {
         ItemCoordinator(sourceBase)
     }
 }
 
 public extension DataSource where SourceBase.Source == Item, SourceBase: UpdatableDataSource {
-    func makeListCoordinator() -> ListCoordinator<SourceBase> {
-        ItemCoordinator(updatable: sourceBase)
+    var listCoordinator: ListCoordinator<SourceBase> {
+        sourceBase.coordinator(with: ItemCoordinator(sourceBase))
     }
 }

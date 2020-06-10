@@ -15,9 +15,9 @@ public extension TableListAdapter {
     ) -> TableList<SourceBase> {
         let key = ObjectIdentifier(Cache.self)
         let tableList = toTableList(self)  { $0.cacheForItem(key) as! Cache }
-        var setups = tableList.coordinatorSetups
+        var setups = tableList.listContextSetups
         setups.append { $0.cacheFromItem = cacheFromItem }
-        return .init(coordinatorSetups: setups, source: tableList.source)
+        return .init(listContextSetups: setups, source: tableList.source)
     }
 }
 
@@ -28,9 +28,9 @@ public extension CollectionListAdapter {
     ) -> CollectionList<SourceBase> {
         let key = ObjectIdentifier(Cache.self)
         let collectionList = toCollectionList(self) { $0.cacheForItem(key) as! Cache }
-        var setups = collectionList.coordinatorSetups
+        var setups = collectionList.listContextSetups
         setups.append { $0.cacheFromItem = cacheFromItem }
-        return .init(coordinatorSetups: setups, source: collectionList.source)
+        return .init(listContextSetups: setups, source: collectionList.source)
     }
 }
 

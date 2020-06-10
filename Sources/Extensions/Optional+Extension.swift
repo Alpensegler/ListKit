@@ -10,16 +10,16 @@ extension Optional: DataSource where Wrapped: DataSource {
     public typealias Source = Self
     
     public var source: Source { self }
-    public var differ: Differ<Self> { (source?.differ).map { Differ($0) } ?? .none }
-    public var listUpdate: ListUpdate<Item> { source?.listUpdate ?? .reload }
     
-    public func makeListCoordinator() -> ListCoordinator<Self> {
+    public var listUpdate: ListUpdate<Item> { source?.listUpdate ?? .reload }
+    public var listOptions: ListOptions<Self> {
+        (source?.listOptions).map { .init($0) } ?? .none
+    }
+    
+    public var listCoordinator: ListCoordinator<Self> {
         switch self {
         case .some(let dataSource):
-            return WrapperCoordinator<Self, Wrapped>(
-                source: dataSource,
-                wrappedCoodinator: dataSource.makeListCoordinator()
-            ) { $0 }
+            return WrapperCoordinator<Self, Wrapped>(self, wrapped: dataSource) { $0 }
         case .none:
             return EmptyCoordinator(sourceBase: nil)
         }

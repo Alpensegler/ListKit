@@ -9,36 +9,29 @@ import Foundation
 
 final class NSCoordinator<SourceBase: NSDataSource>: ListCoordinator<SourceBase>
 where SourceBase.SourceBase == SourceBase {
-    let itemClosure: (Int, Int) -> Item
-    let configSourceIndices: (NSCoordinator<SourceBase>) -> Void
-    var counts = [Int]()
-    var caches = [[ItemRelatedCache]]()
+    unowned let sourceBase: SourceBase
+    lazy var caches: [[ItemRelatedCache]] = {
+        source.indices.map { Array(repeating: .init(), count: source[$0]) }
+    }()
     
     override var multiType: SourceMultipleType { .noneDiffable }
     
-    override func item(at path: IndexPath) -> Item {
-        itemClosure(path.section, path.item)
+    override func item(at section: Int, _ item: Int) -> Item {
+        sourceBase.item(at: section, item)
     }
-    override func itemRelatedCache(at path: IndexPath) -> ItemRelatedCache {
-        caches[path]
+    override func itemRelatedCache(at section: Int, _ item: Int) -> ItemRelatedCache {
+        caches[section][item]
     }
     
-    override func numbersOfSections() -> Int { counts.count }
-    override func numbersOfItems(in section: Int) -> Int { counts[section] }
+    override func numbersOfItems(in section: Int) -> Int { source[safe: section] ?? 0 }
+    override func numbersOfSections() -> Int { source.count }
     
-    init(_ sourceBase: SourceBase) {
-        itemClosure = { [unowned sourceBase] in sourceBase.item(at: $0, item: $1) }
-        configSourceIndices = { [unowned sourceBase] in
-            $0.caches = (0..<sourceBase.numbersOfSections()).map {
-                Array(repeating: .init(), count: sourceBase.numbersOfItem(in: $0))
-            }
-            $0.counts = (0..<sourceBase.numbersOfSections()).map {
-                sourceBase.numbersOfItem(in: $0)
-            }
-        }
-        
-        super.init(source: (), storage: sourceBase.coordinatorStorage)
-        configSourceIndices(self)
-        sourceType = .section
+    override func configureIsSectioned() -> Bool {
+        preferSection || selectorsHasSection || source.count > 1
+    }
+    
+    override init(_ sourceBase: SourceBase, id: AnyHashable = ObjectIdentifier(SourceBase.self)) {
+        self.sourceBase = sourceBase
+        super.init(sourceBase, id: id)
     }
 }

@@ -9,22 +9,15 @@ public protocol UpdatableDataSource: DataSource {
     var coordinatorStorage: CoordinatorStorage<SourceBase> { get }
 }
 
-public final class CoordinatorStorage<SourceBase: DataSource> where SourceBase.SourceBase == SourceBase {
-    var coordinators = [ObjectIdentifier: ListCoordinator<SourceBase>]()
-    var source: SourceBase.Source!
-    var stagingUpdate: [(ListCoordinator<SourceBase>) -> Void]?
+public final class CoordinatorStorage<SourceBase: DataSource>
+where SourceBase.SourceBase == SourceBase {
+    var coordinator: ListCoordinator<SourceBase>?
     
     public init() { }
-    
-    deinit {
-        
-    }
 }
 
 public extension UpdatableDataSource {
-    var currentSource: SourceBase.Source {
-        sourceBase.source(storage: coordinatorStorage)
-    }
+    var currentSource: SourceBase.Source { listCoordinator.source }
     
     func perform(
         _ update: ListUpdate<Item>,
@@ -32,11 +25,7 @@ public extension UpdatableDataSource {
         completion: ((ListView, Bool) -> Void)? = nil,
         updateData: ((SourceBase.Source) -> Void)? = nil
     ) {
-        let source = sourceBase.source
-        coordinatorStorage.source = nil
-        coordinatorStorage.coordinators.values.forEach {
-            $0.perform(update, to: source, animated, completion, updateData)
-        }
+        listCoordinator.perform(update, to: sourceBase.source, animated, completion, updateData)
     }
     
     func performUpdate(
@@ -48,31 +37,27 @@ public extension UpdatableDataSource {
     }
     
     func removeCurrent(animated: Bool = true, completion: ((ListView, Bool) -> Void)? = nil) {
-        cancelUpdate()
-        coordinatorStorage.coordinators.values.forEach {
-            $0.removeCurrent(animated: animated, completion: completion)
-        }
+        listCoordinator.removeCurrent(animated: animated, completion: completion)
     }
     
     func startUpdate() {
-        
-    }
-    
-    func cancelUpdate() {
-        
+        listCoordinator.startUpdate()
     }
     
     func endUpdate(animated: Bool = true, completion: ((ListView, Bool) -> Void)? = nil) {
-        
+        listCoordinator.endUpdate(animated: animated, completion: completion)
     }
 }
 
-extension DataSource where SourceBase == Self {
-    func source(storage: CoordinatorStorage<Self>?) -> Source {
-        storage?.source ?? {
-            let source = self.source
-            storage?.source = source
-            return source
+extension UpdatableDataSource where SourceBase == Self {
+    func coordinator(
+        with initialize: @autoclosure () -> ListCoordinator<SourceBase>
+    ) -> ListCoordinator<SourceBase> {
+        coordinatorStorage.coordinator ?? {
+            let coordinator = initialize()
+            coordinatorStorage.coordinator = coordinator
+            coordinator.storage = coordinatorStorage
+            return coordinator
         }()
     }
 }

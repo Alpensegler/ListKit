@@ -7,6 +7,43 @@
 
 extension Collection {
     var nonNilFirst: Element { self[startIndex] }
+
+    func mapContiguous<T>(_ transform: (Element) throws -> T) rethrows -> ContiguousArray<T> {
+        let n = count
+        if n == 0 { return [] }
+        
+        var result = ContiguousArray<T>()
+        result.reserveCapacity(n)
+        
+        var i = startIndex
+        
+        for _ in 0..<n {
+            result.append(try transform(self[i]))
+            formIndex(after: &i)
+        }
+        
+        return result
+    }
+
+    func compactMapContiguous<T>(
+        _ transform: (Element) throws -> T?
+    ) rethrows -> ContiguousArray<T> {
+        let n = count
+        if n == 0 { return [] }
+        
+        var result = ContiguousArray<T>()
+        result.reserveCapacity(n)
+        
+        var i = startIndex
+        
+        for _ in 0..<n {
+            guard let value = try transform(self[i]) else { continue }
+            result.append(value)
+            formIndex(after: &i)
+        }
+        
+        return result
+    }
 }
 
 extension MutableCollection {

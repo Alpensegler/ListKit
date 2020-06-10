@@ -58,9 +58,9 @@ extension SetuptableListView {
         Associator.getValue(key: &listDelegateKey, from: self, initialValue: .init(self))
     }
     
-    func isCoordinator(_ coordinator: Coordinator) -> Bool {
+    func isCoordinator<SourceBase>(_ coordinator: ListCoordinator<SourceBase>) -> Bool {
         if let delegate: ListDelegate = Associator.getValue(key: &listDelegateKey, from: self) {
-            return isDelegate(delegate) && delegate.coordinator === coordinator
+            return isDelegate(delegate) && delegate.context?.isCoordinator(coordinator) ?? false
         }
         return false
     }

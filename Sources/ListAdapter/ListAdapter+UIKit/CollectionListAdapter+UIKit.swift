@@ -12,7 +12,7 @@ public extension DataSource {
     func collectionViewCellForItem(
         _ closure: @escaping (CollectionItemContext<SourceBase>, Item) -> UICollectionViewCell
     ) -> CollectionList<SourceBase> {
-        CollectionList(self).set(\.cellForItemAt) { closure($0.0, $0.0.itemValue) }
+        CollectionList.init(self).set(\.cellForItemAt) { closure($0.0, $0.0.itemValue) }
     }
     
     func collectionViewCellForItem<Cell: UICollectionViewCell>(

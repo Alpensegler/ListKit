@@ -13,29 +13,42 @@ public struct Sources<Source, Item>: UpdatableDataSource {
     let sourceSetter: (Source) -> Void
     let coordinatorMaker: (Self) -> ListCoordinator<Self>
     
-    public let differ: Differ<Self>
-    public let listUpdate: ListUpdate<Item>
-    public let coordinatorStorage = CoordinatorStorage<Self>()
     public var source: Source {
-        get { sourceGetter() }
-        set {
+        get { coordinatorStorage.coordinator?.source ?? sourceGetter() }
+        nonmutating set {
             sourceSetter(newValue)
             perform(listUpdate, updateData: sourceSetter)
         }
     }
     
+    public let listUpdate: ListUpdate<Item>
+    public var listOptions: ListOptions<Self>
+    
+    public var listCoordinator: ListCoordinator<Self> { coordinator(with: coordinatorMaker(self)) }
+    
+    public let coordinatorStorage = CoordinatorStorage<Self>()
+    
     public var wrappedValue: Source {
         get { source }
-        set { source = newValue }
+        nonmutating set { source = newValue }
     }
     
-    public func makeListCoordinator() -> ListCoordinator<Self> { coordinatorMaker(self) }
     public subscript<Value>(dynamicMember keyPath: KeyPath<Source, Value>) -> Value {
         source[keyPath: keyPath]
     }
     
     public subscript<Value>(dynamicMember keyPath: WritableKeyPath<Source, Value>) -> Value {
         get { source[keyPath: keyPath] }
-        set { source[keyPath: keyPath] = newValue }
+        nonmutating set { source[keyPath: keyPath] = newValue }
     }
+}
+
+public extension Sources {
+    struct Options: ListKit.Options {
+        public typealias SourceBase = Sources<Source, Item>
+        
+        public var rawValue: Int8
+        public init(rawValue: Int8) { self.rawValue = rawValue }
+    }
+    
 }

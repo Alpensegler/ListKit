@@ -11,13 +11,13 @@ where
     Source.Element: Collection,
     Source.Element.Element == Item
 {
-    init(_ id: AnyHashable? = nil, sections: Source, update: ListUpdate<Item>) {
+    init(_ id: AnyHashable?, sections: Source, update: ListUpdate<Item>, options: Options) {
         var source = sections
         self.sourceGetter = { source }
         self.sourceSetter = { source = $0 }
-        self.differ = id.map { id in .diff(id: { _ in id }) } ?? .none
         self.listUpdate = update
-        self.coordinatorMaker = { SectionsCoordinator(updatable: $0) }
+        self.listOptions = .init(id: id, options)
+        self.coordinatorMaker = { $0.coordinator(with: SectionsCoordinator($0)) }
     }
 }
 
@@ -27,13 +27,13 @@ where
     Source.Element: RangeReplaceableCollection,
     Source.Element.Element == Item
 {
-    init(_ id: AnyHashable? = nil, sections: Source, update: ListUpdate<Item>) {
+    init(_ id: AnyHashable?, sections: Source, update: ListUpdate<Item>, options: Options) {
         var source = sections
         self.sourceGetter = { source }
         self.sourceSetter = { source = $0 }
-        self.differ = id.map { id in .diff(id: { _ in id }) } ?? .none
         self.listUpdate = update
-        self.coordinatorMaker = { RangeReplacableSectionsCoordinator(updatable: $0) }
+        self.listOptions = .init(id: id, options)
+        self.coordinatorMaker = { $0.coordinator(with: RangeReplacableSectionsCoordinator($0)) }
     }
 }
 
@@ -43,12 +43,17 @@ where
     Source.Element: Collection,
     Source.Element.Element == Item
 {
-    init(id: AnyHashable? = nil, sections: Source, update: ListUpdate<Item>) {
-        self.init(id, sections: sections, update: update)
+    init(
+        id: AnyHashable? = nil,
+        sections: Source,
+        update: ListUpdate<Item>,
+        options: Options = .init()
+    ) {
+        self.init(id, sections: sections, update: update, options: options)
     }
     
-    init(id: AnyHashable? = nil, sections: Source) {
-        self.init(id: id, sections: sections, update: .reload)
+    init(id: AnyHashable? = nil, sections: Source, options: Options = .init()) {
+        self.init(id: id, sections: sections, update: .reload, options: options)
     }
 }
 
@@ -58,12 +63,17 @@ where
     Source.Element: RangeReplaceableCollection,
     Source.Element.Element == Item
 {
-    init(id: AnyHashable? = nil, sections: Source, update: ListUpdate<Item>) {
-        self.init(id, sections: sections, update: update)
+    init(
+        id: AnyHashable? = nil,
+        sections: Source,
+        update: ListUpdate<Item>,
+        options: Options = .init()
+    ) {
+        self.init(id, sections: sections, update: update, options: options)
     }
     
-    init(id: AnyHashable? = nil, sections: Source) {
-        self.init(id: id, sections: sections, update: .reload)
+    init(id: AnyHashable? = nil, sections: Source, options: Options = .init()) {
+        self.init(id: id, sections: sections, update: .reload, options: options)
     }
 }
 
@@ -75,8 +85,8 @@ where
     Source.Element.Element == Item,
     Item: Equatable
 {
-    init(id: AnyHashable? = nil, sections: Source) {
-        self.init(id: id, sections: sections, update: .diff)
+    init(id: AnyHashable? = nil, sections: Source, options: Options = .init()) {
+        self.init(id: id, sections: sections, update: .diff, options: options)
     }
 }
 
@@ -87,8 +97,8 @@ where
     Source.Element.Element == Item,
     Item: Equatable
 {
-    init(id: AnyHashable? = nil, sections: Source) {
-        self.init(id: id, sections: sections, update: .diff)
+    init(id: AnyHashable? = nil, sections: Source, options: Options = .init()) {
+        self.init(id: id, sections: sections, update: .diff, options: options)
     }
 }
 
@@ -100,8 +110,8 @@ where
     Source.Element.Element == Item,
     Item: Hashable
 {
-    init(id: AnyHashable? = nil, sections: Source) {
-        self.init(id: id, sections: sections, update: .diff)
+    init(id: AnyHashable? = nil, sections: Source, options: Options = .init()) {
+        self.init(id: id, sections: sections, update: .diff, options: options)
     }
 }
 
@@ -112,8 +122,8 @@ where
     Source.Element.Element == Item,
     Item: Hashable
 {
-    init(id: AnyHashable? = nil, sections: Source) {
-        self.init(id: id, sections: sections, update: .diff)
+    init(id: AnyHashable? = nil, sections: Source, options: Options = .init()) {
+        self.init(id: id, sections: sections, update: .diff, options: options)
     }
 }
 
@@ -126,8 +136,8 @@ where
     Source.Element.Element == Item,
     Item: Identifiable
 {
-    init(id: AnyHashable? = nil, sections: Source) {
-        self.init(id: id, sections: sections, update: .diff)
+    init(id: AnyHashable? = nil, sections: Source, options: Options = .init()) {
+        self.init(id: id, sections: sections, update: .diff, options: options)
     }
 }
 
@@ -139,8 +149,8 @@ where
     Source.Element.Element == Item,
     Item: Identifiable
 {
-    init(id: AnyHashable? = nil, sections: Source) {
-        self.init(id: id, sections: sections, update: .diff)
+    init(id: AnyHashable? = nil, sections: Source, options: Options = .init()) {
+        self.init(id: id, sections: sections, update: .diff, options: options)
     }
 }
 
@@ -154,8 +164,8 @@ where
     Item: Identifiable,
     Item: Equatable
 {
-    init(id: AnyHashable? = nil, sections: Source) {
-        self.init(id: id, sections: sections, update: .diff)
+    init(id: AnyHashable? = nil, sections: Source, options: Options = .init()) {
+        self.init(id: id, sections: sections, update: .diff, options: options)
     }
 }
 
@@ -168,8 +178,8 @@ where
     Item: Identifiable,
     Item: Equatable
 {
-    init(id: AnyHashable? = nil, sections: Source) {
-        self.init(id: id, sections: sections, update: .diff)
+    init(id: AnyHashable? = nil, sections: Source, options: Options = .init()) {
+        self.init(id: id, sections: sections, update: .diff, options: options)
     }
 }
 
@@ -183,8 +193,8 @@ where
     Item: Identifiable,
     Item: Hashable
 {
-    init(id: AnyHashable? = nil, sections: Source) {
-        self.init(id: id, sections: sections, update: .diff)
+    init(id: AnyHashable? = nil, sections: Source, options: Options = .init()) {
+        self.init(id: id, sections: sections, update: .diff, options: options)
     }
 }
 
@@ -197,7 +207,7 @@ where
     Item: Identifiable,
     Item: Hashable
 {
-    init(id: AnyHashable? = nil, sections: Source) {
-        self.init(id: id, sections: sections, update: .diff)
+    init(id: AnyHashable? = nil, sections: Source, options: Options = .init()) {
+        self.init(id: id, sections: sections, update: .diff, options: options)
     }
 }

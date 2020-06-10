@@ -11,13 +11,13 @@ where
     Source.Element: DataSource,
     Source.Element.Item == Item
 {
-    init(_ id: AnyHashable? = nil, dataSources: Source, update: ListUpdate<Item>) {
+    init(_ id: AnyHashable?, dataSources: Source, update: ListUpdate<Item>, options: Options) {
         var source = dataSources
         self.sourceGetter = { source }
         self.sourceSetter = { source = $0 }
-        self.differ = id.map { id in .diff(id: { _ in id }) } ?? .none
         self.listUpdate = update
-        self.coordinatorMaker = { SourcesCoordinator(updatableSources: $0) }
+        self.listOptions = .init(id: id, options)
+        self.coordinatorMaker = { $0.coordinator(with: SourcesCoordinator(sources: $0)) }
     }
 }
 
@@ -27,12 +27,17 @@ where
     Source.Element: DataSource,
     Source.Element.Item == Item
 {
-    init(id: AnyHashable? = nil, dataSources: Source, update: ListUpdate<Item>) {
-        self.init(id, dataSources: dataSources, update: update)
+    init(
+        id: AnyHashable? = nil,
+        dataSources: Source,
+        update: ListUpdate<Item>,
+        options: Options = .init()
+    ) {
+        self.init(id, dataSources: dataSources, update: update, options: options)
     }
     
-    init(id: AnyHashable? = nil, dataSources: Source) {
-        self.init(id, dataSources: dataSources, update: .reload)
+    init(id: AnyHashable? = nil, dataSources: Source, options: Options = .init()) {
+        self.init(id, dataSources: dataSources, update: .reload, options: options)
     }
 }
 
@@ -44,8 +49,13 @@ where
     Source.Element.Item == Item,
     Item: Equatable
 {
-    init(id: AnyHashable? = nil, dataSources: Source, update: ListUpdate<Item>) {
-        self.init(id, dataSources: dataSources, update: .diff)
+    init(
+        id: AnyHashable? = nil,
+        dataSources: Source,
+        update: ListUpdate<Item>,
+        options: Options = .init()
+    ) {
+        self.init(id, dataSources: dataSources, update: .diff, options: options)
     }
 }
 
@@ -57,8 +67,13 @@ where
     Source.Element.Item == Item,
     Item: Hashable
 {
-    init(id: AnyHashable? = nil, dataSources: Source, update: ListUpdate<Item>) {
-        self.init(id, dataSources: dataSources, update: .diff)
+    init(
+        id: AnyHashable? = nil,
+        dataSources: Source,
+        update: ListUpdate<Item>,
+        options: Options = .init()
+    ) {
+        self.init(id, dataSources: dataSources, update: .diff, options: options)
     }
 }
 
@@ -71,8 +86,13 @@ where
     Source.Element.Item == Item,
     Item: Identifiable
 {
-    init(id: AnyHashable? = nil, dataSources: Source, update: ListUpdate<Item>) {
-        self.init(id, dataSources: dataSources, update: .diff)
+    init(
+        id: AnyHashable? = nil,
+        dataSources: Source,
+        update: ListUpdate<Item>,
+        options: Options = .init()
+    ) {
+        self.init(id, dataSources: dataSources, update: .diff, options: options)
     }
 }
 
@@ -86,8 +106,13 @@ where
     Item: Identifiable,
     Item: Equatable
 {
-    init(id: AnyHashable? = nil, dataSources: Source, update: ListUpdate<Item>) {
-        self.init(id, dataSources: dataSources, update: .diff)
+    init(
+        id: AnyHashable? = nil,
+        dataSources: Source,
+        update: ListUpdate<Item>,
+        options: Options = .init()
+    ) {
+        self.init(id, dataSources: dataSources, update: .diff, options: options)
     }
 }
 
@@ -101,7 +126,12 @@ where
     Item: Identifiable,
     Item: Hashable
 {
-    init(id: AnyHashable? = nil, dataSources: Source, update: ListUpdate<Item>) {
-        self.init(id, dataSources: dataSources, update: .diff)
+    init(
+        id: AnyHashable? = nil,
+        dataSources: Source,
+        update: ListUpdate<Item>,
+        options: Options = .init()
+    ) {
+        self.init(id, dataSources: dataSources, update: .diff, options: options)
     }
 }

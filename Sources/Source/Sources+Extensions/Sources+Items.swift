@@ -6,44 +6,49 @@
 //
 
 extension Sources where Source: Collection, Source.Element == Item {
-    init(_ id: AnyHashable? = nil, items: Source, update: ListUpdate<Item>) {
+    init(_ id: AnyHashable?, items: Source, update: ListUpdate<Item>, options: Options) {
         var source = items
         self.sourceGetter = { source }
         self.sourceSetter = { source = $0 }
-        self.differ = id.map { id in .diff(id: { _ in id }) } ?? .none
         self.listUpdate = update
-        self.coordinatorMaker = { ItemsCoordinator(updatable: $0) }
+        self.listOptions = .init(id: id, options)
+        self.coordinatorMaker = { $0.coordinator(with: ItemsCoordinator($0)) }
     }
 }
 
 extension Sources where Source: RangeReplaceableCollection, Source.Element == Item {
-    init(_ id: AnyHashable? = nil, items: Source, update: ListUpdate<Item>) {
+    init(_ id: AnyHashable? = nil, items: Source, update: ListUpdate<Item>, options: Options) {
         var source = items
         self.sourceGetter = { source }
         self.sourceSetter = { source = $0 }
-        self.differ = id.map { id in .diff(id: { _ in id }) } ?? .none
         self.listUpdate = update
-        self.coordinatorMaker = { RangeReplacableItemsCoordinator(updatable: $0) }
+        self.listOptions = .init(id: id, options)
+        self.coordinatorMaker = { $0.coordinator(with: RangeReplacableItemsCoordinator($0)) }
     }
 }
 
 public extension Sources where Source: Collection, Source.Element == Item {
-    init(id: AnyHashable? = nil, items: Source, update: ListUpdate<Item>) {
-        self.init(id, items: items, update: update)
+    init(
+        id: AnyHashable? = nil,
+        items: Source,
+        update: ListUpdate<Item>,
+        options: Options = .init()
+    ) {
+        self.init(id, items: items, update: update, options: options)
     }
     
-    init(id: AnyHashable? = nil, items: Source) {
-        self.init(id, items: items, update: .reload)
+    init(id: AnyHashable? = nil, items: Source, options: Options = .init()) {
+        self.init(id, items: items, update: .reload, options: options)
     }
 }
 
 public extension Sources where Source: RangeReplaceableCollection, Source.Element == Item {
-    init(id: AnyHashable? = nil, items: Source, update: ListUpdate<Item>) {
-        self.init(id, items: items, update: update)
+    init(id: AnyHashable? = nil, items: Source, update: ListUpdate<Item>, options: Options = .init()) {
+        self.init(id, items: items, update: update, options: options)
     }
     
-    init(id: AnyHashable? = nil, items: Source) {
-        self.init(id, items: items, update: .reload)
+    init(id: AnyHashable? = nil, items: Source, options: Options = .init()) {
+        self.init(id, items: items, update: .reload, options: options)
     }
 }
 
@@ -54,8 +59,8 @@ where
     Source.Element == Item,
     Item: Equatable
 {
-    init(id: AnyHashable? = nil, items: Source) {
-        self.init(id, items: items, update: .diff)
+    init(id: AnyHashable? = nil, items: Source, options: Options = .init()) {
+        self.init(id, items: items, update: .diff, options: options)
     }
 }
 
@@ -65,8 +70,8 @@ where
     Source.Element == Item,
     Item: Equatable
 {
-    init(id: AnyHashable? = nil, items: Source) {
-        self.init(id, items: items, update: .diff)
+    init(id: AnyHashable? = nil, items: Source, options: Options = .init()) {
+        self.init(id, items: items, update: .diff, options: options)
     }
 }
 
@@ -77,8 +82,8 @@ where
     Source.Element == Item,
     Item: Hashable
 {
-    init(id: AnyHashable? = nil, items: Source) {
-        self.init(id, items: items, update: .diff)
+    init(id: AnyHashable? = nil, items: Source, options: Options = .init()) {
+        self.init(id, items: items, update: .diff, options: options)
     }
 }
 
@@ -88,8 +93,8 @@ where
     Source.Element == Item,
     Item: Hashable
 {
-    init(id: AnyHashable? = nil, items: Source) {
-        self.init(id, items: items, update: .diff)
+    init(id: AnyHashable? = nil, items: Source, options: Options = .init()) {
+        self.init(id, items: items, update: .diff, options: options)
     }
 }
 
@@ -101,8 +106,8 @@ where
     Source.Element == Item,
     Item: Identifiable
 {
-    init(id: AnyHashable? = nil, items: Source) {
-        self.init(id, items: items, update: .diff)
+    init(id: AnyHashable? = nil, items: Source, options: Options = .init()) {
+        self.init(id, items: items, update: .diff, options: options)
     }
 }
 
@@ -113,8 +118,8 @@ where
     Source.Element == Item,
     Item: Identifiable
 {
-    init(id: AnyHashable? = nil, items: Source) {
-        self.init(id, items: items, update: .diff)
+    init(id: AnyHashable? = nil, items: Source, options: Options = .init()) {
+        self.init(id, items: items, update: .diff, options: options)
     }
 }
 
@@ -127,8 +132,8 @@ where
     Item: Identifiable,
     Item: Equatable
 {
-    init(id: AnyHashable? = nil, items: Source) {
-        self.init(id, items: items, update: .diff)
+    init(id: AnyHashable? = nil, items: Source, options: Options = .init()) {
+        self.init(id, items: items, update: .diff, options: options)
     }
 }
 
@@ -140,8 +145,8 @@ where
     Item: Identifiable,
     Item: Equatable
 {
-    init(id: AnyHashable? = nil, items: Source) {
-        self.init(id, items: items, update: .diff)
+    init(id: AnyHashable? = nil, items: Source, options: Options = .init()) {
+        self.init(id, items: items, update: .diff, options: options)
     }
 }
 
@@ -154,8 +159,8 @@ where
     Item: Identifiable,
     Item: Hashable
 {
-    init(id: AnyHashable? = nil, items: Source) {
-        self.init(id, items: items, update: .diff)
+    init(id: AnyHashable? = nil, items: Source, options: Options = .init()) {
+        self.init(id, items: items, update: .diff, options: options)
     }
 }
 
@@ -167,8 +172,8 @@ where
     Item: Identifiable,
     Item: Hashable
 {
-    init(id: AnyHashable? = nil, items: Source) {
-        self.init(id, items: items, update: .diff)
+    init(id: AnyHashable? = nil, items: Source, options: Options = .init()) {
+        self.init(id, items: items, update: .diff, options: options)
     }
 }
 

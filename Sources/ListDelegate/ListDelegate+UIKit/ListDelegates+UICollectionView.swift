@@ -376,11 +376,11 @@ final class UICollectionListDelegate {
 extension ListDelegate: UICollectionViewDataSource {
     //Getting Item and Section Metrics
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        coordinator.numbersOfItems(in: section)
+        context.numbersOfItems(in: section)
     }
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        coordinator.numbersOfSections()
+        context.numbersOfSections()
     }
     
     //Getting Views for Items

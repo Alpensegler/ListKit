@@ -11,7 +11,7 @@ where
     SourceBase.Source.Element: Collection,
     SourceBase.Source.Element.Element == Item
 {
-    func makeListCoordinator() -> ListCoordinator<SourceBase> {
+    var listCoordinator: ListCoordinator<SourceBase> {
         SectionsCoordinator(sourceBase)
     }
 }
@@ -22,7 +22,7 @@ where
     SourceBase.Source.Element: RangeReplaceableCollection,
     SourceBase.Source.Element.Element == Item
 {
-    func makeListCoordinator() -> ListCoordinator<SourceBase> {
+    var listCoordinator: ListCoordinator<SourceBase> {
         RangeReplacableSectionsCoordinator(sourceBase)
     }
 }
@@ -34,8 +34,8 @@ where
     SourceBase.Source.Element: Collection,
     SourceBase.Source.Element.Element == Item
 {
-    func makeListCoordinator() -> ListCoordinator<SourceBase> {
-        SectionsCoordinator(updatable: sourceBase)
+    var listCoordinator: ListCoordinator<SourceBase> {
+        sourceBase.coordinator(with: SectionsCoordinator(sourceBase))
     }
 }
 
@@ -46,7 +46,7 @@ where
     SourceBase.Source.Element: RangeReplaceableCollection,
     SourceBase.Source.Element.Element == Item
 {
-    func makeListCoordinator() -> ListCoordinator<SourceBase> {
-        RangeReplacableSectionsCoordinator(updatable: sourceBase)
+    var listCoordinator: ListCoordinator<SourceBase> {
+        sourceBase.coordinator(with: RangeReplacableSectionsCoordinator(sourceBase))
     }
 }

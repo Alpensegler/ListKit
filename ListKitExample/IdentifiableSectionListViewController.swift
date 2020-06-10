@@ -17,16 +17,17 @@ extension Room: CollectionListAdapter {
     typealias Item = String
     
     var source: [String] { people }
-    var differ: Differ<Room> { .diff(id: \.name) }
+    var listOptions: ListOptions<Room> { .diff(id: \.name) }
     
     var collectionList: CollectionList<Room> {
         collectionViewCellForItem(CenterLabelCell.self) { (cell, _, item) in cell.text = item }
-        .collectionViewLayoutSizeForItem { (_, _, _) in CGSize(width: 75, height: 75) }
-        .collectionViewLayoutInsetForSection { _, _ in UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20) }
+        .collectionViewLayoutSizeForItem { (_, _, _) in CGSize(width: 70, height: 70) }
+        .collectionViewLayoutInsetForSection { _, _ in UIEdgeInsets(top: 10, left: 10, bottom: 30, right: 10) }
+        .collectionViewLayoutMinimumLineSpacingForSection { (_, _) in 50 }
+        .collectionViewLayoutMinimumInteritemSpacingForSection { (_, _) in 5 }
         .collectionViewLayoutReferenceSizeForHeaderInSection { (_, _) in CGSize(width: UIScreen.main.bounds.width, height: 30) }
-        .collectionViewSupplementaryViewForItem { [name] (context, type) -> UICollectionReusableView in
-            let header = context.dequeueReusableSupplementaryView(type: type, TitleHeader.self)
-            header.backgroundColor = .systemGray
+        .collectionViewSupplementaryViewForItem { [name] in
+            let header = $0.dequeueReusableSupplementaryView(type: $1, TitleHeader.self)
             header.text = name
             return header
         }

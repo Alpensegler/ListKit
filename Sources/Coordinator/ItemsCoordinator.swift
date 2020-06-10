@@ -13,29 +13,28 @@ where
     SourceBase.Source: Collection,
     SourceBase.Item == SourceBase.Source.Element
 {
-    var items = [Diffable<Item, ItemRelatedCache>]()
-    var updatingSectionCount: Int?
-    lazy var keepSection = options.contains(.keepSectionIfEmpty)
-    lazy var preferSection = options.contains(.preferSection)
+    typealias Value = ValueRelated<Item, ItemRelatedCache>
     
-    override var multiType: SourceMultipleType {
-        sourceType == .section ? .single : .multiple
-    }
+    lazy var items = toItems(source)
+    var updatingSectionCount: Int?
+    
+    override var multiType: SourceMultipleType { isSectioned ? .single : .multiple }
     
     override var isEmpty: Bool { items.isEmpty }
     
     func difference(
         to isTo: Bool,
-        _ items: [Diffable<Item, ItemRelatedCache>],
+        _ items: ContiguousArray<Value>,
         _ source: SourceBase.Source!,
         _ keepSectionIfEmpty: Mapping<Bool>,
-        _ differ: Differ<Item>
+        _ differ: Differ<Item>?
     ) -> ItemsCoordinatorDifference<Item> {
         let mapping = isTo
             ? (source: self.items, target: items)
             : (source: items, target: self.items)
         let source: Mapping = isTo ? (self.source, source) : (source, self.source)
         let diff = ItemsCoordinatorDifference(mapping: mapping, differ: differ)
+        diff.isSectioned = false
         diff.keepSectionIfEmpty = keepSectionIfEmpty
         diff.coordinatorChange = {
             self.items = mapping.target
@@ -49,13 +48,13 @@ where
         return diff
     }
     
-    func toItems(_ source: SourceBase.Source) -> [Diffable<Item, ItemRelatedCache>] {
-        source.map { ($0, .init()) }
+    func toItems(_ source: SourceBase.Source) -> ContiguousArray<Value> {
+        source.mapContiguous { .init($0, related: .init()) }
     }
     
-    override func item(at path: IndexPath) -> Item { items[path.item].value }
-    override func itemRelatedCache(at path: IndexPath) -> ItemRelatedCache {
-        items[path.item].related
+    override func item(at section: Int, _ item: Int) -> Item { items[item].value }
+    override func itemRelatedCache(at section: Int, _ item: Int) -> ItemRelatedCache {
+        items[item].related
     }
     
     override func numbersOfItems(in section: Int) -> Int { items.count }
@@ -63,26 +62,22 @@ where
         updatingSectionCount ?? (isEmpty && !keepSection ? 0 : 1)
     }
     
-    override func setup() {
-        sourceType = preferSection || selectorSets.hasIndex ? .section : .cell
-        items = toItems(source)
-    }
+    override func configureIsSectioned() -> Bool { preferSection || selectorsHasSection }
     
     override func updateTo(_ source: SourceBase.Source) {
         self.source = source
         items = toItems(source)
     }
     
-    override func difference<Value>(
-        from: Coordinator,
-        differ: Differ<Value>?
-    ) -> CoordinatorDifference? {
-        let coordinator = from as! ItemsCoordinator<SourceBase>
-        coordinator.setupIfNeeded()
+    // Diffs:
+    override func difference(
+        from coordinator: ListCoordinator<SourceBase>,
+        differ: Differ<Item>?
+    ) -> CoordinatorDifference {
+        let coordinator = coordinator as! ItemsCoordinator<SourceBase>
         let (source, items) = (coordinator.source, coordinator.items)
         let mapping = (coordinator.keepSection, keepSection)
-        guard let differ = (differ.map { .init($0) }) ?? defaultUpdate.diff else { return nil }
-        return difference(to: false, items, source, mapping, differ)
+        return difference(to: false, items, source, mapping, differ ?? update.diff)
     }
     
     override func difference(
@@ -101,10 +96,10 @@ where
 {
     override func difference(
         to isTo: Bool,
-        _ items: [Diffable<Item, ItemRelatedCache>],
+        _ items: ContiguousArray<Value>,
         _ source: SourceBase.Source!,
         _ keepSectionIfEmpty: Mapping<Bool>,
-        _ differ: Differ<Item>
+        _ differ: Differ<Item>?
     ) -> ItemsCoordinatorDifference<Item> {
         let diff = super.difference(to: isTo, items, source, keepSectionIfEmpty, differ)
         diff.rangeRelplacable = true

@@ -9,34 +9,35 @@ import Foundation
 
 final class SourcesCoordinatorDifference<Element: DataSource>: CoordinatorDifference {
     typealias Value = SourcesSubelement<Element>
-    typealias Related = SourcesContext<Element.SourceBase>
-    typealias MapValue = (value: Value, related: Related)
+    typealias Related = ListCoordinatorContext<Element.SourceBase>
+    typealias MapValue = ValueRelated<Value, Related>
     typealias Item = Element.SourceBase.Item
+    
+    typealias Coordinator = ListCoordinator<Element.SourceBase>
     
     final class DataSourceElement: CoordinatorDifference.Element<Value, Related> {
         var difference: CoordinatorDifference?
     }
     
-    let mapping: Mapping<[MapValue]>
+    let mapping: Mapping<ContiguousArray<MapValue>>
     let differ: Differ<MapValue>
     let itemDiffer: Differ<Item>?
     
-    var isSectioned = false
-    var extraCoordinatorChange: (([MapValue]) -> Void)?
+    var extraCoordinatorChange: ((ContiguousArray<MapValue>) -> Void)?
     var coordinatorChange: (() -> Void)?
     var updateIndices: (() -> Void)?
     
-    var changes: Mapping<[DataSourceElement]> = ([], [])
-    var uniques: Mapping<[DataSourceElement]> = ([], [])
+    var changes: Mapping<ContiguousArray<DataSourceElement>> = ([], [])
+    var uniques: Mapping<ContiguousArray<DataSourceElement>> = ([], [])
     
     var unhandled = [CoordinatorDifference]()
     
     var needExtraUpdate = false
     var differences = [CoordinatorDifference]()
     
-    lazy var extraSources = [MapValue]()
+    lazy var extraSources = ContiguousArray<MapValue>()
     
-    init(mapping: Mapping<[MapValue]>, itemDiffer: Differ<Item>?) {
+    init(mapping: Mapping<ContiguousArray<MapValue>>, itemDiffer: Differ<Item>?) {
         self.mapping = mapping
         self.itemDiffer = itemDiffer
         let identifier = { (arg: MapValue) -> AnyHashable in
@@ -66,34 +67,47 @@ final class SourcesCoordinatorDifference<Element: DataSource>: CoordinatorDiffer
     }
     
     func associating(source: DataSourceElement, target: DataSourceElement) {
-        guard source.state != .change(moveAndRelod: true), source.state != .reload else { return }
-        let toCoordinator = target.related.coordinator
-        let fromCoordinator = source.related.coordinator
-        if let difference = toCoordinator.difference(from: fromCoordinator, differ: itemDiffer) {
-            source.difference = difference
-            target.difference = difference
-            unhandled.append(difference)
-        } else {
-            if case .change = source.state {
-                target.state = .change(moveAndRelod: true)
-                source.state = .change(moveAndRelod: true)
-            } else {
-                (source.state, target.state) = (.reload, .reload)
-            }
-        }
+//        guard source.state != .change(moveAndRelod: true), source.state != .reload else { return }
+//        let toCoordinator = target.related.coordinator
+//        let fromCoordinator = source.related.coordinator
+//        if let difference = toCoordinator.difference(from: fromCoordinator, differ: itemDiffer) {
+//            source.difference = difference
+//            target.difference = difference
+//            unhandled.append(difference)
+//        } else {
+//            if case .change = source.state {
+//                target.state = .change(moveAndRelod: true)
+//                source.state = .change(moveAndRelod: true)
+//            } else {
+//                (source.state, target.state) = (.reload, .reload)
+//            }
+//        }
     }
     
     override func prepareForGenerate() {
         (changes, uniques) = toChanges(mapping: mapping, differ: differ, associating: associating)
     }
     
+    override func prepareForGenerateUpdates() {
+        prepareForGenerate()
+        let context = Context()
+        inferringMoves(context: context)
+        while !context.unhandled.isEmpty {
+            context.unhandled.forEach {
+                $0.prepareForGenerate()
+                $0.inferringMoves(context: context)
+            }
+            context.unhandled.removeAll()
+        }
+    }
+    
     override func inferringMoves(context: Context) {
         guard let id = differ.identifier else { return }
         uniques.source.forEach {
-            add(to: &context.uniqueChange, key: id($0.asTuple), change: $0, isSource: true)
+            add(to: &context.uniqueChange, key: id($0.valueRelated), change: $0, isSource: true)
         }
         uniques.target.forEach {
-            add(to: &context.uniqueChange, key: id($0.asTuple), change: $0, isSource: false)
+            add(to: &context.uniqueChange, key: id($0.valueRelated), change: $0, isSource: false)
         }
         
         let equal = differ.areEquivalent
@@ -103,42 +117,7 @@ final class SourcesCoordinatorDifference<Element: DataSource>: CoordinatorDiffer
     }
     
     override func generateUpdates() -> Updates? {
-        switch (mapping.source.isEmpty, mapping.target.isEmpty) {
-        case (false, false):
-            prepareForGenerate()
-            let context = Context()
-            inferringMoves(context: context)
-            while !context.unhandled.isEmpty {
-                context.unhandled.forEach {
-                    $0.prepareForGenerate()
-                    $0.inferringMoves(context: context)
-                }
-                context.unhandled.removeAll()
-            }
-            
-            let batchUpdates: ListUpdates = Order.allCases.compactMap { order in
-                let source = generateSourceSectionUpdate(order: order)
-                let target = generateTargetSectionUpdate(order: order)
-                guard source.update != nil || target.update != nil else { return nil }
-                var batchUpdate = ListBatchUpdates()
-                source.update.map {
-                    batchUpdate.section.source = $0.section
-                    batchUpdate.item.source = $0.item
-                }
-                target.update.map {
-                    batchUpdate.section.target = $0.section
-                    batchUpdate.item.target = $0.item
-                }
-                return (batchUpdate, target.change)
-            }
-            return batchUpdates.isEmpty ? nil : .batchUpdates(batchUpdates)
-        case (true, false):
-            return .insertAll
-        case (false, true):
-            return .removeAll
-        case (true, true):
-            return nil
-        }
+        generateUpdates(for: mapping)
     }
     
     override func generateListUpdates(itemSources: (Int, Bool)?) -> ListUpdates {
@@ -154,6 +133,8 @@ final class SourcesCoordinatorDifference<Element: DataSource>: CoordinatorDiffer
             let indexSet = IndexSet(integersIn: 0..<mapping.source.count)
             let section = SectionUpdate(source: .init(deletions: indexSet))
             return [(ListBatchUpdates(section: section), coordinatorChange)]
+        case .reloadAll:
+            return []
         }
     }
     
@@ -287,22 +268,22 @@ final class SourcesCoordinatorDifference<Element: DataSource>: CoordinatorDiffer
                 case let (.change(moveAndReload), associated?):
                     if moveAndReload == true {
                         move(from: associated)
-                        if needExtraUpdate { extraSources.append(associated.asTuple) }
+                        if needExtraUpdate { extraSources.append(associated.valueRelated) }
                     } else {
                         addToUpdate(element, isMoved: true)
-                        if needExtraUpdate { extraSources.append(element.asTuple) }
+                        if needExtraUpdate { extraSources.append(element.valueRelated) }
                     }
                 case let (.reload, associated?):
                     if isMoved {
                         move(from: associated)
-                        if needExtraUpdate { extraSources.append(associated.asTuple) }
+                        if needExtraUpdate { extraSources.append(associated.valueRelated) }
                     } else {
                         reload(from: associated.related.coordinator, to: element.related.coordinator)
-                        if needExtraUpdate { extraSources.append(element.asTuple) }
+                        if needExtraUpdate { extraSources.append(element.valueRelated) }
                     }
                 case (_, .some):
                     addToUpdate(element, isMoved: isMoved)
-                    if needExtraUpdate { extraSources.append(element.asTuple) }
+                    if needExtraUpdate { extraSources.append(element.valueRelated) }
                 default:
                     let count = element.related.coordinator.numbersOfSections()
                     if count == 0 { continue }

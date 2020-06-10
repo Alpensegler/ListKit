@@ -19,17 +19,21 @@ public struct ScrollList<Source: DataSource>: ScrollListAdapter, UpdatableDataSo
 where Source.SourceBase == Source {
     public typealias Item = Source.Item
     public typealias SourceBase = Source
-    let coordinatorSetups: [(ListCoordinator<Source>) -> Void]
     let storage = ListAdapterStorage<Source>()
     let erasedGetter: (Self) -> ScrollList<AnySources>
     
     public let source: Source
     public var sourceBase: Source { source }
-    public var differ: Differ<Source> { source.differ }
+    
     public var listUpdate: ListUpdate<Item> { source.listUpdate }
-    public var scrollList: ScrollList<SourceBase> { self }
+    public var listOptions: ListOptions<Source> { source.listOptions }
+    
+    public var listCoordinator: ListCoordinator<Source> { storage.listCoordinator }
+    public let listContextSetups: [(ListCoordinatorContext<SourceBase>) -> Void]
+    
     public var coordinatorStorage: CoordinatorStorage<Source> { storage.coordinatorStorage }
-    public func makeListCoordinator() -> ListCoordinator<Source> { storage.listCoordinator }
+    
+    public var scrollList: ScrollList<SourceBase> { self }
     
     public var wrappedValue: Source { source }
     public var projectedValue: Source.Source { source.source }
@@ -39,14 +43,14 @@ where Source.SourceBase == Source {
     }
     
     init(
-        coordinatorSetups: [(ListCoordinator<Source>) -> Void] = [],
+        listContextSetups: [(ListCoordinatorContext<SourceBase>) -> Void] = [],
         source: Source,
         erasedGetter: @escaping (Self) -> ScrollList<AnySources> = Self.defaultErasedGetter
     ) {
-        self.coordinatorSetups = coordinatorSetups
+        self.listContextSetups = listContextSetups
         self.source = source
         self.erasedGetter = erasedGetter
-        storage.makeListCoordinator = makeCoordinator(for: source, setups: coordinatorSetups)
+        storage.makeListCoordinator = { source.listCoordinator }
     }
 }
 
@@ -60,7 +64,7 @@ extension ScrollList: ListAdapter {
 import UIKit
 
 extension ScrollList {
-    static var rootKeyPath: ReferenceWritableKeyPath<Coordinator, UIScrollListDelegate> {
+    static var rootKeyPath: ReferenceWritableKeyPath<CoordinatorContext, UIScrollListDelegate> {
         \.scrollListDelegate
     }
     

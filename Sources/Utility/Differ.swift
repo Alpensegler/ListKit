@@ -5,7 +5,7 @@
 //  Created by Frain on 2019/11/25.
 //
 
-public struct Differ<Value> {
+struct Differ<Value> {
     let identifier: ((Value) -> AnyHashable)?
     let areEquivalent: ((Value, Value) -> Bool)?
     let diffEqual: (Value, Value) -> Bool
@@ -49,28 +49,5 @@ extension Differ {
         self.identifier = differ.identifier.map { id in { id(cast($0)) } }
         self.areEquivalent = differ.areEquivalent.map { equal in { equal(cast($0), cast($1)) } }
         self.diffEqual = { diffEqual(cast($0), cast($1)) }
-    }
-}
-
-extension Differ: DiffInitializable {
-    public static var none: Differ<Value> { .init() }
-    
-    public static func diff(
-        by areEquivalent: @escaping (Value, Value) -> Bool
-    ) -> Differ<Value> {
-        .init(areEquivalent: areEquivalent)
-    }
-    
-    public static func diff<ID: Hashable>(
-        id: @escaping (Value) -> ID
-    ) -> Differ<Value> {
-        .init(identifier: id)
-    }
-    
-    public static func diff<ID: Hashable>(
-        id: @escaping (Value) -> ID,
-        by areEquivalent: @escaping (Value, Value) -> Bool
-    ) -> Differ<Value> {
-        .init(identifier: id, areEquivalent: areEquivalent)
     }
 }

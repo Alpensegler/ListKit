@@ -7,46 +7,33 @@
 
 import Foundation
 
-final class WrapperCoordinator<SourceBase: DataSource, OtherSourceBase>: ListCoordinator<SourceBase>
-where SourceBase.SourceBase == SourceBase, OtherSourceBase: DataSource {
-    var wrappedCoodinator: ListCoordinator<OtherSourceBase.SourceBase>
-    var itemTransform: (OtherSourceBase.Item) -> SourceBase.Item
-    var others: SelectorSets { wrappedCoodinator.selectorSets }
-    
-    lazy var selfSelectorSets = initialSelectorSets()
+final class WrapperCoordinator<SourceBase: DataSource, Other>: ListCoordinator<SourceBase>
+where SourceBase.SourceBase == SourceBase, Other: DataSource {
+    let wrapped: Other
+    let wrappedCoodinator: ListCoordinator<Other.SourceBase>
+    let itemTransform: (Other.Item) -> SourceBase.Item
     
     override var multiType: SourceMultipleType { wrappedCoodinator.multiType }
     override var isEmpty: Bool { wrappedCoodinator.isEmpty }
     
     init(
-        source: SourceBase.Source,
-        wrappedCoodinator: ListCoordinator<OtherSourceBase.SourceBase>,
-        storage: CoordinatorStorage<SourceBase>? = nil,
-        itemTransform: @escaping (OtherSourceBase.Item) -> SourceBase.Item
+        _ sourceBase: SourceBase,
+        wrapped: Other,
+        itemTransform: @escaping (Other.Item) -> SourceBase.Item
     ) {
-        self.wrappedCoodinator = wrappedCoodinator
+        self.wrapped = wrapped
+        self.wrappedCoodinator = wrapped.listCoordinator
         self.itemTransform = itemTransform
-        super.init(
-            id: HashCombiner(ObjectIdentifier(SourceBase.self), wrappedCoodinator.id),
-            source: source,
-            storage: storage
-        )
+        let id = HashCombiner(ObjectIdentifier(SourceBase.self), wrappedCoodinator.id)
+        super.init(sourceBase, id: id)
     }
     
-    func subcoordinator<Object: AnyObject, Input, Output>(
-        for delegate: Delegate<Object, Input, Output>,
-        object: Object,
-        with input: Input
-    ) -> Coordinator? {
-        others.contains(delegate.selector) ? nil : wrappedCoodinator
+    override func item(at section: Int, _ item: Int) -> Item {
+        itemTransform(wrappedCoodinator.item(at: section, item))
     }
     
-    override func item(at path: IndexPath) -> Item {
-        itemTransform(wrappedCoodinator.item(at: path))
-    }
-    
-    override func itemRelatedCache(at path: IndexPath) -> ItemRelatedCache {
-        wrappedCoodinator.itemRelatedCache(at: path)
+    override func itemRelatedCache(at section: Int, _ item: Int) -> ItemRelatedCache {
+        wrappedCoodinator.itemRelatedCache(at: section, item)
     }
     
     override func numbersOfSections() -> Int {
@@ -57,102 +44,28 @@ where SourceBase.SourceBase == SourceBase, OtherSourceBase: DataSource {
         wrappedCoodinator.numbersOfItems(in: section)
     }
     
-    //Diffs:
-    override func difference<Value>(
-        from: Coordinator,
-        differ: Differ<Value>?
-    ) -> CoordinatorDifference? {
-        fatalError("should be implemented by subclass")
+    override func configureIsSectioned() -> Bool {
+        wrappedCoodinator.isSectioned || selectorsHasSection ? true : wrappedCoodinator.isSectioned
     }
     
-    override func difference(
-        to source: SourceBase.Source,
-        differ: Differ<Item>
-    ) -> CoordinatorDifference {
-        fatalError("should be implemented by subclass")
+    // Setup
+    override func context(
+        with setups: [(ListCoordinatorContext<SourceBase>) -> Void] = []
+    ) -> ListCoordinatorContext<SourceBase> {
+        let context = WrapperCoordinatorContext<SourceBase, Other>(
+            wrappedCoodinator.context(with: wrapped.listContextSetups),
+            self,
+            setups: setups
+        )
+        listContexts.append(.init(context))
+        return context
     }
     
-    override func updateTo(_ source: SourceBase.Source) {
-        fatalError("should be implemented by subclass")
-    }
-    
-    //Selectors
-    override func apply<Object: AnyObject, Input, Output>(
-        _ keyPath: KeyPath<Coordinator, Delegate<Object, Input, Output>>,
-        object: Object,
-        with input: Input,
-        _ sectionOffset: Int,
-        _ itemOffset: Int
-    ) -> Output {
-        let closure = self[keyPath: keyPath]
-        let coordinator = subcoordinator(for: closure, object: object, with: input)
-        return coordinator?.apply(keyPath, object: object, with: input, sectionOffset, itemOffset)
-            ?? super.apply(keyPath, object: object, with: input, sectionOffset, itemOffset)
-    }
-    
-    override func apply<Object: AnyObject, Input>(
-        _ keyPath: KeyPath<Coordinator, Delegate<Object, Input, Void>>,
-        object: Object,
-        with input: Input,
-        _     sectionOffset: Int,
-        _     itemOffset: Int
-    ) {
-        let closure = self[keyPath: keyPath]
-        let coordinator = subcoordinator(for: closure, object: object, with: input)
-        coordinator?.apply(keyPath, object: object, with: input, sectionOffset, itemOffset)
-        super.apply(keyPath, object: object, with: input, sectionOffset, itemOffset)
-    }
-    
-    override func selectorSets(applying: (inout SelectorSets) -> Void) {
-        super.selectorSets(applying: applying)
-        applying(&selfSelectorSets)
-    }
-
-    override func setup() {
-        wrappedCoodinator.setupIfNeeded()
-        selectorSets = SelectorSets(merging: selfSelectorSets, others)
-        sourceType = (wrappedCoodinator.sourceType == .section || selectorSets.hasIndex)
-            ? .section
-            : wrappedCoodinator.sourceType
-    }
-    
-    override func setupContext(listContext: ListContext) {
-        wrappedCoodinator.setupContext(listContext: listContext)
-        super.setupContext(listContext: listContext)
-    }
-    
-    override func removeContext(listContext: ListContext) {
-        wrappedCoodinator.removeContext(listContext: listContext)
-        super.removeContext(listContext: listContext)
-    }
+    // Diffs:
 }
 
-extension WrapperCoordinator
-where
-    SourceBase.Source == OtherSourceBase,
-    SourceBase.Item == OtherSourceBase.Item
-{
-    convenience init(
-        wrapper sourceBase: SourceBase,
-        storage: CoordinatorStorage<SourceBase>? = nil
-    ) {
-        let source = sourceBase.source(storage: storage)
-        self.init(
-            source: source,
-            wrappedCoodinator: source.makeListCoordinator(),
-            storage: storage
-        ) { $0 }
-    }
-}
-
-extension WrapperCoordinator
-where
-    SourceBase.Source == OtherSourceBase,
-    SourceBase.Item == OtherSourceBase.Item,
-    SourceBase: UpdatableDataSource
-{
-    
-    convenience init(updatableWrapper sourceBase: SourceBase) {
-        self.init(wrapper: sourceBase, storage: sourceBase.coordinatorStorage)
+extension WrapperCoordinator where SourceBase.Source == Other, SourceBase.Item == Other.Item {
+    convenience init(wrapper sourceBase: SourceBase) {
+        self.init(sourceBase, wrapped: sourceBase.source) { $0 }
     }
 }

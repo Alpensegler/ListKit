@@ -8,30 +8,8 @@
 import Foundation
 
 enum SourcesSubelement<Element> {
-    case items(id: Int, () -> [Element])
+    case items(id: Int, () -> ContiguousArray<Element>)
     case element(Element)
-}
-
-final class SourcesContext<Source: DataSource>: ListContext where Source.SourceBase == Source {
-    let coordinator: ListCoordinator<Source>
-    let isSectiond: Bool
-    var offset = 0
-    var getContexts: () -> [ListContext] = { fatalError() }
-    var getItemSources: () -> (Int, Bool)? = { nil }
-    
-    var itemSources: (Int, Bool)? { getItemSources() }
-    var contextType: ListContextType {
-        .superContext(isSectiond ? offset : 0, isSectiond ? 0 : offset, getContexts())
-    }
-    
-    init(_ coordinator: ListCoordinator<Source>, isSectiond: Bool) {
-        self.coordinator = coordinator
-        self.isSectiond = isSectiond
-    }
-    
-    deinit {
-        coordinator.removeContext(listContext: self)
-    }
 }
 
 final class SourcesCoordinator<SourceBase: DataSource, Source>: ListCoordinator<SourceBase>
@@ -47,24 +25,23 @@ where
     }
     
     typealias Subcoordinator = ListCoordinator<Source.Element.SourceBase>
-    typealias Related = SourcesContext<Source.Element.SourceBase>
-    typealias Subsource = (value: SourcesSubelement<Source.Element>, related: Related)
+    typealias Related = ListCoordinatorContext<Source.Element.SourceBase>
+    typealias Subsource = ValueRelated<SourcesSubelement<Source.Element>, Related>
     
-    var toCoordinator: (Source.Element) -> Subcoordinator
     var subsourceType: SubsourceType
-    var subsources = [Subsource]()
-    var indices = [Int]()
-    var isSectioned = false
-    var isAnyType = Item.self == Any.self
+    var indices = ContiguousArray<Int>()
+    var subsourceHasSectioned = false
     
-    lazy var selfSelectorSets = initialSelectorSets()
-    lazy var others = SelectorSets()
+    lazy var subsources: ContiguousArray<Subsource> = {
+        guard case let .fromSourceBase(fromSource, _) = subsourceType else { fatalError() }
+        let subsources = setupSubsources(for: fromSource(source))
+        indices = configOffsetAndIndicesFor(subsources: subsources)
+        return subsources
+    }()
     
-    lazy var keepSectionIfEmpty = options.contains(.keepSectionIfEmpty)
-    lazy var preferSection = options.contains(.preferSection)
-    
-    var subsourcesArray: [Source.Element] {
-        var sources = [Source.Element]()
+    var subsourcesArray: ContiguousArray<Source.Element> {
+        var sources = ContiguousArray<Source.Element>()
+        sources.reserveCapacity(subsources.count)
         for element in subsources {
             switch element.value {
             case .items(_, let items): sources += items()
@@ -77,128 +54,81 @@ where
     override var multiType: SourceMultipleType { .sources }
     override var isEmpty: Bool { subsources.isEmpty }
     
-    func pathAndCoordinator(path: IndexPath) -> (path: IndexPath, coordinator: Subcoordinator) {
-        var path = path
-        let index = sourceIndex(for: path)
+    func pathAndCoordinator(
+        section: Int,
+        item: Int
+    ) -> (section: Int, item: Int, coordinator: Subcoordinator) {
+        var (section, item) = (section, item)
+        let index = sourceIndex(for: section, item)
         let context = subsources[index].related
-        isSectioned ? (path.section -= context.offset) : (path.item -= context.offset)
-        return (path, context.coordinator)
+        isSectioned ? (section -= context.offset) : (item -= context.offset)
+        return (section, item, context.coordinator)
     }
     
-    func sourceIndex(for path: IndexPath) -> Int {
-        indices[isSectioned ? path.section : path.item]
+    func sourceIndex(for section: Int, _ item: Int) -> Int {
+        indices[isSectioned ? section : item]
     }
     
-    func setupSelectorSets() {
-        others = initialSelectorSets(withoutIndex: true)
-        for (_, context) in subsources where context.coordinator.isEmpty == false {
-            others.void.formIntersection(context.coordinator.selectorSets.void)
-            others.withIndex.formUnion(context.coordinator.selectorSets.withIndex)
-            others.withIndexPath.formUnion(context.coordinator.selectorSets.withIndexPath)
-            others.hasIndex = others.hasIndex || context.coordinator.selectorSets.hasIndex
-        }
-        selectorSets = SelectorSets(merging: selfSelectorSets, others)
-    }
-    
-    func subcoordinatorApply<Object: AnyObject, Input, Output>(
-        _ keyPath: KeyPath<Coordinator, Delegate<Object, Input, Output>>,
-        object: Object,
-        with input: Input,
-        _ sectionOffset: Int,
-        _ itemOffset: Int
-    ) -> Output? {
-        var (sectionOffset, itemOffset) = (sectionOffset, itemOffset)
-        guard let delegateIndex = self[keyPath: keyPath].index else { return nil }
-        let index: Int
-        switch delegateIndex {
-        case let .index(keyPath):
-            index = indices[input[keyPath: keyPath] - sectionOffset]
-        case let .indexPath(keyPath):
-            var indexPath = input[keyPath: keyPath]
-            indexPath.item -= itemOffset
-            index = sourceIndex(for: indexPath)
-        }
-        let context = subsources[index].related
-        context.isSectiond ? (sectionOffset += context.offset) : (itemOffset += context.offset)
-        let coordinator = context.coordinator
-        return coordinator.apply(keyPath, object: object, with: input, sectionOffset, itemOffset)
-    }
-    
-    func subsources(for source: Source) -> (isSectiond: Bool, values: [Subsource]) {
-        var isSectioned = false
-        var itemSources = [(element: Source.Element, coordinator: Subcoordinator)]()
-        var subsources = [Subsource]()
+    func setupSubsources(for source: Source) -> ContiguousArray<Subsource> {
         var id = 0
+        subsourceHasSectioned = false
+        var (itemSources, subsources) = (ContiguousArray<Subsource>(), ContiguousArray<Subsource>())
+        itemSources.reserveCapacity(source.count)
+        subsources.reserveCapacity(source.count)
+        
         func addItemSources() {
+            itemSources.forEach { $0.related.isSectioned = false }
             let coordinator = SourcesCoordinator<Source.Element.SourceBase, [Source.Element]>(
                 elements: itemSources,
-                defaultUpdate: defaultUpdate,
-                toCoordinator: toCoordinator
+                update: update
             )
-            let context = SourcesContext(coordinator, isSectiond: true)
-            subsources.append((.items(id: id) { coordinator.subsourcesArray }, context))
+            let context = coordinator.context()
+            let source = Subsource(.items(id: id) { coordinator.subsourcesArray }, related: context)
+            subsources.append(source)
             itemSources.removeAll()
             id += 1
         }
         
         for element in source {
-            let coordinator = toCoordinator(element)
-            coordinator.setupIfNeeded()
-            switch coordinator.sourceType {
-            case .section:
+            let coordinator = element.listCoordinator
+            let context = coordinator.context(with: element.listContextSetups)
+            if coordinator.isSectioned {
                 if !itemSources.isEmpty { addItemSources() }
-                subsources.append((.element(element), .init(coordinator, isSectiond: true)))
-                isSectioned = true
-            case .cell:
-                itemSources.append((element, coordinator))
+                subsources.append(.init(.element(element), related: context))
+                subsourceHasSectioned = true
+            } else {
+                itemSources.append(.init(.element(element), related: context))
             }
         }
         
-        switch (isSectioned, itemSources.isEmpty) {
-        case (true, false):
-            addItemSources()
-        case (false, false):
-            subsources = itemSources.map {
-                (.element($0.element), .init($0.coordinator, isSectiond: false))
-            }
-        default:
-            break
+        switch (subsourceHasSectioned, itemSources.isEmpty) {
+        case (true, false): addItemSources()
+        case (false, false): subsources = itemSources
+        default: break
         }
         
-        return (isSectioned, subsources)
+        return subsources
     }
     
-    func configOffsetAndIndicesFor(subsources: [Subsource]) -> [Int] {
+    func configOffsetAndIndicesFor(subsources: ContiguousArray<Subsource>) -> ContiguousArray<Int> {
         var offset = 0
-        var indices = [Int]()
-        for (index, (_, context)) in subsources.enumerated() {
+        var indices = ContiguousArray<Int>()
+        indices.reserveCapacity(subsources.count)
+        for (index, subsource) in subsources.enumerated() {
+            let context = subsource.related
             context.offset = offset
-            let count = isSectioned
-                ? context.coordinator.numbersOfSections()
-                : context.coordinator.numbersOfItems(in: 0)
+            let count = isSectioned ? context.numbersOfSections() : context.numbersOfItems(in: 0)
             if count == 0 { continue }
-            indices += .init(repeating: index, count: count)
+            indices.append(contentsOf: repeatElement(index, count: count))
             offset += count
         }
         return indices
     }
     
-    func setupFor(subsources: [Subsource]) {
-        subsources.forEach {
-            let context = $0.related
-            context.coordinator.setupContext(listContext: context)
-            context.getContexts = { [unowned self] in self.listContexts.values.map { $0.context } }
-            if isSectioned { return }
-            context.getItemSources = { [unowned self] in
-                (self.numbersOfItems(in: 0), self.keepSectionIfEmpty)
-            }
-        }
-    }
-    
     func difference(
         to isTo: Bool,
-        _ subsources: [Subsource],
-        _ indices: [Int],
+        _ subsources: ContiguousArray<Subsource>,
+        _ indices: ContiguousArray<Int>,
         _ source: SourceBase.Source!,
         _ differ: Differ<Item>
     ) -> SourcesCoordinatorDifference<Source.Element> {
@@ -208,6 +138,7 @@ where
         let source: Mapping = isTo ? (self.source, source) : (source, self.source)
         let indices: Mapping = isTo ? (self.indices, indices) : (indices, self.indices)
         let diff = SourcesCoordinatorDifference(mapping: mapping, itemDiffer: differ)
+        diff.isSectioned = isSectioned
         diff.coordinatorChange = {
             self.subsources = mapping.target
             self.source = source.target
@@ -220,7 +151,7 @@ where
             self.subsources = $0
             self.indices = self.configOffsetAndIndicesFor(subsources: $0)
             guard case let .fromSourceBase(_, fromSource) = self.subsourceType else { return }
-            self.source = fromSource(.init($0.flatMap { (source: Subsource) -> [Source.Element] in
+            self.source = fromSource(.init($0.flatMap { (source: Subsource) -> ContiguousArray<Source.Element> in
                 switch source.value {
                 case let .items(_, items):
                     return items()
@@ -239,42 +170,36 @@ where
     
     init(
         _ sourceBase: SourceBase,
-        storage: CoordinatorStorage<SourceBase>? = nil,
         toSource: @escaping (SourceBase.Source) -> (Source),
-        fromSource:  @escaping (Source) -> SourceBase.Source,
-        toCoordinator: @escaping (Source.Element) -> Subcoordinator
+        fromSource:  @escaping (Source) -> SourceBase.Source
     ) {
-        let source = sourceBase.source(storage: storage)
+        let source = sourceBase.source
         subsourceType = .fromSourceBase(toSource, fromSource)
-        self.toCoordinator = toCoordinator
-        super.init(defaultUpdate: sourceBase.listUpdate, source: source, storage: storage)
+        super.init(source: source, update: sourceBase.listUpdate, options: sourceBase.listOptions)
     }
     
     init(
-        elements: [(element: Source.Element, coordinator: Subcoordinator)],
-        defaultUpdate: ListUpdate<SourceBase.Item>,
-        toCoordinator: @escaping (Source.Element) -> Subcoordinator
+        elements: ContiguousArray<Subsource>,
+        update: ListUpdate<SourceBase.Item>
     ) {
         subsourceType = .values
-        self.toCoordinator = toCoordinator
-        super.init(defaultUpdate: defaultUpdate, source: nil, storage: nil)
-        subsources = elements.map {
-            (.element($0.element), .init($0.coordinator, isSectiond: false))
-        }
+        super.init(source: nil, update: update)
+        subsources = elements
+        isSectioned = false
     }
     
-    override func item(at path: IndexPath) -> Item {
-        let (path, subcoordinator) = pathAndCoordinator(path: path)
-        return subcoordinator.item(at: path)
+    override func item(at section: Int, _ item: Int) -> Item {
+        let (section, item, subcoordinator) = pathAndCoordinator(section: section, item: item)
+        return subcoordinator.item(at: section, item)
     }
     
-    override func itemRelatedCache(at path: IndexPath) -> ItemRelatedCache {
-        let (path, subcoordinator) = pathAndCoordinator(path: path)
-        return subcoordinator.itemRelatedCache(at: path)
+    override func itemRelatedCache(at section: Int, _ item: Int) -> ItemRelatedCache {
+        let (section, item, subcoordinator) = pathAndCoordinator(section: section, item: item)
+        return subcoordinator.itemRelatedCache(at: section, item)
     }
     
     override func numbersOfSections() -> Int {
-        isSectioned ? indices.count : isEmpty && !keepSectionIfEmpty ? 0 : 1
+        isSectioned ? indices.count : isEmpty && !keepSection ? 0 : 1
     }
     
     override func numbersOfItems(in section: Int) -> Int {
@@ -284,81 +209,33 @@ where
         return context.coordinator.numbersOfItems(in: section - context.offset)
     }
     
-    override func setup() {
-        if case let .fromSourceBase(fromSource, _) = subsourceType {
-            (isSectioned, subsources) = subsources(for: fromSource(source))
-        }
-        
-        indices = configOffsetAndIndicesFor(subsources: subsources)
-        setupSelectorSets()
-        sourceType = (isSectioned || selectorSets.hasIndex) ? .section : .cell
-        setupFor(subsources: subsources)
+    override func configureIsSectioned() -> Bool {
+        subsourceHasSectioned || selectorsHasSection
     }
     
-    override func selectorSets(applying: (inout SelectorSets) -> Void) {
-        super.selectorSets(applying: applying)
-        applying(&selfSelectorSets)
+    // Setup
+    override func context(
+        with setups: [(ListCoordinatorContext<SourceBase>) -> Void] = []
+    ) -> ListCoordinatorContext<SourceBase> {
+        let context = SourcesCoordinatorContext(self, setups: setups)
+        listContexts.append(.init(context))
+        return context
     }
     
-    override func apply<Object: AnyObject, Input, Output>(
-        _ keyPath: KeyPath<Coordinator, Delegate<Object, Input, Output>>,
-        object: Object,
-        with input: Input,
-        _ sectionOffset: Int,
-        _ itemOffset: Int
-    ) -> Output {
-        subcoordinatorApply(keyPath, object: object, with: input, sectionOffset, itemOffset)
-            ?? super.apply(keyPath, object: object, with: input, sectionOffset, itemOffset)
-    }
-    
-    override func apply<Object: AnyObject, Input>(
-        _ keyPath: KeyPath<Coordinator, Delegate<Object, Input, Void>>,
-        object: Object,
-        with input: Input,
-        _ sectionOffset: Int,
-        _ itemOffset: Int
-    ) {
-        subcoordinatorApply(keyPath, object: object, with: input, sectionOffset, itemOffset)
-        super.apply(keyPath, object: object, with: input, sectionOffset, itemOffset)
-    }
-    
+    // Updates:
     override func difference(
         to source: SourceBase.Source,
         differ: Differ<Item>
     ) -> CoordinatorDifference {
         guard case let .fromSourceBase(fromSource, _) = subsourceType else { fatalError() }
-        let (_, subsource) = subsources(for: fromSource(source))
+        let subsource = setupSubsources(for: fromSource(source))
         let indices = configOffsetAndIndicesFor(subsources: subsource)
         return difference(to: true, subsource, indices, source, differ)
     }
 }
 
 extension SourcesCoordinator where SourceBase.Source == Source {
-    convenience init(
-        sources sourceBase: SourceBase,
-        toCoordinator: @escaping (Source.Element) -> Subcoordinator = { $0.makeListCoordinator() }
-    ) {
-        self.init(
-            sourceBase,
-            storage: nil,
-            toSource: { $0 },
-            fromSource: { $0 },
-            toCoordinator: toCoordinator
-        )
-    }
-}
-
-extension SourcesCoordinator where SourceBase.Source == Source, SourceBase: UpdatableDataSource {
-    convenience init(
-        updatableSources sourceBase: SourceBase,
-        toCoordinator: @escaping (Source.Element) -> Subcoordinator = { $0.makeListCoordinator() }
-    ) {
-        self.init(
-            sourceBase,
-            storage: sourceBase.coordinatorStorage,
-            toSource: { $0 },
-            fromSource: { $0 },
-            toCoordinator: toCoordinator
-        )
+    convenience init(sources sourceBase: SourceBase) {
+        self.init(sourceBase, toSource: { $0 }, fromSource: { $0 })
     }
 }

@@ -496,11 +496,11 @@ final class UITableListDelegate {
 extension ListDelegate: UITableViewDataSource {
     //Providing the Number of Rows and Sections
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        coordinator.numbersOfItems(in: section)
+        context.numbersOfItems(in: section)
     }
 
     func numberOfSections(in tableView: UITableView) -> Int {
-        coordinator.numbersOfSections()
+        context.numbersOfSections()
     }
     
     //Providing Cells, Headers, and Footers

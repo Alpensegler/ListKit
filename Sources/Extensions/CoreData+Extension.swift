@@ -80,7 +80,7 @@ where Item: NSFetchRequestResult {
 }
 
 extension FetchedResultsController: NSDataSource {
-    public func item(at section: Int, item: Int) -> Item {
+    public func item(at section: Int, _ item: Int) -> Item {
         fetchedResultController.object(at: IndexPath(item: item, section: section))
     }
     

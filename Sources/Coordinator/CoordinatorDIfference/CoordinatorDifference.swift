@@ -29,13 +29,13 @@ class CoordinatorDifference {
     enum Updates {
         case insertAll
         case removeAll
+        case reloadAll
         case batchUpdates(ListUpdates)
     }
     
     class Element<Value, Related>: CustomDebugStringConvertible {
         var index: Int
-        var value: Value
-        var related: Related
+        var valueRelated: ValueRelated<Value, Related>
         var state = ChangeState.none
         var sectionOffset = 0
         var itemOffset = 0
@@ -46,16 +46,16 @@ class CoordinatorDifference {
             }
         }
         
-        var asTuple: (Value, Related) { (value, related) }
+        var value: Value { valueRelated.value }
+        var related: Related { valueRelated.related }
+        
         var indexPath: IndexPath { IndexPath(section: sectionOffset, item: itemOffset + index) }
         var section: Int { index + sectionOffset }
         
-        required init(value: Value, related: Related, index: Int) {
-            self.value = value
-            self.related = related
+        required init(valueRelated: ValueRelated<Value, Related>, index: Int) {
+            self.valueRelated = valueRelated
             self.index = index
         }
-        
         
         var description: String {
             "\(value), \(index), \(state)"
@@ -66,11 +66,14 @@ class CoordinatorDifference {
         }
     }
     
+    var isSectioned = true
+    
     lazy var updates = generateUpdates()
     
     func prepareForGenerate() { }
     func inferringMoves(context: Context) { }
     
+    func prepareForGenerateUpdates() { prepareForGenerate() }
     func generateUpdates() -> Updates? {
         fatalError("should be implement by subclass")
     }
@@ -132,21 +135,21 @@ extension CoordinatorDifference {
     
     func applying<Change, Value, Related, Element: CoordinatorDifference.Element<Value, Related>>(
         to uniqueChanges: inout UniqueChange<Change>,
-        with elements: inout Mapping<[Element]>,
-        id: (Diffable<Value, Related>) -> AnyHashable,
-        equal: ((Diffable<Value, Related>, Diffable<Value, Related>) -> Bool)?,
+        with elements: inout Mapping<ContiguousArray<Element>>,
+        id: (ValueRelated<Value, Related>) -> AnyHashable,
+        equal: ((ValueRelated<Value, Related>, ValueRelated<Value, Related>) -> Bool)?,
         isAllCurrent: Bool = false,
         _ associating: ((Mapping<Element>) -> Void)? = nil,
         toChange: (Change) -> Element? = { $0 as? Element }
     ) {
         @discardableResult
         func configAssociated(for element: Element, isSource: Bool) -> Element? {
-            let id = id((element.value, element.related))
+            let id = id((element.valueRelated))
             let sourceChange = uniqueChanges.source[id]?.map(toChange)
             let targetChange = uniqueChanges.target[id]?.map(toChange)
             switch (sourceChange, targetChange) {
             case let (source??, target??):
-                let isEqual = equal?(source.asTuple, target.asTuple)
+                let isEqual = equal?(source.valueRelated, target.valueRelated)
                 switch (isAllCurrent, source.state, target.state) {
                 case (true, _, _) where isEqual == false && source.index == target.index:
                     (source.state, target.state) = (.reload, .reload)
@@ -173,8 +176,8 @@ extension CoordinatorDifference {
         }
         
         if isAllCurrent {
-            let source = elements.source.compactMap { configAssociated(for: $0, isSource: true) }
-            let target = elements.target.compactMap { configAssociated(for: $0, isSource: false) }
+            let source = elements.source.compactMapContiguous { configAssociated(for: $0, isSource: true) }
+            let target = elements.target.compactMapContiguous { configAssociated(for: $0, isSource: false) }
             elements = (source, target)
         } else {
             elements.source.forEach { configAssociated(for: $0, isSource: true) }
@@ -183,15 +186,15 @@ extension CoordinatorDifference {
     }
     
     func toChanges<Value, Related, Element: CoordinatorDifference.Element<Value, Related>>(
-        mapping: Mapping<[Diffable<Value, Related>]>,
-        differ: Differ<Diffable<Value, Related>>,
+        mapping: Mapping<ContiguousArray<ValueRelated<Value, Related>>>,
+        differ: Differ<ValueRelated<Value, Related>>,
         moveAndRelod: Bool? = nil,
         associating: ((Mapping<Element>) -> Void)? = nil
-    ) -> (Mapping<[Element]>, Mapping<[Element]>) {
-        var result: Mapping<[Element]> = ([], [])
+    ) -> (Mapping<ContiguousArray<Element>>, Mapping<ContiguousArray<Element>>) {
+        var result: Mapping<ContiguousArray<Element>> = ([], [])
         var enumated: Mapping<Int> = (0, 0)
         var uniqueChanges: UniqueChange<Element> = ([:], [:])
-        var changedResult: Mapping<[Element]> = ([], [])
+        var changedResult: Mapping<ContiguousArray<Element>> = ([], [])
         var shouldAssociate: Bool
         var isChanged: (Bool, Int) -> Bool
         
@@ -217,9 +220,9 @@ extension CoordinatorDifference {
         }
         
         @discardableResult
-        func toValue(_ arg: (Int, Diffable<Value, Related>), isSource: Bool) -> Element? {
+        func toValue(_ arg: (Int, ValueRelated<Value, Related>), isSource: Bool) -> Element? {
             let (offset, element) = arg
-            let value = Element(value: element.value, related: element.related, index: offset)
+            let value = Element(valueRelated: element, index: offset)
             isSource ? result.source.append(value) : result.target.append(value)
             guard isChanged(isSource, offset) else { return value }
             if let id = differ.identifier {
@@ -260,5 +263,59 @@ extension CoordinatorDifference {
         
         
         return (result, changedResult)
+    }
+}
+
+extension CoordinatorDifference {
+    func generateUpdates<T>(
+        for mapping: Mapping<ContiguousArray<T>>,
+        reloadIfNeeded: Bool = false
+    ) -> Updates? {
+        generateUpdates(
+            for: (mapping.source.isEmpty, mapping.target.isEmpty),
+            reloadIfNeeded: reloadIfNeeded
+        )
+    }
+    
+    func generateUpdates(for mapping: Mapping<Bool>, reloadIfNeeded: Bool = false) -> Updates? {
+        switch (mapping.source, mapping.target) {
+        case (true, false): return .insertAll
+        case (false, true): return .removeAll
+        case (_, _) where reloadIfNeeded: return .reloadAll
+        case (true, true): return nil
+        case (false, false): break
+        }
+        
+        prepareForGenerateUpdates()
+        
+        let batchUpdates: ListUpdates
+        if isSectioned {
+            batchUpdates = Order.allCases.compactMap { order in
+                let source = generateSourceSectionUpdate(order: order)
+                let target = generateTargetSectionUpdate(order: order)
+                guard source.update != nil || target.update != nil else { return nil }
+                var batchUpdate = ListBatchUpdates()
+                source.update.map {
+                    batchUpdate.section.source = $0.section
+                    batchUpdate.item.source = $0.item
+                }
+                target.update.map {
+                    batchUpdate.section.target = $0.section
+                    batchUpdate.item.target = $0.item
+                }
+                return (batchUpdate, target.change)
+            }
+        } else {
+            batchUpdates = Order.allCases.compactMap { order in
+                let source = generateSourceItemUpdate(order: order)
+                let target = generateTargetItemUpdate(order: order)
+                guard source.update != nil || target.update != nil else { return nil }
+                var itemUpdate = ItemUpdate()
+                source.update.map { itemUpdate.source = $0 }
+                target.update.map { itemUpdate.target = $0 }
+                return (itemUpdate, target.change)
+            }
+        }
+        return batchUpdates.isEmpty ? nil : .batchUpdates(batchUpdates)
     }
 }

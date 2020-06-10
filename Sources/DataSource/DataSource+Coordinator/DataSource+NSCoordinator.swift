@@ -6,7 +6,11 @@
 //
 
 public extension NSDataSource where SourceBase: NSDataSource {
-    func makeListCoordinator() -> ListCoordinator<SourceBase> {
-        NSCoordinator(sourceBase)
+    var listCoordinator: ListCoordinator<SourceBase> {
+        sourceBase.coordinator(with: NSCoordinator(sourceBase))
     }
+}
+
+extension NSDataSource {
+    
 }

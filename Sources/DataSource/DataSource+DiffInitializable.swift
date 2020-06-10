@@ -6,13 +6,13 @@
 //
 
 public extension DataSource {
-    var differ: Differ<SourceBase> { .none }
+    var listOptions: ListOptions<SourceBase> { .none }
     var listUpdate: ListUpdate<Item> { .reload }
 }
 
 //Equatable
 public extension DataSource where SourceBase: Equatable {
-    var differ: Differ<SourceBase> { .diff }
+    var listOptions: ListOptions<SourceBase> { .diff }
 }
 
 public extension DataSource where SourceBase.Item: Equatable {
@@ -21,7 +21,7 @@ public extension DataSource where SourceBase.Item: Equatable {
 
 //Hashable
 public extension DataSource where SourceBase: Hashable {
-    var differ: Differ<SourceBase> { .diff }
+    var listOptions: ListOptions<SourceBase> { .diff }
 }
 
 public extension DataSource where SourceBase.Item: Hashable {
@@ -31,7 +31,7 @@ public extension DataSource where SourceBase.Item: Hashable {
 //Identifiable
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public extension DataSource where SourceBase: Identifiable {
-    var differ: Differ<SourceBase> { .diff }
+    var listOptions: ListOptions<SourceBase> { .diff }
 }
 
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
@@ -42,7 +42,7 @@ public extension DataSource where SourceBase.Item: Identifiable {
 //Identifiable + Equatable
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public extension DataSource where SourceBase: Identifiable, SourceBase: Equatable {
-    var differ: Differ<SourceBase> { .diff }
+    var listOptions: ListOptions<SourceBase> { .diff }
 }
 
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
@@ -53,7 +53,7 @@ public extension DataSource where SourceBase.Item: Identifiable, SourceBase.Item
 //Identifiable + Hashable
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public extension DataSource where SourceBase: Identifiable, SourceBase: Hashable {
-    var differ: Differ<SourceBase> { .diff }
+    var listOptions: ListOptions<SourceBase> { .diff }
 }
 
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
@@ -63,15 +63,15 @@ public extension DataSource where SourceBase.Item: Identifiable, SourceBase.Item
 
 //Object
 public extension DataSource where SourceBase: AnyObject {
-    var differ: Differ<SourceBase> { .diff(id: { ObjectIdentifier($0) }) }
+    var listOptions: ListOptions<SourceBase> { .diff(id: { ObjectIdentifier($0) }) }
 }
 
 //Object + Equatable
 public extension DataSource where SourceBase: AnyObject, SourceBase: Equatable {
-    var differ: Differ<SourceBase> { .diff }
+    var listOptions: ListOptions<SourceBase> { .diff }
 }
 
 //Object + Hashable
 public extension DataSource where SourceBase: AnyObject, SourceBase: Hashable {
-    var differ: Differ<SourceBase> { .diff }
+    var listOptions: ListOptions<SourceBase> { .diff }
 }

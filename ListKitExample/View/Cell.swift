@@ -67,12 +67,13 @@ final class LabelCell: UICollectionViewCell {
 
 final class TitleHeader: UICollectionReusableView {
     lazy private var label: UILabel = {
-        let view = UILabel()
+        let view = UILabel(frame: bounds)
         view.backgroundColor = .clear
         view.textAlignment = .center
         view.textColor = .black
         view.font = .boldSystemFont(ofSize: 18)
         view.frame = bounds
+        view.backgroundColor = .systemGray
         self.addSubview(view)
         return view
     }()

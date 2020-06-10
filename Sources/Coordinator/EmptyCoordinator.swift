@@ -10,6 +10,6 @@ where SourceBase.SourceBase == SourceBase {
     override var isEmpty: Bool { true }
     
     init(sourceBase: SourceBase) {
-        super.init(source: sourceBase.source, storage: nil)
+        super.init(source: sourceBase.source)
     }
 }

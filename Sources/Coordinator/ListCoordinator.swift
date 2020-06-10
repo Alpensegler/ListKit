@@ -5,213 +5,117 @@
 //  Created by Frain on 2019/11/25.
 //
 
-import Foundation
+enum SourceMultipleType {
+    case single, multiple, sources, noneDiffable
+}
 
-final class ItemRelatedCache {
-    var nestedAdapterItemUpdateDidConfig = false
-    var cacheForItemDidConfig = false
+struct WeakContext<SourceBase: DataSource> where SourceBase.SourceBase == SourceBase {
+    weak var context: ListCoordinatorContext<SourceBase>?
     
-    lazy var nestedAdapterItemUpdate: [AnyHashable: (Bool, (Any) -> Void)] = {
-        nestedAdapterItemUpdateDidConfig = true
-        return .init()
-    }()
-    
-    lazy var cacheForItem: [ObjectIdentifier: Any] = {
-        cacheForItemDidConfig = true
-        return .init()
-    }()
-    
-    func updateFrom(_ cache: ItemRelatedCache) {
-        if cache.nestedAdapterItemUpdateDidConfig {
-            nestedAdapterItemUpdate = cache.nestedAdapterItemUpdate
-            nestedAdapterItemUpdateDidConfig = true
-        }
-        if cache.cacheForItemDidConfig {
-            cacheForItem = cache.cacheForItem
-            cacheForItemDidConfig = true
-        }
+    init(_ context: ListCoordinatorContext<SourceBase>) {
+        self.context = context
     }
 }
 
-public class ListCoordinator<SourceBase: DataSource>: Coordinator
-where SourceBase.SourceBase == SourceBase {
-    struct UnownedListContext {
-        unowned var context: ListContext
-        
-        init(_ context: ListContext) {
-            self.context = context
-        }
-    }
-    
+public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase == SourceBase {
     typealias Item = SourceBase.Item
     
     weak var storage: CoordinatorStorage<SourceBase>?
-    var listContexts = [ObjectIdentifier: UnownedListContext]() {
-        didSet {
-            switch (oldValue.isEmpty, listContexts.isEmpty) {
-            case (true, false): storage?.coordinators[ObjectIdentifier(self)] = self
-            case (false, true): storage?.coordinators[ObjectIdentifier(self)] = nil
-            default: break
-            }
-        }
-    }
+    var listContexts = [WeakContext<SourceBase>]()
     
-    var contexts: [(Int, Int, ListView, ListContext?)] {
-        listContexts.values.flatMap { $0.context.contexts() }
-    }
+    lazy var keepSection = options.contains(.init(rawValue: 1))
+    lazy var preferSection = options.contains(.init(rawValue: 2))
     
-    lazy var selectorSets = initialSelectorSets()
-    
-    #if os(iOS) || os(tvOS)
-    lazy var scrollListDelegate = UIScrollListDelegate()
-    lazy var collectionListDelegate = UICollectionListDelegate()
-    lazy var tableListDelegate = UITableListDelegate()
-    #endif
-    
-    //Source Diffing
-    var didUpdateToCoordinator = [(Coordinator, Coordinator) -> Void]()
-    var didUpdateIndices = [() -> Void]()
-    
+    // Source Diffing
     var id: AnyHashable
     
-    var sourceType = SourceType.cell
+    lazy var isSectioned = configureIsSectioned()
     var multiType: SourceMultipleType { .sources }
     var isEmpty: Bool { false }
     
-    var cacheFromItem: ((Item) -> Any)?
-    var didSetup = false
+    let update: ListUpdate<Item>
+    let options: ListOptions<SourceBase>
     
-    var defaultUpdate = ListUpdate<Item>()
-    var differ = Differ<SourceBase>()
-    var options = DataSourceOptions()
+    var selectorsHasSection: Bool {
+        listContexts.contains { $0.context?.selectorSets.hasIndex == true }
+    }
     
     var source: SourceBase.Source!
     
     init(
-        id: AnyHashable = ObjectIdentifier(SourceBase.self),
-        defaultUpdate: ListUpdate<Item> = .init(),
-        differ: Differ<SourceBase> = .init(),
-        options: DataSourceOptions = .init(),
         source: SourceBase.Source!,
-        storage: CoordinatorStorage<SourceBase>?
+        update: ListUpdate<Item> = .init(),
+        options: ListOptions<SourceBase> = .init(),
+        id: AnyHashable = ObjectIdentifier(SourceBase.self)
     ) {
         self.id = id
-        self.storage = storage
-        self.defaultUpdate = defaultUpdate
-        self.differ = differ
         self.source = source
+        self.update = update
         self.options = options
     }
     
-    init(_ sourceBase: SourceBase, storage: CoordinatorStorage<SourceBase>? = nil) {
-        self.id = ObjectIdentifier(SourceBase.self)
-        self.storage = storage
-        self.defaultUpdate = sourceBase.listUpdate
-        self.differ = sourceBase.differ
-        self.source = sourceBase.source(storage: storage)
-        self.options = sourceBase.dataSourceOptions
+    init(_ sourceBase: SourceBase, id: AnyHashable = ObjectIdentifier(SourceBase.self)) {
+        self.id = id
+        self.source = sourceBase.source
+        self.update = sourceBase.listUpdate
+        self.options = sourceBase.listOptions
     }
     
     func numbersOfSections() -> Int { fatalError() }
     func numbersOfItems(in section: Int) -> Int { fatalError() }
     
-    func item(at path: IndexPath) -> Item { fatalError() }
-    func itemRelatedCache(at path: IndexPath) -> ItemRelatedCache { fatalError() }
+    func item(at section: Int, _ item: Int) -> Item { fatalError() }
+    func itemRelatedCache(at section: Int, _ item: Int) -> ItemRelatedCache { fatalError() }
     
-    //Diffs:
+    func configureIsSectioned() -> Bool { fatalError() }
+    
+    // Setup
+    func context(
+        with setups: [(ListCoordinatorContext<SourceBase>) -> Void] = []
+    ) -> ListCoordinatorContext<SourceBase> {
+        let context = ListCoordinatorContext(self, setups: setups)
+        listContexts.append(.init(context))
+        return context
+    }
+    
+    // Updates:
     func identifier(for sourceBase: SourceBase) -> AnyHashable {
-        guard let identifier = differ.identifier else {
-            return HashCombiner(id, sourceType, multiType)
+        guard let identifier = options.differ?.identifier else {
+            return HashCombiner(id, isSectioned, multiType)
         }
-        return HashCombiner(id, sourceType, multiType, identifier(sourceBase))
+        return HashCombiner(id, isSectioned, multiType, identifier(sourceBase))
     }
     
     func equal(lhs: SourceBase, rhs: SourceBase) -> Bool {
-        differ.areEquivalent?(lhs, rhs) ?? true
+        options.differ?.areEquivalent?(lhs, rhs) ?? true
     }
     
-    func difference<Value>(from: Coordinator, differ: Differ<Value>?) -> CoordinatorDifference? {
+    func difference(
+        from coordinator: ListCoordinator<SourceBase>,
+        differ: Differ<Item>?
+    ) -> CoordinatorDifference {
         fatalError("should be implemented by subclass")
     }
-    
-    func difference(to source: SourceBase.Source, differ: Differ<Item>) -> CoordinatorDifference {
+
+    func difference(
+        to source: SourceBase.Source,
+        differ: Differ<Item>
+    ) -> CoordinatorDifference {
         fatalError("should be implemented by subclass")
     }
     
     func updateTo(_ source: SourceBase.Source) {
-        fatalError("should be implemented by subclass")
+        self.source = source
     }
     
-    //Selectors
-    func apply<Object: AnyObject, Input, Output>(
-        _ keyPath: KeyPath<Coordinator, Delegate<Object, Input, Output>>,
-        object: Object,
-        with input: Input,
-        _ sectionOffset: Int,
-        _ itemOffset: Int
-    ) -> Output {
-        self[keyPath: keyPath].closure!(object, input, sectionOffset, itemOffset)
+    func startUpdate() {
+        
     }
     
-    func apply<Object: AnyObject, Input>(
-        _ keyPath: KeyPath<Coordinator, Delegate<Object, Input, Void>>,
-        object: Object,
-        with input: Input,
-        _ sectionOffset: Int,
-        _ itemOffset: Int
-    ) {
-        self[keyPath: keyPath].closure?(object, input, sectionOffset, itemOffset)
+    func endUpdate(animated: Bool = true, completion: ((ListView, Bool) -> Void)? = nil) {
+        
     }
     
-    func selectorSets(applying: (inout SelectorSets) -> Void) {
-        applying(&selectorSets)
-    }
-    
-    //Setup
-    
-    func setup() { }
-    
-    func setupContext(listContext: ListContext) {
-        listContexts[ObjectIdentifier(listContext)] = .init(listContext)
-    }
-    
-    func removeContext(listContext: ListContext) {
-        listContexts[ObjectIdentifier(listContext)] = nil
-    }
-}
-
-extension ListCoordinator {
-    func set<Object: AnyObject, Input, Output>(
-        _ keyPath: ReferenceWritableKeyPath<Coordinator, Delegate<Object, Input, Output>>,
-        _ closure: @escaping (ListCoordinator<SourceBase>, Object, Input, Int, Int) -> Output
-    ) {
-        self[keyPath: keyPath].closure = { [unowned self] in closure(self, $0, $1, $2, $3) }
-        let delegate = self[keyPath: keyPath]
-        switch delegate.index {
-        case .none:
-            selectorSets { $0.value.remove(delegate.selector) }
-        case .indexPath:
-            selectorSets { $0.withIndexPath.remove(delegate.selector) }
-        case .index:
-            selectorSets {
-                $0.withIndex.remove(delegate.selector)
-                $0.hasIndex = true
-            }
-        }
-    }
-
-    func set<Object: AnyObject, Input>(
-        _ keyPath: ReferenceWritableKeyPath<Coordinator, Delegate<Object, Input, Void>>,
-        _ closure: @escaping (ListCoordinator<SourceBase>, Object, Input, Int, Int) -> Void
-    ) {
-        self[keyPath: keyPath].closure = { [unowned self] in closure(self, $0, $1, $2, $3) }
-        let delegate = self[keyPath: keyPath]
-        selectorSets { $0.void.remove(delegate.selector) }
-    }
-}
-
-//Updating
-extension ListCoordinator {
     func performReload(
         to sourceBase: SourceBase.Source,
         _ animated: Bool,
@@ -237,25 +141,25 @@ extension ListCoordinator {
         _ completion: ((ListView, Bool) -> Void)?,
         _ updateData: ((SourceBase.Source) -> Void)?
     ) {
-        let contexts = self.contexts
-        if contexts.isEmpty { return }
-        let change = updateData.map { update in { update(self.source) } }
-        let difference = self.difference(to: source, differ: differ)
-        guard difference.updates != nil else {
-            contexts.forEach { completion?($0.2, true) }
-            return
-        }
-        for (sectionOffset, itemOffset, listView, context) in contexts {
-            let updates = difference.generateListUpdates(itemSources: context?.itemSources)
-            listView.perform(
-                updates: updates,
-                sectionOffset: sectionOffset,
-                itemOffset: itemOffset,
-                animated: animated,
-                change: change,
-                completion: completion
-            )
-        }
+//        let contexts = self.contexts
+//        if contexts.isEmpty { return }
+//        let change = updateData.map { update in { update(self.source) } }
+//        let difference = self.difference(to: source, differ: differ)
+//        guard difference.updates != nil else {
+//            contexts.forEach { completion?($0.2, true) }
+//            return
+//        }
+//        for (sectionOffset, itemOffset, listView, context) in contexts {
+//            let updates = difference.generateListUpdates(itemSources: context?.itemSources)
+//            listView.perform(
+//                updates: updates,
+//                sectionOffset: sectionOffset,
+//                itemOffset: itemOffset,
+//                animated: animated,
+//                change: change,
+//                completion: completion
+//            )
+//        }
     }
     
     func perform(
@@ -277,12 +181,5 @@ extension ListCoordinator {
     
     func removeCurrent(animated: Bool, completion: ((ListView, Bool) -> Void)?) {
         
-    }
-    
-}
-
-extension ListCoordinator where SourceBase: UpdatableDataSource {
-    convenience init(updatable sourceBase: SourceBase) {
-        self.init(sourceBase, storage: sourceBase.coordinatorStorage)
     }
 }

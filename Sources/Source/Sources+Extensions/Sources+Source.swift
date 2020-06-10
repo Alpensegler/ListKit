@@ -6,37 +6,42 @@
 //
 
 extension Sources where Source: DataSource, Source.Item == Item {
-    init(_ id: AnyHashable? = nil, dataSource: Source, update: ListUpdate<Item>) {
+    init(_ id: AnyHashable?, dataSource: Source, update: ListUpdate<Item>, options: Options) {
         var source = dataSource
         self.sourceGetter = { source }
         self.sourceSetter = { source = $0 }
-        self.differ = id.map { id in .diff(id: { _ in id }) } ?? .none
         self.listUpdate = update
-        self.coordinatorMaker = { WrapperCoordinator(updatableWrapper: $0) }
+        self.listOptions = .init(id: id, options)
+        self.coordinatorMaker = { $0.coordinator(with: WrapperCoordinator(wrapper: $0)) }
     }
 }
 
 public extension Sources where Source: DataSource, Source.Item == Item {
-    init(id: AnyHashable? = nil, dataSource: Source, update: ListUpdate<Item>) {
-        self.init(id, dataSource: dataSource, update: update)
+    init(
+        id: AnyHashable? = nil,
+        dataSource: Source,
+        update: ListUpdate<Item>,
+        options: Options = .init()
+    ) {
+        self.init(id, dataSource: dataSource, update: update, options: options)
     }
     
-    init(id: AnyHashable? = nil, dataSource: Source) {
-        self.init(id, dataSource: dataSource, update: .reload)
+    init(id: AnyHashable? = nil, dataSource: Source, options: Options = .init()) {
+        self.init(id, dataSource: dataSource, update: .reload, options: options)
     }
 }
 
 //Equatable
 public extension Sources where Source: DataSource, Source.Item == Item, Item: Equatable {
-    init(id: AnyHashable? = nil, dataSource: Source) {
-        self.init(id, dataSource: dataSource, update: .diff)
+    init(id: AnyHashable? = nil, dataSource: Source, options: Options = .init()) {
+        self.init(id, dataSource: dataSource, update: .diff, options: options)
     }
 }
 
 //Hashable
 public extension Sources where Source: DataSource, Source.Item == Item, Item: Hashable {
-    init(id: AnyHashable? = nil, dataSource: Source) {
-        self.init(id, dataSource: dataSource, update: .diff)
+    init(id: AnyHashable? = nil, dataSource: Source, options: Options = .init()) {
+        self.init(id, dataSource: dataSource, update: .diff, options: options)
     }
 }
 
@@ -48,8 +53,8 @@ where
     Source.Item == Item,
     Item: Identifiable
 {
-    init(id: AnyHashable? = nil, dataSource: Source) {
-        self.init(id, dataSource: dataSource, update: .diff)
+    init(id: AnyHashable? = nil, dataSource: Source, options: Options = .init()) {
+        self.init(id, dataSource: dataSource, update: .diff, options: options)
     }
 }
 
@@ -62,8 +67,8 @@ where
     Item: Identifiable,
     Item: Equatable
 {
-    init(id: AnyHashable? = nil, dataSource: Source) {
-        self.init(id, dataSource: dataSource, update: .diff)
+    init(id: AnyHashable? = nil, dataSource: Source, options: Options = .init()) {
+        self.init(id, dataSource: dataSource, update: .diff, options: options)
     }
 }
 
@@ -76,8 +81,8 @@ where
     Item: Identifiable,
     Item: Hashable
 {
-    init(id: AnyHashable? = nil, dataSource: Source) {
-        self.init(id, dataSource: dataSource, update: .diff)
+    init(id: AnyHashable? = nil, dataSource: Source, options: Options = .init()) {
+        self.init(id, dataSource: dataSource, update: .diff, options: options)
     }
 }
 

@@ -9,19 +9,19 @@ import Foundation
 
 final class ItemsCoordinatorDifference<Item>: CoordinatorDifference {
     typealias ValueElement = Element<Item, ItemRelatedCache>
-    typealias Diffable = ListKit.Diffable<Item, ItemRelatedCache>
+    typealias Diffable = ListKit.ValueRelated<Item, ItemRelatedCache>
     
-    let mapping: Mapping<[Diffable]>
-    let differ: Differ<Diffable>
+    let mapping: Mapping<ContiguousArray<Diffable>>
+    let differ: Differ<Diffable>?
     
     var rangeRelplacable = false
     var keepSectionIfEmpty: Mapping<Bool> = (false, false)
-    var extraCoordinatorChange: (([Diffable]) -> Void)?
+    var extraCoordinatorChange: ((ContiguousArray<Diffable>) -> Void)?
     var updateSectionCount: ((Int?) -> Void)?
     var coordinatorChange: (() -> Void)?
     
-    var changes: Mapping<[ValueElement]> = ([], [])
-    var uniques: Mapping<[ValueElement]> = ([], [])
+    var changes: Mapping<ContiguousArray<ValueElement>> = ([], [])
+    var uniques: Mapping<ContiguousArray<ValueElement>> = ([], [])
     
     var sourceSection = 0
     var needThirdUpdate = false
@@ -32,53 +32,34 @@ final class ItemsCoordinatorDifference<Item>: CoordinatorDifference {
     lazy var itemsCount = mapping.source.count
     lazy var sectionCount = sourceIsEmpty ? 0 : 1
     
-    lazy var thirdItems = [Diffable]()
+    lazy var thirdItems = ContiguousArray<Diffable>()
     lazy var thirdUpdates = [IndexPath]()
     
-    init(mapping: Mapping<[Diffable]>, differ: Differ<Item>) {
+    init(mapping: Mapping<ContiguousArray<Diffable>>, differ: Differ<Item>?) {
         self.mapping = mapping
-        self.differ = .init(differ) { $0.value }
+        self.differ = differ.map { .init($0) { $0.value } }
         super.init()
     }
     
     override func prepareForGenerate() {
-        let reloadable = rangeRelplacable ? nil : false
-        (changes, uniques) = toChanges(mapping: mapping, differ: differ, moveAndRelod: reloadable)
+//        let reloadable = rangeRelplacable ? nil : false
+//        (changes, uniques) = toChanges(mapping: mapping, differ: differ, moveAndRelod: reloadable)
     }
     
     override func inferringMoves(context: Context) {
-        guard let id = differ.identifier else { return }
+        guard let id = differ?.identifier else { return }
         uniques.source.forEach {
-            add(to: &context.uniqueChange, key: id($0.asTuple), change: $0, isSource: true)
+            add(to: &context.uniqueChange, key: id($0.valueRelated), change: $0, isSource: true)
         }
         uniques.target.forEach {
-            add(to: &context.uniqueChange, key: id($0.asTuple), change: $0, isSource: false)
+            add(to: &context.uniqueChange, key: id($0.valueRelated), change: $0, isSource: false)
         }
         
-        applying(to: &context.uniqueChange, with: &uniques, id: id, equal: differ.areEquivalent)
+//        applying(to: &context.uniqueChange, with: &uniques, id: id, equal: differ.areEquivalent)
     }
     
     override func generateUpdates() -> Updates? {
-        switch (mapping.source.isEmpty, mapping.target.isEmpty) {
-        case (false, false):
-            prepareForGenerate()
-            let batchUpdates: ListUpdates = [Order.second, Order.third].compactMap { order in
-                let source = generateSourceItemUpdate(order: order)
-                let target = generateTargetItemUpdate(order: order)
-                guard source.update != nil || target.update != nil else { return nil }
-                var itemUpdate = ItemUpdate()
-                source.update.map { itemUpdate.source = $0 }
-                target.update.map { itemUpdate.target = $0 }
-                return (itemUpdate, target.change)
-            }
-            return batchUpdates.isEmpty ? nil : .batchUpdates(batchUpdates)
-        case (true, false):
-            return .insertAll
-        case (false, true):
-            return .removeAll
-        case (true, true):
-            return nil
-        }
+        generateUpdates(for: mapping)
     }
     
     override func generateListUpdates(itemSources: (Int, Bool)?) -> ListUpdates {
@@ -102,6 +83,8 @@ final class ItemsCoordinatorDifference<Item>: CoordinatorDifference {
             let index = mapping.source.indices.map { IndexPath(item: $0) }
             let item = ItemUpdate(source: .init(deletions: index))
             return [(ListBatchUpdates(item: item), coordinatorChange)]
+        case (.reloadAll, _):
+            return []
         }
     }
     
@@ -212,9 +195,9 @@ final class ItemsCoordinatorDifference<Item>: CoordinatorDifference {
                     update.moves.append((associaed.indexPath, element.indexPath))
                     if moveAndRelod == true {
                         thirdUpdates.append(element.indexPath)
-                        if needThirdUpdate { thirdItems.append(associaed.asTuple) }
+                        if needThirdUpdate { thirdItems.append(associaed.valueRelated) }
                     } else {
-                        if needThirdUpdate { thirdItems.append(element.asTuple) }
+                        if needThirdUpdate { thirdItems.append(element.valueRelated) }
                         change = change + { element.related.updateFrom(associaed.related) }
                     }
                 case let (.reload, associaed?):
@@ -224,18 +207,18 @@ final class ItemsCoordinatorDifference<Item>: CoordinatorDifference {
                     case (true, true):
                         update.moves.append((associaed.indexPath, element.indexPath))
                         thirdUpdates.append(element.indexPath)
-                        if needThirdUpdate { thirdItems.append(associaed.asTuple) }
+                        if needThirdUpdate { thirdItems.append(associaed.valueRelated) }
                     default:
                         update.updates.append(element.indexPath)
-                        if needThirdUpdate { thirdItems.append(element.asTuple) }
+                        if needThirdUpdate { thirdItems.append(element.valueRelated) }
                     }
                 case let (_, associaed?):
                     if isMoved { update.moves.append((associaed.indexPath, element.indexPath)) }
-                    if needThirdUpdate { thirdItems.append(element.asTuple) }
+                    if needThirdUpdate { thirdItems.append(element.valueRelated) }
                     change = change + { element.related.updateFrom(associaed.related) }
                 default:
                     update.insertions.append(element.indexPath)
-                    if needThirdUpdate { thirdItems.append(element.asTuple) }
+                    if needThirdUpdate { thirdItems.append(element.valueRelated) }
                 }
             }
             

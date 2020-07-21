@@ -6,10 +6,8 @@
 //
 
 extension Sources where Source: DataSource, Source.Item == Item {
-    init(_ id: AnyHashable?, dataSource: Source, update: ListUpdate<Item>, options: Options) {
-        var source = dataSource
-        self.sourceGetter = { source }
-        self.sourceSetter = { source = $0 }
+    init(_ id: AnyHashable?, dataSource: Source, update: ListUpdate<SourceBase>, options: Options) {
+        self.sourceValue = dataSource
         self.listUpdate = update
         self.listOptions = .init(id: id, options)
         self.coordinatorMaker = { $0.coordinator(with: WrapperCoordinator(wrapper: $0)) }
@@ -20,7 +18,7 @@ public extension Sources where Source: DataSource, Source.Item == Item {
     init(
         id: AnyHashable? = nil,
         dataSource: Source,
-        update: ListUpdate<Item>,
+        update: ListUpdate<SourceBase>,
         options: Options = .init()
     ) {
         self.init(id, dataSource: dataSource, update: update, options: options)

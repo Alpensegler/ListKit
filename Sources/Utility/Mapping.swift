@@ -6,3 +6,7 @@
 //
 
 typealias Mapping<T> = (source: T, target: T)
+
+func path<T>(_ isSouce: Bool) -> WritableKeyPath<Mapping<T>, T> {
+    isSouce ? \.source : \.target
+}

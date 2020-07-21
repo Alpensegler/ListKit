@@ -19,13 +19,16 @@ public struct ScrollList<Source: DataSource>: ScrollListAdapter, UpdatableDataSo
 where Source.SourceBase == Source {
     public typealias Item = Source.Item
     public typealias SourceBase = Source
-    let storage = ListAdapterStorage<Source>()
+    let storage: ListAdapterStorage<Source>
     let erasedGetter: (Self) -> ScrollList<AnySources>
     
-    public let source: Source
     public var sourceBase: Source { source }
+    public var source: Source {
+        get { storage.source }
+        nonmutating set { storage.source = newValue }
+    }
     
-    public var listUpdate: ListUpdate<Item> { source.listUpdate }
+    public var listUpdate: ListUpdate<SourceBase> { source.listUpdate }
     public var listOptions: ListOptions<Source> { source.listOptions }
     
     public var listCoordinator: ListCoordinator<Source> { storage.listCoordinator }
@@ -35,11 +38,23 @@ where Source.SourceBase == Source {
     
     public var scrollList: ScrollList<SourceBase> { self }
     
-    public var wrappedValue: Source { source }
-    public var projectedValue: Source.Source { source.source }
+    public var wrappedValue: Source {
+        get { source }
+        nonmutating set { source = newValue }
+    }
+    
+    public var projectedValue: ScrollList<Source> {
+        get { self }
+        set { self = newValue }
+    }
     
     public subscript<Value>(dynamicMember path: KeyPath<Source, Value>) -> Value {
         source[keyPath: path]
+    }
+    
+    public subscript<Value>(dynamicMember path: WritableKeyPath<Source, Value>) -> Value {
+        get { source[keyPath: path] }
+        set { source[keyPath: path] = newValue }
     }
     
     init(
@@ -48,8 +63,8 @@ where Source.SourceBase == Source {
         erasedGetter: @escaping (Self) -> ScrollList<AnySources> = Self.defaultErasedGetter
     ) {
         self.listContextSetups = listContextSetups
-        self.source = source
         self.erasedGetter = erasedGetter
+        self.storage = .init(source: source)
         storage.makeListCoordinator = { source.listCoordinator }
     }
 }
@@ -69,14 +84,14 @@ extension ScrollList {
     }
     
     static func toContext(
-        _ view: UIScrollView, _ coordinator: ListCoordinator<Source>
+        _ view: UIScrollView, _ context: ListCoordinatorContext<Source>
     ) -> ScrollContext<Source> {
-        .init(listView: view, coordinator: coordinator)
+        .init(listView: view, context: context)
     }
     
     static func toSectionContext(
         _ view: UIScrollView,
-        _ coordinator: ListCoordinator<Source>,
+        _ context: ListCoordinatorContext<Source>,
         _ section: Int,
         _ sectionOffset: Int,
         _ itemOffset: Int
@@ -86,7 +101,7 @@ extension ScrollList {
     
     static func toItemContext(
         _ view: UIScrollView,
-        _ coordinator: ListCoordinator<Source>,
+        _ context: ListCoordinatorContext<Source>,
         _ path: IndexPath,
         _ sectionOffset: Int,
         _ itemOffset: Int

@@ -1,11 +1,11 @@
 //
-//  ItemRelatedCache.swift
+//  RelatedCache.swift
 //  ListKit
 //
 //  Created by Frain on 2020/6/9.
 //
 
-final class ItemRelatedCache {
+final class RelatedCache {
     var nestedAdapterItemUpdateDidConfig = false
     var cacheForItemDidConfig = false
     
@@ -19,7 +19,7 @@ final class ItemRelatedCache {
         return .init()
     }()
     
-    func updateFrom(_ cache: ItemRelatedCache) {
+    func updateFrom(_ cache: RelatedCache) {
         if cache.nestedAdapterItemUpdateDidConfig {
             nestedAdapterItemUpdate = cache.nestedAdapterItemUpdate
             nestedAdapterItemUpdateDidConfig = true

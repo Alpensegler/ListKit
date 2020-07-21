@@ -7,6 +7,8 @@
 
 public class ListCoordinatorContext<SourceBase: DataSource>: CoordinatorContext
 where SourceBase.SourceBase == SourceBase {
+    typealias Item = SourceBase.Item
+    
     let coordinator: ListCoordinator<SourceBase>
     
     #if os(iOS) || os(tvOS)
@@ -17,12 +19,26 @@ where SourceBase.SourceBase == SourceBase {
     
     lazy var selectorSets = initialSelectorSets()
     
-    
     var cacheFromItem: ((SourceBase.Item) -> Any)?
+    var hasCaches = false
+    lazy var caches: ContiguousArray<ContiguousArray<RelatedCache>> = {
+        hasCaches = true
+        return getCaches
+    }()
     
-    var offset = 0
+    var getCaches: ContiguousArray<ContiguousArray<RelatedCache>> {
+        if coordinator.isEmpty { return .init() }
+        return (0..<numbersOfSections()).mapContiguous {
+            (0..<numbersOfItems(in: $0)).mapContiguous { _ in .init() }
+        }
+    }
+    
     var index = 0
     var isSectioned = true
+    var listViewGetter: ((ListCoordinator<SourceBase>) -> ListView?)?
+    var parentUpdate: ((CoordinatorUpdate<SourceBase>?, Int) -> [(ListView, BatchUpdates)])?
+    
+    var listView: ListView? { listViewGetter?(coordinator) }
     
     init(
         _ coordinator: ListCoordinator<SourceBase>,
@@ -39,7 +55,7 @@ where SourceBase.SourceBase == SourceBase {
     func numbersOfSections() -> Int { coordinator.numbersOfSections() }
     func numbersOfItems(in section: Int) -> Int { coordinator.numbersOfItems(in: section) }
     
-    //Selectors
+    // Selectors
     func apply<Object: AnyObject, Input, Output>(
         _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Input, Output>>,
         object: Object,
@@ -65,11 +81,9 @@ where SourceBase.SourceBase == SourceBase {
 extension ListCoordinatorContext {
     func set<Object: AnyObject, Input, Output>(
         _ keyPath: ReferenceWritableKeyPath<CoordinatorContext, Delegate<Object, Input, Output>>,
-        _ closure: @escaping (ListCoordinator<SourceBase>, Object, Input, Int, Int) -> Output
+        _ closure: @escaping (ListCoordinatorContext<SourceBase>, Object, Input, Int, Int) -> Output
     ) {
-        self[keyPath: keyPath].closure = { [unowned coordinator] in
-            closure(coordinator, $0, $1, $2, $3)
-        }
+        self[keyPath: keyPath].closure = { [unowned self] in closure(self, $0, $1, $2, $3) }
         let delegate = self[keyPath: keyPath]
         switch delegate.index {
         case .none:
@@ -84,11 +98,9 @@ extension ListCoordinatorContext {
 
     func set<Object: AnyObject, Input>(
         _ keyPath: ReferenceWritableKeyPath<CoordinatorContext, Delegate<Object, Input, Void>>,
-        _ closure: @escaping (ListCoordinator<SourceBase>, Object, Input, Int, Int) -> Void
+        _ closure: @escaping (ListCoordinatorContext<SourceBase>, Object, Input, Int, Int) -> Void
     ) {
-        self[keyPath: keyPath].closure = { [unowned coordinator] in
-            closure(coordinator, $0, $1, $2, $3)
-        }
+        self[keyPath: keyPath].closure = { [unowned self] in closure(self, $0, $1, $2, $3) }
         let delegate = self[keyPath: keyPath]
         selectorSets.void.remove(delegate.selector)
     }

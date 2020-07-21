@@ -5,14 +5,12 @@
 //  Created by Frain on 2020/5/4.
 //
 
-final class ValueRelated<Value, Related> {
-    let relatedGetter: () -> Related
+struct ValueRelated<Value, Related> {
     let value: Value
-    
-    lazy var related = relatedGetter()
+    var related: Related
 
-    init(_ value: Value, related: @autoclosure @escaping () -> Related) {
+    init(_ value: Value, related: Related) {
         self.value = value
-        self.relatedGetter = related
+        self.related = related
     }
 }

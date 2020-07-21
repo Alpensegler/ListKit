@@ -11,10 +11,8 @@ where
     Source.Element: Collection,
     Source.Element.Element == Item
 {
-    init(_ id: AnyHashable?, sections: Source, update: ListUpdate<Item>, options: Options) {
-        var source = sections
-        self.sourceGetter = { source }
-        self.sourceSetter = { source = $0 }
+    init(_ id: AnyHashable?, sections: Source, update: ListUpdate<SourceBase>, options: Options) {
+        self.sourceValue = sections
         self.listUpdate = update
         self.listOptions = .init(id: id, options)
         self.coordinatorMaker = { $0.coordinator(with: SectionsCoordinator($0)) }
@@ -27,10 +25,8 @@ where
     Source.Element: RangeReplaceableCollection,
     Source.Element.Element == Item
 {
-    init(_ id: AnyHashable?, sections: Source, update: ListUpdate<Item>, options: Options) {
-        var source = sections
-        self.sourceGetter = { source }
-        self.sourceSetter = { source = $0 }
+    init(_ id: AnyHashable?, sections: Source, update: ListUpdate<SourceBase>, options: Options) {
+        self.sourceValue = sections
         self.listUpdate = update
         self.listOptions = .init(id: id, options)
         self.coordinatorMaker = { $0.coordinator(with: RangeReplacableSectionsCoordinator($0)) }
@@ -46,7 +42,7 @@ where
     init(
         id: AnyHashable? = nil,
         sections: Source,
-        update: ListUpdate<Item>,
+        update: ListUpdate<SourceBase>,
         options: Options = .init()
     ) {
         self.init(id, sections: sections, update: update, options: options)
@@ -66,7 +62,7 @@ where
     init(
         id: AnyHashable? = nil,
         sections: Source,
-        update: ListUpdate<Item>,
+        update: ListUpdate<SourceBase>,
         options: Options = .init()
     ) {
         self.init(id, sections: sections, update: update, options: options)

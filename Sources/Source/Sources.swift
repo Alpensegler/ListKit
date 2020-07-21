@@ -9,19 +9,15 @@
 @dynamicMemberLookup
 public struct Sources<Source, Item>: UpdatableDataSource {
     public typealias SourceBase = Self
-    let sourceGetter: () -> Source
-    let sourceSetter: (Source) -> Void
+    let sourceValue: Source
     let coordinatorMaker: (Self) -> ListCoordinator<Self>
     
     public var source: Source {
-        get { coordinatorStorage.coordinator?.source ?? sourceGetter() }
-        nonmutating set {
-            sourceSetter(newValue)
-            perform(listUpdate, updateData: sourceSetter)
-        }
+        get { coordinatorStorage.coordinator?.source ?? sourceValue }
+        nonmutating set { performUpdate(to: newValue) }
     }
     
-    public let listUpdate: ListUpdate<Item>
+    public let listUpdate: ListUpdate<SourceBase>
     public var listOptions: ListOptions<Self>
     
     public var listCoordinator: ListCoordinator<Self> { coordinator(with: coordinatorMaker(self)) }
@@ -31,6 +27,11 @@ public struct Sources<Source, Item>: UpdatableDataSource {
     public var wrappedValue: Source {
         get { source }
         nonmutating set { source = newValue }
+    }
+    
+    public var projectedValue: Sources<Source, Item> {
+        get { self }
+        set { self = newValue }
     }
     
     public subscript<Value>(dynamicMember keyPath: KeyPath<Source, Value>) -> Value {
@@ -52,3 +53,7 @@ public extension Sources {
     }
     
 }
+
+public typealias ItemsSources<Item> = Sources<[Int], Int>
+public typealias SectionsSources<Item> = Sources<[[Int]], Int>
+public typealias SourcesSources<Source: DataSource> = Sources<[Source], Source.Item>

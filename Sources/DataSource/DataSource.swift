@@ -14,7 +14,7 @@ public protocol DataSource {
     var source: Source { get }
     var sourceBase: SourceBase { get }
     
-    var listUpdate: ListUpdate<Item> { get }
+    var listUpdate: ListUpdate<SourceBase> { get }
     var listOptions: ListOptions<SourceBase> { get }
     
     var listCoordinator: ListCoordinator<SourceBase> { get }

@@ -53,9 +53,9 @@ where
             indexPath.item -= itemOffset
             index = sourcesCoordinator.sourceIndex(for: indexPath.section, indexPath.item)
         }
-        let context = subsources[index].related
-        coordinator.isSectioned ? (sectionOffset += context.offset) : (itemOffset += context.offset)
-        return context.apply(keyPath, object: object, with: input, sectionOffset, itemOffset)
+        let context = subsources[index]
+        coordinator.sectioned ? (sectionOffset += context.offset) : (itemOffset += context.offset)
+        return context.related.apply(keyPath, object: object, with: input, sectionOffset, itemOffset)
     }
     
     override func apply<Object: AnyObject, Input, Output>(

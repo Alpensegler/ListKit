@@ -12,7 +12,7 @@ public protocol Context {
     associatedtype List
     associatedtype Source: DataSource where Source.SourceBase == Source
     
-    var coordinator: ListCoordinator<Source> { get }
+    var context: ListCoordinatorContext<Source> { get }
     var listView: List { get }
 }
 
@@ -27,7 +27,7 @@ public protocol ItemContext: SectionContext {
 }
 
 public extension Context {
-    var source: Source.Source { coordinator.source }
+    var source: Source.Source { context.coordinator.source }
 
     subscript<Value>(dynamicMember keyPath: KeyPath<Source.Source, Value>) -> Value {
         source[keyPath: keyPath]
@@ -35,15 +35,13 @@ public extension Context {
 }
 
 extension ItemContext {
-    var itemValue: Source.Item { coordinator.item(at: section, item) }
+    var itemValue: Source.Item { context.coordinator.item(at: section, item) }
     
     func setNestedCache(with key: AnyHashable, update: @escaping (Any) -> Void) {
-        coordinator
-            .itemRelatedCache(at: section, item)
-            .nestedAdapterItemUpdate[key] = (true, update)
+        context.caches[section][item].nestedAdapterItemUpdate[key] = (true, update)
     }
     
     func cacheForItem(_ key: ObjectIdentifier) -> Any? {
-        coordinator.itemRelatedCache(at: section, item)
+        context.caches[section][item].cacheForItem[key]
     }
 }

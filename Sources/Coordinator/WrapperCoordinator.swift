@@ -13,8 +13,8 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
     let wrappedCoodinator: ListCoordinator<Other.SourceBase>
     let itemTransform: (Other.Item) -> SourceBase.Item
     
-    override var multiType: SourceMultipleType { wrappedCoodinator.multiType }
     override var isEmpty: Bool { wrappedCoodinator.isEmpty }
+    override var sourceBaseType: Any.Type { Other.SourceBase.self }
     
     init(
         _ sourceBase: SourceBase,
@@ -24,16 +24,12 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
         self.wrapped = wrapped
         self.wrappedCoodinator = wrapped.listCoordinator
         self.itemTransform = itemTransform
-        let id = HashCombiner(ObjectIdentifier(SourceBase.self), wrappedCoodinator.id)
-        super.init(sourceBase, id: id)
+        
+        super.init(sourceBase)
     }
     
     override func item(at section: Int, _ item: Int) -> Item {
         itemTransform(wrappedCoodinator.item(at: section, item))
-    }
-    
-    override func itemRelatedCache(at section: Int, _ item: Int) -> ItemRelatedCache {
-        wrappedCoodinator.itemRelatedCache(at: section, item)
     }
     
     override func numbersOfSections() -> Int {
@@ -44,8 +40,9 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
         wrappedCoodinator.numbersOfItems(in: section)
     }
     
-    override func configureIsSectioned() -> Bool {
-        wrappedCoodinator.isSectioned || selectorsHasSection ? true : wrappedCoodinator.isSectioned
+    override func isSectioned() -> Bool {
+        if wrappedCoodinator.sectioned || super.isSectioned() { return true }
+        return wrappedCoodinator.sectioned
     }
     
     // Setup
@@ -57,11 +54,19 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
             self,
             setups: setups
         )
-        listContexts.append(.init(context))
+        listContexts.append(.init(context: context))
         return context
     }
     
-    // Diffs:
+    // Updates:
+    override func identifier(for sourceBase: SourceBase) -> AnyHashable {
+        let id = ObjectIdentifier(sourceBaseType)
+        guard let identifier = options.differ?.identifier else {
+            return HashCombiner(id, wrappedCoodinator.multiType, sectioned,  multiType)
+        }
+        let sourceBaseID = identifier(sourceBase)
+        return HashCombiner(id, wrappedCoodinator.multiType, sectioned, multiType, sourceBaseID)
+    }
 }
 
 extension WrapperCoordinator where SourceBase.Source == Other, SourceBase.Item == Other.Item {

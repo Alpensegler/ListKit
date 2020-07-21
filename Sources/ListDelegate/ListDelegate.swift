@@ -18,13 +18,16 @@ final class ListDelegate: NSObject {
     func setCoordinator<SourceBase: DataSource>(
         coordinator: ListCoordinator<SourceBase>,
         setups: [(ListCoordinatorContext<SourceBase>) -> Void],
-        update: ListUpdate<SourceBase.Item>?,
+        update: ListUpdate<SourceBase>?,
         animated: Bool,
         completion: ((Bool) -> Void)?
     ) {
         let isCoordinator = context?.isCoordinator(coordinator) ?? false
 //        let rawcontext = context
         let context = coordinator.context(with: setups)
+        context.listViewGetter = { [weak listView] in
+            listView?.isCoordinator($0) == true ? listView : nil
+        }
         self.context = context
         if isCoordinator { return }
         if !listView.isDelegate(self) { listView.setup(with: self) }

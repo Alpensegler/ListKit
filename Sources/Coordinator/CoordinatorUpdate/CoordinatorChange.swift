@@ -7,42 +7,41 @@
 
 import Foundation
 
-class CoordinatorChange<Value, Related> {
+class CoordinatorChange<Value> {
     struct Unowned {
-        unowned let change: CoordinatorChange<Value, Related>
+        unowned let change: CoordinatorChange<Value>
     }
     
     enum State: Equatable {
         case change(moveAndRelod: Bool?)
         case reload
-        case none
     }
     
-    var index: Int
-    var valueRelated: ValueRelated<Value, Related>
-    var state = State.none
+    let value: Value
+    let index: Int
+    var state: State
     
-    lazy var offsets = [ObjectIdentifier: (section: Int, item: Int)]()
-    lazy var otherAssociated = [ObjectIdentifier: Unowned]()
+    var offsets = UpdateContextCache(value: (section: 0, item: 0))
+    var associated = UpdateContextCache(value: nil as Unowned?)
     
-    unowned var associated: CoordinatorChange<Value, Related>?
-    
-    var value: Value { valueRelated.value }
-    var related: Related { valueRelated.related }
-    
-    func indexPath(_ id: ObjectIdentifier) -> IndexPath {
-        guard let (section, item) = offsets[id] else { return IndexPath(item: index) }
+    func indexPath(_ id: ObjectIdentifier?) -> IndexPath {
+        let (section, item) = offsets[id]
         return IndexPath(section: section, item: item + index)
     }
     
-    func index(_ id: ObjectIdentifier) -> Int {
-        guard let (section, _) = offsets[id] else { return index }
-        return section + index
+    func index(_ id: ObjectIdentifier?) -> Int {
+        offsets[id].section + index
     }
     
-    required init(valueRelated: ValueRelated<Value, Related>, index: Int) {
-        self.valueRelated = valueRelated
+    subscript(id: ObjectIdentifier?) -> CoordinatorChange<Value>? {
+        get { associated.value?.change ?? associated[id]?.change }
+        set { associated[id] = newValue.map(Unowned.init(change:)) }
+    }
+    
+    required init(_ value: Value, _ index: Int, moveAndReloadable: Bool) {
+        self.value = value
         self.index = index
+        self.state = .change(moveAndRelod: moveAndReloadable ? nil : false)
     }
 }
 
@@ -52,6 +51,6 @@ extension CoordinatorChange: CustomStringConvertible, CustomDebugStringConvertib
     }
     
     var debugDescription: String {
-        associated.map { "\(description), \($0.index)" } ?? description
+        (associated.value?.change).map { "\(description), \($0.index)" } ?? description
     }
 }

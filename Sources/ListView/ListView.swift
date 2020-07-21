@@ -27,26 +27,26 @@ protocol SetuptableListView: ListView {
 }
 
 extension ListView {
-    func perform(
-        updates: ListUpdates,
-        sectionOffset: Int,
-        itemOffset: Int,
-        animated: Bool,
-        change: (() -> Void)?,
-        completion: ((ListView, Bool) -> Void)?
-    ) {
-        for (offset, batchUpdate) in updates.enumerated() {
-            Log.log("------------------------------")
-            Log.log(batchUpdate.update.debugDescription)
-            let isLast = offset == updates.count - 1
-            let completion: ((Bool) -> Void)? = isLast ? { [weak self] finish in
-                self.map { completion?($0, finish) }
-            } : nil
-            perform(update: {
-                batchUpdate.change?()
-                change?()
-                batchUpdate.update.offseted(by: sectionOffset, itemOffset).apply(by: self)
-            }, animated: animated, completion: completion)
+    func perform(updates: BatchUpdates, animated: Bool, completion: ((ListView, Bool) -> Void)?) {
+        switch updates {
+        case let .reload(change: change):
+            change?()
+            reloadSynchronously(animated: animated)
+            completion?(self, true)
+        case let .batch(batchUpdates):
+            for (offset, batchUpdate) in batchUpdates.enumerated() {
+                Log.log("------------------------------")
+                Log.log(batchUpdate.listDebugDescription)
+                let isLast = offset == batchUpdates.count - 1
+                let completion: ((Bool) -> Void)? = isLast ? { [weak self] finish in
+                    self.map { completion?($0, finish) }
+                } : nil
+                perform(update: {
+                    batchUpdate.change?()
+                    batchUpdate.update.source?.apply(by: self)
+                    batchUpdate.update.target?.apply(by: self)
+                }, animated: animated, completion: completion)
+            }
         }
     }
 }

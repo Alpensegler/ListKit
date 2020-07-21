@@ -19,11 +19,11 @@ protocol ListAdapter: UpdatableDataSource where Source == SourceBase {
     static var defaultErasedGetter: (Self) -> ErasedType { get }
     static var rootKeyPath: ReferenceWritableKeyPath<CoordinatorContext, ViewDelegates> { get }
     
-    static func toContext(_ view: View, _ coordinator: ListCoordinator<Source>) -> Context
+    static func toContext(_ view: View, _ context: ListCoordinatorContext<Source>) -> Context
     
     static func toSectionContext(
         _ view: View,
-        _ coordinator: ListCoordinator<Source>,
+        _ context: ListCoordinatorContext<Source>,
         _ section: Int,
         _ sectionOffset: Int,
         _ itemOffset: Int
@@ -31,7 +31,7 @@ protocol ListAdapter: UpdatableDataSource where Source == SourceBase {
     
     static func toItemContext(
         _ view: View,
-        _ coordinator: ListCoordinator<Source>,
+        _ context: ListCoordinatorContext<Source>,
         _ path: IndexPath,
         _ sectionOffset: Int,
         _ itemOffset: Int
@@ -45,6 +45,7 @@ protocol ListAdapter: UpdatableDataSource where Source == SourceBase {
 }
 
 final class ListAdapterStorage<Source: DataSource> where Source.SourceBase == Source {
+    var source: Source
     var makeListCoordinator: () -> ListCoordinator<Source> = { fatalError() }
     
     lazy var listCoordinator = makeListCoordinator()
@@ -53,6 +54,10 @@ final class ListAdapterStorage<Source: DataSource> where Source.SourceBase == So
         listCoordinator.storage = storage
         return storage
     }()
+    
+    init(source: Source) {
+        self.source = source
+    }
 }
 
 extension ListAdapter {
@@ -88,8 +93,8 @@ extension ListAdapter {
         var setups = listContextSetups
         setups.append {
             let keyPath = Self.rootKeyPath.appending(path: keyPath)
-            $0.set(keyPath) { (coordinator, object, input, sectionOffset, itemOffset) in
-                closure((Self.toContext(object, coordinator), input))
+            $0.set(keyPath) { (context, object, input, _, _) in
+                closure((Self.toContext(object, context), input))
             }
         }
         return .init(listContextSetups: setups, source: source, erasedGetter: erasedGetter)
@@ -102,8 +107,8 @@ extension ListAdapter {
         var setups = listContextSetups
         setups.append {
             let keyPath = Self.rootKeyPath.appending(path: keyPath)
-            $0.set(keyPath) { (coordinator, object, input, sectionOffset, itemOffset) in
-                closure((Self.toContext(object, coordinator), input))
+            $0.set(keyPath) { (context, object, input, _, _) in
+                closure((Self.toContext(object, context), input))
             }
         }
         return .init(listContextSetups: setups, source: source, erasedGetter: erasedGetter)

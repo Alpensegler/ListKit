@@ -17,6 +17,15 @@ class SectionListViewControlle: ExampleViewController, UpdatableCollectionListAd
             Array(Self.emojis.shuffled()[0..<Int.random(in: 20...30)])
         }
     }
+
+//    typealias Item = Int
+//    var source: [[Int]] {
+//        if toggle {
+//            return [[2, 1], [], [6, 4]]
+//        } else {
+//            return [[]]
+//        }
+//    }
     
     var collectionList: CollectionList<SectionListViewControlle> {
         collectionViewCellForItem(CenterLabelCell.self) { (cell, _, item) in cell.text = "\(item)" }

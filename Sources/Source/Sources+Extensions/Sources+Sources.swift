@@ -11,10 +11,8 @@ where
     Source.Element: DataSource,
     Source.Element.Item == Item
 {
-    init(_ id: AnyHashable?, dataSources: Source, update: ListUpdate<Item>, options: Options) {
-        var source = dataSources
-        self.sourceGetter = { source }
-        self.sourceSetter = { source = $0 }
+    init(_ id: AnyHashable?, dataSources: Source, update: ListUpdate<SourceBase>, options: Options) {
+        self.sourceValue = dataSources
         self.listUpdate = update
         self.listOptions = .init(id: id, options)
         self.coordinatorMaker = { $0.coordinator(with: SourcesCoordinator(sources: $0)) }
@@ -30,7 +28,7 @@ where
     init(
         id: AnyHashable? = nil,
         dataSources: Source,
-        update: ListUpdate<Item>,
+        update: ListUpdate<SourceBase>,
         options: Options = .init()
     ) {
         self.init(id, dataSources: dataSources, update: update, options: options)
@@ -52,7 +50,7 @@ where
     init(
         id: AnyHashable? = nil,
         dataSources: Source,
-        update: ListUpdate<Item>,
+        update: ListUpdate<SourceBase>,
         options: Options = .init()
     ) {
         self.init(id, dataSources: dataSources, update: .diff, options: options)
@@ -70,7 +68,7 @@ where
     init(
         id: AnyHashable? = nil,
         dataSources: Source,
-        update: ListUpdate<Item>,
+        update: ListUpdate<SourceBase>,
         options: Options = .init()
     ) {
         self.init(id, dataSources: dataSources, update: .diff, options: options)
@@ -89,7 +87,7 @@ where
     init(
         id: AnyHashable? = nil,
         dataSources: Source,
-        update: ListUpdate<Item>,
+        update: ListUpdate<SourceBase>,
         options: Options = .init()
     ) {
         self.init(id, dataSources: dataSources, update: .diff, options: options)
@@ -109,7 +107,7 @@ where
     init(
         id: AnyHashable? = nil,
         dataSources: Source,
-        update: ListUpdate<Item>,
+        update: ListUpdate<SourceBase>,
         options: Options = .init()
     ) {
         self.init(id, dataSources: dataSources, update: .diff, options: options)
@@ -129,7 +127,7 @@ where
     init(
         id: AnyHashable? = nil,
         dataSources: Source,
-        update: ListUpdate<Item>,
+        update: ListUpdate<SourceBase>,
         options: Options = .init()
     ) {
         self.init(id, dataSources: dataSources, update: .diff, options: options)

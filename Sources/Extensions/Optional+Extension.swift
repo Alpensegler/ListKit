@@ -8,20 +8,22 @@
 extension Optional: DataSource where Wrapped: DataSource {
     public typealias Item = Wrapped.Item
     public typealias Source = Self
+    public typealias SourceBase = Self
     
     public var source: Source { self }
     
-    public var listUpdate: ListUpdate<Item> { source?.listUpdate ?? .reload }
-    public var listOptions: ListOptions<Self> {
+    public var listUpdate: ListUpdate<SourceBase> {
+        (source?.listUpdate).map { .init(way: $0.way) } ?? .reload
+    }
+    
+    public var listOptions: ListOptions<SourceBase> {
         (source?.listOptions).map { .init($0) } ?? .none
     }
     
-    public var listCoordinator: ListCoordinator<Self> {
+    public var listCoordinator: ListCoordinator<SourceBase> {
         switch self {
-        case .some(let dataSource):
-            return WrapperCoordinator<Self, Wrapped>(self, wrapped: dataSource) { $0 }
-        case .none:
-            return EmptyCoordinator(sourceBase: nil)
+        case .some(let dataSource): return WrapperCoordinator(self, wrapped: dataSource) { $0 }
+        case .none: return EmptyCoordinator(nil)
         }
     }
 }

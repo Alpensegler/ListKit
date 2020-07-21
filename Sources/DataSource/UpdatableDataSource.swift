@@ -5,6 +5,8 @@
 //  Created by Frain on 2019/12/5.
 //
 
+import Foundation
+
 public protocol UpdatableDataSource: DataSource {
     var coordinatorStorage: CoordinatorStorage<SourceBase> { get }
 }
@@ -20,32 +22,58 @@ public extension UpdatableDataSource {
     var currentSource: SourceBase.Source { listCoordinator.source }
     
     func perform(
-        _ update: ListUpdate<Item>,
-        animated: Bool = true,
-        completion: ((ListView, Bool) -> Void)? = nil,
-        updateData: ((SourceBase.Source) -> Void)? = nil
+        _ update: Update<SourceBase>,
+        animated: Bool? = nil,
+        completion: ((ListView, Bool) -> Void)? = nil
     ) {
-        listCoordinator.perform(update, to: sourceBase.source, animated, completion, updateData)
+        if update.isEmpty { return }
+        let isMainThread = Thread.isMainThread
+        var update = update
+        var coordinator: ListCoordinator<SourceBase>!
+        var coordinatorUpdate: CoordinatorUpdate<SourceBase>?
+        let work = {
+            if update.listUpdate != nil, update.source == nil { update.source = sourceBase.source }
+            coordinator = listCoordinator
+            coordinatorUpdate = update.isRemove ? nil : coordinator.update(update)
+            coordinator.currentCoordinatorUpdate = coordinatorUpdate
+        }
+        let updateAnimated = animated ?? !coordinator.options.contains(.preferNoAnimation)
+        if isMainThread {
+            work()
+        } else {
+            DispatchQueue.main.sync(execute: work)
+        }
+        var results = [(ListView, BatchUpdates)]()
+        for context in coordinator.listContexts {
+            guard let context = context.context else { return }
+            results += context.parentUpdate?(coordinatorUpdate, context.index) ?? []
+            if let listView = context.listView, let update = coordinatorUpdate?.listUpdates {
+                results.append((listView, update))
+            }
+        }
+        if results.isEmpty { return }
+        let afterWork = {
+            for (listView, update) in results {
+                listView.perform(updates: update, animated: updateAnimated, completion: completion)
+            }
+        }
+        if isMainThread {
+            afterWork()
+        } else {
+            DispatchQueue.main.async(execute: afterWork)
+        }
     }
     
     func performUpdate(
-        animated: Bool = true,
-        completion: ((ListView, Bool) -> Void)? = nil,
-        updateData: ((SourceBase.Source) -> Void)? = nil
+        animated: Bool? = nil,
+        to source: SourceBase.Source,
+        completion: ((ListView, Bool) -> Void)? = nil
     ) {
-        perform(listUpdate, animated: animated, completion: completion, updateData: updateData)
+        perform(.init(listUpdate, source), animated: animated, completion: completion)
     }
     
-    func removeCurrent(animated: Bool = true, completion: ((ListView, Bool) -> Void)? = nil) {
-        listCoordinator.removeCurrent(animated: animated, completion: completion)
-    }
-    
-    func startUpdate() {
-        listCoordinator.startUpdate()
-    }
-    
-    func endUpdate(animated: Bool = true, completion: ((ListView, Bool) -> Void)? = nil) {
-        listCoordinator.endUpdate(animated: animated, completion: completion)
+    func performUpdate(animated: Bool? = nil, completion: ((ListView, Bool) -> Void)? = nil) {
+        perform(.init(listUpdate), animated: animated, completion: completion)
     }
 }
 

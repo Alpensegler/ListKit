@@ -6,8 +6,6 @@
 //
 
 extension Collection {
-    var nonNilFirst: Element { self[startIndex] }
-
     func mapContiguous<T>(_ transform: (Element) throws -> T) rethrows -> ContiguousArray<T> {
         let n = count
         if n == 0 { return [] }
@@ -46,27 +44,16 @@ extension Collection {
     }
 }
 
-extension MutableCollection {
-    var nonNilFirst: Element {
-        get { self[startIndex] }
-        set { self[startIndex] = newValue }
-    }
-}
-
-extension BidirectionalCollection {
-    var nonNilLast: Element { self[index(before: endIndex)] }
-}
-
-extension BidirectionalCollection where Self: MutableCollection {
-    var nonNilLast: Element {
-        get { self[index(before: endIndex)] }
-        set { self[index(before: endIndex)] = newValue }
-    }
-}
-
 extension RangeReplaceableCollection {
     subscript(safe index: Index) -> Element? {
         guard startIndex <= index, index < endIndex else { return nil }
         return self[index]
+    }
+}
+
+extension ContiguousArray {
+    init(capacity: Int) {
+        self.init()
+        reserveCapacity(capacity)
     }
 }

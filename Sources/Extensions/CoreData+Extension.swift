@@ -11,8 +11,10 @@ import CoreData
 open class FetchedResultsController<Item>: NSObject, NSFetchedResultsControllerDelegate
 where Item: NSFetchRequestResult {
     open var fetchedResultController: NSFetchedResultsController<Item>
-    open var animated = true
     open var completion: ((ListView, Bool) -> Void)?
+    open var listUpdate = ListUpdate<FetchedResultsController<Item>>.appendOrRemoveLast
+    open var listOptions = ListOptions<FetchedResultsController<Item>>()
+    var update: Update<SourceBase>!
 
     public init(_ fetchedResultController: NSFetchedResultsController<Item>) {
         self.fetchedResultController = fetchedResultController
@@ -39,13 +41,13 @@ where Item: NSFetchRequestResult {
     public func controllerWillChangeContent(
         _ controller: NSFetchedResultsController<NSFetchRequestResult>
     ) {
-        startUpdate()
+        update = .init()
     }
     
     public func controllerDidChangeContent(
         _ controller: NSFetchedResultsController<NSFetchRequestResult>
     ) {
-        endUpdate(animated: animated, completion: completion)
+        perform(update, completion: completion)
     }
     
     public func controller(
@@ -54,12 +56,12 @@ where Item: NSFetchRequestResult {
         atSectionIndex sectionIndex: Int,
         for type: NSFetchedResultsChangeType
     ) {
-//        switch type {
-//        case .delete: deleteSections([sectionIndex])
-//        case .insert: insertSections([sectionIndex])
-//        case .update: reloadSections([sectionIndex])
-//        default: break
-//        }
+        switch type {
+        case .delete: update.add(.deleteSection(sectionIndex))
+        case .insert: update.add(.insertSection(sectionIndex))
+        case .update: update.add(.reloadSection(sectionIndex))
+        default: break
+        }
     }
     
     public func controller(
@@ -69,13 +71,13 @@ where Item: NSFetchRequestResult {
         for type: NSFetchedResultsChangeType,
         newIndexPath: IndexPath?
     ) {
-//        switch type {
-//        case .insert: insertItems(at: [newIndexPath!])
-//        case .delete: deleteItems(at: [indexPath!])
-//        case .update: reloadItems(at: [indexPath!])
-//        case .move: moveItem(at: indexPath!, to: newIndexPath!)
-//        @unknown default: break
-//        }
+        switch type {
+        case .insert: update.add(.insertItem(at: newIndexPath!))
+        case .delete: update.add(.deleteItem(at: indexPath!))
+        case .update: update.add(.reloadItem(at: indexPath!))
+        case .move: update.add(.moveItem(at: indexPath!, to: newIndexPath!))
+        @unknown default: break
+        }
     }
 }
 

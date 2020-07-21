@@ -15,68 +15,69 @@ where
     SourceBase.Source.Element.Element == SourceBase.Item
 {
     lazy var sections = toSections(source)
+    lazy var indices = toIndices(sections)
+    
+    var updateType: SectionsCoordinatorUpdate<SourceBase>.Type {
+        SectionsCoordinatorUpdate<SourceBase>.self
+    }
     
     override var multiType: SourceMultipleType { .multiple }
+    override var isEmpty: Bool { indices.isEmpty }
     
-    func toSections(_ source: SourceBase.Source) -> [[ValueRelated<Item, ItemRelatedCache>]] {
-        source.map { $0.map { .init($0, related: .init()) } }
+    func toSections(_ source: SourceBase.Source) -> ContiguousArray<ContiguousArray<Item>> {
+        source.mapContiguous { $0.mapContiguous { $0 } }
     }
     
-    func difference(
-        to isTo: Bool,
-        sections: [[ValueRelated<Item, ItemRelatedCache>]],
-        source: SourceBase.Source,
-        differ: Differ<Item>?
-    ) -> SectionsCoordinatorDifference<Item> {
-        let mapping = isTo
-            ? (source: self.sections, target: sections)
-            : (source: sections, target: self.sections)
-        let source: Mapping = isTo ? (self.source, source) : (source, self.source)
-        let diff = SectionsCoordinatorDifference(mapping: mapping, differ: differ!)
-        diff.coordinatorChange = {
-            self.sections = mapping.target
-            self.source = source.target
+    func toIndices(_ sections: ContiguousArray<ContiguousArray<Item>>) -> ContiguousArray<Int> {
+        if options.keepEmptySection { return sections.indices.mapContiguous { $0 } }
+        var offsets = ContiguousArray<Int>(capacity: sections.count)
+        for (i, section) in sections.enumerated() where !section.isEmpty {
+            offsets.append(i)
         }
-        if !isTo {
-            self.sections = mapping.source
-            self.source = source.source
-        }
-        return diff
+        return offsets
     }
     
-    override func item(at section: Int, _ item: Int) -> Item { sections[section][item].value }
-    override func itemRelatedCache(at section: Int, _ item: Int) -> ItemRelatedCache {
-        sections[section][item].related
+    override func item(at section: Int, _ item: Int) -> Item { sections[indices[section]][item] }
+    
+    override func numbersOfSections() -> Int { indices.count }
+    override func numbersOfItems(in section: Int) -> Int {
+        sections[safe: indices[section]]?.count ?? 0
     }
     
-    override func numbersOfSections() -> Int { sections.count }
-    override func numbersOfItems(in section: Int) -> Int { sections[section].count }
+    override func isSectioned() -> Bool { true }
     
-    override var isEmpty: Bool { sections.isEmpty }
-    
-    override func configureIsSectioned() -> Bool { true }
-    
-    override func updateTo(_ source: SourceBase.Source) {
-        self.source = source
-        sections = toSections(source)
-    }
-    
-    // Updates:
-    override func difference(
+    override func update(
         from coordinator: ListCoordinator<SourceBase>,
         differ: Differ<Item>?
-    ) -> CoordinatorDifference {
+    ) -> CoordinatorUpdate<SourceBase> {
         let coordinator = coordinator as! SectionsCoordinator<SourceBase>
-        let sections = coordinator.sections
-        let differ = differ ?? update.diff
-        return difference(to: false, sections: sections, source: coordinator.source, differ: differ)
+        return updateType.init(
+            coordinator: self,
+            update: Update(differ, or: update),
+            values: (coordinator.sections, sections),
+            sources: (coordinator.source, source),
+            indices: (coordinator.indices, indices),
+            keepSectionIfEmpty: (coordinator.options.keepEmptySection, options.keepEmptySection)
+        )
     }
     
-    override func difference(
-        to source: SourceBase.Source,
-        differ: Differ<Item>
-    ) -> CoordinatorDifference {
-        difference(to: true, sections: toSections(source), source: source, differ: differ)
+    override func update(_ update: Update<SourceBase>) -> CoordinatorUpdate<SourceBase> {
+        let sourcesAfterUpdate = update.source
+        let sectionsAfterUpdate = sourcesAfterUpdate.map(toSections)
+        let indicesAfterUpdate =  sectionsAfterUpdate.map(toIndices)
+        defer {
+            sections = sectionsAfterUpdate ?? sections
+            source = sourcesAfterUpdate ?? source
+            indices = indicesAfterUpdate ?? indices
+        }
+        return updateType.init(
+            coordinator: self,
+            update: update,
+            values: (sections, sectionsAfterUpdate ?? sections),
+            sources: (source, sourcesAfterUpdate ?? source),
+            indices: (indices, indicesAfterUpdate ?? indices),
+            keepSectionIfEmpty: (options.keepEmptySection, options.keepEmptySection)
+        )
     }
 }
 
@@ -88,18 +89,7 @@ where
     SourceBase.Source.Element: RangeReplaceableCollection,
     SourceBase.Source.Element.Element == SourceBase.Item
 {
-    override func difference(
-        to isTo: Bool,
-        sections: [[ValueRelated<Item, ItemRelatedCache>]],
-        source: SourceBase.Source,
-        differ: Differ<Item>?
-    ) -> SectionsCoordinatorDifference<Item> {
-        let diff = super.difference(to: isTo, sections: sections, source: source, differ: differ)
-        diff.rangeRelplacable = true
-        diff.extraCoordinatorChange = { sections in
-            self.sections = sections
-            self.source = .init(sections.map { .init($0.lazy.map { $0.value }) })
-        }
-        return diff
+    override var updateType: SectionsCoordinatorUpdate<SourceBase>.Type {
+        RangeReplacableSectionsCoordinatorUpdate<SourceBase>.self
     }
 }

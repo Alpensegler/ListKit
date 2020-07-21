@@ -23,8 +23,8 @@ public extension ItemContext {
         var coordinator = list.listCoordinator
         setNestedCache(with: keyPath) { [weak collectionView] sourceBase in
             guard let sourceBase = sourceBase as? Source.Item,
-                let collectionView = collectionView,
-                collectionView.isCoordinator(coordinator)
+                  let collectionView = collectionView,
+                  collectionView.isCoordinator(coordinator)
             else { return }
             let adapter = sourceBase[keyPath: keyPath]
             let list = adapter.apply(by: collectionView, animated: animated, completion: completion)
@@ -50,8 +50,8 @@ public extension ItemContext {
         var coordinator = list.listCoordinator
         setNestedCache(with: keyPath) { [weak tableView] sourceBase in
             guard let sourceBase = sourceBase as? Source.Item,
-                let tableView = tableView,
-                tableView.isCoordinator(coordinator)
+                  let tableView = tableView,
+                  tableView.isCoordinator(coordinator)
             else { return }
             let adapter = sourceBase[keyPath: keyPath]
             let list = adapter.apply(by: tableView, animated: animated, completion: completion)

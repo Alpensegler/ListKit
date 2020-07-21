@@ -5,49 +5,36 @@
 //  Created by Frain on 2020/1/13.
 //
 
-public struct ListUpdate<Item> {
-    enum Way {
-        case reload
-        case diff(Differ<Item>)
-    }
-    
-    let way: Way
-    var diff: Differ<Item>? {
+enum ListUpdateWay<Item> {
+    case diff(Differ<Item>)
+    case reload
+    case remove
+    case appendOrRemoveLast
+    case prependOrRemoveFirst
+}
+
+public struct ListUpdate<SourceBase: DataSource> where SourceBase.SourceBase == SourceBase {
+    let way: ListUpdateWay<SourceBase.Item>
+    var diff: Differ<SourceBase.Item>? {
         guard case let .diff(differ) = way else { return nil }
         return differ
     }
 }
 
-extension ListUpdate {
-    init(id: ((Item) -> AnyHashable)? = nil, by areEquivalent: ((Item, Item) -> Bool)? = nil) {
+extension ListUpdate: DiffInitializableUpdate {
+    init(id: ((Value) -> AnyHashable)? = nil, by areEquivalent: ((Value, Value) -> Bool)? = nil) {
         self.init(diff: Differ(identifier: id, areEquivalent: areEquivalent))
     }
     
-    init(diff: Differ<Item>) {
+    init(diff: Differ<Value>) {
         way = .diff(diff)
     }
 }
 
-extension ListUpdate: DiffInitializable {
-    public typealias Value = Item
-    public static var reload: ListUpdate<Item> { .init(way: .reload) }
+public extension ListUpdate {
+    typealias Value = SourceBase.Item
     
-    public static func diff(
-        by areEquivalent: @escaping (Item, Item) -> Bool
-    ) -> ListUpdate<Item> {
-        .init(id: nil, by: areEquivalent)
-    }
-    
-    public static func diff<ID: Hashable>(
-        id: @escaping (Item) -> ID
-    ) -> ListUpdate<Item> {
-        .init(id: id, by: nil)
-    }
-    
-    public static func diff<ID: Hashable>(
-        id: @escaping (Item) -> ID,
-        by areEquivalent: @escaping (Item, Item) -> Bool
-    ) -> ListUpdate<Item> {
-        .init(id: id, by: areEquivalent)
+    init(_ listUpdate: ListUpdate<SourceBase>) {
+        self = listUpdate
     }
 }

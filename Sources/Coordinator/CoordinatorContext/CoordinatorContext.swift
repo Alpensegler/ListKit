@@ -34,7 +34,6 @@ protocol CoordinatorContext: AnyObject {
         _ sectionOffset: Int,
         _ itemOffset: Int
     )
-//    func updateFrom(context: CoordinatorContext) -> Bool
 }
 
 extension CoordinatorContext {

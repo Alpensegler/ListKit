@@ -8,20 +8,20 @@
 import Foundation
 
 extension IndexPath {
-    static var listZero: IndexPath { IndexPath(section: 0, item: 0) }
+    static var zero: IndexPath { IndexPath(section: 0, item: 0) }
     
     init(section: Int = 0, item: Int = 0) {
         self = [section, item]
     }
     
     var section: Int {
-        get { nonNilFirst }
-        set { nonNilFirst = newValue }
+        get { self[startIndex] }
+        set { self[startIndex] = newValue }
     }
     
     var item: Int {
-        get { nonNilLast }
-        set { nonNilLast = newValue }
+        get { self[index(before: endIndex)] }
+        set { self[index(before: endIndex)] = newValue }
     }
     
     func offseted(_ sectionOffset: Int, _ itemOffset: Int) -> IndexPath {

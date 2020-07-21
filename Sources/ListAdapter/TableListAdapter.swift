@@ -15,13 +15,16 @@ public struct TableList<Source: DataSource>: TableListAdapter, UpdatableDataSour
 where Source.SourceBase == Source {
     public typealias Item = Source.Item
     public typealias SourceBase = Source
-    let storage = ListAdapterStorage<Source>()
+    let storage: ListAdapterStorage<Source>
     let erasedGetter: (Self) -> TableList<AnySources>
     
-    public let source: Source
     public var sourceBase: Source { source }
+    public var source: Source {
+        get { storage.source }
+        nonmutating set { storage.source = newValue }
+    }
     
-    public var listUpdate: ListUpdate<Item> { source.listUpdate }
+    public var listUpdate: ListUpdate<SourceBase> { source.listUpdate }
     public var listOptions: ListOptions<Source> { source.listOptions }
     
     public var listCoordinator: ListCoordinator<Source> { storage.listCoordinator }
@@ -31,11 +34,23 @@ where Source.SourceBase == Source {
     
     public var tableList: TableList<Source> { self }
     
-    public var wrappedValue: Source { source }
-    public var projectedValue: Source.Source { source.source }
+    public var wrappedValue: Source {
+        get { source }
+        nonmutating set { source = newValue }
+    }
+    
+    public var projectedValue: TableList<Source> {
+        get { self }
+        set { self = newValue }
+    }
     
     public subscript<Value>(dynamicMember path: KeyPath<Source, Value>) -> Value {
         source[keyPath: path]
+    }
+    
+    public subscript<Value>(dynamicMember path: WritableKeyPath<Source, Value>) -> Value {
+        get { source[keyPath: path] }
+        set { source[keyPath: path] = newValue }
     }
     
     init(
@@ -44,8 +59,8 @@ where Source.SourceBase == Source {
         erasedGetter: @escaping (Self) -> TableList<AnySources> = Self.defaultErasedGetter
     ) {
         self.listContextSetups = listContextSetups
-        self.source = source
         self.erasedGetter = erasedGetter
+        self.storage = .init(source: source)
         storage.makeListCoordinator = { source.listCoordinator }
     }
 }
@@ -54,7 +69,7 @@ public extension TableListAdapter {
     @discardableResult
     func apply(
         by tableView: TableView,
-        update: ListUpdate<Item>?,
+        update: ListUpdate<SourceBase>?,
         animated: Bool = true,
         completion: ((Bool) -> Void)? = nil
     ) -> TableList<SourceBase> {
@@ -96,21 +111,21 @@ extension TableList {
     
     static func toContext(
         _ view: TableView,
-        _ coordinator: ListCoordinator<Source>
+        _ context: ListCoordinatorContext<Source>
     ) -> TableContext<Source> {
-        .init(listView: view, coordinator: coordinator)
+        .init(listView: view, context: context)
     }
     
     static func toSectionContext(
         _ view: TableView,
-        _ coordinator: ListCoordinator<Source>,
+        _ context: ListCoordinatorContext<Source>,
         _ section: Int,
         _ sectionOffset: Int,
         _ itemOffset: Int
     ) -> TableSectionContext<Source> {
         .init(
             listView: view,
-            coordinator: coordinator,
+            context: context,
             section: section - sectionOffset,
             sectionOffset: sectionOffset
         )
@@ -119,14 +134,14 @@ extension TableList {
     
     static func toItemContext(
         _ view: TableView,
-        _ coordinator: ListCoordinator<Source>,
+        _ context: ListCoordinatorContext<Source>,
         _ path: IndexPath,
         _ sectionOffset: Int,
         _ itemOffset: Int
     ) -> TableItemContext<Source> {
         .init(
             listView: view,
-            coordinator: coordinator,
+            context: context,
             section: path.section - sectionOffset,
             sectionOffset: sectionOffset,
             item: path.item - itemOffset,

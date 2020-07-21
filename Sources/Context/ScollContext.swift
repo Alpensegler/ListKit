@@ -10,7 +10,7 @@ import UIKit
 
 public struct ScrollContext<Source: DataSource>: Context where Source.SourceBase == Source {
     public let listView: UIScrollView
-    public let coordinator: ListCoordinator<Source>
+    public let context: ListCoordinatorContext<Source>
 }
 
 #endif

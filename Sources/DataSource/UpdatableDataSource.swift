@@ -32,8 +32,10 @@ public extension UpdatableDataSource {
         var coordinator: ListCoordinator<SourceBase>!
         var coordinatorUpdate: CoordinatorUpdate<SourceBase>?
         let work = {
-            if update.listUpdate != nil, update.source == nil { update.source = sourceBase.source }
-            coordinator = listCoordinator
+            if update.listUpdate != nil, update.source == nil {
+                update.source = self.sourceBase.source
+            }
+            coordinator = self.listCoordinator
             coordinatorUpdate = update.isRemove ? nil : coordinator.update(update)
             coordinator.currentCoordinatorUpdate = coordinatorUpdate
         }

@@ -20,10 +20,10 @@ protocol ListViewApplyable {
 }
 
 protocol UpdateIndexCollection: UpdateCollection, Collection where Element: Hashable {
-    static var insert: (ListView) -> (Self) -> Void { get }
-    static var delete: (ListView) -> (Self) -> Void { get }
-    static var reload: (ListView) -> (Self) -> Void { get }
-    static var move: (ListView) -> (Element, Element) -> Void { get }
+    static func insert(_ value: Self, by listView: ListView)
+    static func delete(_ value: Self, by listView: ListView)
+    static func reload(_ value: Self, by listView: ListView)
+    static func move(_ element: Mapping<Element>, by listView: ListView)
     
     init(_ element: Element)
     init(_ lower: Element, _ upper: Element)
@@ -60,7 +60,7 @@ enum BatchUpdates {
         }
         
         func apply(by listView: ListView) {
-            if deletes.isEmpty { Collection.delete(listView)(deletes) }
+            if deletes.isEmpty { Collection.delete(deletes, by: listView) }
         }
         
         func addListDebugDescription(to descriptions: inout [String]) {
@@ -103,9 +103,9 @@ enum BatchUpdates {
         }
         
         func apply(by listView: ListView) {
-            if inserts.isEmpty { Collection.insert(listView)(inserts) }
-            if reloads.isEmpty { Collection.reload(listView)(reloads) }
-            if moves.isEmpty { moves.forEach(Collection.move(listView)) }
+            if inserts.isEmpty { Collection.insert(inserts, by: listView) }
+            if reloads.isEmpty { Collection.reload(reloads, by: listView) }
+            if moves.isEmpty { moves.forEach { Collection.move($0, by: listView)} }
         }
         
         func addListDebugDescription(to descriptions: inout [String]) {
@@ -250,11 +250,12 @@ extension IndexBatchUpdate {
 }
 
 extension IndexSet: UpdateIndexCollection {
-    
-    static var insert: (ListView) -> (IndexSet) -> Void { ListView.insertSections }
-    static var delete: (ListView) -> (IndexSet) -> Void { ListView.deleteSections }
-    static var reload: (ListView) -> (IndexSet) -> Void { ListView.reloadSections }
-    static var move: (ListView) -> (Int, Int) -> Void { ListView.moveSection }
+    static func insert(_ value: Self, by listView: ListView) { listView.insertSections(value) }
+    static func delete(_ value: Self, by listView: ListView) { listView.deleteSections(value) }
+    static func reload(_ value: Self, by listView: ListView) { listView.reloadSections(value) }
+    static func move(_ element: Mapping<Int>, by listView: ListView) {
+        listView.moveSection(element.source, toSection: element.target)
+    }
     
     init(_ element: Int) { self.init(integer: element) }
     init(_ from: Int, _ to: Int) { self.init(integersIn: from..<to) }
@@ -269,10 +270,12 @@ extension Array: UpdateCollection where Element == IndexPath {
 }
 
 extension Array: UpdateIndexCollection where Element == IndexPath {
-    static var insert: (ListView) -> ([Element]) -> Void { ListView.insertItems }
-    static var delete: (ListView) -> ([Element]) -> Void { ListView.deleteItems }
-    static var reload: (ListView) -> ([Element]) -> Void { ListView.reloadItems }
-    static var move: (ListView) -> (IndexPath, IndexPath) -> Void { ListView.moveItem }
+    static func insert(_ value: Self, by listView: ListView) { listView.insertItems(at: value) }
+    static func delete(_ value: Self, by listView: ListView) { listView.deleteItems(at: value) }
+    static func reload(_ value: Self, by listView: ListView) { listView.reloadItems(at: value) }
+    static func move(_ element: Mapping<IndexPath>, by listView: ListView) {
+        listView.moveItem(at: element.source, to: element.target)
+    }
     
     init(_ element: IndexPath) { self = [element] }
     init(_ from: IndexPath, _ to: IndexPath) {

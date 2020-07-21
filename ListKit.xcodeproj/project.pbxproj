@@ -251,7 +251,7 @@
 		F3EB15DB23A2ED1900C9AC5E /* ListAdapters+ListAdapters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ListAdapters+ListAdapters.swift"; sourceTree = "<group>"; };
 		F3EC388B24582C5A00DFE1B0 /* EmptyCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyCoordinator.swift; sourceTree = "<group>"; };
 		F3F349E724BC6A4700D38D16 /* CollectionCoordinatorUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionCoordinatorUpdate.swift; sourceTree = "<group>"; };
-		"ListKit::ListKit::Product" /* ListKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = ListKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		"ListKit::ListKit::Product" /* ListKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = ListKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		OBJ_12 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		OBJ_6 /* Package.swift */ = {isa = PBXFileReference; explicitFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 		OBJ_8 /* ListKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListKit.swift; sourceTree = "<group>"; };
@@ -686,7 +686,7 @@
 			attributes = {
 				LastSwiftMigration = 9999;
 				LastSwiftUpdateCheck = 1130;
-				LastUpgradeCheck = 1150;
+				LastUpgradeCheck = 1200;
 				TargetAttributes = {
 					F36550162451B4050038172F = {
 						CreatedOnToolsVersion = 11.3.1;
@@ -1009,7 +1009,7 @@
 				INFOPLIST_FILE = ListKit.xcodeproj/ListKit_Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) $(TOOLCHAIN_DIR)/usr/lib/swift/macosx";
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_LDFLAGS = "$(inherited)";
 				OTHER_SWIFT_FLAGS = "$(inherited)";
@@ -1035,7 +1035,7 @@
 				INFOPLIST_FILE = ListKit.xcodeproj/ListKit_Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) $(TOOLCHAIN_DIR)/usr/lib/swift/macosx";
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_LDFLAGS = "$(inherited)";
 				OTHER_SWIFT_FLAGS = "$(inherited)";
@@ -1083,6 +1083,7 @@
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -1108,7 +1109,8 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_SWIFT_FLAGS = "$(inherited) -DXcode";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1136,6 +1138,7 @@
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -1158,7 +1161,8 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				OTHER_SWIFT_FLAGS = "$(inherited) -DXcode";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;

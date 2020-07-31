@@ -35,9 +35,9 @@ extension Collection {
         var i = startIndex
         
         for _ in 0..<n {
+            defer { formIndex(after: &i) }
             guard let value = try transform(self[i]) else { continue }
             result.append(value)
-            formIndex(after: &i)
         }
         
         return result
@@ -49,11 +49,18 @@ extension RangeReplaceableCollection {
         guard startIndex <= index, index < endIndex else { return nil }
         return self[index]
     }
-}
-
-extension ContiguousArray {
+    
+    mutating func append(repeatElement element: Element, count: Int) {
+        guard count > 0 else { return }
+        append(contentsOf: repeatElement(element, count: count))
+    }
+    
     init(capacity: Int) {
         self.init()
         reserveCapacity(capacity)
+    }
+    
+    init(repeatElement element: Element, count: Int) {
+        self.init(repeatElement(element, count: count))
     }
 }

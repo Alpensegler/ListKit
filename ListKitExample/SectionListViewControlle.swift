@@ -23,7 +23,7 @@ class SectionListViewControlle: ExampleViewController, UpdatableCollectionListAd
 //        if toggle {
 //            return [[2, 1], [], [6, 4]]
 //        } else {
-//            return [[]]
+//            return [[], [1 , 6]]
 //        }
 //    }
     

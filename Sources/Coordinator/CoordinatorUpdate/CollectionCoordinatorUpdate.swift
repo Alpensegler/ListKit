@@ -7,103 +7,166 @@
 
 import Foundation
 
-class CollectionCoordinatorUpdate<SourceBase, Source, Value>: CoordinatorUpdate<SourceBase>
+class CollectionCoordinatorUpdate<SourceBase, Source, Value, CoordinatorChange, Change>:
+    CoordinatorUpdate<SourceBase>
 where
     SourceBase: DataSource,
     SourceBase.SourceBase == SourceBase,
-    Source: Collection
+    Source: Collection,
+    CoordinatorChange: ListKit.CoordinatorChange<Value>
 {
-    typealias Index = Source.Index
     typealias Element = Source.Element
     typealias Values = Mapping<ContiguousArray<Value>>
-    typealias ChangeValue = (element: Element?, related: Int?)
+    typealias Changes = Mapping<ContiguousArray<ChangeOrUnchanged>>
+    typealias CoordinatorChanges = Mapping<ContiguousArray<CoordinatorChange>>
     
-    typealias Indices = ContiguousArray<Int>
+    enum ChangeOrUnchanged {
+        case change(Change)
+        case unchanged(from: Mapping<Int>, to: Mapping<Int>)
+    }
     
     var values: Values
     var keepSectionIfEmpty = (source: false, target: false)
-    lazy var updatedValues = values.target
     
-    var isSectioned = false
-    var needExtraUpdate = UpdateContextCache(value: false)
+    var changeIndices: Mapping<IndexSet> = (.init(), .init())
+    var changeDict: Mapping<[Int: CoordinatorChange]> = ([:], [:])
+    var updateDict = [Int: (change: CoordinatorChange, value: Value)]()
     
-    var appendValues = [Element]()
-    var insertIndices = IndexSet()
-    var deleteIndices = IndexSet()
-    var updateIndices = IndexSet()
+    lazy var changes = hasBatchUpdate ? configChangesForBatchUpdates() : configChangesForDiff()
+    lazy var sourceCount = getSourceCount()
+    lazy var targetCount = getTargetCount()
+    lazy var sourceValuesCount = values.source.count
+    lazy var targetValuesCount = values.target.count
     
-    var insertDict = [Int: ChangeValue]()
-    var deleteDict = [Int: ChangeValue]()
-    var updateDict = [Int: Element]()
-    
-    var sourceCount: Int { values.source.count }
-    var targetCount: Int { values.target.count }
-    
-    var sourceIsEmpty: Bool { values.source.isEmpty }
-    var targetIsEmpty: Bool { values.target.isEmpty }
-    
-    var differ: Differ<SourceBase.Item>! { update?.diff }
+    var differ: Differ<SourceBase.Item>! { update?.diff ?? defaultUpdate?.diff }
     var diffable: Bool { differ?.isNone == false }
     var rangeReplacable: Bool { false }
     
     init(
         _ coordinator: ListCoordinator<SourceBase>? = nil,
-        update: Update<SourceBase>,
-        values: Values,
-        sources: Sources
+        update: ListUpdate<SourceBase>,
+        _ values: Values,
+        _ sources: Sources,
+        _ keepSectionIfEmpty: Mapping<Bool>
     ) {
         self.values = values
         super.init(coordinator: coordinator, update: update, sources: sources)
+        self.keepSectionIfEmpty = keepSectionIfEmpty
+        guard case let .whole(whole, _) = update else { return }
+        switch whole.way {
+        case .insert:
+            self.keepSectionIfEmpty.source = false
+        case .remove:
+            self.keepSectionIfEmpty.target = false
+        default: break
+        }
     }
     
+    func getSourceCount() -> Int { values.source.count }
+    func getTargetCount() -> Int { values.target.count }
+    
+    func toCount(_ value: Value) -> Int { 1 }
     func toValue(_ element: Element) -> Value { fatalError("should be implemented by subclass") }
+    func updateSource(with changes: Changes) { fatalError("should be implemented by subclass") }
+    func configChangesForDiff() -> Changes { fatalError("should be implemented by subclass") }
+    
+    func toChange(_ change: CoordinatorChange, _ isSource: Bool) -> Change {
+        fatalError("should be implemented by subclass")
+    }
+    
+    func append(change: CoordinatorChange, isSource: Bool, to changes: inout Changes) {
+        changes[keyPath: path(isSource)].append(.change(toChange(change, isSource)))
+    }
     
     override func configChangeType() -> UpdateChangeType {
-        isSectioned ? configChangeTypeForSections() : configChangeTypeForItems()
+        switch (update?.way, sourceIsEmpty, targetIsEmpty) {
+        case (.insert, _, true), (.remove, true, _), (_, true, true): return .none
+        case (.remove, _, _), (_, false, true): return .remove(itemsOnly: itemsOnly(true))
+        case (.insert, _, _), (_, true, false): return .insert(itemsOnly: itemsOnly(false))
+        case (_, false, false): return diffable || hasBatchUpdate ? .batchUpdates : .reload
+        }
     }
     
     override func generateListUpdates() -> BatchUpdates? {
-        isSectioned ? generateListUpdatesForSections() : generateListUpdatesForItems()
+        if !sourceIsEmpty || !targetIsEmpty { inferringMoves() }
+        return isSectioned ? generateListUpdatesForSections() : generateListUpdatesForItems()
     }
 }
 
 extension CollectionCoordinatorUpdate {
+    var sourceIsEmpty: Bool { sourceCount == 0 }
+    var targetIsEmpty: Bool { targetCount == 0 }
+    
     var sourceHasSection: Bool { !sourceIsEmpty || keepSectionIfEmpty.source }
     var targetHasSection: Bool { !targetIsEmpty || keepSectionIfEmpty.target }
     
     var sourceSectionCount: Int { isSectioned ? sourceCount : sourceHasSection ? 1 : 0 }
     var targetSectionCount: Int { isSectioned ? targetCount : targetHasSection ? 1 : 0 }
     
-    func configChangeTypeForItems() -> UpdateChangeType {
-        switch (sourceIsEmpty, targetIsEmpty, keepSectionIfEmpty) {
-        case (true, true, (false, true)): return .insert(.section)
-        case (true, true, (true, false)): return .remove(.section)
-        case (true, true, _): return .none
-        case (true, false, _): return .insert(keepSectionIfEmpty.source ? .items : .itemsAndSection)
-        case (false, true, _): return .remove(keepSectionIfEmpty.target ? .items : .itemsAndSection)
-        case (false, false, _): return diffable ? .batchUpdates : .reload
-        }
+    func itemsOnly(_ isSource: Bool) -> Bool {
+        isSectioned && (isSource ? keepSectionIfEmpty.source : keepSectionIfEmpty.target)
     }
     
-    func configChangeTypeForSections() -> UpdateChangeType {
-        switch (sourceIsEmpty, targetIsEmpty) {
-        case (true, true): return .none
-        case (true, false): return .insert()
-        case (false, true): return .remove()
-        case (false, false): return diffable ? .batchUpdates : .reload
+    func appendBoth(from: Mapping<Int>, to: Mapping<Int>, to changes: inout Changes) {
+        changes.source.append(.unchanged(from: from, to: to))
+        changes.target.append(.unchanged(from: from, to: to))
+    }
+    
+    func enumerate(
+        from: Mapping<Int>,
+        to: Mapping<Int>,
+        changes: Changes,
+        consume: (Mapping<Int>, inout Changes) -> Bool
+    ) -> Changes {
+        var changes = changes
+        var lastSource = from.source, lastTarget = from.target
+        for (s, t) in zip(from.source..<to.source, from.target..<to.target) {
+            guard consume((s, t), &changes), s > lastSource else { continue }
+            appendBoth(from: (lastSource, s), to: (lastTarget, t), to: &changes)
+            (lastSource, lastTarget) = (s + 1, t + 1)
         }
+        guard lastSource < to.source else { return changes }
+        appendBoth(from: (lastSource, to.source), to: (lastTarget, to.target), to: &changes)
+        return changes
+    }
+    
+    func configChangesForBatchUpdates() -> Mapping<ContiguousArray<ChangeOrUnchanged>> {
+        var changes: CoordinatorChanges = ([], [])
+        changeIndices.source.forEach { changeDict.source[$0].map { changes.source.append($0) } }
+        changeIndices.target.forEach { changeDict.target[$0].map { changes.target.append($0) } }
+        var result: Mapping<ContiguousArray<ChangeOrUnchanged>> = (.init(), .init())
+        enumerateChangesWithOffset(changes: changes, body: { (isSource, change) in
+            append(change: change, isSource: isSource, to: &result)
+        }, offset: { (from, to) in
+            if updateDict.isEmpty {
+                appendBoth(from: from, to: to, to: &result)
+            } else {
+                result = enumerate(from: from, to: to, changes: result) { (i, changes) -> Bool in
+                    guard let (source, value) = updateDict[i.source] else { return false }
+                    let target = CoordinatorChange(value, i.target)
+                    (source[nil], target[nil]) = (target, source)
+                    (source.state, target.state) = (.reload, .reload)
+                    
+                    append(change: source, isSource: true, to: &changes)
+                    append(change: target, isSource: false, to: &changes)
+                    return true
+                }
+            }
+        })
+        updateSource(with: result)
+        return result
     }
     
     func generateListUpdatesForItems() -> BatchUpdates? {
         switch changeType {
-        case .insert(.section), .insert(.itemsAndSection):
+        case .insert(false):
             return .init(target: BatchUpdates.SectionTarget(\.inserts, 0), finalChange)
-        case .insert(.items):
+        case .insert(true):
             let indices = [IndexPath](IndexPath(item: 0), IndexPath(item: targetCount))
             return .init(target: BatchUpdates.ItemTarget(\.inserts, indices), finalChange)
-        case .remove(.section), .remove(.itemsAndSection):
+        case .remove(false):
             return .init(source: BatchUpdates.SectionSource(\.deletes, 0), finalChange)
-        case .remove(.items):
+        case .remove(true):
             let indices = [IndexPath](IndexPath(item: 0), IndexPath(item: sourceCount))
             return .init(source: BatchUpdates.ItemSource(\.deletes, indices), finalChange)
         case .batchUpdates:
@@ -131,72 +194,166 @@ extension CollectionCoordinatorUpdate {
     }
 }
 
-extension CollectionCoordinatorUpdate
-where SourceBase.Source: RangeReplaceableCollection, SourceBase.Source == Source {
-    func append(_ element: Element) {
-        appendValues.append(element)
-        updatedSource?.append(element)
-        updatedValues.append(toValue(element))
-    }
-    
-    func append<S: Sequence>(contentsOf elements: S) where Element == S.Element {
-        appendValues.append(contentsOf: elements)
-        updatedSource?.append(contentsOf: elements)
-        updatedValues.append(contentsOf: elements.map(toValue))
-    }
-    
-    func insert(_ element: Element, at index: Index) {
-        guard let intIndex = intIndex(from: index) else { return }
-        updatedSource?.insert(element, at: index)
-        updatedValues.insert(toValue(element), at: intIndex)
-        insertIndices.insert(intIndex)
-        insertDict[intIndex] = (element, nil)
-    }
-    
-    func insert<C: Collection>(contentsOf elements: C, at index: Index) where Element == C.Element {
-        guard var intIndex = intIndex(from: index) else { return }
-        updatedSource?.insert(contentsOf: elements, at: index)
-        updatedValues.insert(contentsOf: elements.map(toValue), at: intIndex)
-        insertIndices.insert(integersIn: intIndex..<intIndex + elements.count)
-        for element in elements {
-            insertDict[intIndex] = (element, nil)
-            intIndex += 1
+extension CollectionCoordinatorUpdate {
+    func enumerateChanges(changes: CoordinatorChanges, _ body: (Bool, CoordinatorChange) -> Void) {
+        let total: Mapping = (changes.source.count, changes.target.count)
+        var enumerated: Mapping = (0, 0)
+        
+        while enumerated.source < total.source || enumerated.target < total.target {
+            let change: CoordinatorChange, isSoure: Bool
+            if enumerated.source < total.source && enumerated.target < total.target {
+                let removeOffset = changes.source[enumerated.source].index
+                let insertOffset = changes.target[enumerated.target].index
+                if removeOffset - enumerated.source <= insertOffset - enumerated.target {
+                    (isSoure, change) = (true, changes.source[enumerated.source])
+                } else {
+                    (isSoure, change) = (false, changes.target[enumerated.target])
+                }
+            } else if enumerated.source < total.source {
+                (isSoure, change) = (true, changes.source[enumerated.source])
+            } else if enumerated.target < total.target {
+                (isSoure, change) = (false, changes.target[enumerated.target])
+            } else {
+                // Not reached, loop should have exited.
+                preconditionFailure()
+            }
+            
+            body(isSoure, change)
+            
+            isSoure ? (enumerated.source += 1) : (enumerated.target += 1)
         }
     }
     
-    func remove(at index: Index) {
-        guard let intIndex = intIndex(from: index) else { return }
-        deleteIndices.insert(intIndex)
-        updatedSource?.remove(at: index)
-        updatedValues.remove(at: intIndex)
+    func enumerateChangesWithOffset(
+        changes: CoordinatorChanges,
+        body: (Bool, CoordinatorChange) -> Void,
+        offset: (Mapping<Int>, Mapping<Int>) -> Void
+    ) {
+        var enumerated: Mapping = (0, 0)
+        var enumeratedOriginals: Mapping = (0, 0)
+        var index: Mapping = (0, 0)
+        
+        enumerateChanges(changes: changes) { (isSource, change) in
+            let current = enumerate(
+                change: change,
+                in: values[keyPath: path(isSource)],
+                index: &index[keyPath: path(isSource)],
+                enumeratedOriginals: &enumeratedOriginals[keyPath: path(!isSource)]
+            )
+            let other = enumerate(
+                change: change,
+                in: values[keyPath: path(!isSource)],
+                index: &index[keyPath: path(!isSource)],
+                enumeratedOriginals: &enumeratedOriginals[keyPath: path(isSource)],
+                enumeratedCurrent: enumerated[keyPath: path(isSource)],
+                enumeratedOther: enumerated[keyPath: path(!isSource)]
+            )
+            enumerated[keyPath: path(isSource)] += 1
+            if current.end != current.start {
+                let from = isSource ? (current.start, other.start) : (other.start, current.start)
+                let to = isSource ? (current.end, other.end) : (other.end, current.end)
+                offset(from, to)
+            }
+            body(isSource, change)
+        }
+        
+        if index.source < sourceValuesCount {
+            offset(index, (sourceValuesCount, targetValuesCount))
+        }
     }
     
-    func update(_ element: Element, at index: Index) {
-        guard let source = updatedSource, let intIndex = intIndex(from: index) else { return }
-        let indexAfter = source.index(after: index)
-        updatedSource?.replaceSubrange(index..<indexAfter, with: CollectionOfOne(element))
-        updatedValues[intIndex] = toValue(element)
-        updateIndices.insert(intIndex)
-        updateDict[intIndex] = element
+    func enumerate<Collection: RangeReplaceableCollection>(
+        change: CoordinatorChange,
+        in value: Collection,
+        index: inout Collection.Index,
+        enumeratedOriginals: inout Int
+    ) -> (start: Collection.Index, end: Collection.Index) {
+        let origCount = change.index - enumeratedOriginals
+        let start = index
+        value.formIndex(&index, offsetBy: origCount)
+        enumeratedOriginals += origCount + 1
+        defer { index = value.index(after: index) }
+        return (start, index)
     }
     
-    func move(at index: Index, to newIndex: Index) {
-        guard let element = sources.source?[index],
-              let source = updatedSource,
-              let intIndex = intIndex(from: index),
-              let newIntIndex = self.intIndex(from: newIndex)
-        else { return }
-        let indexAfter = source.index(after: newIndex)
-        updatedSource?.replaceSubrange(newIndex..<indexAfter, with: CollectionOfOne(element))
-        updatedValues[newIntIndex] = toValue(element)
-        insertIndices.insert(newIntIndex)
-        deleteIndices.insert(intIndex)
-        insertDict[newIntIndex] = (nil, intIndex)
-        deleteDict[intIndex] = (nil, newIntIndex)
+    func enumerate<Collection: RangeReplaceableCollection>(
+        change: CoordinatorChange,
+        in value: Collection,
+        index: inout Collection.Index,
+        enumeratedOriginals: inout Int,
+        enumeratedCurrent: Int,
+        enumeratedOther: Int
+    ) -> (start: Collection.Index, end: Collection.Index) {
+        let origCount = (change.index + enumeratedOther - enumeratedCurrent) - enumeratedOriginals
+        let start = index
+        value.formIndex(&index, offsetBy: origCount)
+        enumeratedOriginals += origCount
+        return (start, index)
+    }
+}
+
+extension CollectionCoordinatorUpdate
+where SourceBase.Source: RangeReplaceableCollection, SourceBase.Source == Source {
+    func append(_ element: Element) {
+        let value = toValue(element)
+        changeIndices.target.insert(targetCount)
+        changeDict.target[targetCount] = .init(value, targetCount)
+        targetValuesCount += 1
+        targetCount += toCount(value)
     }
     
-    func intIndex(from index: Index) -> Int? {
-        guard let source = updatedSource else { return nil }
-        return source.distance(from: source.startIndex, to: index)
+    func append<S: Sequence>(contentsOf elements: S) where Element == S.Element {
+        var upper = targetCount
+        for element in elements {
+            let value = toValue(element)
+            changeDict.target[upper] = .init(value, upper)
+            upper += 1
+            targetCount += toCount(value)
+        }
+        guard upper != targetCount else { return }
+        changeIndices.target.insert(integersIn: targetCount..<upper)
+        targetValuesCount = upper
+    }
+    
+    func insert(_ element: Element, at index: Int) {
+        let value = toValue(element)
+        changeIndices.target.insert(index)
+        changeDict.target[index] = .init(value, index)
+        targetValuesCount += 1
+        targetCount += toCount(value)
+    }
+    
+    func insert<C: Collection>(contentsOf elements: C, at index: Int) where Element == C.Element {
+        guard !elements.isEmpty else { return }
+        var upper = index
+        for element in elements {
+            let value = toValue(element)
+            changeDict.target[upper] = .init(value, upper)
+            upper += 1
+            targetCount += toCount(value)
+        }
+        changeIndices.target.insert(integersIn: index..<upper)
+        targetValuesCount = upper
+    }
+    
+    func remove(at index: Int) {
+        changeIndices.source.insert(index)
+        changeDict.source[index] = .init(values.source[index], index)
+        targetValuesCount -= 1
+        targetCount -= toCount(values.source[index])
+    }
+    
+    func update(_ element: Element, at index: Int) {
+        let sourceChange = CoordinatorChange(values.source[index], index)
+        updateDict[index] = (sourceChange, toValue(element))
+    }
+    
+    func move(at index: Int, to newIndex: Int) {
+        changeIndices.source.insert(index)
+        changeIndices.target.insert(newIndex)
+        let sourceChange = CoordinatorChange(values.source[index], index)
+        let targetChange = CoordinatorChange(values.source[index], newIndex)
+        (sourceChange[nil], targetChange[nil]) = (targetChange, sourceChange)
+        (changeDict.source[index], changeDict.target[newIndex]) = (sourceChange, targetChange)
     }
 }

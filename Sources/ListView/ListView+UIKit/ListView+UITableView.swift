@@ -46,7 +46,7 @@ public extension UITableView {
         }
     }
     
-    func perform(update: () -> Void, animated: Bool, completion: ((Bool) -> Void)?) {
+    func perform(_ update: () -> Void, animated: Bool, completion: ((Bool) -> Void)?) {
         func _update() {
             if #available(iOS 11.0, *) {
                 performBatchUpdates(update, completion: completion)

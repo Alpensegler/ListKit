@@ -7,21 +7,20 @@
 
 import Foundation
 
-enum Order: CaseIterable {
+enum Order: Int, CaseIterable, Comparable {
     case first, second, third
+    
+    var next: Order? {
+        Order(rawValue: rawValue + 1)
+    }
+    
+    static func < (lhs: Order, rhs: Order) -> Bool {
+        lhs.rawValue < rhs.rawValue
+    }
 }
 
 enum UpdateChangeType: Equatable {
-    enum Content {
-        case itemsAndSection
-        case section
-        case items
-        
-        var hasSection: Bool { self == .itemsAndSection || self == .section }
-        var hasItem: Bool { self == .itemsAndSection || self == .items }
-    }
-    
-    case insert(Content = .section), remove(Content = .section)
+    case insert(itemsOnly: Bool = true), remove(itemsOnly: Bool = false)
     case reload, batchUpdates, none
 }
 
@@ -29,53 +28,55 @@ final class CoordinatorUpdateContext {
     var dicts: Mapping<[AnyHashable: Any?]> = ([:], [:])
 }
 
-typealias UpdateContext<Offset> = (offset: Offset, isMoved: Bool, id: ObjectIdentifier)
-
-func toContext<Offset, OtherOffset>(
-    _ context: UpdateContext<Offset>?,
-    _ isMoved: Bool = false,
-    addOffset: (Offset) -> OtherOffset
-) -> UpdateContext<OtherOffset>? {
-    guard let context = context else { return nil }
-    return (addOffset(context.offset), isMoved || context.isMoved, context.id)
-}
-
 class CoordinatorUpdate<SourceBase: DataSource> where SourceBase.SourceBase == SourceBase {
     typealias Item = SourceBase.Item
     typealias Sources = Mapping<SourceBase.Source?>
     typealias Context = (context: CoordinatorUpdateContext, id: ObjectIdentifier)
+    typealias Indices = ContiguousArray<(index: Int, isFake: Bool)>
+    
+    typealias Offset<Offset> = (index: Int, offset: Mapping<Offset>)
+    typealias UpdateContext<Offset> = (offset: Offset, isMoved: Bool, id: ObjectIdentifier)
+    typealias UpdateSource<Update> = (count: Int, update: Update?)
+    typealias UpdateTarget<Update> = (indices: Indices, update: Update?, change: (() -> Void)?)
     
     weak var listCoordinator: ListCoordinator<SourceBase>?
     var hasBatchUpdate = false
-    var update: ListUpdate<SourceBase>?
+    var isSectioned = false
+    var defaultUpdate: ListUpdate<SourceBase>.Whole?
+    var update: ListUpdate<SourceBase>.Whole?
     var sources: Mapping<SourceBase.Source?>
-    var context: Context?
-    var finalChange: (() -> Void)? { { [unowned self] in self.finalUpdate(self.hasBatchUpdate) } }
     
+    lazy var itemMaxOrder = UpdateContextCache(value: Order.second)
+    lazy var sectionMaxOrder = UpdateContextCache(
+        value: changeType == .remove(itemsOnly: false) ? Order.third : Order.first
+    )
+    
+    lazy var defaultContext = generateDefaultContext()
     lazy var listUpdates = generateListUpdates()
     lazy var changeType = configChangeType()
-    lazy var updatedSource: SourceBase.Source? = {
-        let target = sources.target
-        hasBatchUpdate = true
-        return target
-    }()
     
     init(
         coordinator: ListCoordinator<SourceBase>?,
-        update: Update<SourceBase>,
+        update: ListUpdate<SourceBase>,
         sources: Mapping<SourceBase.Source?>
     ) {
         self.listCoordinator = coordinator
-        self.update = update.listUpdate
         self.sources = sources
-        update.operations.forEach { $0(self) }
+        self.defaultUpdate = coordinator?.update
+        switch update {
+        case let .whole(whole, _):
+            self.update = whole
+        case let .batch(batch):
+            batch.operations.forEach { $0(self) }
+            hasBatchUpdate = true
+        }
     }
     
-    func finalUpdate(_ hasBatchUpdate: Bool) {
-        listCoordinator?.source = hasBatchUpdate ? updatedSource : sources.target
+    func updateData(isSource: Bool) {
+        listCoordinator?.source = isSource ? sources.source : sources.target
     }
     
-    func inferringMoves(context: Context) { }
+    func inferringMoves(context: Context? = nil) { }
     
     func configChangeType() -> UpdateChangeType { fatalError("should be implement by subclass") }
     func generateListUpdates() -> BatchUpdates? { fatalError("should be implement by subclass") }
@@ -83,59 +84,118 @@ class CoordinatorUpdate<SourceBase: DataSource> where SourceBase.SourceBase == S
     func generateSourceSectionUpdate(
         order: Order,
         context: UpdateContext<Int>? = nil
-    ) -> (count: Int, update: BatchUpdates.ListSource?) {
+    ) -> UpdateSource<BatchUpdates.ListSource> {
         fatalError("should be implement by subclass")
     }
     
     func generateTargetSectionUpdate(
         order: Order,
-        context: UpdateContext<Mapping<Int>>? = nil
-    ) -> (count: Int, update: BatchUpdates.ListTarget?, change: (() -> Void)?) {
+        context: UpdateContext<Offset<Int>>? = nil
+    ) -> UpdateTarget<BatchUpdates.ListTarget> {
         fatalError("should be implement by subclass")
     }
     
     func generateSourceItemUpdate(
         order: Order,
         context: UpdateContext<IndexPath>? = nil
-    ) -> (count: Int, update: BatchUpdates.ItemSource?) {
+    ) -> UpdateSource<BatchUpdates.ItemSource> {
         fatalError("should be implement by subclass")
     }
     
     func generateTargetItemUpdate(
         order: Order,
-        context: UpdateContext<Mapping<IndexPath>>? = nil
-    ) -> (count: Int, update: BatchUpdates.ItemTarget?, change: (() -> Void)?) {
+        context: UpdateContext<Offset<IndexPath>>? = nil
+    ) -> UpdateTarget<BatchUpdates.ItemTarget> {
         fatalError("should be implement by subclass")
     }
 }
 
 extension CoordinatorUpdate {
-    func generateContext() -> Context {
-        let value = CoordinatorUpdateContext()
-        let context = (value, ObjectIdentifier(value))
-        self.context = context
-        return context
-    }
+    var finalChange: (() -> Void)? { { [unowned self] in self.updateData(isSource: false) } }
+    var firstChange: (() -> Void)? { { [unowned self] in self.updateData(isSource: true) } }
     
-    func context<T>(_ offset: T, isMoved: Bool = false) -> UpdateContext<T>? {
-        context.map { (offset, isMoved, $0.id) }
+    func generateDefaultContext() -> Context {
+        let value = CoordinatorUpdateContext()
+        return (value, ObjectIdentifier(value))
     }
     
     func listUpdatesForSections() -> BatchUpdates {
         .batch(Order.allCases.compactMapContiguous { order in
-            let source = generateSourceSectionUpdate(order: order, context: context(0))
-            let target = generateTargetSectionUpdate(order: order, context: context((0, 0)))
+            let source = generateSourceSectionUpdate(order: order)
+            let target = generateTargetSectionUpdate(order: order)
             guard !source.update.isEmpty || !target.update.isEmpty else { return nil }
             return .init(update: (source.update, target.update), change: target.change)
         })
     }
     
     func listUpdatesForItems() -> BatchUpdates {
-        .batch(Order.allCases.compactMapContiguous { order in
-            let source = generateSourceItemUpdate(order: order, context: context(.zero))
-            let target = generateTargetItemUpdate(order: order, context: context((.zero, .zero)))
+        .batch([Order.second, Order.third].compactMapContiguous { order in
+            let source = generateSourceItemUpdate(order: order)
+            let target = generateTargetItemUpdate(order: order)
             guard !source.update.isEmpty || !target.update.isEmpty else { return nil }
             return .init(update: (source.update, target.update), change: target.change)
         })
+    }
+    
+    func toContext<Offset, OtherOffset>(
+        _ context: UpdateContext<Offset>?,
+        _ isMoved: Bool = false,
+        or offset: Offset? = nil,
+        add: (Offset) -> OtherOffset
+    ) -> UpdateContext<OtherOffset>? {
+        let isMoved = isMoved || context?.isMoved == true
+        if let context = context { return (add(context.offset), isMoved, context.id) }
+        return offset.map { (add($0), isMoved, defaultContext.id) }
+    }
+    
+    func toIndices<O>(_ indices: Indices, _ context: UpdateContext<Offset<O>>?) -> Indices {
+        guard let index = context?.offset.index else { return indices }
+        return indices.mapContiguous { (index, $0.isFake) }
+    }
+}
+
+// Order
+extension CoordinatorUpdate {
+    func isMain(_ order: Order) -> Bool {
+        return isSectioned && order == .first || !isSectioned && order == .second
+    }
+    
+    func isExtra(_ order: Order) -> Bool {
+        return isSectioned && order == .second || !isSectioned && order == .third
+    }
+    
+    func notUpdate<O>(_ order: Order, _ context: UpdateContext<O>?) -> Bool {
+        isEmptyUpdate(order, context, isSectioned: isSectioned)
+    }
+    
+    func isEmptyUpdate<O>(_ order: Order, _ context: UpdateContext<O>?, isSectioned: Bool) -> Bool {
+        guard isSectioned else { return order > maxOrder(context, false) }
+        return order > max(maxOrder(context, true), maxOrder(context, false))
+    }
+    
+    func maxOrder<O>(_ context: UpdateContext<O>?, _ isSectioned: Bool) -> Order {
+        isSectioned ? sectionMaxOrder[context?.id] : itemMaxOrder[context?.id]
+    }
+    
+    func hasNext<O>(_ order: Order, _ context: UpdateContext<O>?, _ isSectioned: Bool) -> Bool {
+        maxOrder(context, isSectioned) > order
+    }
+    
+    func hasNext<O>(_ order: Order, _ context: UpdateContext<O>?) -> Bool {
+        maxOrder(context, true) > order || maxOrder(context, false) > order
+    }
+    
+    func updateMaxIfNeeded<O>(_ order: Order, _ context: UpdateContext<O>?, _ isSectioned: Bool) {
+        guard maxOrder(context, isSectioned) < order else { return }
+        isSectioned ? (sectionMaxOrder[context?.id] = order) : (itemMaxOrder[context?.id] = order)
+    }
+    
+    func updateMaxIfNeeded<O, SourceBase: DataSource>(
+        _ subupdate: CoordinatorUpdate<SourceBase>,
+        _ context: UpdateContext<O>?,
+        _ subcontext: UpdateContext<O>?
+    ) {
+        if isSectioned { updateMaxIfNeeded(subupdate.maxOrder(subcontext, true), context, true) }
+        updateMaxIfNeeded(subupdate.maxOrder(subcontext, false), context, false)
     }
 }

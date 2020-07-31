@@ -26,11 +26,10 @@ where
         super.init(coordinator, setups: setups)
         let others = initialSelectorSets(withoutIndex: true)
         for subsource in sourcesCoordinator.subsources {
-            if subsource.related.coordinator.isEmpty { continue }
-            others.void.formIntersection(subsource.related.selectorSets.void)
-            others.withIndex.formUnion(subsource.related.selectorSets.withIndex)
-            others.withIndexPath.formUnion(subsource.related.selectorSets.withIndexPath)
-            others.hasIndex = others.hasIndex || subsource.related.selectorSets.hasIndex
+            others.void.formIntersection(subsource.context.selectorSets.void)
+            others.withIndex.formUnion(subsource.context.selectorSets.withIndex)
+            others.withIndexPath.formUnion(subsource.context.selectorSets.withIndexPath)
+            others.hasIndex = others.hasIndex || subsource.context.selectorSets.hasIndex
         }
         selectorSets = SelectorSets(merging: selectorSets, others)
     }
@@ -47,15 +46,15 @@ where
         let index: Int
         switch delegateIndex {
         case let .index(keyPath):
-            index = sourcesCoordinator.indices[input[keyPath: keyPath] - sectionOffset]
+            index = sourcesCoordinator.indices[input[keyPath: keyPath] - sectionOffset].index
         case let .indexPath(keyPath):
             var indexPath = input[keyPath: keyPath]
             indexPath.item -= itemOffset
             index = sourcesCoordinator.sourceIndex(for: indexPath.section, indexPath.item)
         }
-        let context = subsources[index]
+        let context = subsources[index], listContext = context.context
         coordinator.sectioned ? (sectionOffset += context.offset) : (itemOffset += context.offset)
-        return context.related.apply(keyPath, object: object, with: input, sectionOffset, itemOffset)
+        return listContext.apply(keyPath, object: object, with: input, sectionOffset, itemOffset)
     }
     
     override func apply<Object: AnyObject, Input, Output>(

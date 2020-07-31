@@ -12,9 +12,9 @@ open class FetchedResultsController<Item>: NSObject, NSFetchedResultsControllerD
 where Item: NSFetchRequestResult {
     open var fetchedResultController: NSFetchedResultsController<Item>
     open var completion: ((ListView, Bool) -> Void)?
-    open var listUpdate = ListUpdate<FetchedResultsController<Item>>.appendOrRemoveLast
+    open var listUpdate = ListUpdate<FetchedResultsController<Item>>.Whole.appendOrRemoveLast
     open var listOptions = ListOptions<FetchedResultsController<Item>>()
-    var update: Update<SourceBase>!
+    var update: ListUpdate<SourceBase>!
 
     public init(_ fetchedResultController: NSFetchedResultsController<Item>) {
         self.fetchedResultController = fetchedResultController

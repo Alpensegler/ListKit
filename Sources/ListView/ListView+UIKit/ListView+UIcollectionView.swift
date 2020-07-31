@@ -44,7 +44,7 @@ public extension UICollectionView {
         }
     }
     
-    func perform(update: () -> Void, animated: Bool, completion: ((Bool) -> Void)? = nil) {
+    func perform(_ update: () -> Void, animated: Bool, completion: ((Bool) -> Void)? = nil) {
         if animated {
             performBatchUpdates(update, completion: completion)
         } else {

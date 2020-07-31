@@ -7,6 +7,7 @@
 
 public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase == SourceBase {
     typealias Item = SourceBase.Item
+    typealias Indices = ContiguousArray<(index: Int, isFake: Bool)>
 
     struct WeakContext {
         weak var context: ListCoordinatorContext<SourceBase>?
@@ -16,7 +17,7 @@ public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase
         case single, multiple, sources, other
     }
     
-    let update: ListUpdate<SourceBase>
+    let update: ListUpdate<SourceBase>.Whole
     let options: ListOptions<SourceBase>
     var source: SourceBase.Source!
     
@@ -32,7 +33,7 @@ public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase
     
     init(
         source: SourceBase.Source!,
-        update: ListUpdate<SourceBase> = .init(),
+        update: ListUpdate<SourceBase>.Whole,
         options: ListOptions<SourceBase> = .init()
     ) {
         self.update = update
@@ -83,7 +84,7 @@ public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase
         fatalError("should be implemented by subclass")
     }
     
-    func update(_ update: Update<SourceBase>) -> CoordinatorUpdate<SourceBase> {
+    func update(_ update: ListUpdate<SourceBase>) -> CoordinatorUpdate<SourceBase> {
         fatalError("should be implemented by subclass")
     }
 }

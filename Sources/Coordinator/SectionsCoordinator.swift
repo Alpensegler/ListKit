@@ -28,20 +28,24 @@ where
         source.mapContiguous { $0.mapContiguous { $0 } }
     }
     
-    func toIndices(_ sections: ContiguousArray<ContiguousArray<Item>>) -> ContiguousArray<Int> {
-        if options.keepEmptySection { return sections.indices.mapContiguous { $0 } }
-        var offsets = ContiguousArray<Int>(capacity: sections.count)
+    func toIndices(_ sections: ContiguousArray<ContiguousArray<Item>>) -> Indices {
+        if options.keepEmptySection { return sections.indices.mapContiguous { ($0, false) } }
+        var offsets = Indices(capacity: sections.count)
         for (i, section) in sections.enumerated() where !section.isEmpty {
-            offsets.append(i)
+            offsets.append((i, false))
         }
         return offsets
     }
     
-    override func item(at section: Int, _ item: Int) -> Item { sections[indices[section]][item] }
+    override func item(at section: Int, _ item: Int) -> Item {
+        sections[indices[section].index][item]
+    }
     
     override func numbersOfSections() -> Int { indices.count }
     override func numbersOfItems(in section: Int) -> Int {
-        sections[safe: indices[section]]?.count ?? 0
+        let index = indices[section]
+        if index.isFake { return 0 }
+        return sections[index.index].count
     }
     
     override func isSectioned() -> Bool { true }
@@ -53,7 +57,7 @@ where
         let coordinator = coordinator as! SectionsCoordinator<SourceBase>
         return updateType.init(
             coordinator: self,
-            update: Update(differ, or: update),
+            update: ListUpdate(differ, or: update),
             values: (coordinator.sections, sections),
             sources: (coordinator.source, source),
             indices: (coordinator.indices, indices),
@@ -61,7 +65,7 @@ where
         )
     }
     
-    override func update(_ update: Update<SourceBase>) -> CoordinatorUpdate<SourceBase> {
+    override func update(_ update: ListUpdate<SourceBase>) -> CoordinatorUpdate<SourceBase> {
         let sourcesAfterUpdate = update.source
         let sectionsAfterUpdate = sourcesAfterUpdate.map(toSections)
         let indicesAfterUpdate =  sectionsAfterUpdate.map(toIndices)
@@ -82,7 +86,8 @@ where
 }
 
 
-final class RangeReplacableSectionsCoordinator<SourceBase: DataSource>: SectionsCoordinator<SourceBase>
+final class RangeReplacableSectionsCoordinator<SourceBase: DataSource>:
+    SectionsCoordinator<SourceBase>
 where
     SourceBase.SourceBase == SourceBase,
     SourceBase.Source: RangeReplaceableCollection,

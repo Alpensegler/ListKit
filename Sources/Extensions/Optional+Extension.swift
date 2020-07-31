@@ -12,7 +12,7 @@ extension Optional: DataSource where Wrapped: DataSource {
     
     public var source: Source { self }
     
-    public var listUpdate: ListUpdate<SourceBase> {
+    public var listUpdate: ListUpdate<SourceBase>.Whole {
         (source?.listUpdate).map { .init(way: $0.way) } ?? .reload
     }
     

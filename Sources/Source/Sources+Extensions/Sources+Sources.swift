@@ -11,7 +11,7 @@ where
     Source.Element: DataSource,
     Source.Element.Item == Item
 {
-    init(_ id: AnyHashable?, dataSources: Source, update: ListUpdate<SourceBase>, options: Options) {
+    init(_ id: AnyHashable?, dataSources: Source, update: ListUpdate<SourceBase>.Whole, options: Options) {
         self.sourceValue = dataSources
         self.listUpdate = update
         self.listOptions = .init(id: id, options)
@@ -28,7 +28,7 @@ where
     init(
         id: AnyHashable? = nil,
         dataSources: Source,
-        update: ListUpdate<SourceBase>,
+        update: ListUpdate<SourceBase>.Whole,
         options: Options = .init()
     ) {
         self.init(id, dataSources: dataSources, update: update, options: options)
@@ -50,7 +50,7 @@ where
     init(
         id: AnyHashable? = nil,
         dataSources: Source,
-        update: ListUpdate<SourceBase>,
+        update: ListUpdate<SourceBase>.Whole,
         options: Options = .init()
     ) {
         self.init(id, dataSources: dataSources, update: .diff, options: options)
@@ -68,7 +68,7 @@ where
     init(
         id: AnyHashable? = nil,
         dataSources: Source,
-        update: ListUpdate<SourceBase>,
+        update: ListUpdate<SourceBase>.Whole,
         options: Options = .init()
     ) {
         self.init(id, dataSources: dataSources, update: .diff, options: options)
@@ -87,7 +87,7 @@ where
     init(
         id: AnyHashable? = nil,
         dataSources: Source,
-        update: ListUpdate<SourceBase>,
+        update: ListUpdate<SourceBase>.Whole,
         options: Options = .init()
     ) {
         self.init(id, dataSources: dataSources, update: .diff, options: options)
@@ -107,7 +107,7 @@ where
     init(
         id: AnyHashable? = nil,
         dataSources: Source,
-        update: ListUpdate<SourceBase>,
+        update: ListUpdate<SourceBase>.Whole,
         options: Options = .init()
     ) {
         self.init(id, dataSources: dataSources, update: .diff, options: options)
@@ -127,7 +127,7 @@ where
     init(
         id: AnyHashable? = nil,
         dataSources: Source,
-        update: ListUpdate<SourceBase>,
+        update: ListUpdate<SourceBase>.Whole,
         options: Options = .init()
     ) {
         self.init(id, dataSources: dataSources, update: .diff, options: options)

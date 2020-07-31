@@ -28,7 +28,7 @@ where Source.SourceBase == Source {
         nonmutating set { storage.source = newValue }
     }
     
-    public var listUpdate: ListUpdate<SourceBase> { source.listUpdate }
+    public var listUpdate: ListUpdate<SourceBase>.Whole { source.listUpdate }
     public var listOptions: ListOptions<Source> { source.listOptions }
     
     public var listCoordinator: ListCoordinator<Source> { storage.listCoordinator }

@@ -22,7 +22,7 @@ public extension UpdatableDataSource {
     var currentSource: SourceBase.Source { listCoordinator.source }
     
     func perform(
-        _ update: Update<SourceBase>,
+        _ update: ListUpdate<SourceBase>,
         animated: Bool? = nil,
         completion: ((ListView, Bool) -> Void)? = nil
     ) {
@@ -32,19 +32,20 @@ public extension UpdatableDataSource {
         var coordinator: ListCoordinator<SourceBase>!
         var coordinatorUpdate: CoordinatorUpdate<SourceBase>?
         let work = {
-            if update.listUpdate != nil, update.source == nil {
-                update.source = self.sourceBase.source
+            if case let .whole(whole, nil) = update {
+                update = .whole(whole, self.sourceBase.source)
             }
             coordinator = self.listCoordinator
-            coordinatorUpdate = update.isRemove ? nil : coordinator.update(update)
+            update.source.map { Log.log("from \(currentSource)\n  to \($0)") }
+            coordinatorUpdate = coordinator.update(update)
             coordinator.currentCoordinatorUpdate = coordinatorUpdate
         }
-        let updateAnimated = animated ?? !coordinator.options.contains(.preferNoAnimation)
         if isMainThread {
             work()
         } else {
             DispatchQueue.main.sync(execute: work)
         }
+        let updateAnimated = animated ?? !coordinator.options.contains(.preferNoAnimation)
         var results = [(ListView, BatchUpdates)]()
         for context in coordinator.listContexts {
             guard let context = context.context else { return }
@@ -71,11 +72,11 @@ public extension UpdatableDataSource {
         to source: SourceBase.Source,
         completion: ((ListView, Bool) -> Void)? = nil
     ) {
-        perform(.init(listUpdate, source), animated: animated, completion: completion)
+        perform(.whole(listUpdate, source), animated: animated, completion: completion)
     }
     
     func performUpdate(animated: Bool? = nil, completion: ((ListView, Bool) -> Void)? = nil) {
-        perform(.init(listUpdate), animated: animated, completion: completion)
+        perform(.whole(listUpdate), animated: animated, completion: completion)
     }
 }
 

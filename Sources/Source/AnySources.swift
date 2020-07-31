@@ -13,7 +13,7 @@ public struct AnySources: DataSource {
     public let source: Any
     
     public let listOptions: ListOptions<AnySources>
-    public let listUpdate: ListUpdate<SourceBase>
+    public let listUpdate: ListUpdate<SourceBase>.Whole
     
     public var listCoordinator: ListCoordinator<Self> { coordinatorMaker(self) }
     

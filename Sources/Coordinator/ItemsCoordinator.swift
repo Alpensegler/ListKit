@@ -40,14 +40,14 @@ where
         let coordinator = coordinator as! ItemsCoordinator<SourceBase>
         return updateType.init(
             coordinator: self,
-            update: Update(differ, or: update),
+            update: ListUpdate(differ, or: update),
             values: (coordinator.items, items),
             sources: (coordinator.source, source),
             keepSectionIfEmpty: (coordinator.options.keepEmptySection, options.keepEmptySection)
         )
     }
     
-    override func update(_ update: Update<SourceBase>) -> CoordinatorUpdate<SourceBase> {
+    override func update(_ update: ListUpdate<SourceBase>) -> CoordinatorUpdate<SourceBase> {
         let sourcesAfterUpdate = update.source
         let itemsAfterUpdate = sourcesAfterUpdate.map(toItems)
         defer {

@@ -6,7 +6,7 @@
 //
 
 extension Sources where Source == Item {
-    init(_ id: AnyHashable?, item: Source, update: ListUpdate<SourceBase>, options: Options) {
+    init(_ id: AnyHashable?, item: Source, update: ListUpdate<SourceBase>.Whole, options: Options) {
         self.sourceValue = item
         self.listOptions = .init(id: id, options)
         self.listUpdate = update
@@ -18,7 +18,7 @@ public extension Sources where Source == Item {
     init(
         id: AnyHashable? = nil,
         item: Source,
-        update: ListUpdate<SourceBase>,
+        update: ListUpdate<SourceBase>.Whole,
         options: Options = .init()
     ) {
         self.init(id, item: item, update: update, options: options)

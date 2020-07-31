@@ -8,7 +8,7 @@
 public protocol DiffInitializableUpdate: DiffInitializable where Value == SourceBase.Item {
     associatedtype SourceBase: DataSource where SourceBase.SourceBase == SourceBase
     
-    init(_ listUpdate: ListUpdate<SourceBase>)
+    init(_ whole: ListUpdate<SourceBase>.Whole)
 }
 
 public extension DiffInitializableUpdate {

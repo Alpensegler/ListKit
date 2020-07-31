@@ -39,6 +39,9 @@ class IdentifiableSectionListViewController: ExampleViewController, UpdatableCol
     
     var source: [Room] {
         Room.random
+//        toggle
+//            ? [Room("A", ["Roy", "Jeremy"]), Room("B", ["Kubrick", "Jack"])]
+//            : [Room("A", ["Frain", "Jack"]), Room("B", ["Pinlin"])]
     }
     
     override func viewDidLoad() {
@@ -50,7 +53,7 @@ class IdentifiableSectionListViewController: ExampleViewController, UpdatableCol
     }
 }
 
-extension Room {
+extension Room: CustomStringConvertible {
     static let members = [
         "Roy", "Pinlin", "Frain", "Jack", "Cookie", "Kubrick", "Jeremy",
         "July", "Raynor", "Tonny", "Dooze", "Charlie", "Venry",
@@ -71,12 +74,20 @@ extension Room {
             let people = Bool.random() || Bool.random()
                 ? (0...Int.random(in: 0..<limit)).compactMap { _ in shuffled.popLast() }
                 : []
-            results.append(.init(name: name, people: people))
+            results.append(.init(name, people))
         }
         
         return results
             .sorted { $0.people.count > $1.people.count }
     }
+    
+    
+    init(_ name: String, _ people: [String]) {
+        self.name = name
+        self.people = people
+    }
+    
+    var description: String { "Room(\"\(name)\", \(people))" }
 }
 
 #if canImport(SwiftUI) && DEBUG

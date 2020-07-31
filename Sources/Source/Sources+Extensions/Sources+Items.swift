@@ -6,7 +6,7 @@
 //
 
 extension Sources where Source: Collection, Source.Element == Item {
-    init(_ id: AnyHashable?, items: Source, update: ListUpdate<SourceBase>, options: Options) {
+    init(_ id: AnyHashable?, items: Source, update: ListUpdate<SourceBase>.Whole, options: Options) {
         self.sourceValue = items
         self.listUpdate = update
         self.listOptions = .init(id: id, options)
@@ -15,7 +15,7 @@ extension Sources where Source: Collection, Source.Element == Item {
 }
 
 extension Sources where Source: RangeReplaceableCollection, Source.Element == Item {
-    init(_ id: AnyHashable? = nil, items: Source, update: ListUpdate<SourceBase>, options: Options) {
+    init(_ id: AnyHashable? = nil, items: Source, update: ListUpdate<SourceBase>.Whole, options: Options) {
         self.sourceValue = items
         self.listUpdate = update
         self.listOptions = .init(id: id, options)
@@ -27,7 +27,7 @@ public extension Sources where Source: Collection, Source.Element == Item {
     init(
         id: AnyHashable? = nil,
         items: Source,
-        update: ListUpdate<SourceBase>,
+        update: ListUpdate<SourceBase>.Whole,
         options: Options = .init()
     ) {
         self.init(id, items: items, update: update, options: options)
@@ -39,7 +39,7 @@ public extension Sources where Source: Collection, Source.Element == Item {
 }
 
 public extension Sources where Source: RangeReplaceableCollection, Source.Element == Item {
-    init(id: AnyHashable? = nil, items: Source, update: ListUpdate<SourceBase>, options: Options = .init()) {
+    init(id: AnyHashable? = nil, items: Source, update: ListUpdate<SourceBase>.Whole, options: Options = .init()) {
         self.init(id, items: items, update: update, options: options)
     }
     

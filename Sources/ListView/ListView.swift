@@ -9,7 +9,7 @@ import Foundation
 
 public protocol ListView: NSObject {
     func reloadSynchronously(animated: Bool)
-    func perform(update: () -> Void, animated: Bool, completion: ((Bool) -> Void)?)
+    func perform(_ update: () -> Void, animated: Bool, completion: ((Bool) -> Void)?)
     
     func insertItems(at indexPaths: [IndexPath])
     func deleteItems(at indexPaths: [IndexPath])
@@ -36,16 +36,12 @@ extension ListView {
         case let .batch(batchUpdates):
             for (offset, batchUpdate) in batchUpdates.enumerated() {
                 Log.log("------------------------------")
-                Log.log(batchUpdate.listDebugDescription)
+                Log.log(batchUpdate.description)
                 let isLast = offset == batchUpdates.count - 1
                 let completion: ((Bool) -> Void)? = isLast ? { [weak self] finish in
                     self.map { completion?($0, finish) }
                 } : nil
-                perform(update: {
-                    batchUpdate.change?()
-                    batchUpdate.update.source?.apply(by: self)
-                    batchUpdate.update.target?.apply(by: self)
-                }, animated: animated, completion: completion)
+                perform({ batchUpdate.apply(by: self) }, animated: animated, completion: completion)
             }
         }
     }

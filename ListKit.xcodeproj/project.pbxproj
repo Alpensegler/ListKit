@@ -30,11 +30,10 @@
 		F32E6CC724906D33008D6D97 /* NSCoordinatorUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F32E6CC624906D33008D6D97 /* NSCoordinatorUpdate.swift */; };
 		F32E6D2F24908A28008D6D97 /* ItemsCoordinatorUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F32E6D2E24908A28008D6D97 /* ItemsCoordinatorUpdate.swift */; };
 		F32E6E1724918B91008D6D97 /* Options.swift in Sources */ = {isa = PBXBuildFile; fileRef = F32E6E1624918B91008D6D97 /* Options.swift */; };
-		F331623624B467390086B7CE /* Update.swift in Sources */ = {isa = PBXBuildFile; fileRef = F331623524B467390086B7CE /* Update.swift */; };
+		F331623624B467390086B7CE /* ListUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F331623524B467390086B7CE /* ListUpdate.swift */; };
 		F331623824B467D20086B7CE /* DiffInitializableUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F331623724B467D20086B7CE /* DiffInitializableUpdate.swift */; };
 		F33FBC3D234F33A70054BA38 /* DataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F33FBC3C234F33A70054BA38 /* DataSource.swift */; };
 		F33FBC43234F3A600054BA38 /* Sources.swift in Sources */ = {isa = PBXBuildFile; fileRef = F33FBC42234F3A600054BA38 /* Sources.swift */; };
-		F35180BC23CC539400CB2F7A /* ListUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35180BB23CC539400CB2F7A /* ListUpdate.swift */; };
 		F351C40B248915EF00A75723 /* ValueRelated.swift in Sources */ = {isa = PBXBuildFile; fileRef = F351C40A248915EF00A75723 /* ValueRelated.swift */; };
 		F354B6F624C38A0C00E9D19B /* BatchUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F354B6F524C38A0C00E9D19B /* BatchUpdate.swift */; };
 		F35A67FF248F7DB700FEAC22 /* ListOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35A67FE248F7DB700FEAC22 /* ListOptions.swift */; };
@@ -93,6 +92,7 @@
 		F3AD00DD238BC2AF000AF1B3 /* Differ.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3AD00DC238BC2AF000AF1B3 /* Differ.swift */; };
 		F3AD013A238BE6FE000AF1B3 /* ItemsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3AD0139238BE6FE000AF1B3 /* ItemsCoordinator.swift */; };
 		F3AD0680238FF3DA000AF1B3 /* SourcesCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3AD067F238FF3DA000AF1B3 /* SourcesCoordinator.swift */; };
+		F3BDC78824CAAA50009F6272 /* BatchInitializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3BDC78724CAAA50009F6272 /* BatchInitializable.swift */; };
 		F3C2049024BAF1DE001E82C5 /* SourcesCoordinatorUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3C2048F24BAF1DE001E82C5 /* SourcesCoordinatorUpdate.swift */; };
 		F3C80B17248926C6005F6A5B /* CoordinatorUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3C80B16248926C6005F6A5B /* CoordinatorUpdate.swift */; };
 		F3C80B192489362E005F6A5B /* CoordinatorChange.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3C80B182489362E005F6A5B /* CoordinatorChange.swift */; };
@@ -165,12 +165,11 @@
 		F32E6CC624906D33008D6D97 /* NSCoordinatorUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSCoordinatorUpdate.swift; sourceTree = "<group>"; };
 		F32E6D2E24908A28008D6D97 /* ItemsCoordinatorUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemsCoordinatorUpdate.swift; sourceTree = "<group>"; };
 		F32E6E1624918B91008D6D97 /* Options.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Options.swift; sourceTree = "<group>"; };
-		F331623524B467390086B7CE /* Update.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Update.swift; sourceTree = "<group>"; };
+		F331623524B467390086B7CE /* ListUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListUpdate.swift; sourceTree = "<group>"; };
 		F331623724B467D20086B7CE /* DiffInitializableUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiffInitializableUpdate.swift; sourceTree = "<group>"; };
 		F33FBC3A234F26B60054BA38 /* ListKitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListKitTests.swift; sourceTree = "<group>"; };
 		F33FBC3C234F33A70054BA38 /* DataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSource.swift; sourceTree = "<group>"; };
 		F33FBC42234F3A600054BA38 /* Sources.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources.swift; sourceTree = "<group>"; };
-		F35180BB23CC539400CB2F7A /* ListUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListUpdate.swift; sourceTree = "<group>"; };
 		F351C40A248915EF00A75723 /* ValueRelated.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValueRelated.swift; sourceTree = "<group>"; };
 		F354B6F524C38A0C00E9D19B /* BatchUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatchUpdate.swift; sourceTree = "<group>"; };
 		F35A67FE248F7DB700FEAC22 /* ListOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListOptions.swift; sourceTree = "<group>"; };
@@ -230,6 +229,7 @@
 		F3AD00DC238BC2AF000AF1B3 /* Differ.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Differ.swift; sourceTree = "<group>"; };
 		F3AD0139238BE6FE000AF1B3 /* ItemsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemsCoordinator.swift; sourceTree = "<group>"; };
 		F3AD067F238FF3DA000AF1B3 /* SourcesCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourcesCoordinator.swift; sourceTree = "<group>"; };
+		F3BDC78724CAAA50009F6272 /* BatchInitializable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatchInitializable.swift; sourceTree = "<group>"; };
 		F3C2048F24BAF1DE001E82C5 /* SourcesCoordinatorUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourcesCoordinatorUpdate.swift; sourceTree = "<group>"; };
 		F3C80B16248926C6005F6A5B /* CoordinatorUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoordinatorUpdate.swift; sourceTree = "<group>"; };
 		F3C80B182489362E005F6A5B /* CoordinatorChange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoordinatorChange.swift; sourceTree = "<group>"; };
@@ -516,9 +516,9 @@
 		F398E1C024008725000A5637 /* DataSourceProperties */ = {
 			isa = PBXGroup;
 			children = (
-				F331623524B467390086B7CE /* Update.swift */,
-				F35180BB23CC539400CB2F7A /* ListUpdate.swift */,
+				F331623524B467390086B7CE /* ListUpdate.swift */,
 				F35A67FE248F7DB700FEAC22 /* ListOptions.swift */,
+				F3BDC78724CAAA50009F6272 /* BatchInitializable.swift */,
 				F398E1BE24008714000A5637 /* DiffInitializable.swift */,
 				F331623724B467D20086B7CE /* DiffInitializableUpdate.swift */,
 				F32E6E1624918B91008D6D97 /* Options.swift */,
@@ -780,8 +780,8 @@
 				F314FAE223BC71EA0060985E /* ListDelegate.swift in Sources */,
 				F3D787022399327200D7A5CD /* ListView+UITableView.swift in Sources */,
 				F39A23F623A16D1F0024F9AF /* CoreData+Extension.swift in Sources */,
-				F35180BC23CC539400CB2F7A /* ListUpdate.swift in Sources */,
-				F331623624B467390086B7CE /* Update.swift in Sources */,
+				F331623624B467390086B7CE /* ListUpdate.swift in Sources */,
+				F3BDC78824CAAA50009F6272 /* BatchInitializable.swift in Sources */,
 				F3AC673823D057450070B991 /* Sources+Item.swift in Sources */,
 				F32E6E1724918B91008D6D97 /* Options.swift in Sources */,
 				F329598323A10B7D001D6063 /* ListViewStorage+UIKit.swift in Sources */,

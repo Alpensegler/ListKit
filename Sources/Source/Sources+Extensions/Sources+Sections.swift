@@ -11,7 +11,7 @@ where
     Source.Element: Collection,
     Source.Element.Element == Item
 {
-    init(_ id: AnyHashable?, sections: Source, update: ListUpdate<SourceBase>, options: Options) {
+    init(_ id: AnyHashable?, sections: Source, update: ListUpdate<SourceBase>.Whole, options: Options) {
         self.sourceValue = sections
         self.listUpdate = update
         self.listOptions = .init(id: id, options)
@@ -25,7 +25,7 @@ where
     Source.Element: RangeReplaceableCollection,
     Source.Element.Element == Item
 {
-    init(_ id: AnyHashable?, sections: Source, update: ListUpdate<SourceBase>, options: Options) {
+    init(_ id: AnyHashable?, sections: Source, update: ListUpdate<SourceBase>.Whole, options: Options) {
         self.sourceValue = sections
         self.listUpdate = update
         self.listOptions = .init(id: id, options)
@@ -42,7 +42,7 @@ where
     init(
         id: AnyHashable? = nil,
         sections: Source,
-        update: ListUpdate<SourceBase>,
+        update: ListUpdate<SourceBase>.Whole,
         options: Options = .init()
     ) {
         self.init(id, sections: sections, update: update, options: options)
@@ -62,7 +62,7 @@ where
     init(
         id: AnyHashable? = nil,
         sections: Source,
-        update: ListUpdate<SourceBase>,
+        update: ListUpdate<SourceBase>.Whole,
         options: Options = .init()
     ) {
         self.init(id, sections: sections, update: update, options: options)

@@ -38,7 +38,7 @@ class CoordinatorChange<Value> {
         set { associated[id] = newValue.map(Unowned.init(change:)) }
     }
     
-    required init(_ value: Value, _ index: Int, moveAndReloadable: Bool) {
+    required init(_ value: Value, _ index: Int, moveAndReloadable: Bool = true) {
         self.value = value
         self.index = index
         self.state = .change(moveAndRelod: moveAndReloadable ? nil : false)

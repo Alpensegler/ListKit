@@ -18,7 +18,7 @@ final class ListDelegate: NSObject {
     func setCoordinator<SourceBase: DataSource>(
         coordinator: ListCoordinator<SourceBase>,
         setups: [(ListCoordinatorContext<SourceBase>) -> Void],
-        update: ListUpdate<SourceBase>?,
+        update: ListUpdate<SourceBase>.Whole?,
         animated: Bool,
         completion: ((Bool) -> Void)?
     ) {

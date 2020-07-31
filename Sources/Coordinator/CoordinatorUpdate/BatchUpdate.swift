@@ -12,14 +12,19 @@ protocol UpdateCollection {
     mutating func add(_ other: Self)
 }
 
-protocol ListViewApplyable {
+protocol ListViewApplyable: CustomStringConvertible, CustomDebugStringConvertible {
     var isEmpty: Bool { get }
+    var listDebugDescriptions: [String] { get }
     func apply(by listView: ListView)
 //    func apply(by )
-    func addListDebugDescription(to descriptions: inout [String])
 }
 
-protocol UpdateIndexCollection: UpdateCollection, Collection where Element: Hashable {
+extension ListViewApplyable {
+    var description: String { listDebugDescriptions.joined(separator: "\n") }
+    var debugDescription: String { description }
+}
+
+protocol UpdateIndexCollection: UpdateCollection, Collection where Element: ListIndex {
     static func insert(_ value: Self, by listView: ListView)
     static func delete(_ value: Self, by listView: ListView)
     static func reload(_ value: Self, by listView: ListView)
@@ -38,86 +43,123 @@ protocol IndexBatchUpdate: BatchUpdate {
     associatedtype Collection: UpdateIndexCollection
     
     var all: Collection { get set }
+    var isEmpty: Bool { get set }
 }
 
 enum BatchUpdates {
     struct Source<Collection: UpdateIndexCollection>: IndexBatchUpdate {
         var all = Collection()
-        private(set) var deletes = Collection()
-        var isEmpty: Bool { all.isEmpty }
+        var deletes = Collection()
+        var reloads = Collection()
+        var isEmpty = true
+        
+        init() { }
+        
+        init(move index: Element) {
+            all = .init(index)
+        }
         
         mutating func add(_ other: Self) {
             if !other.deletes.isEmpty { deletes.add(other.deletes) }
+            if !other.reloads.isEmpty { reloads.add(other.reloads) }
             if !other.all.isEmpty { all.add(other.all) }
+            isEmpty = isEmpty && other.isEmpty
         }
         
-        mutating func moveOrReload(_ index: Element) {
+        mutating func move(_ index: Element) {
             all.isEmpty ? all = .init(index) : all.add(index)
         }
         
-        mutating func moveOrReload(_ lower: Element, _ upper: Element) {
+        mutating func move(_ lower: Element, _ upper: Element) {
             all.isEmpty ? all = .init(lower, upper) : all.add(lower, upper)
         }
         
         func apply(by listView: ListView) {
-            if deletes.isEmpty { Collection.delete(deletes, by: listView) }
+            if !deletes.isEmpty { Collection.delete(deletes, by: listView) }
+            if !reloads.isEmpty { Collection.reload(reloads, by: listView) }
         }
         
-        func addListDebugDescription(to descriptions: inout [String]) {
-            if deletes.isEmpty { return }
-            descriptions.append("D \(deletes.map { "\($0)" }.joined(separator: " "))")
+        var listDebugDescriptions: [String] {
+            var descriptions = [String]()
+            if !deletes.isEmpty {
+                descriptions.append("D \(deletes.map { "\($0)" }.joined(separator: " "))")                
+            }
+            if !reloads.isEmpty {
+                descriptions.append("U \(reloads.map { "\($0)" }.joined(separator: " "))")
+            }
+            return descriptions
         }
     }
     
     struct Target<Collection: UpdateIndexCollection>: IndexBatchUpdate {
         var all = Collection()
-        private(set) var inserts = Collection()
-        private(set) var reloads = Collection()
-        private(set) var moves = [Mapping<Element>]()
+        var inserts = Collection()
+        var moves = [Mapping<Element>]()
         var moveDict = [Element: Element]()
+        var isEmpty = true
         
-        var isEmpty: Bool { all.isEmpty }
+        init() { }
+        
+        init(move index: Element, to newIndex: Element) {
+            all = .init(newIndex)
+            moves = [(index, newIndex)]
+            moveDict[newIndex] = index
+            guard index != newIndex else { return }
+            isEmpty = false
+        }
         
         mutating func move(_ index: Element, to newIndex: Element) {
             all.isEmpty ? all = .init(newIndex) : all.add(newIndex)
             moves.isEmpty ? moves = [(index, newIndex)] : moves.append((index, newIndex))
             moveDict[newIndex] = index
+            guard index != newIndex else { return }
+            isEmpty = false
         }
         
-        mutating func move(
-            from: (lower: Element, upper: Element),
-            to: (lower: Element, upper: Element)
-        ) {
-            all.isEmpty ? all = .init(to.lower, to.upper) : all.add(to.lower, to.upper)
-            let from = Collection(from.lower, from.upper), to = Collection(to.lower, to.upper)
+        mutating func move(_ lower: Mapping<Element>, _ upper: Mapping<Element>) {
+            all.isEmpty
+                ? all = .init(lower.target, upper.target)
+                : all.add(lower.target, upper.target)
+            let from = Collection(lower.source, upper.source)
+            let to = Collection(lower.target, upper.target)
             let movesZips: [Mapping<Element>] = zip(from, to).map { $0 }
             moves.isEmpty ? moves = movesZips : moves.append(contentsOf: movesZips)
             movesZips.forEach { moveDict[$0.target] = $0.source }
+            guard lower != upper else { return }
+            isEmpty = false
+        }
+        
+        mutating func reload(_ newIndex: Element) {
+            all.isEmpty ? all = .init(newIndex) : all.add(newIndex)
+            isEmpty = false
+        }
+        
+        mutating func reload(_ lower: Element, _ upper: Element) {
+            all.isEmpty ? all = .init(lower, upper) : all.add(lower, upper)
+            isEmpty = false
         }
         
         mutating func add(_ other: Self) {
             if !other.all.isEmpty { all.add(other.all) }
             if !other.inserts.isEmpty { inserts.add(other.inserts) }
-            if !other.reloads.isEmpty { reloads.add(other.reloads) }
             if !other.moves.isEmpty { moves += other.moves }
+            isEmpty = isEmpty && other.isEmpty
         }
         
         func apply(by listView: ListView) {
-            if inserts.isEmpty { Collection.insert(inserts, by: listView) }
-            if reloads.isEmpty { Collection.reload(reloads, by: listView) }
-            if moves.isEmpty { moves.forEach { Collection.move($0, by: listView)} }
+            if !inserts.isEmpty { Collection.insert(inserts, by: listView) }
+            if !moves.isEmpty { moves.forEach { Collection.move($0, by: listView)} }
         }
         
-        func addListDebugDescription(to descriptions: inout [String]) {
+        var listDebugDescriptions: [String] {
+            var descriptions = [String]()
             if !inserts.isEmpty {
                 descriptions.append("I \(inserts.map { "\($0)" }.joined(separator: " "))")
-            }
-            if !reloads.isEmpty {
-                descriptions.append("U \(reloads.map { "\($0)" }.joined(separator: " "))")
             }
             if !moves.isEmpty {
                 descriptions.append("M \(moves.map { "(\($0.source), \($0.target))" }.joined(separator: " "))")
             }
+            return descriptions
         }
     }
     
@@ -151,33 +193,43 @@ enum BatchUpdates {
             sectionValue?.apply(by: listView)
         }
         
-        func addListDebugDescription(to descriptions: inout [String]) {
-            if !sectionValue.isEmpty {
+        var listDebugDescriptions: [String] {
+            var descriptions = [String]()
+            if let sections = sectionValue?.listDebugDescriptions, !sections.isEmpty {
                 descriptions.append("Section:")
-                sectionValue?.addListDebugDescription(to: &descriptions)
+                descriptions += sections
             }
-            if !itemValue.isEmpty {
+            if let items = itemValue?.listDebugDescriptions, !items.isEmpty {
                 descriptions.append("Item:")
-                itemValue?.addListDebugDescription(to: &descriptions)
+                descriptions += items
             }
+            return descriptions
         }
     }
     
-    struct Batch {
+    struct Batch: ListViewApplyable {
         var update: Mapping<ListViewApplyable?>
         var change: (() -> Void)?
+        var isEmpty: Bool { false }
+            
         
-        var listDebugDescription: String {
+        var listDebugDescriptions: [String] {
             var descriptions = [String]()
-            if update.source?.isEmpty == false {
+            if let sources = update.source?.listDebugDescriptions, !sources.isEmpty {
                 descriptions.append("Source:")
-                update.source?.addListDebugDescription(to: &descriptions)
+                descriptions += sources
             }
-            if update.target?.isEmpty == false {
+            if let targets = update.target?.listDebugDescriptions, !targets.isEmpty {
                 descriptions.append("Target:")
-                update.target?.addListDebugDescription(to: &descriptions)
+                descriptions += targets
             }
-            return descriptions.joined(separator: "\n")
+            return descriptions
+        }
+        
+        func apply(by listView: ListView) {
+            change?()
+            update.source?.apply(by: listView)
+            update.target?.apply(by: listView)
         }
     }
 
@@ -212,38 +264,41 @@ extension Optional where Wrapped: UpdateCollection {
 }
 
 extension IndexBatchUpdate {
-    mutating func add(_ path: KeyPath<Self, Collection>, _ index: Element) {
-//        all.isEmpty ? all = .init(index) : all.add(index)
-//        self[keyPath: path].isEmpty
-//            ? self[keyPath: path] = .init(index)
-//            : self[keyPath: path].add(index)
+    mutating func add(_ path: WritableKeyPath<Self, Collection>, _ index: Element) {
+        all.isEmpty ? all = .init(index) : all.add(index)
+        self[keyPath: path].isEmpty
+            ? self[keyPath: path] = .init(index)
+            : self[keyPath: path].add(index)
+        isEmpty = false
     }
     
-    mutating func add(_ path: KeyPath<Self, Collection>, _ indices: Collection) {
-//        all.isEmpty ? all = indices : all.add(indices)
-//        self[keyPath: path].isEmpty
-//            ? self[keyPath: path] = indices
-//            : self[keyPath: path].add(indices)
+    mutating func add(_ path: WritableKeyPath<Self, Collection>, _ indices: Collection) {
+        all.isEmpty ? all = indices : all.add(indices)
+        self[keyPath: path].isEmpty
+            ? self[keyPath: path] = indices
+            : self[keyPath: path].add(indices)
+        isEmpty = false
     }
     
-    mutating func add(_ path: KeyPath<Self, Collection>, _ lower: Element, _ upper: Element) {
-//        all.isEmpty ? all = indices : all.add(indices)
-//        self[keyPath: path].isEmpty
-//            ? self[keyPath: path] = indices
-//            : self[keyPath: path].add(indices)
+    mutating func add(_ path: WritableKeyPath<Self, Collection>, _ lower: Element, _ upper: Element) {
+        all.isEmpty ? all = .init(lower, upper) : all.add(lower, upper)
+        self[keyPath: path].isEmpty
+            ? self[keyPath: path] = .init(lower, upper)
+            : self[keyPath: path].add(lower, upper)
+        isEmpty = false
     }
     
-    init(_ path: KeyPath<Self, Collection>, _ index: Element) {
+    init(_ path: WritableKeyPath<Self, Collection>, _ index: Element) {
         self.init()
         add(path, index)
     }
     
-    init(_ path: KeyPath<Self, Collection>, _ indices: Collection) {
+    init(_ path: WritableKeyPath<Self, Collection>, _ indices: Collection) {
         self.init()
         add(path, indices)
     }
     
-    init(_ path: KeyPath<Self, Collection>, _ lower: Element, _ upper: Element) {
+    init(_ path: WritableKeyPath<Self, Collection>, _ lower: Element, _ upper: Element) {
         self.init()
         add(path, lower, upper)
     }

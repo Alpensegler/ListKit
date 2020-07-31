@@ -17,7 +17,7 @@ public struct Sources<Source, Item>: UpdatableDataSource {
         nonmutating set { performUpdate(to: newValue) }
     }
     
-    public let listUpdate: ListUpdate<SourceBase>
+    public let listUpdate: ListUpdate<SourceBase>.Whole
     public var listOptions: ListOptions<Self>
     
     public var listCoordinator: ListCoordinator<Self> { coordinator(with: coordinatorMaker(self)) }

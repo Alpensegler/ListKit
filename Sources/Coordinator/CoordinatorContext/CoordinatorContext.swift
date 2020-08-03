@@ -13,6 +13,8 @@ protocol CoordinatorContext: AnyObject {
     #endif
     
     var selectorSets: SelectorSets { get }
+    var itemCaches: [AnyHashable: Any] { get set }
+    var itemNestedCache: [AnyHashable: (Any) -> Void] { get set }
     
     func isCoordinator<SourceBase>(_ coordinator: ListCoordinator<SourceBase>) -> Bool
     
@@ -36,6 +38,8 @@ protocol CoordinatorContext: AnyObject {
         _ sectionOffset: Int,
         _ itemOffset: Int
     )
+    
+    func perform(updates: BatchUpdates, animated: Bool, completion: ((ListView, Bool) -> Void)?)
 }
 
 extension CoordinatorContext {

@@ -23,7 +23,7 @@ public extension ListIndexContext where Index == IndexPath {
             completion: completion
         )
         var coordinator = list.listCoordinator
-        setNestedCache(with: keyPath) { [weak collectionView] sourceBase in
+        setNestedCache { [weak collectionView] sourceBase in
             guard let sourceBase = sourceBase as? SourceBase.Item,
                   let collectionView = collectionView,
                   collectionView.isCoordinator(coordinator)
@@ -50,7 +50,7 @@ public extension ListIndexContext where Index == IndexPath {
             completion: completion
         )
         var coordinator = list.listCoordinator
-        setNestedCache(with: keyPath) { [weak tableView] sourceBase in
+        setNestedCache { [weak tableView] sourceBase in
             guard let sourceBase = sourceBase as? SourceBase.Item,
                   let tableView = tableView,
                   tableView.isCoordinator(coordinator)

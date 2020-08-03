@@ -13,11 +13,7 @@ public extension TableListAdapter {
         withCacheFromItem cacheFromItem: @escaping (Item) -> Cache,
         toTableList: (Self, @escaping (TableItemContext) -> Cache) -> TableList<SourceBase>
     ) -> TableList<SourceBase> {
-        let key = ObjectIdentifier(Cache.self)
-        let tableList = toTableList(self)  { $0.cacheForItem(key) as! Cache }
-        var setups = tableList.listContextSetups
-        setups.append { $0.cacheFromItem = cacheFromItem }
-        return .init(listContextSetups: setups, source: tableList.source)
+        toTableList(self) { $0.itemCache(or: cacheFromItem) }
     }
 }
 
@@ -26,11 +22,7 @@ public extension CollectionListAdapter {
         withCacheFromItem cacheFromItem: @escaping (Item) -> Cache,
         toCollectionList: (Self, @escaping (CollectionItemContext) -> Cache) -> CollectionList<SourceBase>
     ) -> CollectionList<SourceBase> {
-        let key = ObjectIdentifier(Cache.self)
-        let collectionList = toCollectionList(self) { $0.cacheForItem(key) as! Cache }
-        var setups = collectionList.listContextSetups
-        setups.append { $0.cacheFromItem = cacheFromItem }
-        return .init(listContextSetups: setups, source: collectionList.source)
+        toCollectionList(self) { $0.itemCache(or: cacheFromItem) }
     }
 }
 

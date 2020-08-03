@@ -19,26 +19,24 @@ where SourceBase.SourceBase == SourceBase {
     lazy var tableListDelegate = UITableListDelegate()
     #endif
     
-    lazy var selectorSets = initialSelectorSets()
+    var hasItemCaches = false
+    var hasNestedCaches = false
     
-    var cacheFromItem: ((SourceBase.Item) -> Any)?
-    var hasCaches = false
-    lazy var caches: ContiguousArray<ContiguousArray<RelatedCache>> = {
-        hasCaches = true
-        return getCaches
+    lazy var selectorSets = initialSelectorSets()
+    lazy var itemCaches: [AnyHashable: Any] = {
+        hasItemCaches = true
+        return .init()
     }()
     
-    var getCaches: ContiguousArray<ContiguousArray<RelatedCache>> {
-        if coordinator.isEmpty { return .init() }
-        return (0..<numbersOfSections()).mapContiguous {
-            (0..<numbersOfItems(in: $0)).mapContiguous { _ in .init() }
-        }
-    }
+    lazy var itemNestedCache: [AnyHashable: (Any) -> Void] = {
+        hasNestedCaches = true
+        return .init()
+    }()
     
     var index = 0
     var isSectioned = true
     var listViewGetter: ((ListCoordinator<SourceBase>) -> ListView?)?
-    var parentUpdate: ((CoordinatorUpdate<SourceBase>?, Int) -> [(ListView, BatchUpdates)])?
+    var parentUpdate: ((CoordinatorUpdate<SourceBase>?, Int) -> [(CoordinatorContext, BatchUpdates)])?
     
     var listView: ListView? { listViewGetter?(coordinator) }
     
@@ -78,6 +76,29 @@ where SourceBase.SourceBase == SourceBase {
         _ itemOffset: Int
     ) {
         self[keyPath: keyPath].closure?(object, input, root, sectionOffset, itemOffset)
+    }
+    
+    func perform(updates: BatchUpdates, animated: Bool, completion: ((ListView, Bool) -> Void)?) {
+        guard let list = listView else { return }
+        switch updates {
+        case let .reload(change: change):
+            change?()
+            list.reloadSynchronously(animated: animated)
+            completion?(list, true)
+        case let .batch(batchUpdates):
+            for (offset, batchUpdate) in batchUpdates.enumerated() {
+                Log.log("------------------------------")
+                Log.log(batchUpdate.description)
+                let isLast = offset == batchUpdates.count - 1
+                let completion: ((Bool) -> Void)? = isLast ? { [weak list] finish in
+                    list.map { completion?($0, finish) }
+                } : nil
+                list.perform({
+                    if hasItemCaches { batchUpdate.apply(by: &itemCaches) }
+                    batchUpdate.apply(by: list)
+                }, animated: animated, completion: completion)
+            }
+        }
     }
 }
 

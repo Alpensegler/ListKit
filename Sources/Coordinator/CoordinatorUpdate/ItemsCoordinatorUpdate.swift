@@ -8,20 +8,26 @@
 import Foundation
 
 class ItemsCoordinatorUpdate<SourceBase: DataSource>:
-    DiffableCoordinatgorUpdate<SourceBase, SourceBase.Source, SourceBase.Item, CoordinatorChange<SourceBase.Item>, CoordinatorChange<SourceBase.Item>>
+    DiffableCoordinatgorUpdate<
+        SourceBase,
+        SourceBase.Source,
+        SourceBase.Item,
+        CoordinatorUpdate.Change<SourceBase.Item>,
+        CoordinatorUpdate.Change<SourceBase.Item>
+    >
 where
     SourceBase.SourceBase == SourceBase,
     SourceBase.Source: Collection,
     SourceBase.Item == SourceBase.Source.Element
 {
     typealias Source = SourceBase.Source
-    typealias Change = CoordinatorChange<SourceBase.Item>
+    typealias Change = CoordinatorUpdate.Change<SourceBase.Item>
     
     weak var coordinator: ItemsCoordinator<SourceBase>?
     
-    lazy var extraSources = UpdateContextCache(value: nil as Source?)
-    lazy var extraValues = UpdateContextCache(value: ContiguousArray<Item>())
-    lazy var extraChanges = UpdateContextCache(value: ([], []) as Mapping<ContiguousArray<Change>>)
+    lazy var extraSources = Cache(value: nil as Source?)
+    lazy var extraValues = Cache(value: ContiguousArray<Item>())
+    lazy var extraChanges = Cache(value: ([], []) as Mapping<ContiguousArray<Change>>)
     
     override var equaltable: Bool { differ?.areEquivalent != nil }
     override var identifiable: Bool { differ?.identifier != nil }

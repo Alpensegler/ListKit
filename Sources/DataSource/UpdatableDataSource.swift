@@ -30,7 +30,7 @@ public extension UpdatableDataSource {
         let isMainThread = Thread.isMainThread
         var update = update
         var coordinator: ListCoordinator<SourceBase>!
-        var coordinatorUpdate: CoordinatorUpdate<SourceBase>?
+        var coordinatorUpdate: ListCoordinatorUpdate<SourceBase>?
         let work = {
             if case let .whole(whole, nil) = update {
                 update = .whole(whole, self.sourceBase.source)

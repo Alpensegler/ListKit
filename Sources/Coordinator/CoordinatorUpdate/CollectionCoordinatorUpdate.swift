@@ -7,21 +7,21 @@
 
 import Foundation
 
-class CollectionCoordinatorUpdate<SourceBase, Source, Value, CoordinatorChange, Change>:
-    CoordinatorUpdate<SourceBase>
+class CollectionCoordinatorUpdate<SourceBase, Source, Value, Change, DifferenceChange>:
+    ListCoordinatorUpdate<SourceBase>
 where
     SourceBase: DataSource,
     SourceBase.SourceBase == SourceBase,
     Source: Collection,
-    CoordinatorChange: ListKit.CoordinatorChange<Value>
+    Change: CoordinatorUpdate.Change<Value>
 {
     typealias Element = Source.Element
     typealias Values = Mapping<ContiguousArray<Value>>
-    typealias Changes = Mapping<ContiguousArray<ChangeOrUnchanged>>
-    typealias CoordinatorChanges = Mapping<ContiguousArray<CoordinatorChange>>
+    typealias Differences = Mapping<ContiguousArray<Difference>>
+    typealias CoordinatorChanges = Mapping<ContiguousArray<Change>>
     
-    enum ChangeOrUnchanged {
-        case change(Change)
+    enum Difference {
+        case change(DifferenceChange)
         case unchanged(from: Mapping<Int>, to: Mapping<Int>)
     }
     
@@ -29,8 +29,8 @@ where
     var keepSectionIfEmpty = (source: false, target: false)
     
     var changeIndices: Mapping<IndexSet> = (.init(), .init())
-    var changeDict: Mapping<[Int: CoordinatorChange]> = ([:], [:])
-    var updateDict = [Int: (change: CoordinatorChange, value: Value)]()
+    var changeDict: Mapping<[Int: Change]> = ([:], [:])
+    var updateDict = [Int: (change: Change, value: Value)]()
     
     lazy var changes = hasBatchUpdate ? configChangesForBatchUpdates() : configChangesForDiff()
     lazy var sourceCount = getSourceCount()
@@ -67,18 +67,18 @@ where
     
     func toCount(_ value: Value) -> Int { 1 }
     func toValue(_ element: Element) -> Value { fatalError("should be implemented by subclass") }
-    func updateSource(with changes: Changes) { fatalError("should be implemented by subclass") }
-    func configChangesForDiff() -> Changes { fatalError("should be implemented by subclass") }
+    func updateSource(with changes: Differences) { fatalError("should be implemented by subclass") }
+    func configChangesForDiff() -> Differences { fatalError("should be implemented by subclass") }
     
-    func toChange(_ change: CoordinatorChange, _ isSource: Bool) -> Change {
+    func toChange(_ change: Change, _ isSource: Bool) -> DifferenceChange {
         fatalError("should be implemented by subclass")
     }
     
-    func append(change: CoordinatorChange, isSource: Bool, to changes: inout Changes) {
+    func append(change: Change, isSource: Bool, to changes: inout Differences) {
         changes[keyPath: path(isSource)].append(.change(toChange(change, isSource)))
     }
     
-    override func configChangeType() -> UpdateChangeType {
+    override func configChangeType() -> ChangeType {
         switch (update?.way, sourceIsEmpty, targetIsEmpty) {
         case (.insert, _, true), (.remove, true, _), (_, true, true): return .none
         case (.remove, _, _), (_, false, true): return .remove(itemsOnly: itemsOnly(true))
@@ -107,7 +107,7 @@ extension CollectionCoordinatorUpdate {
         isSectioned && (isSource ? keepSectionIfEmpty.source : keepSectionIfEmpty.target)
     }
     
-    func appendBoth(from: Mapping<Int>, to: Mapping<Int>, to changes: inout Changes) {
+    func appendBoth(from: Mapping<Int>, to: Mapping<Int>, to changes: inout Differences) {
         changes.source.append(.unchanged(from: from, to: to))
         changes.target.append(.unchanged(from: from, to: to))
     }
@@ -115,9 +115,9 @@ extension CollectionCoordinatorUpdate {
     func enumerate(
         from: Mapping<Int>,
         to: Mapping<Int>,
-        changes: Changes,
-        consume: (Mapping<Int>, inout Changes) -> Bool
-    ) -> Changes {
+        changes: Differences,
+        consume: (Mapping<Int>, inout Differences) -> Bool
+    ) -> Differences {
         var changes = changes
         var lastSource = from.source, lastTarget = from.target
         for (s, t) in zip(from.source..<to.source, from.target..<to.target) {
@@ -130,11 +130,11 @@ extension CollectionCoordinatorUpdate {
         return changes
     }
     
-    func configChangesForBatchUpdates() -> Mapping<ContiguousArray<ChangeOrUnchanged>> {
+    func configChangesForBatchUpdates() -> Mapping<ContiguousArray<Difference>> {
         var changes: CoordinatorChanges = ([], [])
         changeIndices.source.forEach { changeDict.source[$0].map { changes.source.append($0) } }
         changeIndices.target.forEach { changeDict.target[$0].map { changes.target.append($0) } }
-        var result: Mapping<ContiguousArray<ChangeOrUnchanged>> = (.init(), .init())
+        var result: Mapping<ContiguousArray<Difference>> = (.init(), .init())
         enumerateChangesWithOffset(changes: changes, body: { (isSource, change) in
             append(change: change, isSource: isSource, to: &result)
         }, offset: { (from, to) in
@@ -143,7 +143,7 @@ extension CollectionCoordinatorUpdate {
             } else {
                 result = enumerate(from: from, to: to, changes: result) { (i, changes) -> Bool in
                     guard let (source, value) = updateDict[i.source] else { return false }
-                    let target = CoordinatorChange(value, i.target)
+                    let target = Change(value, i.target)
                     (source[nil], target[nil]) = (target, source)
                     (source.state, target.state) = (.reload, .reload)
                     
@@ -195,12 +195,12 @@ extension CollectionCoordinatorUpdate {
 }
 
 extension CollectionCoordinatorUpdate {
-    func enumerateChanges(changes: CoordinatorChanges, _ body: (Bool, CoordinatorChange) -> Void) {
+    func enumerateChanges(changes: CoordinatorChanges, _ body: (Bool, Change) -> Void) {
         let total: Mapping = (changes.source.count, changes.target.count)
         var enumerated: Mapping = (0, 0)
         
         while enumerated.source < total.source || enumerated.target < total.target {
-            let change: CoordinatorChange, isSoure: Bool
+            let change: Change, isSoure: Bool
             if enumerated.source < total.source && enumerated.target < total.target {
                 let removeOffset = changes.source[enumerated.source].index
                 let insertOffset = changes.target[enumerated.target].index
@@ -226,7 +226,7 @@ extension CollectionCoordinatorUpdate {
     
     func enumerateChangesWithOffset(
         changes: CoordinatorChanges,
-        body: (Bool, CoordinatorChange) -> Void,
+        body: (Bool, Change) -> Void,
         offset: (Mapping<Int>, Mapping<Int>) -> Void
     ) {
         var enumerated: Mapping = (0, 0)
@@ -263,7 +263,7 @@ extension CollectionCoordinatorUpdate {
     }
     
     func enumerate<Collection: RangeReplaceableCollection>(
-        change: CoordinatorChange,
+        change: Change,
         in value: Collection,
         index: inout Collection.Index,
         enumeratedOriginals: inout Int
@@ -277,7 +277,7 @@ extension CollectionCoordinatorUpdate {
     }
     
     func enumerate<Collection: RangeReplaceableCollection>(
-        change: CoordinatorChange,
+        change: Change,
         in value: Collection,
         index: inout Collection.Index,
         enumeratedOriginals: inout Int,
@@ -344,15 +344,15 @@ where SourceBase.Source: RangeReplaceableCollection, SourceBase.Source == Source
     }
     
     func update(_ element: Element, at index: Int) {
-        let sourceChange = CoordinatorChange(values.source[index], index)
+        let sourceChange = Change(values.source[index], index)
         updateDict[index] = (sourceChange, toValue(element))
     }
     
     func move(at index: Int, to newIndex: Int) {
         changeIndices.source.insert(index)
         changeIndices.target.insert(newIndex)
-        let sourceChange = CoordinatorChange(values.source[index], index)
-        let targetChange = CoordinatorChange(values.source[index], newIndex)
+        let sourceChange = Change(values.source[index], index)
+        let targetChange = Change(values.source[index], newIndex)
         (sourceChange[nil], targetChange[nil]) = (targetChange, sourceChange)
         (changeDict.source[index], changeDict.target[newIndex]) = (sourceChange, targetChange)
     }

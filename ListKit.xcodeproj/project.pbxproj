@@ -39,6 +39,8 @@
 		F35A67FF248F7DB700FEAC22 /* ListOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35A67FE248F7DB700FEAC22 /* ListOptions.swift */; };
 		F35BBA05239FD0EA0024EA7D /* TableListAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35BBA04239FD0EA0024EA7D /* TableListAdapter.swift */; };
 		F35BBA07239FD1600024EA7D /* TableListAdapter+UIKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35BBA06239FD1600024EA7D /* TableListAdapter+UIKit.swift */; };
+		F363E3EE24D817FB00AE4BAB /* ItemCoordinatorUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F363E3ED24D817FB00AE4BAB /* ItemCoordinatorUpdate.swift */; };
+		F363E45624D83B3A00AE4BAB /* ListCoordinatorUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F363E45524D83B3A00AE4BAB /* ListCoordinatorUpdate.swift */; };
 		F365501A2451B4060038172F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F36550192451B4060038172F /* AppDelegate.swift */; };
 		F36550232451B4070038172F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F36550222451B4070038172F /* Assets.xcassets */; };
 		F36550262451B4070038172F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F36550242451B4070038172F /* LaunchScreen.storyboard */; };
@@ -50,7 +52,6 @@
 		F365503A2451B6B20038172F /* ExampleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F36550392451B6B20038172F /* ExampleViewController.swift */; };
 		F365503E2451B78B0038172F /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F365503D2451B78B0038172F /* Default-568h@2x.png */; };
 		F36550402451BA2D0038172F /* ContentsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F365503F2451BA2D0038172F /* ContentsViewController.swift */; };
-		F366F3A424ACCA8C00F2E5C1 /* UpdateContextCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = F366F3A324ACCA8C00F2E5C1 /* UpdateContextCache.swift */; };
 		F366F40C24ADF4B100F2E5C1 /* DiffableCoordinatgorUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F366F40B24ADF4B100F2E5C1 /* DiffableCoordinatgorUpdate.swift */; };
 		F368F05C247E2DE900CE2B8B /* IdentifiableSectionListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F368F05B247E2DE900CE2B8B /* IdentifiableSectionListViewController.swift */; };
 		F372F6E4248E51B3001B42D5 /* CoordinatorContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = F372F6E3248E51B3001B42D5 /* CoordinatorContext.swift */; };
@@ -92,7 +93,6 @@
 		F3BDC78824CAAA50009F6272 /* BatchInitializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3BDC78724CAAA50009F6272 /* BatchInitializable.swift */; };
 		F3C2049024BAF1DE001E82C5 /* SourcesCoordinatorUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3C2048F24BAF1DE001E82C5 /* SourcesCoordinatorUpdate.swift */; };
 		F3C80B17248926C6005F6A5B /* CoordinatorUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3C80B16248926C6005F6A5B /* CoordinatorUpdate.swift */; };
-		F3C80B192489362E005F6A5B /* CoordinatorChange.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3C80B182489362E005F6A5B /* CoordinatorChange.swift */; };
 		F3C9537E23A0F1440015049A /* AnySourcesBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3C9537D23A0F1440015049A /* AnySourcesBuilder.swift */; };
 		F3C9538023A0F7A10015049A /* AnySources.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3C9537F23A0F7A10015049A /* AnySources.swift */; };
 		F3D785C82398FC5B00D7A5CD /* UpdatableDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3D785C72398FC5B00D7A5CD /* UpdatableDataSource.swift */; };
@@ -170,6 +170,8 @@
 		F35A67FE248F7DB700FEAC22 /* ListOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListOptions.swift; sourceTree = "<group>"; };
 		F35BBA04239FD0EA0024EA7D /* TableListAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableListAdapter.swift; sourceTree = "<group>"; };
 		F35BBA06239FD1600024EA7D /* TableListAdapter+UIKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TableListAdapter+UIKit.swift"; sourceTree = "<group>"; };
+		F363E3ED24D817FB00AE4BAB /* ItemCoordinatorUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemCoordinatorUpdate.swift; sourceTree = "<group>"; };
+		F363E45524D83B3A00AE4BAB /* ListCoordinatorUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListCoordinatorUpdate.swift; sourceTree = "<group>"; };
 		F36550172451B4060038172F /* ListKitExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ListKitExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F36550192451B4060038172F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		F36550222451B4070038172F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -181,7 +183,6 @@
 		F36550392451B6B20038172F /* ExampleViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExampleViewController.swift; sourceTree = "<group>"; };
 		F365503D2451B78B0038172F /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		F365503F2451BA2D0038172F /* ContentsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ContentsViewController.swift; path = ListKitExample/ContentsViewController.swift; sourceTree = SOURCE_ROOT; };
-		F366F3A324ACCA8C00F2E5C1 /* UpdateContextCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateContextCache.swift; sourceTree = "<group>"; };
 		F366F40B24ADF4B100F2E5C1 /* DiffableCoordinatgorUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiffableCoordinatgorUpdate.swift; sourceTree = "<group>"; };
 		F368F05B247E2DE900CE2B8B /* IdentifiableSectionListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdentifiableSectionListViewController.swift; sourceTree = "<group>"; };
 		F372F6E3248E51B3001B42D5 /* CoordinatorContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoordinatorContext.swift; sourceTree = "<group>"; };
@@ -224,7 +225,6 @@
 		F3BDC78724CAAA50009F6272 /* BatchInitializable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatchInitializable.swift; sourceTree = "<group>"; };
 		F3C2048F24BAF1DE001E82C5 /* SourcesCoordinatorUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourcesCoordinatorUpdate.swift; sourceTree = "<group>"; };
 		F3C80B16248926C6005F6A5B /* CoordinatorUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoordinatorUpdate.swift; sourceTree = "<group>"; };
-		F3C80B182489362E005F6A5B /* CoordinatorChange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoordinatorChange.swift; sourceTree = "<group>"; };
 		F3C9537D23A0F1440015049A /* AnySourcesBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnySourcesBuilder.swift; sourceTree = "<group>"; };
 		F3C9537F23A0F7A10015049A /* AnySources.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnySources.swift; sourceTree = "<group>"; };
 		F3D785C72398FC5B00D7A5CD /* UpdatableDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdatableDataSource.swift; sourceTree = "<group>"; };
@@ -530,11 +530,11 @@
 			isa = PBXGroup;
 			children = (
 				F354B6F524C38A0C00E9D19B /* BatchUpdate.swift */,
-				F366F3A324ACCA8C00F2E5C1 /* UpdateContextCache.swift */,
-				F3C80B182489362E005F6A5B /* CoordinatorChange.swift */,
 				F3C80B16248926C6005F6A5B /* CoordinatorUpdate.swift */,
+				F363E45524D83B3A00AE4BAB /* ListCoordinatorUpdate.swift */,
 				F3F349E724BC6A4700D38D16 /* CollectionCoordinatorUpdate.swift */,
 				F366F40B24ADF4B100F2E5C1 /* DiffableCoordinatgorUpdate.swift */,
+				F363E3ED24D817FB00AE4BAB /* ItemCoordinatorUpdate.swift */,
 				F32E6D2E24908A28008D6D97 /* ItemsCoordinatorUpdate.swift */,
 				F3DC96CC24BEDC2900861274 /* SectionsCoordinatorUpdate.swift */,
 				F3C2048F24BAF1DE001E82C5 /* SourcesCoordinatorUpdate.swift */,
@@ -745,7 +745,6 @@
 				F35BBA05239FD0EA0024EA7D /* TableListAdapter.swift in Sources */,
 				F3AD013A238BE6FE000AF1B3 /* ItemsCoordinator.swift in Sources */,
 				F3A4933823A6A95700809E7F /* ListAdapter.swift in Sources */,
-				F3C80B192489362E005F6A5B /* CoordinatorChange.swift in Sources */,
 				F372F6E8248E79F6001B42D5 /* WrapperCoordinatorContext.swift in Sources */,
 				F354B6F624C38A0C00E9D19B /* BatchUpdate.swift in Sources */,
 				F3A4941023A8E68900809E7F /* DataSource+SourcesCoordinator.swift in Sources */,
@@ -754,7 +753,7 @@
 				F32E6CC724906D33008D6D97 /* NSCoordinatorUpdate.swift in Sources */,
 				F37DD4E323A190AE00689CAD /* TableListAdapter+Source.swift in Sources */,
 				F3EB15DC23A2ED1900C9AC5E /* ListAdapters+ListAdapters.swift in Sources */,
-				F366F3A424ACCA8C00F2E5C1 /* UpdateContextCache.swift in Sources */,
+				F363E3EE24D817FB00AE4BAB /* ItemCoordinatorUpdate.swift in Sources */,
 				F3A4940C23A8E65100809E7F /* DataSource+SectionsCoordinator.swift in Sources */,
 				F3EB15DA23A2CF8D00C9AC5E /* Optional+Extension.swift in Sources */,
 				F304A6E3239E95ED00133D14 /* ListView+NSTableView.swift in Sources */,
@@ -798,6 +797,7 @@
 				F3AC673E23D057990070B991 /* Sources+Sources.swift in Sources */,
 				F372F6E6248E52E9001B42D5 /* ListCoordinatorContext.swift in Sources */,
 				F383064423506BAC00AE8B97 /* Differing.swift in Sources */,
+				F363E45624D83B3A00AE4BAB /* ListCoordinatorUpdate.swift in Sources */,
 				F3AC673A23D0574E0070B991 /* Sources+Items.swift in Sources */,
 				F3AD0680238FF3DA000AF1B3 /* SourcesCoordinator.swift in Sources */,
 				F37BF3CA239686470095C419 /* ItemCoordinator.swift in Sources */,

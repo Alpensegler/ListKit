@@ -12,7 +12,7 @@ class DiffableCoordinatgorUpdate<SourceBase: DataSource, Source, Value, Coordina
 where
     SourceBase.SourceBase == SourceBase,
     Source: Collection,
-    CoordinatorChange: ListKit.CoordinatorChange<Value>
+    CoordinatorChange: CoordinatorUpdate.Change<Value>
 {
     typealias Dicts<T> = Mapping<[AnyHashable: T?]>
     
@@ -33,17 +33,17 @@ where
     
     func configChangeAssociated(
         for mapping: Mapping<CoordinatorChange>,
-        context: (context: CoordinatorUpdateContext, id: ObjectIdentifier)?
+        context: ContextAndID?
     ) {
         
     }
     
-    func append(from: Mapping<Int>, to: Mapping<Int>, to changes: inout Changes) {
+    func append(from: Mapping<Int>, to: Mapping<Int>, to changes: inout Differences) {
         appendBoth(from: from, to: to, to: &changes)
     }
     
-    override func configChangesForDiff() -> Changes {
-        func mappingTo(isSource: Bool) -> ContiguousArray<ChangeOrUnchanged> {
+    override func configChangesForDiff() -> Differences {
+        func mappingTo(isSource: Bool) -> ContiguousArray<Difference> {
             var index = 0
             return values[keyPath: path(isSource)].mapContiguous {
                 defer { index += 1 }
@@ -64,7 +64,7 @@ where
         
         if identifiable { apply(changes, context: nil, dict: &dict) { $0 } }
         
-        var result: Changes = (.init(), .init())
+        var result: Differences = (.init(), .init())
         
         enumerateChangesWithOffset(changes: changes, body: { (isSource, change) in
             append(change: change, isSource: isSource, to: &result)
@@ -75,7 +75,7 @@ where
         return result
     }
     
-    override func inferringMoves(context: Context? = nil) {
+    override func inferringMoves(context: ContextAndID? = nil) {
         guard let context = context else { return }
         let mapping = uniqueMapping
         let value = context.context
@@ -167,7 +167,7 @@ extension DiffableCoordinatgorUpdate {
     
     func apply<T, C: Collection>(
         _ changes: Mapping<C>,
-        context: (context: CoordinatorUpdateContext, id: ObjectIdentifier)?,
+        context: ContextAndID?,
         dict: inout Dicts<T>,
         toChange: (T) -> CoordinatorChange?
     ) where C.Element == CoordinatorChange {
@@ -201,8 +201,8 @@ extension DiffableCoordinatgorUpdate {
         context: UpdateContext<Offset>? = nil,
         enumrateChange: (CoordinatorChange) -> Void,
         deleteOrInsert: (CoordinatorChange) -> Void,
-        reload: (CoordinatorChange, ListKit.CoordinatorChange<Value>) -> Void,
-        move: (CoordinatorChange, ListKit.CoordinatorChange<Value>, Bool) -> Void
+        reload: (CoordinatorChange, CoordinatorUpdate.Change<Value>) -> Void,
+        move: (CoordinatorChange, CoordinatorUpdate.Change<Value>, Bool) -> Void
     ) {
         enumrateChange(change)
         switch (change.state, change[context?.id]) {

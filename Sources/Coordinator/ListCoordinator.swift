@@ -22,7 +22,7 @@ public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase
     var source: SourceBase.Source!
     
     weak var storage: CoordinatorStorage<SourceBase>?
-    weak var currentCoordinatorUpdate: CoordinatorUpdate<SourceBase>?
+    weak var currentCoordinatorUpdate: ListCoordinatorUpdate<SourceBase>?
     var listContexts = [WeakContext]()
     
     lazy var sectioned = isSectioned()
@@ -80,11 +80,11 @@ public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase
     func update(
         from coordinator: ListCoordinator<SourceBase>,
         differ: Differ<Item>?
-    ) -> CoordinatorUpdate<SourceBase> {
+    ) -> ListCoordinatorUpdate<SourceBase> {
         fatalError("should be implemented by subclass")
     }
     
-    func update(_ update: ListUpdate<SourceBase>) -> CoordinatorUpdate<SourceBase> {
+    func update(_ update: ListUpdate<SourceBase>) -> ListCoordinatorUpdate<SourceBase> {
         fatalError("should be implemented by subclass")
     }
 }

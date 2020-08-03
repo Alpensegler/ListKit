@@ -7,36 +7,38 @@
 
 import Foundation
 
-final class SourcesCoordinatorChange<SourceBase: DataSource, Source: RangeReplaceableCollection>:
-    CoordinatorChange<SourceElement<Source.Element>>
-where
-    SourceBase.SourceBase == SourceBase,
-    Source.Element: DataSource,
-    Source.Element.SourceBase.Item == SourceBase.Item
-{
-    typealias Subupdate = CoordinatorUpdate<Source.Element.SourceBase>
-    
-    var update = UpdateContextCache(value: nil as CoordinatorUpdate<Source.Element.SourceBase>?)
-    
-    func update(_ isSource: Bool, _ id: ObjectIdentifier?) -> Subupdate {
-        self.update[id] ?? {
-            let update = value.coordinator.update(isSource ? .remove : .insert)
-            self.update[nil] = update
-            return update
-        }()
+extension CoordinatorUpdate {
+    final class SourcesChange<SourceBase: DataSource, Source: RangeReplaceableCollection>:
+        Change<SourceElement<Source.Element>>
+    where
+        SourceBase.SourceBase == SourceBase,
+        Source.Element: DataSource,
+        Source.Element.SourceBase.Item == SourceBase.Item
+    {
+        typealias Subupdate = ListCoordinatorUpdate<Source.Element.SourceBase>
+        
+        var update = Cache(value: nil as ListCoordinatorUpdate<Source.Element.SourceBase>?)
+        
+        func update(_ isSource: Bool, _ id: ObjectIdentifier?) -> Subupdate {
+            self.update[id] ?? {
+                let update = value.coordinator.update(isSource ? .remove : .insert)
+                self.update[nil] = update
+                return update
+            }()
+        }
     }
-}
-
-enum SourcesChange<SourceBase: DataSource, Source: RangeReplaceableCollection>
-where
-    SourceBase.SourceBase == SourceBase,
-    Source.Element: DataSource,
-    Source.Element.SourceBase.Item == SourceBase.Item
-{
-    typealias Subupdate = CoordinatorUpdate<Source.Element.SourceBase>
     
-    case update(Int, SourceElement<Source.Element>, Subupdate)
-    case change(SourcesCoordinatorChange<SourceBase, Source>, isSource: Bool)
+    enum SourcesDifferenceChange<SourceBase: DataSource, Source: RangeReplaceableCollection>
+    where
+        SourceBase.SourceBase == SourceBase,
+        Source.Element: DataSource,
+        Source.Element.SourceBase.Item == SourceBase.Item
+    {
+        typealias Subupdate = ListCoordinatorUpdate<Source.Element.SourceBase>
+        
+        case update(Int, SourceElement<Source.Element>, Subupdate)
+        case change(SourcesChange<SourceBase, Source>, isSource: Bool)
+    }
 }
 
 final class SourcesCoordinatorUpdate<SourceBase: DataSource, Source: RangeReplaceableCollection>:
@@ -44,27 +46,27 @@ final class SourcesCoordinatorUpdate<SourceBase: DataSource, Source: RangeReplac
         SourceBase,
         Source,
         SourceElement<Source.Element>,
-        SourcesCoordinatorChange<SourceBase, Source>,
-        SourcesChange<SourceBase, Source>
+        CoordinatorUpdate.SourcesChange<SourceBase, Source>,
+        CoordinatorUpdate.SourcesDifferenceChange<SourceBase, Source>
     >
 where
     SourceBase.SourceBase == SourceBase,
     Source.Element: DataSource,
     Source.Element.SourceBase.Item == SourceBase.Item
 {
-    typealias Coordinator = SourcesCoordinator<SourceBase, Source>
-    typealias CoordinatorChange = SourcesCoordinatorChange<SourceBase, Source>
     typealias Change = SourcesChange<SourceBase, Source>
-    typealias Subsource = Coordinator.Subsource
-    typealias Subupdate = CoordinatorUpdate<Element.SourceBase>
+    typealias DifferenceChange = SourcesDifferenceChange<SourceBase, Source>
+    
+    typealias Subsource = SourcesCoordinator<SourceBase, Source>.Subsource
+    typealias Subupdate = ListCoordinatorUpdate<Element.SourceBase>
     typealias Subcoordinator = ListCoordinator<Element.SourceBase>
     
-    weak var coordinator: Coordinator?
+    weak var coordinator: SourcesCoordinator<SourceBase, Source>?
     
     var indices: Mapping<Indices>
     var subupdates = [() -> Void]()
     
-    lazy var offsetForOrder = UpdateContextCache(value: [Order: [ObjectIdentifier: Int]]())
+    lazy var offsetForOrder = Cache(value: [Order: [ObjectIdentifier: Int]]())
     
     override var diffable: Bool { true }
     override var equaltable: Bool { true }
@@ -72,7 +74,7 @@ where
     override var rangeReplacable: Bool { true }
     
     init(
-        coordinator: Coordinator,
+        coordinator: SourcesCoordinator<SourceBase, Source>,
         update: ListUpdate<SourceBase>,
         values: Values,
         sources: Sources,
@@ -97,17 +99,17 @@ where
         return .init(element: .element(element), context: context, offset: 0, count: count)
     }
     
-    override func toChange(_ change: CoordinatorChange, _ isSource: Bool) -> Change {
+    override func toChange(_ change: Change, _ isSource: Bool) -> DifferenceChange {
         .change(change, isSource: isSource)
     }
     
-    override func append(change: CoordinatorChange, isSource: Bool, to changes: inout Changes) {
+    override func append(change: Change, isSource: Bool, to changes: inout Differences) {
         super.append(change: change, isSource: isSource, to: &changes)
         guard change.associated[nil] == nil else { return }
         changes[keyPath: path(!isSource)].append(.change(.change(change, isSource: isSource)))
     }
     
-    override func append(from: Mapping<Int>, to: Mapping<Int>, to changes: inout Changes) {
+    override func append(from: Mapping<Int>, to: Mapping<Int>, to changes: inout Differences) {
         for (s, t) in zip(from.source..<to.source, from.target..<to.target) {
             let source = values.source[s], target = values.target[t]
             let update = target.coordinator.update(from: source.coordinator, differ: differ)
@@ -116,7 +118,7 @@ where
         }
     }
     
-    override func inferringMoves(context: Context? = nil) {
+    override func inferringMoves(context: ContextAndID? = nil) {
         super.inferringMoves(context: context)
         let context = context ?? defaultContext
         changes.source.forEach {
@@ -164,8 +166,8 @@ where
     }
     
     override func configChangeAssociated(
-        for mapping: Mapping<CoordinatorChange>,
-        context: (context: CoordinatorUpdateContext, id: ObjectIdentifier)?
+        for mapping: Mapping<Change>,
+        context: ContextAndID?
     ) {
         let source = mapping.source.value.coordinator
         let target = mapping.target.value.coordinator
@@ -256,7 +258,7 @@ extension SourcesCoordinatorUpdate {
             }
         }
         
-        func configChange(_ change: CoordinatorChange) {
+        func configChange(_ change: Change) {
             configCoordinatorChange(
                 change,
                 context: context,
@@ -294,7 +296,7 @@ extension SourcesCoordinatorUpdate {
             )
         }
         
-        func config(value: ChangeOrUnchanged) {
+        func config(value: Difference) {
             switch value {
             case let .change(.change(change, isSource: isSource)):
                 if isSource {
@@ -367,7 +369,7 @@ extension SourcesCoordinatorUpdate {
             index += 1
         }
         
-        func configChange(_ change: CoordinatorChange) {
+        func configChange(_ change: Change) {
             configCoordinatorChange(
                 change,
                 context: context,

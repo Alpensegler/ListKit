@@ -7,7 +7,7 @@
 
 import Foundation
 
-final class NSCoordinatorUpdate<SourceBase: NSDataSource>: CoordinatorUpdate<SourceBase>
+final class NSCoordinatorUpdate<SourceBase: NSDataSource>: ListCoordinatorUpdate<SourceBase>
 where SourceBase.SourceBase == SourceBase {
     typealias SectionValue = (isReload: Bool, related: Int)
     typealias ItemValue = (isReload: Bool, related: IndexPath)

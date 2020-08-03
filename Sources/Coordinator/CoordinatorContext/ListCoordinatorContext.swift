@@ -36,7 +36,7 @@ where SourceBase.SourceBase == SourceBase {
     var index = 0
     var isSectioned = true
     var listViewGetter: ((ListCoordinator<SourceBase>) -> ListView?)?
-    var parentUpdate: ((CoordinatorUpdate<SourceBase>?, Int) -> [(CoordinatorContext, BatchUpdates)])?
+    var parentUpdate: ((ListCoordinatorUpdate<SourceBase>?, Int) -> [(CoordinatorContext, BatchUpdates)])?
     
     var listView: ListView? { listViewGetter?(coordinator) }
     

@@ -53,7 +53,7 @@ where
     override func update(
         from coordinator: ListCoordinator<SourceBase>,
         differ: Differ<Item>?
-    ) -> CoordinatorUpdate<SourceBase> {
+    ) -> ListCoordinatorUpdate<SourceBase> {
         let coordinator = coordinator as! SectionsCoordinator<SourceBase>
         return updateType.init(
             coordinator: self,
@@ -65,7 +65,7 @@ where
         )
     }
     
-    override func update(_ update: ListUpdate<SourceBase>) -> CoordinatorUpdate<SourceBase> {
+    override func update(_ update: ListUpdate<SourceBase>) -> ListCoordinatorUpdate<SourceBase> {
         let sourcesAfterUpdate = update.source
         let sectionsAfterUpdate = sourcesAfterUpdate.map(toSections)
         let indicesAfterUpdate =  sectionsAfterUpdate.map(toIndices)

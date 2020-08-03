@@ -12,8 +12,8 @@ class SectionsCoordinatorUpdate<SourceBase>:
         SourceBase,
         SourceBase.Source,
         ContiguousArray<SourceBase.Item>,
-        CoordinatorChange<ContiguousArray<SourceBase.Item>>,
-        CoordinatorChange<ContiguousArray<SourceBase.Item>>
+        CoordinatorUpdate.Change<ContiguousArray<SourceBase.Item>>,
+        CoordinatorUpdate.Change<ContiguousArray<SourceBase.Item>>
     >
 where
     SourceBase: DataSource,
@@ -60,7 +60,7 @@ where
         coordinator?.indices = isSource ? indices.source : indices.target
     }
     
-    override func inferringMoves(context: Context? = nil) {
+    override func inferringMoves(context: ContextAndID? = nil) {
         itemsUpdates.forEach { $0.inferringMoves(context: context ?? defaultContext) }
     }
     

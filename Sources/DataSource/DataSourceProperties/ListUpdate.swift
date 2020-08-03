@@ -22,7 +22,7 @@ public enum ListUpdate<SourceBase: DataSource> where SourceBase.SourceBase == So
     }
     
     public struct Batch {
-        var operations = [(CoordinatorUpdate<SourceBase>) -> Void]()
+        var operations = [(ListCoordinatorUpdate<SourceBase>) -> Void]()
     }
     
     case whole(Whole, Source? = nil)

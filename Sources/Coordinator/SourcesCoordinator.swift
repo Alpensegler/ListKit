@@ -203,7 +203,7 @@ where
     override func update(
         from coordinator: ListCoordinator<SourceBase>,
         differ: Differ<Item>?
-    ) -> CoordinatorUpdate<SourceBase> {
+    ) -> ListCoordinatorUpdate<SourceBase> {
         let coordinator = coordinator as! SourcesCoordinator<SourceBase, Source>
         return SourcesCoordinatorUpdate(
             coordinator: self,
@@ -216,7 +216,7 @@ where
         )
     }
     
-    override func update(_ update: ListUpdate<SourceBase>) -> CoordinatorUpdate<SourceBase> {
+    override func update(_ update: ListUpdate<SourceBase>) -> ListCoordinatorUpdate<SourceBase> {
         guard case let .fromSourceBase(fromSource, _) = subsourceType else { fatalError() }
         let sourcesAfterUpdate = update.source
         let subsourcesAfterUpdate = sourcesAfterUpdate.map { toSubsources(fromSource($0)) }

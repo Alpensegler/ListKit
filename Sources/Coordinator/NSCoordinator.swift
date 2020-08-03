@@ -10,20 +10,9 @@ import Foundation
 final class NSCoordinator<SourceBase: NSDataSource>: ListCoordinator<SourceBase>
 where SourceBase.SourceBase == SourceBase {
     unowned let sourceBase: SourceBase
-    lazy var caches: ContiguousArray<ContiguousArray<RelatedCache>> = {
-        source.indices.mapContiguous {
-            repeatElement(.init(), count: source[$0]).mapContiguous { $0 }
-        }
-    }()
     
     override var multiType: SourceMultipleType { .other }
     override var isEmpty: Bool { numbersOfSections() == 0 }
-    
-    func toCaches(source: SourceBase.Source) -> ContiguousArray<ContiguousArray<RelatedCache>> {
-        source.indices.mapContiguous {
-            repeatElement(.init(), count: source[$0]).mapContiguous { $0 }
-        }
-    }
     
     override func numbersOfItems(in section: Int) -> Int { source[safe: section] ?? 0 }
     override func numbersOfSections() -> Int { source.count }

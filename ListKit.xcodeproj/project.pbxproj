@@ -37,7 +37,6 @@
 		F34E7F3C24D6D3B600DE3844 /* ListContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = F34E7F3B24D6D3B600DE3844 /* ListContext.swift */; };
 		F354B6F624C38A0C00E9D19B /* BatchUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F354B6F524C38A0C00E9D19B /* BatchUpdate.swift */; };
 		F35A67FF248F7DB700FEAC22 /* ListOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35A67FE248F7DB700FEAC22 /* ListOptions.swift */; };
-		F35A6801248F907000FEAC22 /* RelatedCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35A6800248F907000FEAC22 /* RelatedCache.swift */; };
 		F35BBA05239FD0EA0024EA7D /* TableListAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35BBA04239FD0EA0024EA7D /* TableListAdapter.swift */; };
 		F35BBA07239FD1600024EA7D /* TableListAdapter+UIKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35BBA06239FD1600024EA7D /* TableListAdapter+UIKit.swift */; };
 		F365501A2451B4060038172F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F36550192451B4060038172F /* AppDelegate.swift */; };
@@ -169,7 +168,6 @@
 		F34E7F3B24D6D3B600DE3844 /* ListContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListContext.swift; sourceTree = "<group>"; };
 		F354B6F524C38A0C00E9D19B /* BatchUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatchUpdate.swift; sourceTree = "<group>"; };
 		F35A67FE248F7DB700FEAC22 /* ListOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListOptions.swift; sourceTree = "<group>"; };
-		F35A6800248F907000FEAC22 /* RelatedCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelatedCache.swift; sourceTree = "<group>"; };
 		F35BBA04239FD0EA0024EA7D /* TableListAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableListAdapter.swift; sourceTree = "<group>"; };
 		F35BBA06239FD1600024EA7D /* TableListAdapter+UIKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TableListAdapter+UIKit.swift"; sourceTree = "<group>"; };
 		F36550172451B4060038172F /* ListKitExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ListKitExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -295,7 +293,6 @@
 				F3AD067F238FF3DA000AF1B3 /* SourcesCoordinator.swift */,
 				F37BF3CD23969DFD0095C419 /* NSCoordinator.swift */,
 				F3EC388B24582C5A00DFE1B0 /* EmptyCoordinator.swift */,
-				F35A6800248F907000FEAC22 /* RelatedCache.swift */,
 			);
 			path = Coordinator;
 			sourceTree = "<group>";
@@ -801,7 +798,6 @@
 				F3AC673E23D057990070B991 /* Sources+Sources.swift in Sources */,
 				F372F6E6248E52E9001B42D5 /* ListCoordinatorContext.swift in Sources */,
 				F383064423506BAC00AE8B97 /* Differing.swift in Sources */,
-				F35A6801248F907000FEAC22 /* RelatedCache.swift in Sources */,
 				F3AC673A23D0574E0070B991 /* Sources+Items.swift in Sources */,
 				F3AD0680238FF3DA000AF1B3 /* SourcesCoordinator.swift in Sources */,
 				F37BF3CA239686470095C419 /* ItemCoordinator.swift in Sources */,

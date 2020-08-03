@@ -46,18 +46,18 @@ public extension UpdatableDataSource {
             DispatchQueue.main.sync(execute: work)
         }
         let updateAnimated = animated ?? !coordinator.options.contains(.preferNoAnimation)
-        var results = [(ListView, BatchUpdates)]()
+        var results = [(CoordinatorContext, BatchUpdates)]()
         for context in coordinator.listContexts {
             guard let context = context.context else { return }
             results += context.parentUpdate?(coordinatorUpdate, context.index) ?? []
-            if let listView = context.listView, let update = coordinatorUpdate?.listUpdates {
-                results.append((listView, update))
+            if context.listView != nil, let update = coordinatorUpdate?.listUpdates {
+                results.append((context, update))
             }
         }
         if results.isEmpty { return }
         let afterWork = {
-            for (listView, update) in results {
-                listView.perform(updates: update, animated: updateAnimated, completion: completion)
+            for (context, update) in results {
+                context.perform(updates: update, animated: updateAnimated, completion: completion)
             }
         }
         if isMainThread {

@@ -26,27 +26,6 @@ protocol SetuptableListView: ListView {
     func isDelegate(_ listDelegate: ListDelegate) -> Bool
 }
 
-extension ListView {
-    func perform(updates: BatchUpdates, animated: Bool, completion: ((ListView, Bool) -> Void)?) {
-        switch updates {
-        case let .reload(change: change):
-            change?()
-            reloadSynchronously(animated: animated)
-            completion?(self, true)
-        case let .batch(batchUpdates):
-            for (offset, batchUpdate) in batchUpdates.enumerated() {
-                Log.log("------------------------------")
-                Log.log(batchUpdate.description)
-                let isLast = offset == batchUpdates.count - 1
-                let completion: ((Bool) -> Void)? = isLast ? { [weak self] finish in
-                    self.map { completion?($0, finish) }
-                } : nil
-                perform({ batchUpdate.apply(by: self) }, animated: animated, completion: completion)
-            }
-        }
-    }
-}
-
 private var listDelegateKey: Void?
 
 extension SetuptableListView {

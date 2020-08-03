@@ -16,7 +16,7 @@ protocol ListViewApplyable: CustomStringConvertible, CustomDebugStringConvertibl
     var isEmpty: Bool { get }
     var listDebugDescriptions: [String] { get }
     func apply(by listView: ListView)
-//    func apply(by )
+    func apply<Cache>(by caches: inout [AnyHashable: Cache])
 }
 
 extension ListViewApplyable {
@@ -77,6 +77,11 @@ enum BatchUpdates {
         func apply(by listView: ListView) {
             if !deletes.isEmpty { Collection.delete(deletes, by: listView) }
             if !reloads.isEmpty { Collection.reload(reloads, by: listView) }
+        }
+        
+        func apply<Cache>(by caches: inout [AnyHashable: Cache]) {
+            deletes.forEach { caches.removeValue(forKey: $0) }
+            reloads.forEach { caches.removeValue(forKey: $0) }
         }
         
         var listDebugDescriptions: [String] {
@@ -151,6 +156,13 @@ enum BatchUpdates {
             if !moves.isEmpty { moves.forEach { Collection.move($0, by: listView)} }
         }
         
+        func apply<Cache>(by caches: inout [AnyHashable: Cache]) {
+            for (from, to) in moves {
+                guard let cache = caches[from] else { continue }
+                caches[to] = cache
+            }
+        }
+        
         var listDebugDescriptions: [String] {
             var descriptions = [String]()
             if !inserts.isEmpty {
@@ -193,6 +205,11 @@ enum BatchUpdates {
             sectionValue?.apply(by: listView)
         }
         
+        func apply<Cache>(by caches: inout [AnyHashable: Cache]) {
+            itemValue?.apply(by: &caches)
+            sectionValue?.apply(by: &caches)
+        }
+        
         var listDebugDescriptions: [String] {
             var descriptions = [String]()
             if let sections = sectionValue?.listDebugDescriptions, !sections.isEmpty {
@@ -230,6 +247,11 @@ enum BatchUpdates {
             change?()
             update.source?.apply(by: listView)
             update.target?.apply(by: listView)
+        }
+        
+        func apply<Cache>(by caches: inout [AnyHashable: Cache]) {
+            update.source?.apply(by: &caches)
+            update.target?.apply(by: &caches)
         }
     }
 

@@ -9,29 +9,33 @@
 import UIKit
 
 public extension TableListAdapter {
-    func tableList<Cache>(
-        withCacheFromItem cacheFromItem: @escaping (Item) -> Cache,
+    func tableListWithCache<Cache>(
+        forItem: @escaping (Item) -> Cache,
         toTableList: (Self, @escaping (TableItemContext) -> Cache) -> TableList<SourceBase>
     ) -> TableList<SourceBase> {
-        toTableList(self) { $0.itemCache(or: cacheFromItem) }
+        toTableList(self) { $0.itemCache(or: forItem) }
     }
 }
 
 public extension CollectionListAdapter {
-    func collectionList<Cache>(
-        withCacheFromItem cacheFromItem: @escaping (Item) -> Cache,
+    func collectionListWithCache<Cache>(
+        forItem: @escaping (Item) -> Cache,
         toCollectionList: (Self, @escaping (CollectionItemContext) -> Cache) -> CollectionList<SourceBase>
     ) -> CollectionList<SourceBase> {
-        toCollectionList(self) { $0.itemCache(or: cacheFromItem) }
+        toCollectionList(self) { $0.itemCache(or: forItem) }
     }
 }
 
 public extension TableListAdapter {
-    func tableListWithCache(
-        heightForItem: @escaping (Item) -> CGFloat,
-        cellForItem: @escaping (TableItemContext, CGFloat, Item) -> UITableViewCell
+    func tableListWithCacheHeight(
+        forItem: @escaping (Item) -> CGFloat,
+        cellForItem: @escaping (TableItemContext, CGFloat, Item) -> UITableViewCell = { (context, _, item) in
+            let cell = context.dequeueReusableCell(UITableViewCell.self)
+            cell.textLabel?.text = "\(item)"
+            return cell
+        }
     ) -> TableList<SourceBase> {
-        tableList(withCacheFromItem: heightForItem) { (self, cacheGetter) in
+        tableListWithCache(forItem: forItem) { (self, cacheGetter) in
             self.tableViewCellForRow { cellForItem($0, cacheGetter($0), $1) }
                 .tableViewHeightForRow { (context, _) in cacheGetter(context) }
         }
@@ -39,11 +43,11 @@ public extension TableListAdapter {
 }
 
 public extension CollectionListAdapter {
-    func collectionListWithCache(
-        sizeForItem: @escaping (Item) -> CGSize,
+    func collectionListWithCacheSize(
+        forItem: @escaping (Item) -> CGSize,
         cellForItem: @escaping (CollectionItemContext, CGSize, Item) -> UICollectionViewCell
     ) -> CollectionList<SourceBase> {
-        collectionList(withCacheFromItem: sizeForItem) { (self, cacheGetter) in
+        collectionListWithCache(forItem: forItem) { (self, cacheGetter) in
             self.collectionViewCellForItem { cellForItem($0, cacheGetter($0), $1) }
                 .collectionViewLayoutSizeForItem { (context, _, _) in cacheGetter(context) }
         }

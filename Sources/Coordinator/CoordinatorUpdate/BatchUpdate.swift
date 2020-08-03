@@ -16,15 +16,28 @@ protocol ListViewApplyable: CustomStringConvertible, CustomDebugStringConvertibl
     var isEmpty: Bool { get }
     var listDebugDescriptions: [String] { get }
     func apply(by listView: ListView)
-    func apply<Cache>(by caches: inout [AnyHashable: Cache])
+    func apply<Cache>(
+        by caches: inout ContiguousArray<ContiguousArray<Cache?>>,
+        _ itemMoves: [IndexPath: Cache?],
+        _ sectionMoves: [Int: ContiguousArray<Cache?>],
+        countIn: (Int) -> Int
+    )
+    
+    func add<Cache>(
+        from caches: inout ContiguousArray<ContiguousArray<Cache?>>,
+        _ itemMoves: inout [IndexPath: Cache?],
+        _ sectionMoves: inout [Int: ContiguousArray<Cache?>]
+    )
 }
 
 extension ListViewApplyable {
     var description: String { listDebugDescriptions.joined(separator: "\n") }
     var debugDescription: String { description }
+    
+    func applyData() { }
 }
 
-protocol UpdateIndexCollection: UpdateCollection, Collection where Element: ListIndex {
+protocol UpdateIndexCollection: UpdateCollection, BidirectionalCollection where Element: ListIndex {
     static func insert(_ value: Self, by listView: ListView)
     static func delete(_ value: Self, by listView: ListView)
     static func reload(_ value: Self, by listView: ListView)
@@ -79,9 +92,21 @@ enum BatchUpdates {
             if !reloads.isEmpty { Collection.reload(reloads, by: listView) }
         }
         
-        func apply<Cache>(by caches: inout [AnyHashable: Cache]) {
-            deletes.forEach { caches.removeValue(forKey: $0) }
-            reloads.forEach { caches.removeValue(forKey: $0) }
+        func add<Cache>(
+            from caches: inout ContiguousArray<ContiguousArray<Cache?>>,
+            _ itemMoves: inout [IndexPath: Cache?],
+            _ sectionMoves: inout [Int: ContiguousArray<Cache?>]
+        ) {
+            
+        }
+        
+        func apply<Cache>(
+            by caches: inout ContiguousArray<ContiguousArray<Cache?>>,
+            _ itemMoves: [IndexPath: Cache?],
+            _ sectionMoves: [Int: ContiguousArray<Cache?>],
+            countIn: (Int) -> Int
+        ) {
+            all.reversed().forEach { $0.remove(from: &caches) }
         }
         
         var listDebugDescriptions: [String] {
@@ -156,11 +181,21 @@ enum BatchUpdates {
             if !moves.isEmpty { moves.forEach { Collection.move($0, by: listView)} }
         }
         
-        func apply<Cache>(by caches: inout [AnyHashable: Cache]) {
-            for (from, to) in moves {
-                guard let cache = caches[from] else { continue }
-                caches[to] = cache
-            }
+        func add<Cache>(
+            from caches: inout ContiguousArray<ContiguousArray<Cache?>>,
+            _ itemMoves: inout [IndexPath: Cache?],
+            _ sectionMoves: inout [Int: ContiguousArray<Cache?>]
+        ) {
+            moves.forEach { $0.target.add($0.source, from: &caches, &itemMoves, &sectionMoves) }
+        }
+        
+        func apply<Cache>(
+            by caches: inout ContiguousArray<ContiguousArray<Cache?>>,
+            _ itemMoves: [IndexPath: Cache?],
+            _ sectionMoves: [Int: ContiguousArray<Cache?>],
+            countIn: (Int) -> Int
+        ) {
+            all.forEach { $0.insert(to: &caches, itemMoves, sectionMoves, countIn: countIn) }
         }
         
         var listDebugDescriptions: [String] {
@@ -205,9 +240,23 @@ enum BatchUpdates {
             sectionValue?.apply(by: listView)
         }
         
-        func apply<Cache>(by caches: inout [AnyHashable: Cache]) {
-            itemValue?.apply(by: &caches)
-            sectionValue?.apply(by: &caches)
+        func add<Cache>(
+            from caches: inout ContiguousArray<ContiguousArray<Cache?>>,
+            _ itemMoves: inout [IndexPath: Cache?],
+            _ sectionMoves: inout [Int: ContiguousArray<Cache?>]
+        ) {
+            itemValue?.add(from: &caches, &itemMoves, &sectionMoves)
+            sectionValue?.add(from: &caches, &itemMoves, &sectionMoves)
+        }
+        
+        func apply<Cache>(
+            by caches: inout ContiguousArray<ContiguousArray<Cache?>>,
+            _ itemMoves: [IndexPath: Cache?],
+            _ sectionMoves: [Int: ContiguousArray<Cache?>],
+            countIn: (Int) -> Int
+        ) {
+            itemValue?.apply(by: &caches, itemMoves, sectionMoves, countIn: countIn)
+            sectionValue?.apply(by: &caches, itemMoves, sectionMoves, countIn: countIn)
         }
         
         var listDebugDescriptions: [String] {
@@ -243,15 +292,42 @@ enum BatchUpdates {
             return descriptions
         }
         
-        func apply(by listView: ListView) {
+        func applyData() {
             change?()
+        }
+        
+        func apply(by listView: ListView) {
             update.source?.apply(by: listView)
             update.target?.apply(by: listView)
         }
         
-        func apply<Cache>(by caches: inout [AnyHashable: Cache]) {
-            update.source?.apply(by: &caches)
-            update.target?.apply(by: &caches)
+        func add<Cache>(
+            from caches: inout ContiguousArray<ContiguousArray<Cache?>>,
+            _ itemMoves: inout [IndexPath: Cache?],
+            _ sectionMoves: inout [Int: ContiguousArray<Cache?>]
+        ) {
+            update.target?.add(from: &caches, &itemMoves, &sectionMoves)
+        }
+        
+        func apply<Cache>(
+            by caches: inout ContiguousArray<ContiguousArray<Cache?>>,
+            _ itemMoves: [IndexPath: Cache?],
+            _ sectionMoves: [Int: ContiguousArray<Cache?>],
+            countIn: (Int) -> Int
+        ) {
+            update.source?.apply(by: &caches, itemMoves, sectionMoves, countIn: countIn)
+            update.target?.apply(by: &caches, itemMoves, sectionMoves, countIn: countIn)
+        }
+        
+        func apply<Cache>(
+            caches: inout ContiguousArray<ContiguousArray<Cache?>>,
+            countIn: (Int) -> Int,
+            applyData: (Self) -> Void = { $0.applyData() }
+        ) {
+            var itemCaches = [IndexPath: Cache?](), sectionCaches = [Int: ContiguousArray<Cache?>]()
+            add(from: &caches, &itemCaches, &sectionCaches)
+            applyData(self)
+            apply(by: &caches, itemCaches, sectionCaches, countIn: countIn)
         }
     }
 

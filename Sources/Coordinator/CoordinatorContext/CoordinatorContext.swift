@@ -13,8 +13,8 @@ protocol CoordinatorContext: AnyObject {
     #endif
     
     var selectorSets: SelectorSets { get }
-    var itemCaches: [AnyHashable: Any] { get set }
-    var itemNestedCache: [AnyHashable: (Any) -> Void] { get set }
+    var itemCaches: ContiguousArray<ContiguousArray<Any?>> { get set }
+    var itemNestedCache: ContiguousArray<ContiguousArray<((Any) -> Void)?>> { get set }
     
     func isCoordinator<SourceBase>(_ coordinator: ListCoordinator<SourceBase>) -> Bool
     

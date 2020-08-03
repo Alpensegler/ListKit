@@ -52,13 +52,13 @@ public extension ListIndexContext where Index == IndexPath {
 extension ListIndexContext where Index == IndexPath {
     var itemValue: SourceBase.Item { context.coordinator.item(at: section, item) }
     func setNestedCache(update: @escaping (Any) -> Void) {
-        context.itemNestedCache[index] = update
+        context.itemNestedCache[index.section][index.item] = update
     }
     
     func itemCache<Cache>(or getter: (SourceBase.Item) -> Cache) -> Cache {
-        context.itemCaches[index] as? Cache ?? {
+        context.itemCaches[index.section][index.item] as? Cache ?? {
             let cache = getter(itemValue)
-            context.itemCaches[index] = cache
+            context.itemCaches[index.section][index.item] = cache
             return cache
         }()
     }

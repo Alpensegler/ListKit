@@ -23,14 +23,14 @@ where SourceBase.SourceBase == SourceBase {
     var hasNestedCaches = false
     
     lazy var selectorSets = initialSelectorSets()
-    lazy var itemCaches: [AnyHashable: Any] = {
+    lazy var itemCaches: ContiguousArray<ContiguousArray<Any?>> = {
         hasItemCaches = true
-        return .init()
+        return initialCaches()
     }()
     
-    lazy var itemNestedCache: [AnyHashable: (Any) -> Void] = {
+    lazy var itemNestedCache: ContiguousArray<ContiguousArray<((Any) -> Void)?>> = {
         hasNestedCaches = true
-        return .init()
+        return initialCaches()
     }()
     
     var index = 0
@@ -94,7 +94,18 @@ where SourceBase.SourceBase == SourceBase {
                     list.map { completion?($0, finish) }
                 } : nil
                 list.perform({
-                    if hasItemCaches { batchUpdate.apply(by: &itemCaches) }
+                    switch (hasItemCaches, hasNestedCaches) {
+                    case (true, true):
+                        batchUpdate.apply(caches: &itemCaches, countIn: numbersOfItems(in:)) {
+                            $0.apply(caches: &itemNestedCache, countIn: numbersOfItems(in:))
+                        }
+                    case (true, false):
+                        batchUpdate.apply(caches: &itemCaches, countIn: numbersOfItems(in:))
+                    case (false, true):
+                        batchUpdate.apply(caches: &itemNestedCache, countIn: numbersOfItems(in:))
+                    case (false, false):
+                        batchUpdate.applyData()
+                    }
                     batchUpdate.apply(by: list)
                 }, animated: animated, completion: completion)
             }
@@ -104,6 +115,13 @@ where SourceBase.SourceBase == SourceBase {
 
 
 extension ListCoordinatorContext {
+    func initialCaches<Cache>() -> ContiguousArray<ContiguousArray<Cache?>> {
+        if coordinator.isEmpty { return .init() }
+        return (0..<numbersOfSections()).mapContiguous {
+            (0..<numbersOfItems(in: $0)).mapContiguous { _ in nil }
+        }
+    }
+    
     func set<Object: AnyObject, Input, Output, Index>(
         _ keyPath: ReferenceWritableKeyPath<CoordinatorContext, Delegate<Object, Input, Output, Index>>,
         _ closure: @escaping (ListCoordinatorContext<SourceBase>, Object, Input, CoordinatorContext, Int, Int) -> Output

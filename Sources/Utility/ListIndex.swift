@@ -15,6 +15,22 @@ protocol ListIndex: Hashable {
     init(_ value: Self?, offset: Int)
     init(section: Int, item: Int)
     func offseted(_ offset: Int) -> Self
+    
+    func add<Cache>(
+        _ related: Self,
+        from caches: inout ContiguousArray<ContiguousArray<Cache?>>,
+        _ itemMoves: inout [IndexPath: Cache?],
+        _ sectionMoves: inout [Int: ContiguousArray<Cache?>]
+    )
+    
+    func remove<Cache>(from caches: inout ContiguousArray<ContiguousArray<Cache?>>)
+    
+    func insert<Cache>(
+        to caches: inout ContiguousArray<ContiguousArray<Cache?>>,
+        _ itemMoves: [IndexPath: Cache?],
+        _ sectionMoves: [Int: ContiguousArray<Cache?>],
+        countIn: (Int) -> Int
+    )
 }
 
 extension IndexPath: ListIndex {
@@ -43,6 +59,33 @@ extension IndexPath: ListIndex {
         indexPath.item = item
         return indexPath
     }
+    
+    func add<Cache>(
+        _ related: Self,
+        from caches: inout ContiguousArray<ContiguousArray<Cache?>>,
+        _ itemMoves: inout [IndexPath: Cache?],
+        _ sectionMoves: inout [Int: ContiguousArray<Cache?>]
+    ) {
+        itemMoves[self] = caches[related.section][related.count]
+    }
+    
+    func remove<Cache>(from caches: inout ContiguousArray<ContiguousArray<Cache?>>) {
+        caches[section].remove(at: item)
+    }
+    
+    func insert<Cache>(
+        to caches: inout ContiguousArray<ContiguousArray<Cache?>>,
+        _ itemMoves: [IndexPath: Cache?],
+        _ sectionMoves: [Int: ContiguousArray<Cache?>],
+        countIn: (Int) -> Int
+    ) {
+        let cache = itemMoves[self] ?? nil
+        if caches[section].count > item {
+            caches[section].insert(cache, at: item)
+        } else {
+            caches[section].append(cache)
+        }
+    }
 }
 
 extension Int: ListIndex {
@@ -53,4 +96,31 @@ extension Int: ListIndex {
     init(section: Int = 0, item: Int = 0) { self = section }
     
     func offseted(_ offset: Int) -> Int { self + offset }
+    
+    func add<Cache>(
+        _ related: Self,
+        from caches: inout ContiguousArray<ContiguousArray<Cache?>>,
+        _ itemMoves: inout [IndexPath: Cache?],
+        _ sectionMoves: inout [Int: ContiguousArray<Cache?>]
+    ) {
+        sectionMoves[self] = caches[related]
+    }
+    
+    func remove<Cache>(from caches: inout ContiguousArray<ContiguousArray<Cache?>>) {
+        caches[section].remove(at: self)
+    }
+    
+    func insert<Cache>(
+        to caches: inout ContiguousArray<ContiguousArray<Cache?>>,
+        _ itemMoves: [IndexPath: Cache?],
+        _ sectionMoves: [Int: ContiguousArray<Cache?>],
+        countIn: (Int) -> Int
+    ) {
+        let cache = sectionMoves[self] ?? .init(repeatElement: nil, count: countIn(self))
+        if caches.count > self {
+            caches.insert(cache, at: self)
+        } else {
+            caches.append(cache)
+        }
+    }
 }

@@ -10,7 +10,7 @@ import ListKit
 
 class DoubleListViewController: ExampleViewController, TableListAdapter, CollectionListAdapter, UpdatableDataSource {
     
-    private let _models = ["Roy", "Pinlin", "Zhiyi", "Frain", "Jack", "Cookie", "Kubrick", "Jeremy"]
+    private let _models = ["Roy", "Pinlin", "Zhiyi", "Frain", "Jack", "Cookie", "Kubrick", "Jeremy", "Juhao", "Herry"]
     
     typealias Item = String
     
@@ -21,22 +21,11 @@ class DoubleListViewController: ExampleViewController, TableListAdapter, Collect
         return shuffledModels.shuffled()
     }
     
-//    typealias Item = (Int, Bool)
-//
-//    var source: [Item] {
-//        if toggle {
-//            return [(1, true), (2, true), (3, true)]
-//        } else {
-//            return [(2, false), (3, false)]
-//        }
-//    }
-//
-//    var listUpdate: ListUpdate<DoubleListViewController>.Whole {
-//        .diff(id: \.0) { $0.1 == $1.1 }
-//    }
-    
     var tableList: TableList<DoubleListViewController> {
-        tableViewCellForRow()
+        tableListWithCacheHeight(forItem: {
+            print("fake calculating height for \($0)")
+            return 44
+        })
     }
     
     var collectionList: CollectionList<DoubleListViewController> {
@@ -51,9 +40,9 @@ class DoubleListViewController: ExampleViewController, TableListAdapter, Collect
         
         let halfHeight = view.bounds.height / 2
         tableView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: halfHeight)
-//        collectionView.frame = CGRect(x: 0, y: halfHeight, width: view.frame.width, height: halfHeight)
+        collectionView.frame = CGRect(x: 0, y: halfHeight, width: view.frame.width, height: halfHeight)
         
-//        apply(by: collectionView)
+        apply(by: collectionView)
         apply(by: tableView)
     }
 }
@@ -70,4 +59,21 @@ struct DoubleList_Preview: PreviewProvider {
     }
 }
 
+//extension DoubleListViewController {
+//    typealias Item = (Int, Bool)
+//
+//    var source: [Item] {
+//        if toggle {
+//            return [(1, true), (2, true), (3, true)]
+//        } else {
+//            return [(2, false), (3, false)]
+//        }
+//    }
+//
+//    var listUpdate: ListUpdate<DoubleListViewController>.Whole {
+//        .diff(id: \.0) { $0.1 == $1.1 }
+//    }
+//}
+
 #endif
+

@@ -19,6 +19,7 @@ public struct ScrollList<Source: DataSource>: ScrollListAdapter, UpdatableDataSo
 where Source.SourceBase == Source {
     public typealias Item = Source.Item
     public typealias SourceBase = Source
+    
     let storage: ListAdapterStorage<Source>
     let erasedGetter: (Self) -> ScrollList<AnySources>
     
@@ -79,34 +80,10 @@ extension ScrollList: ListAdapter {
 import UIKit
 
 extension ScrollList {
+    typealias View = UIScrollView
+    
     static var rootKeyPath: ReferenceWritableKeyPath<CoordinatorContext, UIScrollListDelegate> {
         \.scrollListDelegate
-    }
-    
-    static func toContext(
-        _ view: UIScrollView, _ context: ListCoordinatorContext<Source>
-    ) -> ScrollContext<Source> {
-        .init(listView: view, context: context)
-    }
-    
-    static func toSectionContext(
-        _ view: UIScrollView,
-        _ context: ListCoordinatorContext<Source>,
-        _ section: Int,
-        _ sectionOffset: Int,
-        _ itemOffset: Int
-    ) -> Never {
-        fatalError()
-    }
-    
-    static func toItemContext(
-        _ view: UIScrollView,
-        _ context: ListCoordinatorContext<Source>,
-        _ path: IndexPath,
-        _ sectionOffset: Int,
-        _ itemOffset: Int
-    ) -> Never {
-        fatalError()
     }
 }
 

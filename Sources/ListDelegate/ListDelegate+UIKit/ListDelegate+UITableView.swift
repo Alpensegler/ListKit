@@ -9,327 +9,328 @@
 import UIKit
 
 final class UITableListDelegate {
-    typealias Delegate<Input, Output> = ListKit.Delegate<UITableView, Input, Output>
+    typealias Delegate<Input, Output, Index> = ListKit.Delegate<UITableView, Input, Output, Index>
     
     //MARK: - DataSource
     
     //Providing Cells, Headers, and Footers
-    var cellForRowAt = Delegate<IndexPath, UITableViewCell>(
-        index: .indexPath(\.self),
+    var cellForRowAt = Delegate<IndexPath, UITableViewCell, IndexPath>(
+        index: \.self,
         #selector(UITableViewDataSource.tableView(_:cellForRowAt:))
     )
     
-    var titleForHeaderInSection = Delegate<Int, String?>(
-        index: .index(\.self),
+    var titleForHeaderInSection = Delegate<Int, String?, Int>(
+        index: \.self,
         #selector(UITableViewDataSource.tableView(_:titleForHeaderInSection:))
     )
     
-    var titleForFooterInSection = Delegate<Int, String?>(
-        index: .index(\.self),
+    var titleForFooterInSection = Delegate<Int, String?, Int>(
+        index: \.self,
         #selector(UITableViewDataSource.tableView(_:titleForFooterInSection:))
     )
     
     //Inserting or Deleting Table Rows
-    var commitForRowAt = Delegate<(UITableViewCell.EditingStyle, IndexPath), Void>(
-        index: .indexPath(\.1),
+    var commitForRowAt = Delegate<(UITableViewCell.EditingStyle, IndexPath), Void, IndexPath>(
+        index: \.1,
         #selector(UITableViewDataSource.tableView(_:commit:forRowAt:))
     )
     
-    var canEditRowAt = Delegate<IndexPath, Bool>(
-        index: .indexPath(\.self),
+    var canEditRowAt = Delegate<IndexPath, Bool, IndexPath>(
+        index: \.self,
         #selector(UITableViewDataSource.tableView(_:canEditRowAt:))
     )
     
     //Reordering Table Rows
-    var canMoveRowAt = Delegate<IndexPath, Bool>(
-        index: .indexPath(\.self),
+    var canMoveRowAt = Delegate<IndexPath, Bool, IndexPath>(
+        index: \.self,
         #selector(UITableViewDataSource.tableView(_:canMoveRowAt:))
     )
     
-    var moveRowAtTo = Delegate<(IndexPath, IndexPath), Void>(
+    var moveRowAtTo = Delegate<(IndexPath, IndexPath), Void, Void>(
         #selector(UITableViewDataSource.tableView(_:moveRowAt:to:))
     )
 
     //Configuring an Index
-    var sectionIndexTitles = Delegate<Void, [String]?>(
+    var sectionIndexTitles = Delegate<Void, [String]?, Void>(
         #selector(UITableViewDataSource.sectionIndexTitles(for:))
     )
     
-    var sectionForSectionIndexTitleAt = Delegate<(String, Int), Int>(
+    var sectionForSectionIndexTitleAt = Delegate<(String, Int), Int, Void>(
         #selector(UITableViewDataSource.tableView(_:sectionForSectionIndexTitle:at:))
     )
     
     //MARK: - Delegate
     
     //Configuring Rows for the Table View
-    var willDisplayForRowAt = Delegate<(UITableViewCell, IndexPath), Void>(
-        index: .indexPath(\.1),
+    var willDisplayForRowAt = Delegate<(UITableViewCell, IndexPath), Void, IndexPath>(
+        index: \.1,
         #selector(UITableViewDelegate.tableView(_:willDisplay:forRowAt:))
     )
     
-    var indentationLevelForRowAt = Delegate<IndexPath, Int>(
-        index: .indexPath(\.self),
+    var indentationLevelForRowAt = Delegate<IndexPath, Int, IndexPath>(
+        index: \.self,
         #selector(UITableViewDelegate.tableView(_:indentationLevelForRowAt:))
     )
     
     private var anyShouldSpringLoadRowAtWith: Any = {
         guard #available(iOS 11.0, *) else { return () }
-        return Delegate<(IndexPath, UISpringLoadedInteractionContext), Bool>(
-            index: .indexPath(\.0),
+        return Delegate<(IndexPath, UISpringLoadedInteractionContext), Bool, IndexPath>(
+            index: \.0,
             #selector(UITableViewDelegate.tableView(_:shouldSpringLoadRowAt:with:))
         )
     }()
     
     @available(iOS 11.0, *)
-    var springLoadRowAtWith: Delegate<(IndexPath, UISpringLoadedInteractionContext), Bool> {
-        get { anyShouldSpringLoadRowAtWith as! Delegate<(IndexPath, UISpringLoadedInteractionContext), Bool> }
+    var springLoadRowAtWith: Delegate<(IndexPath, UISpringLoadedInteractionContext), Bool, IndexPath> {
+        get { anyShouldSpringLoadRowAtWith as! Delegate<(IndexPath, UISpringLoadedInteractionContext), Bool, IndexPath> }
         set { anyShouldSpringLoadRowAtWith = newValue }
     }
 
     //Responding to Row Selections
-    var willSelectRowAt = Delegate<IndexPath, IndexPath?>(
-        index: .indexPath(\.self),
+    var willSelectRowAt = Delegate<IndexPath, IndexPath?, IndexPath>(
+        index: \.self,
         #selector(UITableViewDelegate.tableView(_:willSelectRowAt:))
     )
     
-    var didSelectRowAt = Delegate<IndexPath, Void>(
-        index: .indexPath(\.self),
+    var didSelectRowAt = Delegate<IndexPath, Void, IndexPath>(
+        index: \.self,
         #selector(UITableViewDelegate.tableView(_:didSelectRowAt:))
     )
     
-    var willDeselectRowAt = Delegate<IndexPath, IndexPath?>(
-        index: .indexPath(\.self),
+    var willDeselectRowAt = Delegate<IndexPath, IndexPath?, IndexPath>(
+        index: \.self,
         #selector(UITableViewDelegate.tableView(_:willDeselectRowAt:))
     )
     
-    var didDeselectRowAt = Delegate<IndexPath, Void>(
-        index: .indexPath(\.self),
+    var didDeselectRowAt = Delegate<IndexPath, Void, IndexPath>(
+        index: \.self,
         #selector(UITableViewDelegate.tableView(_:didDeselectRowAt:))
     )
     
     private var anyShouldBeginMultipleSelectionInteractionAt: Any = {
         guard #available(iOS 13, *) else { return () }
-        return Delegate<IndexPath, Bool>(
-            index: .indexPath(\.self),
+        return Delegate<IndexPath, Bool, IndexPath>(
+            index: \.self,
             #selector(UITableViewDelegate.tableView(_:shouldBeginMultipleSelectionInteractionAt:))
         )
     }()
     
     private var anyDidBeginMultipleSelectionInteractionAt: Any = {
         guard #available(iOS 13, *) else { return () }
-        return Delegate<IndexPath, Void>(
-            index: .indexPath(\.self),
+        return Delegate<IndexPath, Void, IndexPath>(
+            index: \.self,
             #selector(UITableViewDelegate.tableViewDidEndMultipleSelectionInteraction(_:))
         )
     }()
     
     private var anyDidEndMultipleSelectionInteraction: Any = {
         guard #available(iOS 13, *) else { return () }
-        return Delegate<Void, Void>(
+        return Delegate<Void, Void, Void>(
             #selector(UITableViewDelegate.tableView(_:didBeginMultipleSelectionInteractionAt:))
         )
     }()
     
     @available(iOS 13.0, *)
-    var shouldBeginMultipleSelectionInteractionAt: Delegate<IndexPath, Bool> {
-        get { anyShouldBeginMultipleSelectionInteractionAt as! Delegate<IndexPath, Bool> }
+    var shouldBeginMultipleSelectionInteractionAt: Delegate<IndexPath, Bool, IndexPath> {
+        get { anyShouldBeginMultipleSelectionInteractionAt as! Delegate<IndexPath, Bool, IndexPath> }
         set { anyShouldBeginMultipleSelectionInteractionAt = newValue }
     }
     
     @available(iOS 13.0, *)
-    var didBeginMultipleSelectionInteractionAt: Delegate<IndexPath, Void> {
-        get { anyDidBeginMultipleSelectionInteractionAt as! Delegate<IndexPath, Void> }
+    var didBeginMultipleSelectionInteractionAt: Delegate<IndexPath, Void, IndexPath> {
+        get { anyDidBeginMultipleSelectionInteractionAt as! Delegate<IndexPath, Void, IndexPath> }
         set { anyDidBeginMultipleSelectionInteractionAt = newValue }
     }
     
     @available(iOS 13.0, *)
-    var didEndMultipleSelectionInteraction: Delegate<Void, Void> {
-        get { anyDidEndMultipleSelectionInteraction as! Delegate<Void, Void> }
+    var didEndMultipleSelectionInteraction: Delegate<Void, Void, Void> {
+        get { anyDidEndMultipleSelectionInteraction as! Delegate<Void, Void, Void> }
         set { anyDidEndMultipleSelectionInteraction = newValue }
     }
 
     //Providing Custom Header and Footer Views
-    var viewForHeaderInSection = Delegate<Int, UIView?>(
-        index: .index(\.self),
+    var viewForHeaderInSection = Delegate<Int, UIView?, Int>(
+        index: \.self,
         #selector(UITableViewDelegate.tableView(_:viewForHeaderInSection:))
     )
     
-    var viewForFooterInSection = Delegate<Int, UIView?>(
-        index: .index(\.self),
+    var viewForFooterInSection = Delegate<Int, UIView?, Int>(
+        index: \.self,
         #selector(UITableViewDelegate.tableView(_:viewForFooterInSection:))
     )
     
-    var willDisplayHeaderViewForSection = Delegate<(UIView, Int), Void>(
-        index: .index(\.1),
+    var willDisplayHeaderViewForSection = Delegate<(UIView, Int), Void, Int>(
+        index: \.1,
         #selector(UITableViewDelegate.tableView(_:willDisplayHeaderView:forSection:))
     )
     
-    var willDisplayFooterViewForSection = Delegate<(UIView, Int), Void>(
-        index: .index(\.1),
+    var willDisplayFooterViewForSection = Delegate<(UIView, Int), Void, Int>(
+        index: \.1,
         #selector(UITableViewDelegate.tableView(_:willDisplayFooterView:forSection:))
     )
     
     //Providing Header, Footer, and Row Heights
-    var heightForRowAt = Delegate<IndexPath, CGFloat>(
-        index: .indexPath(\.self),
+    var heightForRowAt = Delegate<IndexPath, CGFloat, IndexPath>(
+        index: \.self,
         #selector(UITableViewDelegate.tableView(_:heightForRowAt:))
     )
     
-    var heightForHeaderInSection = Delegate<Int, CGFloat>(
-        index: .index(\.self),
+    var heightForHeaderInSection = Delegate<Int, CGFloat, Int>(
+        index: \.self,
         #selector(UITableViewDelegate.tableView(_:heightForHeaderInSection:))
     )
     
-    var heightForFooterInSection = Delegate<Int, CGFloat>(
-        index: .index(\.self),
+    var heightForFooterInSection = Delegate<Int, CGFloat, Int>(
+        index: \.self,
         #selector(UITableViewDelegate.tableView(_:heightForFooterInSection:))
     )
 
     //Estimating Heights for the Table's Content
-    var estimatedHeightForRowAt = Delegate<IndexPath, CGFloat>(
-        index: .indexPath(\.self),
+    var estimatedHeightForRowAt = Delegate<IndexPath, CGFloat, IndexPath>(
+        index: \.self,
         #selector(UITableViewDelegate.tableView(_:estimatedHeightForRowAt:))
     )
     
-    var estimatedHeightForHeaderInSection = Delegate<Int, CGFloat>(
-        index: .index(\.self),
+    var estimatedHeightForHeaderInSection = Delegate<Int, CGFloat, Int>(
+        index: \.self,
         #selector(UITableViewDelegate.tableView(_:estimatedHeightForHeaderInSection:))
     )
     
-    var estimatedHeightForFooterInSection = Delegate<Int, CGFloat>(
-        index: .index(\.self),
+    var estimatedHeightForFooterInSection = Delegate<Int, CGFloat, Int>(
+        index: \.self,
         #selector(UITableViewDelegate.tableView(_:estimatedHeightForFooterInSection:))
     )
     
     //Managing Accessory Views
-    var accessoryButtonTappedForRowWith = Delegate<IndexPath, Void>(
+    var accessoryButtonTappedForRowWith = Delegate<IndexPath, Void, IndexPath>(
+        index: \.self,
         #selector(UITableViewDelegate.tableView(_:accessoryButtonTappedForRowWith:))
     )
 
     //Responding to Row Actions
     var anyLeadingSwipeActionsConfigurationForRowAt: Any = {
         guard #available(iOS 11.0, *) else { return () }
-        return Delegate<IndexPath, UISwipeActionsConfiguration?>(
-            index: .indexPath(\.self),
+        return Delegate<IndexPath, UISwipeActionsConfiguration?, IndexPath>(
+            index: \.self,
             #selector(UITableViewDelegate.tableView(_:leadingSwipeActionsConfigurationForRowAt:))
         )
     }()
     
     var anyTrailingSwipeActionsConfigurationForRowAt: Any = {
         guard #available(iOS 11.0, *) else { return () }
-        return Delegate<IndexPath, UISwipeActionsConfiguration?>(
-            index: .indexPath(\.self),
+        return Delegate<IndexPath, UISwipeActionsConfiguration?, IndexPath>(
+            index: \.self,
             #selector(UITableViewDelegate.tableView(_:trailingSwipeActionsConfigurationForRowAt:))
         )
          
     }()
     
     @available(iOS 11.0, *)
-    var leadingSwipeActionsConfigurationForRowAt: Delegate<IndexPath, UISwipeActionsConfiguration?> {
-        get { anyLeadingSwipeActionsConfigurationForRowAt as! Delegate<IndexPath, UISwipeActionsConfiguration?> }
+    var leadingSwipeActionsConfigurationForRowAt: Delegate<IndexPath, UISwipeActionsConfiguration?, IndexPath> {
+        get { anyLeadingSwipeActionsConfigurationForRowAt as! Delegate<IndexPath, UISwipeActionsConfiguration?, IndexPath> }
         set { anyLeadingSwipeActionsConfigurationForRowAt = newValue }
     }
     
     @available(iOS 11.0, *)
-    var trailingSwipeActionsConfigurationForRowAt: Delegate<IndexPath, UISwipeActionsConfiguration?> {
-        get { anyTrailingSwipeActionsConfigurationForRowAt as! Delegate<IndexPath, UISwipeActionsConfiguration?> }
+    var trailingSwipeActionsConfigurationForRowAt: Delegate<IndexPath, UISwipeActionsConfiguration?, IndexPath> {
+        get { anyTrailingSwipeActionsConfigurationForRowAt as! Delegate<IndexPath, UISwipeActionsConfiguration?, IndexPath> }
         set { anyTrailingSwipeActionsConfigurationForRowAt = newValue }
     }
     
-    var shouldShowMenuForRowAt = Delegate<IndexPath, Bool>(
-        index: .indexPath(\.self),
+    var shouldShowMenuForRowAt = Delegate<IndexPath, Bool, IndexPath>(
+        index: \.self,
         #selector(UITableViewDelegate.tableView(_:shouldShowMenuForRowAt:))
     )
     
-    var canPerformActionForRowAtWithSender = Delegate<(Selector, IndexPath, Any?), Bool>(
-        index: .indexPath(\.1),
+    var canPerformActionForRowAtWithSender = Delegate<(Selector, IndexPath, Any?), Bool, IndexPath>(
+        index: \.1,
         #selector(UITableViewDelegate.tableView(_:canPerformAction:forRowAt:withSender:))
     )
     
-    var performActionForRowAtWithSender = Delegate<(Selector, IndexPath, Any?), Void>(
-        index: .indexPath(\.1),
+    var performActionForRowAtWithSender = Delegate<(Selector, IndexPath, Any?), Void, IndexPath>(
+        index: \.1,
         #selector(UITableViewDelegate.tableView(_:performAction:forRowAt:withSender:))
     )
     
-    var editActionsForRowAt = Delegate<IndexPath, [UITableViewRowAction]?>(
-        index: .indexPath(\.self),
+    var editActionsForRowAt = Delegate<IndexPath, [UITableViewRowAction]?, IndexPath>(
+        index: \.self,
         #selector(UITableViewDelegate.tableView(_:editActionsForRowAt:))
     )
     
     //Managing Table View Highlights
-    var shouldHighlightRowAt = Delegate<IndexPath, Bool>(
-        index: .indexPath(\.self),
+    var shouldHighlightRowAt = Delegate<IndexPath, Bool, IndexPath>(
+        index: \.self,
         #selector(UITableViewDelegate.tableView(_:shouldHighlightRowAt:))
     )
     
-    var didHighlightRowAt = Delegate<IndexPath, Void>(
-        index: .indexPath(\.self),
+    var didHighlightRowAt = Delegate<IndexPath, Void, IndexPath>(
+        index: \.self,
         #selector(UITableViewDelegate.tableView(_:didHighlightRowAt:))
     )
     
-    var didUnhighlightRowAt = Delegate<IndexPath, Void>(
-        index: .indexPath(\.self),
+    var didUnhighlightRowAt = Delegate<IndexPath, Void, IndexPath>(
+        index: \.self,
         #selector(UITableViewDelegate.tableView(_:didUnhighlightRowAt:))
     )
 
     //Editing Table Rows
-    var willBeginEditingRowAt = Delegate<IndexPath, Void>(
-        index: .indexPath(\.self),
+    var willBeginEditingRowAt = Delegate<IndexPath, Void, IndexPath>(
+        index: \.self,
         #selector(UITableViewDelegate.tableView(_:willBeginEditingRowAt:))
     )
     
-    var didEndEditingRowAt = Delegate<(IndexPath?), Void>(
+    var didEndEditingRowAt = Delegate<(IndexPath?), Void, Void>(
         #selector(UITableViewDelegate.tableView(_:didEndEditingRowAt:))
     )
     
-    var editingStyleForRowAt = Delegate<IndexPath, UITableViewCell.EditingStyle>(
-        index: .indexPath(\.self),
+    var editingStyleForRowAt = Delegate<IndexPath, UITableViewCell.EditingStyle, IndexPath>(
+        index: \.self,
         #selector(UITableViewDelegate.tableView(_:editingStyleForRowAt:))
     )
     
-    var titleForDeleteConfirmationButtonForRowAt = Delegate<IndexPath, String?>(
-        index: .indexPath(\.self),
+    var titleForDeleteConfirmationButtonForRowAt = Delegate<IndexPath, String?, IndexPath>(
+        index: \.self,
         #selector(UITableViewDelegate.tableView(_:titleForDeleteConfirmationButtonForRowAt:))
     )
     
-    var shouldIndentWhileEditingRowAt = Delegate<IndexPath, Bool>(
-        index: .indexPath(\.self),
+    var shouldIndentWhileEditingRowAt = Delegate<IndexPath, Bool, IndexPath>(
+        index: \.self,
         #selector(UITableViewDelegate.tableView(_:shouldIndentWhileEditingRowAt:))
     )
 
     //Reordering Table Rows
-    var targetIndexPathForMoveFromRowAtToProposedIndexPath = Delegate<(IndexPath, IndexPath), IndexPath>(
+    var targetIndexPathForMoveFromRowAtToProposedIndexPath = Delegate<(IndexPath, IndexPath), IndexPath, Void>(
         #selector(UITableViewDelegate.tableView(_:targetIndexPathForMoveFromRowAt:toProposedIndexPath:))
     )
 
     //Tracking the Removal of Views
-    var didEndDisplayingForRowAt = Delegate<(UITableViewCell, IndexPath), Void>(
+    var didEndDisplayingForRowAt = Delegate<(UITableViewCell, IndexPath), Void, Void>(
         #selector(UITableViewDelegate.tableView(_:didEndDisplaying:forRowAt:))
     )
     
-    var didEndDisplayingHeaderViewForSection = Delegate<(UIView, Int), Void>(
+    var didEndDisplayingHeaderViewForSection = Delegate<(UIView, Int), Void, Void>(
         #selector(UITableViewDelegate.tableView(_:didEndDisplayingHeaderView:forSection:))
     )
     
-    var didEndDisplayingFooterViewForSection = Delegate<(UIView, Int), Void>(
+    var didEndDisplayingFooterViewForSection = Delegate<(UIView, Int), Void, Void>(
         #selector(UITableViewDelegate.tableView(_:didEndDisplayingFooterView:forSection:))
     )
     
     //Managing Table View Focus
-    var canFocusRowAt = Delegate<IndexPath, Bool>(
-        index: .indexPath(\.self),
+    var canFocusRowAt = Delegate<IndexPath, Bool, IndexPath>(
+        index: \.self,
         #selector(UITableViewDelegate.tableView(_:canFocusRowAt:))
     )
     
-    var shouldUpdateFocusIn = Delegate<UITableViewFocusUpdateContext, Bool>(
+    var shouldUpdateFocusIn = Delegate<UITableViewFocusUpdateContext, Bool, Void>(
         #selector(UITableViewDelegate.tableView(_:shouldUpdateFocusIn:))
     )
     
-    var didUpdateFocusInWith = Delegate<(UITableViewFocusUpdateContext, UIFocusAnimationCoordinator), Void>(
+    var didUpdateFocusInWith = Delegate<(UITableViewFocusUpdateContext, UIFocusAnimationCoordinator), Void, Void>(
         #selector(UITableViewDelegate.tableView(_:didUpdateFocusIn:with:))
     )
     
-    var indexPathForPreferredFocusedView = Delegate<Void, IndexPath?>(
+    var indexPathForPreferredFocusedView = Delegate<Void, IndexPath?, Void>(
         #selector(UITableViewDelegate.indexPathForPreferredFocusedView(in:))
     )
     
@@ -337,8 +338,8 @@ final class UITableListDelegate {
     
     private var anyContextMenuConfigurationForRowAtPoint: Any = {
         guard #available(iOS 13.0, *) else { return () }
-        return Delegate<(IndexPath, CGPoint), UIContextMenuConfiguration>(
-            index: .indexPath(\.0),
+        return Delegate<(IndexPath, CGPoint), UIContextMenuConfiguration, IndexPath>(
+            index: \.0,
             #selector(UITableViewDelegate.tableView(_:contextMenuConfigurationForRowAt:point:))
         )
          
@@ -346,47 +347,47 @@ final class UITableListDelegate {
     
     private var anyPreviewForDismissingContextMenuWithConfiguration: Any = {
         guard #available(iOS 13.0, *) else { return () }
-        return Delegate<UIContextMenuConfiguration, UITargetedPreview>(
+        return Delegate<UIContextMenuConfiguration, UITargetedPreview, Void>(
             #selector(UITableViewDelegate.tableView(_:previewForDismissingContextMenuWithConfiguration:))
         )
     }()
     
     private var anyTableViewPreviewForHighlightingContextMenuWithConfiguration: Any = {
         guard #available(iOS 13.0, *) else { return () }
-        return Delegate<UIContextMenuConfiguration, UITargetedPreview>(
+        return Delegate<UIContextMenuConfiguration, UITargetedPreview, Void>(
             #selector(UITableViewDelegate.tableView(_:previewForHighlightingContextMenuWithConfiguration:))
         )
     }()
     
     private var anyTableViewWillPerformPreviewActionForMenuWithAnimator: Any = {
         guard #available(iOS 13.0, *) else { return () }
-        return Delegate<(UIContextMenuConfiguration, UIContextMenuInteractionCommitAnimating), Void>(
+        return Delegate<(UIContextMenuConfiguration, UIContextMenuInteractionCommitAnimating), Void, Void>(
             #selector(UITableViewDelegate.tableView(_:willPerformPreviewActionForMenuWith:animator:))
         )
     }()
     
     
     @available(iOS 13.0, *)
-    var contextMenuConfigurationForRowAtPoint: Delegate<(IndexPath, CGPoint), UIContextMenuConfiguration> {
-        get { anyContextMenuConfigurationForRowAtPoint as! Delegate<(IndexPath, CGPoint), UIContextMenuConfiguration> }
+    var contextMenuConfigurationForRowAtPoint: Delegate<(IndexPath, CGPoint), UIContextMenuConfiguration, IndexPath> {
+        get { anyContextMenuConfigurationForRowAtPoint as! Delegate<(IndexPath, CGPoint), UIContextMenuConfiguration, IndexPath> }
         set { anyContextMenuConfigurationForRowAtPoint = newValue }
     }
     
     @available(iOS 13.0, *)
-    var previewForDismissingContextMenuWithConfiguration: Delegate<UIContextMenuConfiguration, UITargetedPreview> {
-        get { anyPreviewForDismissingContextMenuWithConfiguration as! Delegate<UIContextMenuConfiguration, UITargetedPreview> }
+    var previewForDismissingContextMenuWithConfiguration: Delegate<UIContextMenuConfiguration, UITargetedPreview, Void> {
+        get { anyPreviewForDismissingContextMenuWithConfiguration as! Delegate<UIContextMenuConfiguration, UITargetedPreview, Void> }
         set { anyPreviewForDismissingContextMenuWithConfiguration = newValue }
     }
     
     @available(iOS 13.0, *)
-    var previewForHighlightingContextMenuWithConfiguration: Delegate<UIContextMenuConfiguration, UITargetedPreview> {
-        get { anyTableViewPreviewForHighlightingContextMenuWithConfiguration as! Delegate<UIContextMenuConfiguration, UITargetedPreview> }
+    var previewForHighlightingContextMenuWithConfiguration: Delegate<UIContextMenuConfiguration, UITargetedPreview, Void> {
+        get { anyTableViewPreviewForHighlightingContextMenuWithConfiguration as! Delegate<UIContextMenuConfiguration, UITargetedPreview, Void> }
         set { anyTableViewPreviewForHighlightingContextMenuWithConfiguration = newValue }
     }
     
     @available(iOS 13.0, *)
-    var willPerformPreviewActionForMenuWithAnimator: Delegate<(UIContextMenuConfiguration, UIContextMenuInteractionCommitAnimating), Void> {
-        get { anyTableViewWillPerformPreviewActionForMenuWithAnimator as! Delegate<(UIContextMenuConfiguration, UIContextMenuInteractionCommitAnimating), Void> }
+    var willPerformPreviewActionForMenuWithAnimator: Delegate<(UIContextMenuConfiguration, UIContextMenuInteractionCommitAnimating), Void, Void> {
+        get { anyTableViewWillPerformPreviewActionForMenuWithAnimator as! Delegate<(UIContextMenuConfiguration, UIContextMenuInteractionCommitAnimating), Void, Void> }
         set { anyTableViewWillPerformPreviewActionForMenuWithAnimator = newValue }
     }
     

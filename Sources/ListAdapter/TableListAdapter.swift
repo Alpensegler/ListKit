@@ -95,6 +95,8 @@ public extension TableListAdapter {
 }
 
 extension TableList: ListAdapter {
+    typealias View = TableView
+    
     static var defaultErasedGetter: (Self) -> TableList<AnySources> {
         { .init(AnySources($0)) { $0 } }
     }
@@ -107,46 +109,6 @@ import UIKit
 extension TableList {
     static var rootKeyPath: ReferenceWritableKeyPath<CoordinatorContext, UITableListDelegate> {
         \.tableListDelegate
-    }
-    
-    static func toContext(
-        _ view: TableView,
-        _ context: ListCoordinatorContext<Source>
-    ) -> TableContext<Source> {
-        .init(listView: view, context: context)
-    }
-    
-    static func toSectionContext(
-        _ view: TableView,
-        _ context: ListCoordinatorContext<Source>,
-        _ section: Int,
-        _ sectionOffset: Int,
-        _ itemOffset: Int
-    ) -> TableSectionContext<Source> {
-        .init(
-            listView: view,
-            context: context,
-            section: section - sectionOffset,
-            sectionOffset: sectionOffset
-        )
-    }
-    
-    
-    static func toItemContext(
-        _ view: TableView,
-        _ context: ListCoordinatorContext<Source>,
-        _ path: IndexPath,
-        _ sectionOffset: Int,
-        _ itemOffset: Int
-    ) -> TableItemContext<Source> {
-        .init(
-            listView: view,
-            context: context,
-            section: path.section - sectionOffset,
-            sectionOffset: sectionOffset,
-            item: path.item - itemOffset,
-            itemOffset: itemOffset
-        )
     }
 }
 

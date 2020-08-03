@@ -5,10 +5,12 @@
 //  Created by Frain on 2019/12/17.
 //
 
-public extension ItemContext {
+import Foundation
+
+public extension ListIndexContext where Index == IndexPath {
     @discardableResult
     func nestedAdapter<Adapter: CollectionListAdapter>(
-        _ keyPath: KeyPath<Source.Item, Adapter>,
+        _ keyPath: KeyPath<SourceBase.Item, Adapter>,
         applyBy collectionView: CollectionView,
         animated: Bool = true,
         completion: ((Bool) -> Void)? = nil
@@ -22,7 +24,7 @@ public extension ItemContext {
         )
         var coordinator = list.listCoordinator
         setNestedCache(with: keyPath) { [weak collectionView] sourceBase in
-            guard let sourceBase = sourceBase as? Source.Item,
+            guard let sourceBase = sourceBase as? SourceBase.Item,
                   let collectionView = collectionView,
                   collectionView.isCoordinator(coordinator)
             else { return }
@@ -35,7 +37,7 @@ public extension ItemContext {
     
     @discardableResult
     func nestedAdapter<Adapter: TableListAdapter>(
-        _ keyPath: KeyPath<Source.Item, Adapter>,
+        _ keyPath: KeyPath<SourceBase.Item, Adapter>,
         applyBy tableView: TableView,
         animated: Bool = true,
         completion: ((Bool) -> Void)? = nil
@@ -49,7 +51,7 @@ public extension ItemContext {
         )
         var coordinator = list.listCoordinator
         setNestedCache(with: keyPath) { [weak tableView] sourceBase in
-            guard let sourceBase = sourceBase as? Source.Item,
+            guard let sourceBase = sourceBase as? SourceBase.Item,
                   let tableView = tableView,
                   tableView.isCoordinator(coordinator)
             else { return }
@@ -61,16 +63,16 @@ public extension ItemContext {
     }
 }
 
-public extension ItemContext where Source.Item: CollectionListAdapter {
+public extension ListIndexContext where Index == IndexPath, SourceBase.Item: CollectionListAdapter {
     @discardableResult
-    func nestedAdapter(applyBy collectionView: CollectionView) -> CollectionList<Source.Item.SourceBase> {
+    func nestedAdapter(applyBy collectionView: CollectionView) -> CollectionList<SourceBase.Item.SourceBase> {
         nestedAdapter(\.self, applyBy: collectionView)
     }
 }
 
-public extension ItemContext where Source.Item: TableListAdapter {
+public extension ListIndexContext where Index == IndexPath, SourceBase.Item: TableListAdapter {
     @discardableResult
-    func nestedAdapter(applyBy tableView: TableView) -> TableList<Source.Item.SourceBase> {
+    func nestedAdapter(applyBy tableView: TableView) -> TableList<SourceBase.Item.SourceBase> {
         nestedAdapter(\.self, applyBy: tableView)
     }
 }

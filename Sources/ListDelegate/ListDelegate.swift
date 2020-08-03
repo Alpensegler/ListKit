@@ -39,31 +39,31 @@ final class ListDelegate: NSObject {
         completion?(true)
     }
     
-    func apply<Object: AnyObject, Input, Output>(
-        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Input, Output>>,
+    func apply<Object: AnyObject, Input, Output, Index>(
+        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Input, Output, Index>>,
         object: Object,
         with input: Input
     ) -> Output {
-        context.apply(keyPath, object: object, with: input)
+        context.apply(keyPath, root: context, object: object, with: input, 0, 0)
     }
     
-    func apply<Object: AnyObject, Input>(
-        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Input, Void>>,
+    func apply<Object: AnyObject, Input, Index>(
+        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Input, Void, Index>>,
         object: Object,
         with input: Input
     ) {
-        context.apply(keyPath, object: object, with: input)
+        context.apply(keyPath, root: context, object: object, with: input, 0, 0)
     }
     
     func apply<Object: AnyObject, Output>(
-        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Void, Output>>,
+        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Void, Output, Void>>,
         object: Object
     ) -> Output {
         apply(keyPath, object: object, with: ())
     }
     
     func apply<Object: AnyObject>(
-        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Void, Void>>,
+        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Void, Void, Void>>,
         object: Object
     ) {
         apply(keyPath, object: object, with: ())

@@ -5,6 +5,8 @@
 //  Created by Frain on 2020/6/8.
 //
 
+import Foundation
+
 public class ListCoordinatorContext<SourceBase: DataSource>: CoordinatorContext
 where SourceBase.SourceBase == SourceBase {
     typealias Item = SourceBase.Item
@@ -56,51 +58,52 @@ where SourceBase.SourceBase == SourceBase {
     func numbersOfItems(in section: Int) -> Int { coordinator.numbersOfItems(in: section) }
     
     // Selectors
-    func apply<Object: AnyObject, Input, Output>(
-        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Input, Output>>,
+    func apply<Object: AnyObject, Input, Output, Index>(
+        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Input, Output, Index>>,
+        root: CoordinatorContext,
         object: Object,
         with input: Input,
         _ sectionOffset: Int,
         _ itemOffset: Int
     ) -> Output {
-        self[keyPath: keyPath].closure!(object, input, sectionOffset, itemOffset)
+        self[keyPath: keyPath].closure!(object, input, root, sectionOffset, itemOffset)
     }
     
-    func apply<Object: AnyObject, Input>(
-        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Input, Void>>,
+    func apply<Object: AnyObject, Input, Index>(
+        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Input, Void, Index>>,
+        root: CoordinatorContext,
         object: Object,
         with input: Input,
         _ sectionOffset: Int,
         _ itemOffset: Int
     ) {
-        self[keyPath: keyPath].closure?(object, input, sectionOffset, itemOffset)
+        self[keyPath: keyPath].closure?(object, input, root, sectionOffset, itemOffset)
     }
 }
 
 
 extension ListCoordinatorContext {
-    func set<Object: AnyObject, Input, Output>(
-        _ keyPath: ReferenceWritableKeyPath<CoordinatorContext, Delegate<Object, Input, Output>>,
-        _ closure: @escaping (ListCoordinatorContext<SourceBase>, Object, Input, Int, Int) -> Output
+    func set<Object: AnyObject, Input, Output, Index>(
+        _ keyPath: ReferenceWritableKeyPath<CoordinatorContext, Delegate<Object, Input, Output, Index>>,
+        _ closure: @escaping (ListCoordinatorContext<SourceBase>, Object, Input, CoordinatorContext, Int, Int) -> Output
     ) {
-        self[keyPath: keyPath].closure = { [unowned self] in closure(self, $0, $1, $2, $3) }
+        self[keyPath: keyPath].closure = { [unowned self] in closure(self, $0, $1, $2, $3, $4) }
         let delegate = self[keyPath: keyPath]
-        switch delegate.index {
-        case .none:
-            selectorSets.value.remove(delegate.selector)
-        case .indexPath:
-            selectorSets.withIndexPath.remove(delegate.selector)
-        case .index:
+        if Index.self == Int.self {
             selectorSets.withIndex.remove(delegate.selector)
             selectorSets.hasIndex = true
+        } else if Index.self == IndexPath.self {
+            selectorSets.withIndexPath.remove(delegate.selector)
+        } else {
+            selectorSets.value.remove(delegate.selector)
         }
     }
 
-    func set<Object: AnyObject, Input>(
-        _ keyPath: ReferenceWritableKeyPath<CoordinatorContext, Delegate<Object, Input, Void>>,
-        _ closure: @escaping (ListCoordinatorContext<SourceBase>, Object, Input, Int, Int) -> Void
+    func set<Object: AnyObject, Input, Index>(
+        _ keyPath: ReferenceWritableKeyPath<CoordinatorContext, Delegate<Object, Input, Void, Index>>,
+        _ closure: @escaping (ListCoordinatorContext<SourceBase>, Object, Input, CoordinatorContext, Int, Int) -> Void
     ) {
-        self[keyPath: keyPath].closure = { [unowned self] in closure(self, $0, $1, $2, $3) }
+        self[keyPath: keyPath].closure = { [unowned self] in closure(self, $0, $1, $2, $3, $4) }
         let delegate = self[keyPath: keyPath]
         selectorSets.void.remove(delegate.selector)
     }

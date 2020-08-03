@@ -47,18 +47,19 @@ class SelectorSets {
             || withIndex.contains(selector)
     }
     
-    func add<Input, Object, Output>(
-        _ closureDelegate: Delegate<Object, Input, Output>
+    func add<Input, Object, Output, Index>(
+        _ closureDelegate: Delegate<Object, Input, Output, Index>
     ) {
-        switch (closureDelegate.index, withoutIndex) {
-        case (.none, _): value.insert(closureDelegate.selector)
-        case (.indexPath, false): withIndexPath.insert(closureDelegate.selector)
-        case (.index, false): withIndex.insert(closureDelegate.selector)
-        default: break
+        if closureDelegate.index == nil {
+            value.insert(closureDelegate.selector)
+        } else if Index.self == IndexPath.self, !withoutIndex {
+            withIndexPath.insert(closureDelegate.selector)
+        } else if Index.self == Int.self, !withoutIndex {
+            withIndex.insert(closureDelegate.selector)
         }
     }
     
-    func add<Input, Object>(_ closureDelegate: Delegate<Object, Input, Void>) {
+    func add<Input, Object, Index>(_ closureDelegate: Delegate<Object, Input, Void, Index>) {
         void.insert(closureDelegate.selector)
     }
 }

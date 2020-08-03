@@ -95,6 +95,8 @@ public extension CollectionListAdapter {
 }
 
 extension CollectionList: ListAdapter {
+    typealias View = CollectionView
+    
     static var defaultErasedGetter: (Self) -> CollectionList<AnySources> {
         { .init(AnySources($0)) { $0 } }
     }
@@ -107,45 +109,6 @@ import UIKit
 extension CollectionList {
     static var rootKeyPath: ReferenceWritableKeyPath<CoordinatorContext, UICollectionListDelegate> {
         \.collectionListDelegate
-    }
-    
-    static func toContext(
-        _ view: CollectionView,
-        _ context: ListCoordinatorContext<Source>
-    ) -> CollectionContext<Source> {
-        .init(listView: view, context: context)
-    }
-    
-    static func toSectionContext(
-        _ view: CollectionView,
-        _ context: ListCoordinatorContext<Source>,
-        _ section: Int,
-        _ sectionOffset: Int,
-        _ itemOffset: Int
-    ) -> CollectionSectionContext<Source> {
-        .init(
-            listView: view,
-            context: context,
-            section: section - sectionOffset,
-            sectionOffset: sectionOffset
-        )
-    }
-    
-    static func toItemContext(
-        _ view: CollectionView,
-        _ context: ListCoordinatorContext<Source>,
-        _ path: IndexPath,
-        _ sectionOffset: Int,
-        _ itemOffset: Int
-    ) -> CollectionItemContext<Source> {
-        .init(
-            listView: view,
-            context: context,
-            section: path.section - sectionOffset,
-            sectionOffset: sectionOffset,
-            item: path.item - itemOffset,
-            itemOffset: itemOffset
-        )
     }
 }
 

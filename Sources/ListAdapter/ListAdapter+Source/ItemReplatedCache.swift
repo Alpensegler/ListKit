@@ -11,7 +11,7 @@ import UIKit
 public extension TableListAdapter {
     func tableList<Cache>(
         withCacheFromItem cacheFromItem: @escaping (Item) -> Cache,
-        toTableList: (Self, @escaping (TableItemContext<SourceBase>) -> Cache) -> TableList<SourceBase>
+        toTableList: (Self, @escaping (TableItemContext) -> Cache) -> TableList<SourceBase>
     ) -> TableList<SourceBase> {
         let key = ObjectIdentifier(Cache.self)
         let tableList = toTableList(self)  { $0.cacheForItem(key) as! Cache }
@@ -24,7 +24,7 @@ public extension TableListAdapter {
 public extension CollectionListAdapter {
     func collectionList<Cache>(
         withCacheFromItem cacheFromItem: @escaping (Item) -> Cache,
-        toCollectionList: (Self, @escaping (CollectionItemContext<SourceBase>) -> Cache) -> CollectionList<SourceBase>
+        toCollectionList: (Self, @escaping (CollectionItemContext) -> Cache) -> CollectionList<SourceBase>
     ) -> CollectionList<SourceBase> {
         let key = ObjectIdentifier(Cache.self)
         let collectionList = toCollectionList(self) { $0.cacheForItem(key) as! Cache }
@@ -36,8 +36,8 @@ public extension CollectionListAdapter {
 
 public extension TableListAdapter {
     func tableListWithCache(
-        heightForItem: @escaping  (Item) -> CGFloat,
-        cellForItem: @escaping (TableItemContext<SourceBase>, CGFloat, Item) -> UITableViewCell
+        heightForItem: @escaping (Item) -> CGFloat,
+        cellForItem: @escaping (TableItemContext, CGFloat, Item) -> UITableViewCell
     ) -> TableList<SourceBase> {
         tableList(withCacheFromItem: heightForItem) { (self, cacheGetter) in
             self.tableViewCellForRow { cellForItem($0, cacheGetter($0), $1) }
@@ -48,8 +48,8 @@ public extension TableListAdapter {
 
 public extension CollectionListAdapter {
     func collectionListWithCache(
-        sizeForItem: @escaping  (Item) -> CGSize,
-        cellForItem: @escaping (CollectionItemContext<SourceBase>, CGSize, Item) -> UICollectionViewCell
+        sizeForItem: @escaping (Item) -> CGSize,
+        cellForItem: @escaping (CollectionItemContext, CGSize, Item) -> UICollectionViewCell
     ) -> CollectionList<SourceBase> {
         collectionList(withCacheFromItem: sizeForItem) { (self, cacheGetter) in
             self.collectionViewCellForItem { cellForItem($0, cacheGetter($0), $1) }

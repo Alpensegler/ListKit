@@ -13,6 +13,7 @@ protocol ListIndex: Hashable {
     var item: Int { get }
     
     init(_ value: Self?, offset: Int)
+    init(section: Int, item: Int)
     func offseted(_ offset: Int) -> Self
 }
 
@@ -49,5 +50,7 @@ extension Int: ListIndex {
     var item: Int { 0 }
     
     init(_ value: Int?, offset: Int) { self = (value ?? 0) + offset }
+    init(section: Int = 0, item: Int = 0) { self = section }
+    
     func offseted(_ offset: Int) -> Int { self + offset }
 }

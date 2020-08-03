@@ -9,8 +9,8 @@ class WrapperCoordinatorContext<SourceBase, Other>: ListCoordinatorContext<Sourc
 where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSource {
     let wrapped: ListCoordinatorContext<Other.SourceBase>
     
-    func subcontext<Object: AnyObject, Input, Output>(
-        for delegate: Delegate<Object, Input, Output>,
+    func subcontext<Object: AnyObject, Input, Output, Index>(
+        for delegate: Delegate<Object, Input, Output, Index>,
         object: Object,
         with input: Input
     ) -> CoordinatorContext? {
@@ -27,8 +27,9 @@ where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSo
         selectorSets = SelectorSets(merging: selectorSets, wrapped.selectorSets)
     }
     
-    override func apply<Object: AnyObject, Input, Output>(
-        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Input, Output>>,
+    override func apply<Object: AnyObject, Input, Output, Index>(
+        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Input, Output, Index>>,
+        root: CoordinatorContext,
         object: Object,
         with input: Input,
         _ sectionOffset: Int,
@@ -36,12 +37,13 @@ where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSo
     ) -> Output {
         let delegate = self[keyPath: keyPath]
         let context = subcontext(for: delegate, object: object, with: input)
-        return context?.apply(keyPath, object: object, with: input, sectionOffset, itemOffset)
-            ?? super.apply(keyPath, object: object, with: input, sectionOffset, itemOffset)
+        return context?.apply(keyPath, root: root, object: object, with: input, sectionOffset, itemOffset)
+            ?? super.apply(keyPath, root: root, object: object, with: input, sectionOffset, itemOffset)
     }
     
-    override func apply<Object: AnyObject, Input>(
-        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Input, Void>>,
+    override func apply<Object: AnyObject, Input, Index>(
+        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Input, Void, Index>>,
+        root: CoordinatorContext,
         object: Object,
         with input: Input,
         _ sectionOffset: Int,
@@ -49,7 +51,7 @@ where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSo
     ) {
         let delegate = self[keyPath: keyPath]
         let context = subcontext(for: delegate, object: object, with: input)
-        context?.apply(keyPath, object: object, with: input, sectionOffset, itemOffset)
-        super.apply(keyPath, object: object, with: input, sectionOffset, itemOffset)
+        context?.apply(keyPath, root: root, object: object, with: input, sectionOffset, itemOffset)
+        super.apply(keyPath, root: root, object: object, with: input, sectionOffset, itemOffset)
     }
 }

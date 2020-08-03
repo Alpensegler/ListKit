@@ -7,18 +7,21 @@
 
 import Foundation
 
-struct Delegate<Object: AnyObject, Input, Output> {
-    enum Index {
-        case index(KeyPath<Input, Int>)
-        case indexPath(KeyPath<Input, IndexPath>)
-    }
-    
+struct Delegate<Object: AnyObject, Input, Output, Index> {
     let selector: Selector
-    let index: Index?
-    var closure: ((Object, Input, Int, Int) -> Output)?
+    let index: KeyPath<Input, Index>!
+    var closure: ((Object, Input, CoordinatorContext, Int, Int) -> Output)?
     
-    init(index: Index? = nil, _ selector: Selector) {
+    init(index: KeyPath<Input, Index>, _ selector: Selector) {
         self.index = index
+        self.selector = selector
+        self.closure = nil
+    }
+}
+
+extension Delegate where Index == Void {
+    init(_ selector: Selector) {
+        self.index = nil
         self.selector = selector
         self.closure = nil
     }

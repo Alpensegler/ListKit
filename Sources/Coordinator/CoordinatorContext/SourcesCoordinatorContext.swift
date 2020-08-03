@@ -5,6 +5,8 @@
 //  Created by Frain on 2020/6/8.
 //
 
+import Foundation
+
 class SourcesCoordinatorContext<SourceBase: DataSource, Source>: ListCoordinatorContext<SourceBase>
 where
     SourceBase.SourceBase == SourceBase,
@@ -34,8 +36,9 @@ where
         selectorSets = SelectorSets(merging: selectorSets, others)
     }
     
-    func subcoordinatorApply<Object: AnyObject, Input, Output>(
-        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Input, Output>>,
+    func subcoordinatorApply<Object: AnyObject, Input, Output, Index>(
+        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Input, Output, Index>>,
+        root: CoordinatorContext,
         object: Object,
         with input: Input,
         _ sectionOffset: Int,
@@ -44,38 +47,41 @@ where
         var (sectionOffset, itemOffset) = (sectionOffset, itemOffset)
         guard let delegateIndex = self[keyPath: keyPath].index else { return nil }
         let index: Int
-        switch delegateIndex {
-        case let .index(keyPath):
-            index = sourcesCoordinator.indices[input[keyPath: keyPath] - sectionOffset].index
-        case let .indexPath(keyPath):
-            var indexPath = input[keyPath: keyPath]
+        switch input[keyPath: delegateIndex] {
+        case let section as Int:
+            index = sourcesCoordinator.indices[section - sectionOffset].index
+        case var indexPath as IndexPath:
             indexPath.item -= itemOffset
             index = sourcesCoordinator.sourceIndex(for: indexPath.section, indexPath.item)
+        default:
+            fatalError()
         }
         let context = subsources[index], listContext = context.context
         coordinator.sectioned ? (sectionOffset += context.offset) : (itemOffset += context.offset)
-        return listContext.apply(keyPath, object: object, with: input, sectionOffset, itemOffset)
+        return listContext.apply(keyPath, root: root, object: object, with: input, sectionOffset, itemOffset)
     }
     
-    override func apply<Object: AnyObject, Input, Output>(
-        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Input, Output>>,
+    override func apply<Object: AnyObject, Input, Output, Index>(
+        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Input, Output, Index>>,
+        root: CoordinatorContext,
         object: Object,
         with input: Input,
         _ sectionOffset: Int,
         _ itemOffset: Int
     ) -> Output {
-        subcoordinatorApply(keyPath, object: object, with: input, sectionOffset, itemOffset)
-            ?? super.apply(keyPath, object: object, with: input, sectionOffset, itemOffset)
+        subcoordinatorApply(keyPath, root: root, object: object, with: input, sectionOffset, itemOffset)
+            ?? super.apply(keyPath, root: root, object: object, with: input, sectionOffset, itemOffset)
     }
     
-    override func apply<Object: AnyObject, Input>(
-        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Input, Void>>,
+    override func apply<Object: AnyObject, Input, Index>(
+        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Input, Void, Index>>,
+        root: CoordinatorContext,
         object: Object,
         with input: Input,
         _ sectionOffset: Int,
         _ itemOffset: Int
     ) {
-        subcoordinatorApply(keyPath, object: object, with: input, sectionOffset, itemOffset)
-        super.apply(keyPath, object: object, with: input, sectionOffset, itemOffset)
+        subcoordinatorApply(keyPath, root: root, object: object, with: input, sectionOffset, itemOffset)
+        super.apply(keyPath, root: root, object: object, with: input, sectionOffset, itemOffset)
     }
 }

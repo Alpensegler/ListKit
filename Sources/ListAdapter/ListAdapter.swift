@@ -10,32 +10,11 @@ import Foundation
 protocol ListAdapter: UpdatableDataSource where Source == SourceBase {
     associatedtype View: AnyObject
     associatedtype ViewDelegates: AnyObject
-    associatedtype Context
-    associatedtype SectionContext
-    associatedtype ItemContext
     associatedtype ErasedType
     
     var erasedGetter: (Self) -> ErasedType { get }
     static var defaultErasedGetter: (Self) -> ErasedType { get }
     static var rootKeyPath: ReferenceWritableKeyPath<CoordinatorContext, ViewDelegates> { get }
-    
-    static func toContext(_ view: View, _ context: ListCoordinatorContext<Source>) -> Context
-    
-    static func toSectionContext(
-        _ view: View,
-        _ context: ListCoordinatorContext<Source>,
-        _ section: Int,
-        _ sectionOffset: Int,
-        _ itemOffset: Int
-    ) -> SectionContext
-    
-    static func toItemContext(
-        _ view: View,
-        _ context: ListCoordinatorContext<Source>,
-        _ path: IndexPath,
-        _ sectionOffset: Int,
-        _ itemOffset: Int
-    ) -> ItemContext
     
     init(
         listContextSetups: [(ListCoordinatorContext<SourceBase>) -> Void],
@@ -86,86 +65,60 @@ extension ListAdapter {
     
     var erased: ErasedType { erasedGetter(self) }
 
-    func set<Input, Output>(
-        _ keyPath: ReferenceWritableKeyPath<ViewDelegates, Delegate<View, Input, Output>>,
-        _ closure: @escaping ((Context, Input)) -> Output
+    func set<Input, Output, Index>(
+        _ keyPath: ReferenceWritableKeyPath<ViewDelegates, Delegate<View, Input, Output, Index>>,
+        _ closure: @escaping ((ListContext<View, Source>, Input)) -> Output
     ) -> Self {
         var setups = listContextSetups
         setups.append {
             let keyPath = Self.rootKeyPath.appending(path: keyPath)
-            $0.set(keyPath) { (context, object, input, _, _) in
-                closure((Self.toContext(object, context), input))
+            $0.set(keyPath) { (context, object, input, root, _, _) in
+                closure((.init(context: context, listView: object, root: root), input))
             }
         }
         return .init(listContextSetups: setups, source: source, erasedGetter: erasedGetter)
     }
 
-    func set<Input>(
-        _ keyPath: ReferenceWritableKeyPath<ViewDelegates, Delegate<View, Input, Void>>,
-        _ closure: @escaping ((Context, Input)) -> Void
+    func set<Input, Index>(
+        _ keyPath: ReferenceWritableKeyPath<ViewDelegates, Delegate<View, Input, Void, Index>>,
+        _ closure: @escaping ((ListContext<View, Source>, Input)) -> Void
     ) -> Self {
         var setups = listContextSetups
         setups.append {
             let keyPath = Self.rootKeyPath.appending(path: keyPath)
-            $0.set(keyPath) { (context, object, input, _, _) in
-                closure((Self.toContext(object, context), input))
+            $0.set(keyPath) { (context, object, input, root, _, _) in
+                closure((.init(context: context, listView: object, root: root), input))
             }
         }
         return .init(listContextSetups: setups, source: source, erasedGetter: erasedGetter)
     }
 
-    func set<Input, Output>(
-        _ keyPath: ReferenceWritableKeyPath<ViewDelegates, Delegate<View, Input, Output>>,
-        _ closure: @escaping ((SectionContext, Input)) -> Output
+    func set<Input, Output, Index: ListIndex>(
+        _ keyPath: ReferenceWritableKeyPath<ViewDelegates, Delegate<View, Input, Output, Index>>,
+        _ closure: @escaping ((ListIndexContext<View, Source, Index>, Input)) -> Output
     ) -> Self {
         var setups = listContextSetups
         setups.append {
             let keyPath = Self.rootKeyPath.appending(path: keyPath)
-            guard case let .index(path) = $0[keyPath: keyPath].index else { fatalError() }
+            guard let path = $0[keyPath: keyPath].index else { fatalError() }
             $0.set(keyPath) {
-                closure((Self.toSectionContext($1, $0, $2[keyPath: path], $3, $4), $2))
+                closure((.init(context: $0, listView: $1, index: $2[keyPath: path], offset: .init(section: $4, item: $5), root: $3), $2))
             }
         }
         return .init(listContextSetups: setups, source: source, erasedGetter: erasedGetter)
     }
 
-    func set<Input>(
-        _ keyPath: ReferenceWritableKeyPath<ViewDelegates, Delegate<View, Input, Void>>,
-        _ closure: @escaping ((SectionContext, Input)) -> Void
+    func set<Input, Index: ListIndex>(
+        _ keyPath: ReferenceWritableKeyPath<ViewDelegates, Delegate<View, Input, Void, Index>>,
+        _ closure: @escaping ((ListIndexContext<View, Source, Index>, Input)) -> Void
     ) -> Self {
         var setups = listContextSetups
         setups.append {
             let keyPath = Self.rootKeyPath.appending(path: keyPath)
-            guard case let .index(path) = $0[keyPath: keyPath].index else { fatalError() }
+            guard let path = $0[keyPath: keyPath].index else { fatalError() }
             $0.set(keyPath) {
-                closure((Self.toSectionContext($1, $0, $2[keyPath: path], $3, $4), $2))
+                closure((.init(context: $0, listView: $1, index: $2[keyPath: path], offset: .init(section: $4, item: $5), root: $3), $2))
             }
-        }
-        return .init(listContextSetups: setups, source: source, erasedGetter: erasedGetter)
-    }
-
-    func set<Input, Output>(
-        _ keyPath: ReferenceWritableKeyPath<ViewDelegates, Delegate<View, Input, Output>>,
-        _ closure: @escaping ((ItemContext, Input)) -> Output
-    ) -> Self {
-        var setups = listContextSetups
-        setups.append {
-            let keyPath = Self.rootKeyPath.appending(path: keyPath)
-            guard case let .indexPath(path) = $0[keyPath: keyPath].index else { fatalError() }
-            $0.set(keyPath) { closure((Self.toItemContext($1, $0, $2[keyPath: path], $3, $4), $2)) }
-        }
-        return .init(listContextSetups: setups, source: source, erasedGetter: erasedGetter)
-    }
-
-    func set<Input>(
-        _ keyPath: ReferenceWritableKeyPath<ViewDelegates, Delegate<View, Input, Void>>,
-        _ closure: @escaping ((ItemContext, Input)) -> Void
-    ) -> Self {
-        var setups = listContextSetups
-        setups.append {
-            let keyPath = Self.rootKeyPath.appending(path: keyPath)
-            guard case let .indexPath(path) = $0[keyPath: keyPath].index else { fatalError() }
-            $0.set(keyPath) { closure((Self.toItemContext($1, $0, $2[keyPath: path], $3, $4), $2)) }
         }
         return .init(listContextSetups: setups, source: source, erasedGetter: erasedGetter)
     }

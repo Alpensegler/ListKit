@@ -19,16 +19,18 @@ protocol CoordinatorContext: AnyObject {
     func numbersOfSections() -> Int
     func numbersOfItems(in section: Int) -> Int
     
-    func apply<Object: AnyObject, Input, Output>(
-        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Input, Output>>,
+    func apply<Object: AnyObject, Input, Output, Index>(
+        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Input, Output, Index>>,
+        root: CoordinatorContext,
         object: Object,
         with input: Input,
         _ sectionOffset: Int,
         _ itemOffset: Int
     ) -> Output
     
-    func apply<Object: AnyObject, Input>(
-        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Input, Void>>,
+    func apply<Object: AnyObject, Input, Index>(
+        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Input, Void, Index>>,
+        root: CoordinatorContext,
         object: Object,
         with input: Input,
         _ sectionOffset: Int,
@@ -37,24 +39,26 @@ protocol CoordinatorContext: AnyObject {
 }
 
 extension CoordinatorContext {
-    func apply<Object: AnyObject, Input, Output>(
-        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Input, Output>>,
+    func apply<Object: AnyObject, Input, Output, Index>(
+        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Input, Output, Index>>,
+        root: CoordinatorContext,
         object: Object,
         with input: Input,
         _ sectionOffset: Int,
         _ itemOffset: Int
     ) -> Output {
-        self[keyPath: keyPath].closure!(object, input, sectionOffset, itemOffset)
+        self[keyPath: keyPath].closure!(object, input, root, sectionOffset, itemOffset)
     }
     
-    func apply<Object: AnyObject, Input>(
-        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Input, Void>>,
+    func apply<Object: AnyObject, Input, Index>(
+        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Input, Void, Index>>,
+        root: CoordinatorContext,
         object: Object,
         with input: Input,
         _ sectionOffset: Int,
         _ itemOffset: Int
     ) {
-        self[keyPath: keyPath].closure?(object, input, sectionOffset, itemOffset)
+        self[keyPath: keyPath].closure?(object, input, root, sectionOffset, itemOffset)
     }
     
     func initialSelectorSets(withoutIndex: Bool = false) -> SelectorSets {
@@ -68,20 +72,5 @@ extension CoordinatorContext {
         #endif
         
         return selectorSets
-    }
-    func apply<Object: AnyObject, Input, Output>(
-        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Input, Output>>,
-        object: Object,
-        with input: Input
-    ) -> Output {
-        apply(keyPath, object: object, with: input, 0, 0)
-    }
-    
-    func apply<Object: AnyObject, Input>(
-        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Input, Void>>,
-        object: Object,
-        with input: Input
-    ) {
-        apply(keyPath, object: object, with: input, 0, 0)
     }
 }

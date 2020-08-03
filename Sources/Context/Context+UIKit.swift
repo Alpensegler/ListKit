@@ -8,21 +8,17 @@
 #if os(iOS) || os(tvOS)
 import UIKit
 
-public extension ItemContext where List: UIListView {
-    var listIndexPath: IndexPath {
-        IndexPath(item: itemOffset + item, section: sectionOffset + section)
-    }
-    
+public extension ListIndexContext where Index == IndexPath, List: UIListView {
     func selectItem(animated: Bool, scrollPosition: List.ScrollPosition) {
-        listView.selectItem(at: listIndexPath, animated: animated, scrollPosition: scrollPosition)
+        listView.selectItem(at: index, animated: animated, scrollPosition: scrollPosition)
     }
     
     func deselectItem(animated: Bool) {
-        listView.deselectItem(at: listIndexPath, animated: animated)
+        listView.deselectItem(at: index, animated: animated)
     }
     
     var cell: List.Cell? {
-        listView.cellForItem(at: listIndexPath)
+        listView.cellForItem(at: index)
     }
     
     func dequeueReusableCell<CustomCell: UIView>(
@@ -32,7 +28,7 @@ public extension ItemContext where List: UIListView {
         listView.dequeueReusableCell(
             cellClass,
             identifier: identifier,
-            indexPath: listIndexPath
+            indexPath: index
         )
     }
 
@@ -57,12 +53,12 @@ public extension ItemContext where List: UIListView {
             cellClass,
             withNibName: nibName,
             bundle: bundle,
-            indexPath: listIndexPath
+            indexPath: index
         )
     }
 }
 
-public extension ItemContext where List: UICollectionView {
+public extension ListIndexContext where Index == IndexPath, List: UICollectionView {
     func dequeueReusableSupplementaryView<CustomSupplementaryView: UICollectionReusableView>(
         type: UICollectionView.SupplementaryViewType,
         _ supplementaryClass: CustomSupplementaryView.Type,
@@ -72,7 +68,7 @@ public extension ItemContext where List: UICollectionView {
             type: type,
             supplementaryClass,
             identifier: identifier,
-            indexPath: listIndexPath
+            indexPath: index
         )
     }
     
@@ -87,7 +83,7 @@ public extension ItemContext where List: UICollectionView {
             supplementaryClass,
             nibName: nibName,
             bundle: bundle,
-            indexPath: listIndexPath
+            indexPath: index
         )
     }
 }

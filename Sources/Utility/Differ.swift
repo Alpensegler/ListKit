@@ -20,6 +20,15 @@ struct Differ<Value> {
         guard let equivalent = areEquivalent else { return true }
         return equivalent(lhs, rhs)
     }
+    
+    func diffEqual(lhs: Value, rhs: Value) -> Bool {
+        switch (identifier, areEquivalent) {
+        case let (id?, areEquivalent?): return id(lhs) == id(rhs) && areEquivalent(lhs, rhs)
+        case let (id?, _): return id(lhs) == id(rhs)
+        case let (_, areEquivalent?): return areEquivalent(lhs, rhs)
+        default: return false
+        }
+    }
 }
 
 extension Differ {

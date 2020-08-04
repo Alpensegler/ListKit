@@ -7,17 +7,15 @@
 
 import Foundation
 
-class DiffableCoordinatgorUpdate<SourceBase: DataSource, Source, Value, CoordinatorChange, Change>:
-    CollectionCoordinatorUpdate<SourceBase, Source, Value, CoordinatorChange, Change>
+class DiffableCoordinatgorUpdate<SourceBase: DataSource, Source, Value, Change, DifferenceChange>:
+    CollectionCoordinatorUpdate<SourceBase, Source, Value, Change, DifferenceChange>
 where
     SourceBase.SourceBase == SourceBase,
     Source: Collection,
-    CoordinatorChange: CoordinatorUpdate.Change<Value>
+    Change: CoordinatorUpdate.Change<Value>
 {
-    typealias Dicts<T> = Mapping<[AnyHashable: T?]>
-    
-    lazy var dict: Dicts<CoordinatorChange> = ([:], [:])
-    lazy var uniqueMapping: CoordinatorChanges = {
+    lazy var dict: Mapping<[AnyHashable: Change?]> = ([:], [:])
+    lazy var uniqueMapping: Changes = {
         _ = changes
         let source = dict.source.values.compactMapContiguous { $0 }
         let target = dict.target.values.compactMapContiguous { $0 }
@@ -32,7 +30,7 @@ where
     func isDiffEqual(lhs: Value, rhs: Value) -> Bool { false }
     
     func configChangeAssociated(
-        for mapping: Mapping<CoordinatorChange>,
+        for mapping: Mapping<Change>,
         context: ContextAndID?
     ) {
         
@@ -57,7 +55,7 @@ where
         case .insert: return ([], mappingTo(isSource: false))
         case .batchUpdates: break
         }
-        var changes: CoordinatorChanges = ([], [])
+        var changes: Changes = ([], [])
         let diffs = values.target.diff(from: values.source, by: isDiffEqual)
         changes.source = diffs.removals.mapContiguous { toChange($0, isSource: true) }
         changes.target = diffs.insertions.mapContiguous { toChange($0, isSource: false) }
@@ -81,145 +79,42 @@ where
         let value = context.context
         mapping.source.forEach { add($0, id: identifier(for: $0.value), to: &value.dicts.source) }
         mapping.target.forEach { add($0, id: identifier(for: $0.value), to: &value.dicts.target) }
-        apply(mapping, context: context, dict: &value.dicts) { $0 as? CoordinatorChange }
-    }
-    
-    override func generateSourceSectionUpdate(
-        order: Order,
-        context: UpdateContext<Int>? = nil
-    ) -> UpdateSource<BatchUpdates.ListSource> {
-        switch (order, changeType) {
-        case (_, .none):
-            return (sourceSectionCount, nil)
-        case (.first, _):
-            guard let (offset, isMoved, _) = context, isMoved, sourceHasSection else {
-                return (sourceSectionCount, nil)
-            }
-            return (1, .init(section: .init(move: offset)))
-        case (.second, _),
-            (.third, _) where !isEmptyUpdate(order, context, isSectioned: false):
-            guard case let (_, itemUpdate?) = generateSourceItemUpdate(
-                order: order,
-                context: toContext(context) { IndexPath(section: $0) }
-            ) else { return (1, nil) }
-            return (1, .init(item: itemUpdate))
-        case (.third, .remove(false)):
-            return (1, .init(section: .init(\.deletes, context?.offset ?? 0)))
-        case (.third, _):
-            return (targetSectionCount, nil)
-        }
-    }
-    
-    override func generateTargetSectionUpdate(
-        order: Order,
-        context: UpdateContext<Offset<Int>>? = nil
-    ) -> UpdateTarget<BatchUpdates.ListTarget> {
-        func count(_ count: Int, isFake: Bool = false) -> Indices {
-            .init(repeatElement: (context?.offset.index ?? 0, isFake), count: count)
-        }
-        switch (order, changeType) {
-        case (_, .none):
-            return (count(sourceSectionCount), nil, nil)
-        case (.first, .insert(false)):
-            let indices = count(1, isFake: true), section = context?.offset.offset.target ?? 0
-            return (indices, .init(section: .init(\.inserts, section)), firstChange)
-        case (.first, _):
-            guard let ((_, (source, target)), moved, _) = context, moved, sourceHasSection else {
-                return (count(sourceSectionCount), nil, firstChange)
-            }
-            return (count(1), .init(section: .init(move: source, to: target)), firstChange)
-        case (.second, _),
-             (.third, _) where !isEmptyUpdate(order, context, isSectioned: false):
-            let isFake = changeType == .remove(itemsOnly: false)
-            guard case let (_, itemUpdate?, change) = generateTargetItemUpdate(
-                order: order,
-                context: toContext(context) {
-                    (0, (.init(section: $0.offset.source), .init(section: $0.offset.target)))
-                }
-            ) else { return (count(1, isFake: isFake), nil, nil) }
-            return (count(1, isFake: isFake), .init(item: itemUpdate), change)
-        case (.third, _):
-            return (count(targetSectionCount), nil, nil)
-        }
+        apply(mapping, context: context, dict: &value.dicts) { $0 as? Change }
     }
 }
 
 extension DiffableCoordinatgorUpdate {
-    func toChange(_ change: CollectionDifference<Value>.Change, isSource: Bool) -> CoordinatorChange {
+    func toChange(_ change: CollectionDifference<Value>.Change, isSource: Bool) -> Change {
         toChange(change._element, index: change._offset, isSource: isSource)
     }
     
-    func toChange(_ element: Value, index: Int, isSource: Bool) -> CoordinatorChange {
-        let change = CoordinatorChange(element, index, moveAndReloadable: rangeReplacable)
+    func toChange(_ element: Value, index: Int, isSource: Bool) -> Change {
+        let change = Change(element, index, moveAndReloadable: moveAndReloadable)
         guard identifiable else { return change }
         let key = identifier(for: change.value)
         isSource ? add(change, id: key, to: &dict.source) : add(change, id: key, to: &dict.target)
         return change
     }
     
-    func add<T>(_ change: T, id: AnyHashable, to dict: inout [AnyHashable: T?]) {
-        if case .none = dict[id] {
-            dict[id] = .some(change)
-        } else {
-            dict[id] = .some(.none)
-        }
-    }
-    
     func apply<T, C: Collection>(
         _ changes: Mapping<C>,
         context: ContextAndID?,
-        dict: inout Dicts<T>,
-        toChange: (T) -> CoordinatorChange?
-    ) where C.Element == CoordinatorChange {
-        func configAssociated(for change: CoordinatorChange, isSource: Bool) {
+        dict: inout Mapping<[AnyHashable: T?]>,
+        toChange: (T) -> Change?
+    ) where C.Element == Change {
+        func configAssociated(for change: Change) {
             let key = identifier(for: change.value)
-            let sourceChange = dict.source[key]?.map(toChange)
-            let targetChange = dict.target[key]?.map(toChange)
-            guard case let (source??, target??) = (sourceChange, targetChange) else { return }
-            defer { (dict.source[key], dict.target[key]) = (nil, nil) }
-            switch (context, source.state, target.state) {
-            case let (_, .change, .change(moveAndRelod)):
-                if !equaltable || isEqual(lhs: source.value, rhs: target.value) { break }
-                if moveAndRelod == false { return }
-                target.state = .change(moveAndRelod: true)
-                source.state = .change(moveAndRelod: true)
-            default:
+            let euqal = equaltable ? isEqual : nil
+            guard let mapping = config(for: change, key, context, &dict, euqal, toChange) else {
                 return
             }
-            (source[context?.id], target[context?.id]) = (target, source)
-            if source.state != .change(moveAndRelod: true) {
-                configChangeAssociated(for: (source, target), context: context)
+            if mapping.source.state != .change(moveAndRelod: true) {
+                configChangeAssociated(for: mapping, context: context)
             }
         }
         
-        changes.source.forEach { configAssociated(for: $0, isSource: true) }
-        changes.target.forEach { configAssociated(for: $0, isSource: false) }
-    }
-    
-    func configCoordinatorChange<Offset>(
-        _ change: CoordinatorChange,
-        context: UpdateContext<Offset>? = nil,
-        enumrateChange: (CoordinatorChange) -> Void,
-        deleteOrInsert: (CoordinatorChange) -> Void,
-        reload: (CoordinatorChange, CoordinatorUpdate.Change<Value>) -> Void,
-        move: (CoordinatorChange, CoordinatorUpdate.Change<Value>, Bool) -> Void
-    ) {
-        enumrateChange(change)
-        switch (change.state, change[context?.id]) {
-        case let (.reload, associaed?):
-            switch (context?.isMoved, rangeReplacable) {
-            case (true, false):
-                deleteOrInsert(change)
-            case (true, true):
-                move(change, associaed, true)
-            default:
-                reload(change, associaed)
-            }
-        case let (.change(moveAndRelod), associaed?):
-            move(change, associaed, moveAndRelod == true)
-        default:
-            deleteOrInsert(change)
-        }
+        changes.source.forEach { configAssociated(for: $0) }
+        changes.target.forEach { configAssociated(for: $0) }
     }
 }
 

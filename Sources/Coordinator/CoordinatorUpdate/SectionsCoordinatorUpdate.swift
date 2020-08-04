@@ -154,7 +154,7 @@ where
     SourceBase.Source.Element: RangeReplaceableCollection,
     SourceBase.Source.Element.Element == SourceBase.Item
 {
-    override var rangeReplacable: Bool { true }
+    override var moveAndReloadable: Bool { true }
     
     override var updateType: ItemsUpdate.Type {
         RangeReplacableItemsCoordinatorUpdate<ListKit.Sources<Element, Item>>.self

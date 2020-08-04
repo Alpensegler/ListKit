@@ -17,8 +17,8 @@ where
 {
     typealias Element = Source.Element
     typealias Values = Mapping<ContiguousArray<Value>>
+    typealias Changes = Mapping<ContiguousArray<Change>>
     typealias Differences = Mapping<ContiguousArray<Difference>>
-    typealias CoordinatorChanges = Mapping<ContiguousArray<Change>>
     
     enum Difference {
         case change(DifferenceChange)
@@ -33,14 +33,8 @@ where
     var updateDict = [Int: (change: Change, value: Value)]()
     
     lazy var changes = hasBatchUpdate ? configChangesForBatchUpdates() : configChangesForDiff()
-    lazy var sourceCount = getSourceCount()
-    lazy var targetCount = getTargetCount()
     lazy var sourceValuesCount = values.source.count
     lazy var targetValuesCount = values.target.count
-    
-    var differ: Differ<SourceBase.Item>! { update?.diff ?? defaultUpdate?.diff }
-    var diffable: Bool { differ?.isNone == false }
-    var rangeReplacable: Bool { false }
     
     init(
         _ coordinator: ListCoordinator<SourceBase>? = nil,
@@ -54,16 +48,11 @@ where
         self.keepSectionIfEmpty = keepSectionIfEmpty
         guard case let .whole(whole, _) = update else { return }
         switch whole.way {
-        case .insert:
-            self.keepSectionIfEmpty.source = false
-        case .remove:
-            self.keepSectionIfEmpty.target = false
+        case .insert: self.keepSectionIfEmpty.source = false
+        case .remove: self.keepSectionIfEmpty.target = false
         default: break
         }
     }
-    
-    func getSourceCount() -> Int { values.source.count }
-    func getTargetCount() -> Int { values.target.count }
     
     func toCount(_ value: Value) -> Int { 1 }
     func toValue(_ element: Element) -> Value { fatalError("should be implemented by subclass") }
@@ -78,34 +67,15 @@ where
         changes[keyPath: path(isSource)].append(.change(toChange(change, isSource)))
     }
     
-    override func configChangeType() -> ChangeType {
-        switch (update?.way, sourceIsEmpty, targetIsEmpty) {
-        case (.insert, _, true), (.remove, true, _), (_, true, true): return .none
-        case (.remove, _, _), (_, false, true): return .remove(itemsOnly: itemsOnly(true))
-        case (.insert, _, _), (_, true, false): return .insert(itemsOnly: itemsOnly(false))
-        case (_, false, false): return diffable || hasBatchUpdate ? .batchUpdates : .reload
-        }
-    }
+    override func getSourceCount() -> Int { values.source.count }
+    override func getTargetCount() -> Int { values.target.count }
     
-    override func generateListUpdates() -> BatchUpdates? {
-        if !sourceIsEmpty || !targetIsEmpty { inferringMoves() }
-        return isSectioned ? generateListUpdatesForSections() : generateListUpdatesForItems()
+    override func hasSectionIfEmpty(isSource: Bool) -> Bool {
+        isSource ? keepSectionIfEmpty.source : keepSectionIfEmpty.target
     }
 }
 
 extension CollectionCoordinatorUpdate {
-    var sourceIsEmpty: Bool { sourceCount == 0 }
-    var targetIsEmpty: Bool { targetCount == 0 }
-    
-    var sourceHasSection: Bool { !sourceIsEmpty || keepSectionIfEmpty.source }
-    var targetHasSection: Bool { !targetIsEmpty || keepSectionIfEmpty.target }
-    
-    var sourceSectionCount: Int { isSectioned ? sourceCount : sourceHasSection ? 1 : 0 }
-    var targetSectionCount: Int { isSectioned ? targetCount : targetHasSection ? 1 : 0 }
-    
-    func itemsOnly(_ isSource: Bool) -> Bool {
-        isSectioned && (isSource ? keepSectionIfEmpty.source : keepSectionIfEmpty.target)
-    }
     
     func appendBoth(from: Mapping<Int>, to: Mapping<Int>, to changes: inout Differences) {
         changes.source.append(.unchanged(from: from, to: to))
@@ -131,7 +101,7 @@ extension CollectionCoordinatorUpdate {
     }
     
     func configChangesForBatchUpdates() -> Mapping<ContiguousArray<Difference>> {
-        var changes: CoordinatorChanges = ([], [])
+        var changes: Changes = ([], [])
         changeIndices.source.forEach { changeDict.source[$0].map { changes.source.append($0) } }
         changeIndices.target.forEach { changeDict.target[$0].map { changes.target.append($0) } }
         var result: Mapping<ContiguousArray<Difference>> = (.init(), .init())
@@ -156,46 +126,10 @@ extension CollectionCoordinatorUpdate {
         updateSource(with: result)
         return result
     }
-    
-    func generateListUpdatesForItems() -> BatchUpdates? {
-        switch changeType {
-        case .insert(false):
-            return .init(target: BatchUpdates.SectionTarget(\.inserts, 0), finalChange)
-        case .insert(true):
-            let indices = [IndexPath](IndexPath(item: 0), IndexPath(item: targetCount))
-            return .init(target: BatchUpdates.ItemTarget(\.inserts, indices), finalChange)
-        case .remove(false):
-            return .init(source: BatchUpdates.SectionSource(\.deletes, 0), finalChange)
-        case .remove(true):
-            let indices = [IndexPath](IndexPath(item: 0), IndexPath(item: sourceCount))
-            return .init(source: BatchUpdates.ItemSource(\.deletes, indices), finalChange)
-        case .batchUpdates:
-            return listUpdatesForItems()
-        case .reload:
-            return .reload(change: finalChange)
-        case .none:
-            return .none
-        }
-    }
-    
-    func generateListUpdatesForSections() -> BatchUpdates? {
-        switch changeType {
-        case .insert:
-            return .init(target: BatchUpdates.SectionTarget(\.inserts, 0, targetCount), finalChange)
-        case .remove:
-            return .init(source: BatchUpdates.SectionSource(\.deletes, 0, sourceCount), finalChange)
-        case .batchUpdates:
-            return listUpdatesForSections()
-        case .reload:
-            return .reload(change: finalChange)
-        case .none:
-            return .none
-        }
-    }
 }
 
 extension CollectionCoordinatorUpdate {
-    func enumerateChanges(changes: CoordinatorChanges, _ body: (Bool, Change) -> Void) {
+    func enumerateChanges(changes: Changes, _ body: (Bool, Change) -> Void) {
         let total: Mapping = (changes.source.count, changes.target.count)
         var enumerated: Mapping = (0, 0)
         
@@ -225,7 +159,7 @@ extension CollectionCoordinatorUpdate {
     }
     
     func enumerateChangesWithOffset(
-        changes: CoordinatorChanges,
+        changes: Changes,
         body: (Bool, Change) -> Void,
         offset: (Mapping<Int>, Mapping<Int>) -> Void
     ) {

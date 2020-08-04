@@ -11,7 +11,6 @@ final class NSCoordinator<SourceBase: NSDataSource>: ListCoordinator<SourceBase>
 where SourceBase.SourceBase == SourceBase {
     unowned let sourceBase: SourceBase
     
-    override var multiType: SourceMultipleType { .other }
     override var isEmpty: Bool { numbersOfSections() == 0 }
     
     override func numbersOfItems(in section: Int) -> Int { source[safe: section] ?? 0 }

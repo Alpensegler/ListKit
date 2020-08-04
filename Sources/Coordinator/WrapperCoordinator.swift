@@ -9,40 +9,54 @@ import Foundation
 
 final class WrapperCoordinator<SourceBase: DataSource, Other>: ListCoordinator<SourceBase>
 where SourceBase.SourceBase == SourceBase, Other: DataSource {
-    let wrapped: Other
-    let wrappedCoodinator: ListCoordinator<Other.SourceBase>
+    typealias Wrapped = (value: Other, coordinator: ListCoordinator<Other.SourceBase>)
+    
+    var wrapped: Wrapped?
     let itemTransform: (Other.Item) -> SourceBase.Item
     
-    override var isEmpty: Bool { wrappedCoodinator.isEmpty }
+    override var isEmpty: Bool { wrapped?.coordinator.isEmpty != false }
     override var sourceBaseType: Any.Type { Other.SourceBase.self }
     
     init(
         _ sourceBase: SourceBase,
-        wrapped: Other,
+        wrapped: Other?,
         itemTransform: @escaping (Other.Item) -> SourceBase.Item
     ) {
-        self.wrapped = wrapped
-        self.wrappedCoodinator = wrapped.listCoordinator
+        self.wrapped = wrapped.map { ($0, $0.listCoordinator) }
         self.itemTransform = itemTransform
         
         super.init(sourceBase)
     }
     
+    func update(from: Wrapped?, to: Wrapped?, updateWay: ListUpdateWay<Item>?) -> CoordinatorUpdate {
+        switch (from, to) {
+        case (nil, nil):
+            return .init()
+        case (nil, let (_, to)?):
+            return to.update(.insert)
+        case (let (_, from)?, nil):
+            return from.update(.remove)
+        case (let (_, from)?, let (_, to)?):
+            let updateWay = updateWay.map { ListUpdateWay($0, cast: itemTransform) }
+            return to.update(from: from, updateWay: updateWay)
+        }
+    }
+    
     override func item(at section: Int, _ item: Int) -> Item {
-        itemTransform(wrappedCoodinator.item(at: section, item))
+        itemTransform(wrapped!.coordinator.item(at: section, item))
     }
     
     override func numbersOfSections() -> Int {
-        wrappedCoodinator.numbersOfSections()
+        wrapped?.coordinator.numbersOfSections() ?? 0
     }
     
     override func numbersOfItems(in section: Int) -> Int {
-        wrappedCoodinator.numbersOfItems(in: section)
+        wrapped?.coordinator.numbersOfItems(in: section) ?? 0
     }
     
     override func isSectioned() -> Bool {
-        if wrappedCoodinator.sectioned || super.isSectioned() { return true }
-        return wrappedCoodinator.sectioned
+        if wrapped?.coordinator.sectioned == true || super.isSectioned() { return true }
+        return wrapped?.coordinator.sectioned ?? super.isSectioned()
     }
     
     // Setup
@@ -50,7 +64,7 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
         with setups: [(ListCoordinatorContext<SourceBase>) -> Void] = []
     ) -> ListCoordinatorContext<SourceBase> {
         let context = WrapperCoordinatorContext<SourceBase, Other>(
-            wrappedCoodinator.context(with: wrapped.listContextSetups),
+            wrapped.map { $0.coordinator.context(with: $0.value.listContextSetups) },
             self,
             setups: setups
         )
@@ -62,10 +76,28 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
     override func identifier(for sourceBase: SourceBase) -> AnyHashable {
         let id = ObjectIdentifier(sourceBaseType)
         guard let identifier = options.differ?.identifier else {
-            return HashCombiner(id, wrappedCoodinator.multiType, sectioned,  multiType)
+            return HashCombiner(id, sectioned)
         }
-        let sourceBaseID = identifier(sourceBase)
-        return HashCombiner(id, wrappedCoodinator.multiType, sectioned, multiType, sourceBaseID)
+        return HashCombiner(id, sectioned, identifier(sourceBase))
+    }
+    
+    override func update(
+        from coordinator: ListCoordinator<SourceBase>,
+        updateWay: ListUpdateWay<Item>?
+    ) -> CoordinatorUpdate {
+        let coordinator = coordinator as! WrapperCoordinator<SourceBase, Other>
+        return update(from: coordinator.wrapped, to: wrapped, updateWay: updateWay)
+    }
+    
+    override func update(_ update: ListUpdate<SourceBase>) -> CoordinatorUpdate {
+        guard case let .whole(whole, source as Other?) = update else { fatalError() }
+        let wrapped: Wrapped? = source.map { ($0, $0.listCoordinator) }
+        let context = wrapped.map { $0.coordinator.context(with: $0.value.listContextSetups) }
+        listContexts.forEach {
+            ($0.context as? WrapperCoordinatorContext<SourceBase, Other>)?.wrapped = context
+        }
+        defer { self.wrapped = wrapped }
+        return self.update(from: self.wrapped, to: wrapped, updateWay: whole.way)
     }
 }
 

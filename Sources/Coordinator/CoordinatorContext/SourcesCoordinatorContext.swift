@@ -14,11 +14,14 @@ where
     Source.Element: DataSource,
     Source.Element.SourceBase.Item == SourceBase.Item
 {
+    lazy var finalSelectorSets = configSelectedSet()
     let sourcesCoordinator: SourcesCoordinator<SourceBase, Source>
     
     var subsources: ContiguousArray<SourcesCoordinator<SourceBase, Source>.Subsource> {
         sourcesCoordinator.subsources
     }
+    
+    override var selectorSets: SelectorSets { finalSelectorSets }
     
     init(
         _ coordinator: SourcesCoordinator<SourceBase, Source>,
@@ -26,6 +29,9 @@ where
     ) {
         self.sourcesCoordinator = coordinator
         super.init(coordinator, setups: setups)
+    }
+    
+    func configSelectedSet() -> SelectorSets {
         let others = initialSelectorSets(withoutIndex: true)
         for subsource in sourcesCoordinator.subsources {
             others.void.formIntersection(subsource.context.selectorSets.void)
@@ -33,7 +39,12 @@ where
             others.withIndexPath.formUnion(subsource.context.selectorSets.withIndexPath)
             others.hasIndex = others.hasIndex || subsource.context.selectorSets.hasIndex
         }
-        selectorSets = SelectorSets(merging: selectorSets, others)
+        return SelectorSets(merging: selfSelectorSets, others)
+    }
+    
+    func reconfigSelectorSet() {
+        finalSelectorSets = configSelectedSet()
+        resetDelegates?()
     }
     
     func subcoordinatorApply<Object: AnyObject, Input, Output, Index>(

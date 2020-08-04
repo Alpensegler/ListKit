@@ -12,7 +12,7 @@ where SourceBase.Item == SourceBase.Source, SourceBase.SourceBase == SourceBase 
     lazy var change = configChange()
     lazy var extraChange = Cache(value: (nil, nil) as Mapping<Change<Item>?>)
     
-    override var moveAndReloadable: Bool { false }
+    override var moveAndReloadable: Bool { true }
     
     func configChange() -> Mapping<Change<Item>?> {
         guard diffable, let s = sources.source, let t = sources.target else { return (nil, nil) }

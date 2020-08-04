@@ -28,6 +28,10 @@ final class ListDelegate: NSObject {
         context.listViewGetter = { [weak listView] in
             listView?.isCoordinator($0) == true ? listView : nil
         }
+        context.resetDelegates = { [weak listView, weak self] in
+            guard let listView = listView, let self = self else { return }
+            listView.setup(with: self)
+        }
         self.context = context
         if isCoordinator { return }
         if !listView.isDelegate(self) { listView.setup(with: self) }

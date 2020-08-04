@@ -22,7 +22,7 @@ where SourceBase.SourceBase == SourceBase {
     var hasItemCaches = false
     var hasNestedCaches = false
     
-    lazy var selectorSets = initialSelectorSets()
+    lazy var selfSelectorSets = initialSelectorSets()
     lazy var itemCaches: ContiguousArray<ContiguousArray<Any?>> = {
         hasItemCaches = true
         return initialCaches()
@@ -36,9 +36,11 @@ where SourceBase.SourceBase == SourceBase {
     var index = 0
     var isSectioned = true
     var listViewGetter: ((ListCoordinator<SourceBase>) -> ListView?)?
-    var parentUpdate: ((ListCoordinatorUpdate<SourceBase>?, Int) -> [(CoordinatorContext, BatchUpdates)])?
+    var resetDelegates: (() -> Void)?
+    var parentUpdate: ((CoordinatorUpdate, Int) -> [(CoordinatorContext, CoordinatorUpdate)])?
     
     var listView: ListView? { listViewGetter?(coordinator) }
+    var selectorSets: SelectorSets { selfSelectorSets }
     
     init(
         _ coordinator: ListCoordinator<SourceBase>,

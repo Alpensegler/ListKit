@@ -71,7 +71,7 @@ where
     override var diffable: Bool { true }
     override var equaltable: Bool { true }
     override var identifiable: Bool { true }
-    override var rangeReplacable: Bool { true }
+    override var moveAndReloadable: Bool { true }
     
     init(
         coordinator: SourcesCoordinator<SourceBase, Source>,

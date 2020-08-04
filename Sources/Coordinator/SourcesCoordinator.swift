@@ -35,6 +35,11 @@ where
     enum SubsourceType {
         case fromSourceBase((SourceBase.Source) -> Source, (Source) -> SourceBase.Source)
         case values
+        
+        var from: ((SourceBase.Source) -> Source)? {
+            guard case let .fromSourceBase(from, _) = self else { return nil }
+            return from
+        }
     }
     
     typealias Subcoordinator = ListCoordinator<Source.Element.SourceBase>
@@ -224,9 +229,10 @@ where
     }
     
     override func update(_ update: ListUpdate<SourceBase>) -> CoordinatorUpdate {
-        guard case let .fromSourceBase(fromSource, _) = subsourceType else { fatalError() }
         let sourcesAfterUpdate = update.source
-        let subsourcesAfterUpdate = sourcesAfterUpdate.map { toSubsources(fromSource($0)) }
+        let subsourcesAfterUpdate = sourcesAfterUpdate.flatMap { value in
+            subsourceType.from.map { toSubsources($0(value)) }
+        }
         let indicesAfterUpdate = subsourcesAfterUpdate.map(toIndices)
         defer {
             source = sourcesAfterUpdate ?? source

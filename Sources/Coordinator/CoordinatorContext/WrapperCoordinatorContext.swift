@@ -47,7 +47,7 @@ where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSo
         with input: Input,
         _ sectionOffset: Int,
         _ itemOffset: Int
-    ) -> Output {
+    ) -> Output? {
         let delegate = self[keyPath: keyPath]
         let context = subcontext(for: delegate, object: object, with: input)
         return context?.apply(keyPath, root: root, object: object, with: input, sectionOffset, itemOffset)

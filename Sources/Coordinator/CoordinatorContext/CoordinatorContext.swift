@@ -28,7 +28,7 @@ protocol CoordinatorContext: AnyObject {
         with input: Input,
         _ sectionOffset: Int,
         _ itemOffset: Int
-    ) -> Output
+    ) -> Output?
     
     func apply<Object: AnyObject, Input, Index>(
         _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Input, Void, Index>>,
@@ -50,8 +50,8 @@ extension CoordinatorContext {
         with input: Input,
         _ sectionOffset: Int,
         _ itemOffset: Int
-    ) -> Output {
-        self[keyPath: keyPath].closure!(object, input, root, sectionOffset, itemOffset)
+    ) -> Output? {
+        self[keyPath: keyPath].closure?(object, input, root, sectionOffset, itemOffset)
     }
     
     func apply<Object: AnyObject, Input, Index>(

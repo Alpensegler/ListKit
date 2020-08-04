@@ -65,8 +65,8 @@ where SourceBase.SourceBase == SourceBase {
         with input: Input,
         _ sectionOffset: Int,
         _ itemOffset: Int
-    ) -> Output {
-        self[keyPath: keyPath].closure!(object, input, root, sectionOffset, itemOffset)
+    ) -> Output? {
+        self[keyPath: keyPath].closure?(object, input, root, sectionOffset, itemOffset)
     }
     
     func apply<Object: AnyObject, Input, Index>(

@@ -22,15 +22,17 @@ class TestListViewController: ExampleViewController, UpdatableTableListAdapter {
                 .tableViewHeaderTitleForSection { (context) -> String? in
                     "item"
                 }
-            Sources(items: ["a", "b", "c"])
-                .tableViewCellForRow()
-                .tableViewDidSelectRow { (context, item) in
-                    context.deselectItem(animated: false)
-                    print(item)
-                }
-                .tableViewHeaderTitleForSection { (context) -> String? in
-                    "items"
-                }
+            if toggle {
+                Sources(items: ["a", "b", "c"])
+                    .tableViewCellForRow()
+                    .tableViewDidSelectRow { (context, item) in
+                        context.deselectItem(animated: false)
+                        print(item)
+                    }
+                    .tableViewHeaderTitleForSection { (context) -> String? in
+                        "items"
+                    }
+            }
             Sources(sections: [[1, 2, 3], [1, 2, 3]])
                 .tableViewCellForRow()
                 .tableViewHeaderTitleForSection { (context) -> String? in

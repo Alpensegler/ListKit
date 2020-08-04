@@ -48,7 +48,8 @@ final class ListDelegate: NSObject {
         object: Object,
         with input: Input
     ) -> Output {
-        context.apply(keyPath, root: context, object: object, with: input, 0, 0)
+        context.apply(keyPath, root: context, object: object, with: input, 0, 0) ??
+            context[keyPath: keyPath].output(with: input, objct: object)
     }
     
     func apply<Object: AnyObject, Input, Index>(

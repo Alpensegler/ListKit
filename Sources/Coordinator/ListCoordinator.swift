@@ -76,7 +76,6 @@ public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase
         from coordinator: ListCoordinator<SourceBase>,
         updateWay: ListUpdateWay<Item>?
     ) -> CoordinatorUpdate {
-        print(type(of: coordinator), type(of: self))
         fatalError("should be implemented by subclass")
     }
     

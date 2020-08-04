@@ -11,8 +11,8 @@ final class WrapperCoordinator<SourceBase: DataSource, Other>: ListCoordinator<S
 where SourceBase.SourceBase == SourceBase, Other: DataSource {
     typealias Wrapped = (value: Other, coordinator: ListCoordinator<Other.SourceBase>)
     
-    var wrapped: Wrapped?
     let itemTransform: (Other.Item) -> SourceBase.Item
+    var wrapped: Wrapped?
     
     override var isEmpty: Bool { wrapped?.coordinator.isEmpty != false }
     override var sourceBaseType: Any.Type { Other.SourceBase.self }
@@ -90,14 +90,19 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
     }
     
     override func update(_ update: ListUpdate<SourceBase>) -> CoordinatorUpdate {
-        guard case let .whole(whole, source as Other?) = update else { fatalError() }
-        let wrapped: Wrapped? = source.map { ($0, $0.listCoordinator) }
-        let context = wrapped.map { $0.coordinator.context(with: $0.value.listContextSetups) }
-        listContexts.forEach {
-            ($0.context as? WrapperCoordinatorContext<SourceBase, Other>)?.wrapped = context
+        guard case let .whole(whole, source) = update else { fatalError() }
+        if let source = source {
+            let wrapped: Wrapped? = (source as? Other).map { ($0, $0.listCoordinator) }
+            let context = wrapped.map { $0.coordinator.context(with: $0.value.listContextSetups) }
+            listContexts.forEach {
+                ($0.context as? WrapperCoordinatorContext<SourceBase, Other>)?.wrapped = context
+            }
+            defer { self.wrapped = wrapped }
+            return self.update(from: self.wrapped, to: wrapped, updateWay: whole.way)
+        } else {
+            let way = ListUpdateWay(whole.way, cast: itemTransform)
+            return wrapped?.coordinator.update(.whole(.init(way: way), nil)) ?? .init()
         }
-        defer { self.wrapped = wrapped }
-        return self.update(from: self.wrapped, to: wrapped, updateWay: whole.way)
     }
 }
 

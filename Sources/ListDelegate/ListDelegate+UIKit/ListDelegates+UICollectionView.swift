@@ -15,19 +15,20 @@ final class UICollectionListDelegate {
     //Getting Views for Items
     var cellForItemAt = Delegate<IndexPath, UICollectionViewCell, IndexPath>(
         index: \.self,
-        #selector(UICollectionViewDataSource.collectionView(_:cellForItemAt:))
+        #selector(UICollectionViewDataSource.collectionView(_:cellForItemAt:)),
+        output: nil
     )
     
     var viewForSupplementaryElementOfKindAt = Delegate<(String, IndexPath), UICollectionReusableView, IndexPath>(
         index: \.1,
         #selector(UICollectionViewDataSource.collectionView(_:viewForSupplementaryElementOfKind:at:))
-    )
+    ) { _, _ in UICollectionReusableView() }
 
     //Reordering Items
     var canMoveItemAt = Delegate<IndexPath, Bool, IndexPath>(
         index: \.self,
         #selector(UICollectionViewDataSource.collectionView(_:canMoveItemAt:))
-    )
+    ) { _, _ in true }
     
     var moveItemAtTo = Delegate<(IndexPath, IndexPath), Void, Void>(
         #selector(UICollectionViewDataSource.collectionView(_:moveItemAt:to:))
@@ -48,7 +49,7 @@ final class UICollectionListDelegate {
     var shouldSelectItemAt = Delegate<IndexPath, Bool, IndexPath>(
         index: \.self,
         #selector(UICollectionViewDelegate.collectionView(_:shouldSelectItemAt:))
-    )
+    ) { _, _ in true }
     
     var didSelectItemAt = Delegate<IndexPath, Void, IndexPath>(
         index: \.self,
@@ -58,7 +59,7 @@ final class UICollectionListDelegate {
     var shouldDeselectItemAt = Delegate<IndexPath, Bool, IndexPath>(
         index: \.self,
         #selector(UICollectionViewDelegate.collectionView(_:shouldDeselectItemAt:))
-    )
+    ) { _, _ in true }
     
     var didDeselectItemAt = Delegate<IndexPath, Void, IndexPath>(
         index: \.self,
@@ -70,7 +71,7 @@ final class UICollectionListDelegate {
         return Delegate<IndexPath, Bool, IndexPath>(
             index: \.self,
             #selector(UICollectionViewDelegate.collectionView(_:shouldBeginMultipleSelectionInteractionAt:))
-        )
+        ) { _, _ in false }
     }()
     
     private var anyDidBeginMultipleSelectionInteractionAt: Any = {
@@ -110,7 +111,7 @@ final class UICollectionListDelegate {
     var shouldHighlightItemAt = Delegate<IndexPath, Bool, IndexPath>(
         index: \.self,
         #selector(UICollectionViewDelegate.collectionView(_:shouldHighlightItemAt:))
-    )
+    ) { _, _ in true }
     
     var didHighlightItemAt = Delegate<IndexPath, Void, IndexPath>(
         index: \.self,
@@ -160,12 +161,12 @@ final class UICollectionListDelegate {
     var shouldShowMenuForItemAt = Delegate<IndexPath, Bool, IndexPath>(
         index: \.self,
         #selector(UICollectionViewDelegate.collectionView(_:shouldShowMenuForItemAt:))
-    )
+    ) { _, _ in false }
     
     var canPerformActionForItemAtWithSender = Delegate<(Selector, IndexPath, Any?), Bool, IndexPath>(
         index: \.1,
         #selector(UICollectionViewDelegate.collectionView(_:canPerformAction:forItemAt:withSender:))
-    )
+    ) { _, _ in false }
     
     var performActionForItemAtWithSender = Delegate<(Selector, IndexPath, Any?), Void, IndexPath>(
         index: \.1,
@@ -176,7 +177,7 @@ final class UICollectionListDelegate {
     var canFocusItemAt = Delegate<IndexPath, Bool, IndexPath>(
         index: \.self,
         #selector(UICollectionViewDelegate.collectionView(_:canFocusItemAt:))
-    )
+    ) { _, _ in true }
     
     var indexPathForPreferredFocusedView = Delegate<Void, IndexPath?, Void>(
         #selector(UICollectionViewDelegate.indexPathForPreferredFocusedView(in:))
@@ -196,7 +197,7 @@ final class UICollectionListDelegate {
         return Delegate<(IndexPath, UISpringLoadedInteractionContext), Bool, IndexPath>(
             index: \.0,
             #selector(UICollectionViewDelegate.collectionView(_:shouldSpringLoadItemAt:with:))
-        )
+        ) { _, _ in true }
     }()
     
     
@@ -209,10 +210,10 @@ final class UICollectionListDelegate {
     //Instance Methods
     private var anyContextMenuConfigurationForItemAtPoint: Any = {
         guard #available(iOS 13.0, *) else { return () }
-        return Delegate<(IndexPath, CGPoint), UIContextMenuConfiguration, IndexPath>(
+        return Delegate<(IndexPath, CGPoint), UIContextMenuConfiguration?, IndexPath>(
             index: \.0,
             #selector(UICollectionViewDelegate.collectionView(_:contextMenuConfigurationForItemAt:point:))
-        )
+        ) { _, _ in nil }
     }()
     
     private var anyPreviewForDismissingContextMenuWithConfiguration: Any = {
@@ -237,8 +238,8 @@ final class UICollectionListDelegate {
     }()
     
     @available(iOS 13.0, *)
-    var contextMenuConfigurationForItemAtPoint: Delegate<(IndexPath, CGPoint), UIContextMenuConfiguration, IndexPath> {
-        get { anyContextMenuConfigurationForItemAtPoint as! Delegate<(IndexPath, CGPoint), UIContextMenuConfiguration, IndexPath> }
+    var contextMenuConfigurationForItemAtPoint: Delegate<(IndexPath, CGPoint), UIContextMenuConfiguration?, IndexPath> {
+        get { anyContextMenuConfigurationForItemAtPoint as! Delegate<(IndexPath, CGPoint), UIContextMenuConfiguration?, IndexPath> }
         set { anyContextMenuConfigurationForItemAtPoint = newValue }
     }
     
@@ -265,34 +266,34 @@ final class UICollectionListDelegate {
     var layoutSizeForItemAt = Delegate<(UICollectionViewLayout, IndexPath), CGSize, IndexPath>(
         index: \.1,
         #selector(UICollectionViewDelegateFlowLayout.collectionView(_:layout:sizeForItemAt:))
-    )
+    ) { input, _ in (input.0 as? UICollectionViewFlowLayout)?.itemSize ?? .zero }
     
     //Getting the Section Spacing
     var layoutInsetForSectionAt = Delegate<(UICollectionViewLayout, Int), UIEdgeInsets, Int>(
         index: \.1,
         #selector(UICollectionViewDelegateFlowLayout.collectionView(_:layout:insetForSectionAt:))
-    )
+    ) { input, _ in (input.0 as? UICollectionViewFlowLayout)?.sectionInset ?? .zero }
     
     var layoutMinimumLineSpacingForSectionAt = Delegate<(UICollectionViewLayout, Int), CGFloat, Int>(
         index: \.1,
         #selector(UICollectionViewDelegateFlowLayout.collectionView(_:layout:minimumLineSpacingForSectionAt:))
-    )
+    ) { input, _ in (input.0 as? UICollectionViewFlowLayout)?.minimumLineSpacing ?? 0 }
     
     var layoutMinimumInteritemSpacingForSectionAt = Delegate<(UICollectionViewLayout, Int), CGFloat, Int>(
         index: \.1,
         #selector(UICollectionViewDelegateFlowLayout.collectionView(_:layout:minimumInteritemSpacingForSectionAt:))
-    )
+    ) { input, _ in (input.0 as? UICollectionViewFlowLayout)?.minimumInteritemSpacing ?? 0 }
     
     //Getting the Header and Footer Sizes
     var layoutReferenceSizeForHeaderInSection = Delegate<(UICollectionViewLayout, Int), CGSize, Int>(
         index: \.1,
         #selector(UICollectionViewDelegateFlowLayout.collectionView(_:layout:referenceSizeForHeaderInSection:))
-    )
+    ) { input, _ in (input.0 as? UICollectionViewFlowLayout)?.headerReferenceSize ?? .zero }
     
     var layoutReferenceSizeForFooterInSection = Delegate<(UICollectionViewLayout, Int), CGSize, Int>(
         index: \.1,
         #selector(UICollectionViewDelegateFlowLayout.collectionView(_:layout:referenceSizeForFooterInSection:))
-    )
+    ) { input, _ in (input.0 as? UICollectionViewFlowLayout)?.footerReferenceSize ?? .zero }
     
     func add(by selectorSets: inout SelectorSets) {
         //DataSource

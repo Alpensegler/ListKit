@@ -57,6 +57,8 @@ class TestListViewController: ExampleViewController, UpdatableTableListAdapter {
     
     override func viewDidLoad() {
         apply(by: tableView)
+        
+        addRefreshAction { [unowned self] in self.performUpdate() }
     }
 }
 
@@ -72,3 +74,25 @@ struct TestList_Preview: PreviewProvider {
 }
 
 #endif
+
+//extension TestListViewController {
+//    var source: AnyTableSources {
+//        AnyTableSources {
+//            if !toggle {
+//                Sources(items: ["a", "b", "c"])
+//                    .tableViewCellForRow()
+//                    .tableViewDidSelectRow { (context, item) in
+//                        context.deselectItem(animated: false)
+//                        print(item)
+//                    }
+//            } else {
+//                Sources(items: ["b", "c"])
+//                    .tableViewCellForRow()
+//                    .tableViewDidSelectRow { (context, item) in
+//                        context.deselectItem(animated: false)
+//                        print(item)
+//                    }
+//            }
+//        }
+//    }
+//}

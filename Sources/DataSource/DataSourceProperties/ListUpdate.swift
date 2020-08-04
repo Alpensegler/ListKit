@@ -9,11 +9,24 @@ import Foundation
 
 enum ListUpdateWay<Item> {
     case diff(Differ<Item>)
+    case subpdate
     case reload
     case remove
     case insert
     case appendOrRemoveLast
     case prependOrRemoveFirst
+    
+    init<OtherItem>(_ way: ListUpdateWay<OtherItem>, cast: @escaping (Item) -> (OtherItem)) {
+        switch way {
+        case .diff(let differ): self = .diff(.init(differ, cast: cast))
+        case .subpdate: self = .subpdate
+        case .reload: self = .reload
+        case .remove: self = .remove
+        case .insert: self = .insert
+        case .appendOrRemoveLast: self = .appendOrRemoveLast
+        case .prependOrRemoveFirst: self = .prependOrRemoveFirst
+        }
+    }
 }
 
 public enum ListUpdate<SourceBase: DataSource> where SourceBase.SourceBase == SourceBase {
@@ -73,8 +86,8 @@ extension ListUpdate: BatchInitializable, DiffInitializableUpdate {
     static var insert: Self { .init(.init(way: .insert)) }
     
     init(_ whole: ListUpdate<SourceBase>.Whole, _ source: Source) { self = .whole(whole, source) }
-    init(_ differ: Differ<SourceBase.Item>?, or update: ListUpdate<SourceBase>.Whole) {
-        self = .whole(differ.map { .init(diff: $0) } ?? update)
+    init(_ way: ListUpdateWay<SourceBase.Item>?, or update: ListUpdate<SourceBase>.Whole) {
+        self = .whole(way.map { .init(way: $0) } ?? update)
     }
 }
 
@@ -139,4 +152,18 @@ public extension ListUpdate where Value: Identifiable, Value: Equatable {
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public extension ListUpdate where Value: Identifiable, Value: Hashable {
     static func diff(to source: Source) -> Self { .init(.diff(id: \.id, by: ==), source) }
+}
+
+//Subupdate
+public extension ListUpdate.Whole where SourceBase.Source: DataSource {
+    static var subupdate: Self { .init(way: .subpdate) }
+}
+
+public extension ListUpdate.Whole
+where
+    SourceBase.Source: RangeReplaceableCollection,
+    SourceBase.Source.Element: DataSource,
+    SourceBase.Source.Element.SourceBase.Item == SourceBase.Item
+{
+    static var subupdate: Self { .init(way: .subpdate) }
 }

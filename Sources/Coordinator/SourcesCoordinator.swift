@@ -61,7 +61,6 @@ where
         return sources
     }
     
-    override var multiType: SourceMultipleType { .sources }
     override var isEmpty: Bool { indices.isEmpty }
     
     init(
@@ -89,9 +88,16 @@ where
         values: ContiguousArray<Subsource>,
         indices: Indices
     ) {
+        defer { resetDelegates() }
         (self.subsources, self.indices) = (values, indices)
         guard case let .fromSourceBase(_, map) = subsourceType, let source = source else { return }
         self.source = map(source)
+    }
+    
+    func resetDelegates() {
+        listContexts.forEach {
+            ($0.context as? SourcesCoordinatorContext<SourceBase, Source>)?.reconfigSelectorSet()
+        }
     }
     
     func settingIndex(values: ContiguousArray<Subsource>) -> ContiguousArray<Subsource> {
@@ -141,7 +147,8 @@ where
             if coordinator.sectioned {
                 if !itemSources.isEmpty { addItemSources() }
                 let count = context.numbersOfSections()
-                subsources.append(.init(element: .element(element), context: context, offset: offset, count: count))
+                let element = Subsource.Subelement.element(element)
+                subsources.append(.init(element: element, context: context, offset: offset, count: count))
                 subsourceHasSectioned = true
                 offset += count
             } else {
@@ -202,12 +209,12 @@ where
     
     override func update(
         from coordinator: ListCoordinator<SourceBase>,
-        differ: Differ<Item>?
-    ) -> ListCoordinatorUpdate<SourceBase> {
+        updateWay: ListUpdateWay<Item>?
+    ) -> CoordinatorUpdate {
         let coordinator = coordinator as! SourcesCoordinator<SourceBase, Source>
         return SourcesCoordinatorUpdate(
             coordinator: self,
-            update: ListUpdate(differ, or: update),
+            update: ListUpdate(updateWay, or: update),
             values: (coordinator.subsources, subsources),
             sources: (coordinator.source, source),
             indices: (coordinator.indices, indices),
@@ -216,7 +223,7 @@ where
         )
     }
     
-    override func update(_ update: ListUpdate<SourceBase>) -> ListCoordinatorUpdate<SourceBase> {
+    override func update(_ update: ListUpdate<SourceBase>) -> CoordinatorUpdate {
         guard case let .fromSourceBase(fromSource, _) = subsourceType else { fatalError() }
         let sourcesAfterUpdate = update.source
         let subsourcesAfterUpdate = sourcesAfterUpdate.map { toSubsources(fromSource($0)) }

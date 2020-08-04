@@ -21,7 +21,6 @@ where
         SectionsCoordinatorUpdate<SourceBase>.self
     }
     
-    override var multiType: SourceMultipleType { .multiple }
     override var isEmpty: Bool { indices.isEmpty }
     
     func toSections(_ source: SourceBase.Source) -> ContiguousArray<ContiguousArray<Item>> {
@@ -52,12 +51,12 @@ where
     
     override func update(
         from coordinator: ListCoordinator<SourceBase>,
-        differ: Differ<Item>?
-    ) -> ListCoordinatorUpdate<SourceBase> {
+        updateWay: ListUpdateWay<Item>?
+    ) -> CoordinatorUpdate {
         let coordinator = coordinator as! SectionsCoordinator<SourceBase>
         return updateType.init(
             coordinator: self,
-            update: ListUpdate(differ, or: update),
+            update: ListUpdate(updateWay, or: update),
             values: (coordinator.sections, sections),
             sources: (coordinator.source, source),
             indices: (coordinator.indices, indices),
@@ -65,7 +64,7 @@ where
         )
     }
     
-    override func update(_ update: ListUpdate<SourceBase>) -> ListCoordinatorUpdate<SourceBase> {
+    override func update(_ update: ListUpdate<SourceBase>) -> CoordinatorUpdate {
         let sourcesAfterUpdate = update.source
         let sectionsAfterUpdate = sourcesAfterUpdate.map(toSections)
         let indicesAfterUpdate =  sectionsAfterUpdate.map(toIndices)

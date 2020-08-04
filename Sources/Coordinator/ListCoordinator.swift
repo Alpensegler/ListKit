@@ -12,24 +12,19 @@ public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase
     struct WeakContext {
         weak var context: ListCoordinatorContext<SourceBase>?
     }
-
-    enum SourceMultipleType {
-        case single, multiple, sources, other
-    }
     
     let update: ListUpdate<SourceBase>.Whole
     let options: ListOptions<SourceBase>
     var source: SourceBase.Source!
     
     weak var storage: CoordinatorStorage<SourceBase>?
-    weak var currentCoordinatorUpdate: ListCoordinatorUpdate<SourceBase>?
+    weak var currentCoordinatorUpdate: CoordinatorUpdate?
     var listContexts = [WeakContext]()
     
     lazy var sectioned = isSectioned()
     
     var isEmpty: Bool { false }
     var sourceBaseType: Any.Type { SourceBase.self }
-    var multiType: SourceMultipleType { fatalError() }
     
     init(
         source: SourceBase.Source!,
@@ -68,9 +63,9 @@ public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase
     func identifier(for sourceBase: SourceBase) -> AnyHashable {
         let id = ObjectIdentifier(sourceBaseType)
         guard let identifier = options.differ?.identifier else {
-            return HashCombiner(id, sectioned, multiType)
+            return HashCombiner(id, sectioned)
         }
-        return HashCombiner(id, sectioned, multiType, identifier(sourceBase))
+        return HashCombiner(id, sectioned, identifier(sourceBase))
     }
     
     func equal(lhs: SourceBase, rhs: SourceBase) -> Bool {
@@ -79,12 +74,13 @@ public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase
     
     func update(
         from coordinator: ListCoordinator<SourceBase>,
-        differ: Differ<Item>?
-    ) -> ListCoordinatorUpdate<SourceBase> {
+        updateWay: ListUpdateWay<Item>?
+    ) -> CoordinatorUpdate {
+        print(type(of: coordinator), type(of: self))
         fatalError("should be implemented by subclass")
     }
     
-    func update(_ update: ListUpdate<SourceBase>) -> ListCoordinatorUpdate<SourceBase> {
+    func update(_ update: ListUpdate<SourceBase>) -> CoordinatorUpdate {
         fatalError("should be implemented by subclass")
     }
 }

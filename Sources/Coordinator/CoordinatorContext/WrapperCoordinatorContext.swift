@@ -7,24 +7,37 @@
 
 class WrapperCoordinatorContext<SourceBase, Other>: ListCoordinatorContext<SourceBase>
 where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSource {
-    let wrapped: ListCoordinatorContext<Other.SourceBase>
+    lazy var finalSelectorSets = configSelectedSet()
+    var wrapped: ListCoordinatorContext<Other.SourceBase>? {
+        didSet { reconfigSelectorSet() }
+    }
+    
+    override var selectorSets: SelectorSets { finalSelectorSets }
+    
+    init(
+        _ wrapped: ListCoordinatorContext<Other.SourceBase>?,
+        _ coordinator: ListCoordinator<SourceBase>,
+        setups: [(ListCoordinatorContext<SourceBase>) -> Void]
+    ) {
+        self.wrapped = wrapped
+        super.init(coordinator, setups: setups)
+    }
+    
+    func reconfigSelectorSet() {
+        finalSelectorSets = configSelectedSet()
+        resetDelegates?()
+    }
+    
+    func configSelectedSet() -> SelectorSets {
+        wrapped.map { SelectorSets(merging: selfSelectorSets, $0.selectorSets) } ?? selfSelectorSets
+    }
     
     func subcontext<Object: AnyObject, Input, Output, Index>(
         for delegate: Delegate<Object, Input, Output, Index>,
         object: Object,
         with input: Input
     ) -> CoordinatorContext? {
-        wrapped.selectorSets.contains(delegate.selector) ? nil : wrapped
-    }
-    
-    init(
-        _ wrapped: ListCoordinatorContext<Other.SourceBase>,
-        _ coordinator: ListCoordinator<SourceBase>,
-        setups: [(ListCoordinatorContext<SourceBase>) -> Void]
-    ) {
-        self.wrapped = wrapped
-        super.init(coordinator, setups: setups)
-        selectorSets = SelectorSets(merging: selectorSets, wrapped.selectorSets)
+        wrapped?.selectorSets.contains(delegate.selector) == false ? wrapped : nil
     }
     
     override func apply<Object: AnyObject, Input, Output, Index>(

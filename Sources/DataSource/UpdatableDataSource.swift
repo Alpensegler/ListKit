@@ -30,7 +30,7 @@ public extension UpdatableDataSource {
         let isMainThread = Thread.isMainThread
         var update = update
         var coordinator: ListCoordinator<SourceBase>!
-        var coordinatorUpdate: ListCoordinatorUpdate<SourceBase>?
+        var coordinatorUpdate: CoordinatorUpdate!
         let work = {
             if case let .whole(whole, nil) = update {
                 update = .whole(whole, self.sourceBase.source)
@@ -46,17 +46,18 @@ public extension UpdatableDataSource {
             DispatchQueue.main.sync(execute: work)
         }
         let updateAnimated = animated ?? !coordinator.options.contains(.preferNoAnimation)
-        var results = [(CoordinatorContext, BatchUpdates)]()
+        var results = [(CoordinatorContext, CoordinatorUpdate)]()
         for context in coordinator.listContexts {
             guard let context = context.context else { return }
             results += context.parentUpdate?(coordinatorUpdate, context.index) ?? []
-            if context.listView != nil, let update = coordinatorUpdate?.listUpdates {
-                results.append((context, update))
+            if context.listView != nil, coordinatorUpdate?.listUpdates != nil {
+                results.append((context, coordinatorUpdate))
             }
         }
         if results.isEmpty { return }
         let afterWork = {
             for (context, update) in results {
+                guard let update = update.listUpdates else { continue }
                 context.perform(updates: update, animated: updateAnimated, completion: completion)
             }
         }

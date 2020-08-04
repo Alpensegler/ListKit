@@ -75,3 +75,18 @@ public extension DataSource where SourceBase: AnyObject, SourceBase: Equatable {
 public extension DataSource where SourceBase: AnyObject, SourceBase: Hashable {
     var listOptions: ListOptions<SourceBase> { .diff }
 }
+
+//Subupdate
+public extension DataSource where SourceBase.Source: DataSource, SourceBase.Item == Any {
+    var listUpdate: ListUpdate<SourceBase>.Whole { .subupdate }
+}
+
+public extension DataSource
+where
+    SourceBase.Source: RangeReplaceableCollection,
+    SourceBase.Source.Element: DataSource,
+    SourceBase.Source.Element.SourceBase.Item == SourceBase.Item,
+    SourceBase.Item == Any
+{
+    var listUpdate: ListUpdate<SourceBase>.Whole { .subupdate }
+}

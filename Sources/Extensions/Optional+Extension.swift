@@ -21,10 +21,7 @@ extension Optional: DataSource where Wrapped: DataSource {
     }
     
     public var listCoordinator: ListCoordinator<SourceBase> {
-        switch self {
-        case .some(let dataSource): return WrapperCoordinator(self, wrapped: dataSource) { $0 }
-        case .none: return EmptyCoordinator(nil)
-        }
+        WrapperCoordinator(self, wrapped: self) { $0 }
     }
 }
 

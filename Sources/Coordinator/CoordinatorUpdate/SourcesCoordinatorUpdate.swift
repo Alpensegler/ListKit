@@ -15,11 +15,9 @@ extension CoordinatorUpdate {
         Source.Element: DataSource,
         Source.Element.SourceBase.Item == SourceBase.Item
     {
-        typealias Subupdate = ListCoordinatorUpdate<Source.Element.SourceBase>
+        var update = Cache(value: nil as CoordinatorUpdate?)
         
-        var update = Cache(value: nil as ListCoordinatorUpdate<Source.Element.SourceBase>?)
-        
-        func update(_ isSource: Bool, _ id: ObjectIdentifier?) -> Subupdate {
+        func update(_ isSource: Bool, _ id: ObjectIdentifier?) -> CoordinatorUpdate {
             self.update[id] ?? {
                 let update = value.coordinator.update(isSource ? .remove : .insert)
                 self.update[nil] = update
@@ -34,9 +32,7 @@ extension CoordinatorUpdate {
         Source.Element: DataSource,
         Source.Element.SourceBase.Item == SourceBase.Item
     {
-        typealias Subupdate = ListCoordinatorUpdate<Source.Element.SourceBase>
-        
-        case update(Int, SourceElement<Source.Element>, Subupdate)
+        case update(Int, SourceElement<Source.Element>, CoordinatorUpdate)
         case change(SourcesChange<SourceBase, Source>, isSource: Bool)
     }
 }
@@ -58,7 +54,7 @@ where
     typealias DifferenceChange = SourcesDifferenceChange<SourceBase, Source>
     
     typealias Subsource = SourcesCoordinator<SourceBase, Source>.Subsource
-    typealias Subupdate = ListCoordinatorUpdate<Element.SourceBase>
+    typealias Subupdate = CoordinatorUpdate
     typealias Subcoordinator = ListCoordinator<Element.SourceBase>
     
     weak var coordinator: SourcesCoordinator<SourceBase, Source>?
@@ -112,7 +108,8 @@ where
     override func append(from: Mapping<Int>, to: Mapping<Int>, to changes: inout Differences) {
         for (s, t) in zip(from.source..<to.source, from.target..<to.target) {
             let source = values.source[s], target = values.target[t]
-            let update = target.coordinator.update(from: source.coordinator, differ: differ)
+            let way = differ.map { ListUpdateWay.diff($0) }
+            let update = target.coordinator.update(from: source.coordinator, updateWay: way)
             changes.source.append(.change(.update(t, target, update)))
             changes.target.append(.change(.update(t, target, update)))
         }
@@ -171,7 +168,7 @@ where
     ) {
         let source = mapping.source.value.coordinator
         let target = mapping.target.value.coordinator
-        let update = target.update(from: source, differ: differ)
+        let update = target.update(from: source, updateWay: .diff(differ))
         mapping.source.update[context?.id] = update
         mapping.target.update[context?.id] = update
     }

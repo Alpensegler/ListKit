@@ -74,35 +74,35 @@ class CoordinatorUpdate {
     
     func inferringMoves(context: ContextAndID? = nil) { }
     
-    func configChangeType() -> ChangeType { fatalError("should be implement by subclass") }
-    func generateListUpdates() -> BatchUpdates? { fatalError("should be implement by subclass") }
+    func configChangeType() -> ChangeType { .none }
+    func generateListUpdates() -> BatchUpdates? { nil }
     
     func generateSourceSectionUpdate(
         order: Order,
         context: UpdateContext<Int>? = nil
     ) -> UpdateSource<BatchUpdates.ListSource> {
-        fatalError("should be implement by subclass")
+        (0, nil)
     }
     
     func generateTargetSectionUpdate(
         order: Order,
         context: UpdateContext<Offset<Int>>? = nil
     ) -> UpdateTarget<BatchUpdates.ListTarget> {
-        fatalError("should be implement by subclass")
+        ([], nil, nil)
     }
     
     func generateSourceItemUpdate(
         order: Order,
         context: UpdateContext<IndexPath>? = nil
     ) -> UpdateSource<BatchUpdates.ItemSource> {
-        fatalError("should be implement by subclass")
+        (0, nil)
     }
     
     func generateTargetItemUpdate(
         order: Order,
         context: UpdateContext<Offset<IndexPath>>? = nil
     ) -> UpdateTarget<BatchUpdates.ItemTarget> {
-        fatalError("should be implement by subclass")
+        ([], nil, nil)
     }
 }
 
@@ -142,8 +142,8 @@ extension CoordinatorUpdate {
         isSectioned ? (sectionMaxOrder[context?.id] = order) : (itemMaxOrder[context?.id] = order)
     }
     
-    func updateMaxIfNeeded<O, SourceBase: DataSource>(
-        _ subupdate: ListCoordinatorUpdate<SourceBase>,
+    func updateMaxIfNeeded<O>(
+        _ subupdate: CoordinatorUpdate,
         _ context: UpdateContext<O>?,
         _ subcontext: UpdateContext<O>?
     ) {

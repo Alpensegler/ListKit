@@ -94,6 +94,11 @@ public extension CollectionListAdapter {
     }
 }
 
+extension CollectionList: CustomStringConvertible, CustomDebugStringConvertible {
+    public var description: String { "CollectionList(\(source)" }
+    public var debugDescription: String { "CollectionList(\(source)" }
+}
+
 extension CollectionList: ListAdapter {
     typealias View = CollectionView
     

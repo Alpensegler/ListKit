@@ -54,8 +54,8 @@ where
     override func getSourceCount() -> Int { indices.source.count }
     override func getTargetCount() -> Int { indices.target.count }
     
-    override func updateData(isSource: Bool) {
-        super.updateData(isSource: isSource)
+    override func updateData(_ isSource: Bool) {
+        super.updateData(isSource)
         coordinator?.sections = isSource ? values.source : values.target
         coordinator?.indices = isSource ? indices.source : indices.target
     }

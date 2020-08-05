@@ -41,18 +41,20 @@ where
     }
     
     override func configChangesForDiff() -> Differences {
-        func mappingTo(isSource: Bool) -> ContiguousArray<Difference> {
-            var index = 0
-            return values[keyPath: path(isSource)].mapContiguous {
+        func mappingTo(isSource: Bool) -> Differences {
+            var index = 0, differences: Differences = (.init(), .init())
+            values[keyPath: path(isSource)].forEach {
                 defer { index += 1 }
-                return .change(toChange(toChange($0, index: index, isSource: isSource), isSource))
+                let change = toChange($0, index: index, isSource: isSource)
+                append(change: change, isSource: isSource, to: &differences)
             }
+            return differences
         }
         
         switch changeType {
         case .none, .reload: return ([], [])
-        case .remove: return (mappingTo(isSource: true), [])
-        case .insert: return ([], mappingTo(isSource: false))
+        case .remove: return mappingTo(isSource: true)
+        case .insert: return mappingTo(isSource: false)
         case .batchUpdates: break
         }
         var changes: Changes = ([], [])

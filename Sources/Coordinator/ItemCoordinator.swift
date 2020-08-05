@@ -34,7 +34,7 @@ where SourceBase.Item == SourceBase.Source, SourceBase.SourceBase == SourceBase 
         return ItemCoordinatorUpdate(
             coordinator: self,
             update: update,
-            sources: (source, sourcesAfterUpdate)
+            sources: (source, sourcesAfterUpdate ?? source)
         )
     }
 }

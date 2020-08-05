@@ -20,12 +20,24 @@ extension Room: CollectionListAdapter {
     var listOptions: ListOptions<Room> { .diff(id: \.name) }
     
     var collectionList: CollectionList<Room> {
-        collectionViewCellForItem(CenterLabelCell.self) { (cell, _, item) in cell.text = item }
-        .collectionViewLayoutSizeForItem { (_, _, _) in CGSize(width: 70, height: 70) }
-        .collectionViewLayoutInsetForSection { _, _ in UIEdgeInsets(top: 10, left: 10, bottom: 30, right: 10) }
-        .collectionViewLayoutMinimumLineSpacingForSection { (_, _) in 50 }
-        .collectionViewLayoutMinimumInteritemSpacingForSection { (_, _) in 5 }
-        .collectionViewLayoutReferenceSizeForHeaderInSection { (_, _) in CGSize(width: UIScreen.main.bounds.width, height: 30) }
+        collectionViewCellForItem(CenterLabelCell.self) { (cell, context, item) in
+            cell.text = item
+        }
+        .collectionViewLayoutSizeForItem { (_, _, _) in
+            CGSize(width: 70, height: 70)
+        }
+        .collectionViewLayoutInsetForSection { _, _ in
+            UIEdgeInsets(top: 10, left: 10, bottom: 30, right: 10)
+        }
+        .collectionViewLayoutMinimumLineSpacingForSection { (_, _) in
+            50
+        }
+        .collectionViewLayoutMinimumInteritemSpacingForSection { (_, _) in
+            5
+        }
+        .collectionViewLayoutReferenceSizeForHeaderInSection { (_, _) in
+            CGSize(width: UIScreen.main.bounds.width, height: 30)
+        }
         .collectionViewSupplementaryViewForItem { [name] in
             let header = $0.dequeueReusableSupplementaryView(type: $1, TitleHeader.self)
             header.text = name
@@ -39,9 +51,6 @@ class IdentifiableSectionListViewController: ExampleViewController, UpdatableCol
     
     var source: [Room] {
         Room.random
-//        toggle
-//            ? [Room("A", ["Roy", "Jeremy"]), Room("B", ["Kubrick", "Jack"])]
-//            : [Room("A", ["Frain", "Jack"]), Room("B", ["Pinlin"])]
     }
     
     override func viewDidLoad() {

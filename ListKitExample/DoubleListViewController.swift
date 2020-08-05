@@ -22,16 +22,20 @@ class DoubleListViewController: ExampleViewController, TableListAdapter, Collect
     }
     
     var tableList: TableList<DoubleListViewController> {
-        tableListWithCacheHeight(forItem: {
-            print("fake calculating height for \($0)")
+        tableListWithCacheHeight(forItem: { item in
+            print("fake calculating height for \(item)")
             return 44
         })
     }
     
     var collectionList: CollectionList<DoubleListViewController> {
-        collectionViewCellForItem(CenterLabelCell.self) { (cell, _, item) in cell.text = "\(item)" }
-        .collectionViewLayoutSizeForItem { (_, _, _) in CGSize(width: 75, height: 75) }
-        .collectionViewLayoutInsetForSection { (_, _) in UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10) }
+        collectionViewCellForItem(CenterLabelCell.self) { (cell, _, item) in
+            cell.text = "\(item)" }
+        .collectionViewLayoutSizeForItem { (_, _, _) in
+            CGSize(width: 75, height: 75) }
+        .collectionViewLayoutInsetForSection { (_, _) in
+            UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
+        }
     }
     
     override func viewDidLoad() {

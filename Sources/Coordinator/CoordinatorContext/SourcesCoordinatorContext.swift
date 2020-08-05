@@ -56,18 +56,19 @@ where
         _ itemOffset: Int
     ) -> Output? {
         var (sectionOffset, itemOffset) = (sectionOffset, itemOffset)
-        guard let delegateIndex = self[keyPath: keyPath].index else { return nil }
+        let delegate = self[keyPath: keyPath]
         let index: Int
-        switch input[keyPath: delegateIndex] {
+        switch delegate.index.map({ input[keyPath: $0] }) {
         case let section as Int:
             index = sourcesCoordinator.indices[section - sectionOffset].index
         case var indexPath as IndexPath:
             indexPath.item -= itemOffset
             index = sourcesCoordinator.sourceIndex(for: indexPath.section, indexPath.item)
         default:
-            fatalError()
+            return nil
         }
         let context = subsources[index], listContext = context.context
+        if listContext.selectorSets.contains(delegate.selector) { return nil }
         coordinator.sectioned ? (sectionOffset += context.offset) : (itemOffset += context.offset)
         return listContext.apply(keyPath, root: root, object: object, with: input, sectionOffset, itemOffset)
     }

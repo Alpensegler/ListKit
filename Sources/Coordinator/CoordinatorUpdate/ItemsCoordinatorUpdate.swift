@@ -50,10 +50,13 @@ where
     override func isDiffEqual(lhs: Item, rhs: Item) -> Bool { differ.diffEqual(lhs: lhs, rhs: rhs) }
     
     override func toValue(_ element: Element) -> Item { element }
-    override func toChange(_ change: Change, _ isSource: Bool) -> Change { change }
     
-    override func updateData(isSource: Bool) {
-        super.updateData(isSource: isSource)
+    override func append(change: Change, isSource: Bool, to changes: inout Differences) {
+        changes[keyPath: path(isSource)].append(.change(change))
+    }
+    
+    override func updateData(_ isSource: Bool) {
+        super.updateData(isSource)
         coordinator?.items = isSource ? values.source : values.target
     }
     

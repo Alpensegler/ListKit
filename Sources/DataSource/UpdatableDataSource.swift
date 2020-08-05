@@ -36,7 +36,7 @@ public extension UpdatableDataSource {
                 update = .whole(whole, self.sourceBase.source)
             }
             coordinator = self.listCoordinator
-            update.source.map { Log.log("from \(currentSource)\n  to \($0)") }
+            update.source.map { Log.log("----start-update----\nfrom \(currentSource)\n  to \($0)") }
             coordinatorUpdate = coordinator.update(update)
             coordinator.currentCoordinatorUpdate = coordinatorUpdate
         }

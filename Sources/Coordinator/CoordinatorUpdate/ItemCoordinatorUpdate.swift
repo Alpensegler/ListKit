@@ -15,7 +15,13 @@ where SourceBase.Item == SourceBase.Source, SourceBase.SourceBase == SourceBase 
     override var moveAndReloadable: Bool { true }
     
     func configChange() -> Mapping<Change<Item>?> {
-        guard diffable, let s = sources.source, let t = sources.target else { return (nil, nil) }
+        guard let s = sources.source, let t = sources.target else { return (nil, nil) }
+        switch changeType {
+        case .insert: return (nil, Change(t, 0))
+        case .remove: return (Change(s, 0), nil)
+        default: break
+        }
+        guard diffable else { return (nil, nil) }
         let isEqual = differ.diffEqual(lhs: s, rhs: t)
         return isEqual ? (nil, nil) : (Change(s, 0), Change(t, 0))
     }
@@ -66,7 +72,7 @@ where SourceBase.Item == SourceBase.Source, SourceBase.SourceBase == SourceBase 
             extraChange[context?.id].target.map { update.reload($0.indexPath(context?.id)) }
             return (indices, update, finalChange)
         } else {
-            if let change = change.source {
+            if let change = change.target {
                 configCoordinatorChange(change, context: context, into: &update) {
                     extraChange[context?.id].target = $0
                     extraChange[context?.id].source = $1

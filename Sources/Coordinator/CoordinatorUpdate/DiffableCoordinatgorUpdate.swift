@@ -58,7 +58,7 @@ where
         case .batchUpdates: break
         }
         var changes: Changes = ([], [])
-        let diffs = values.target.diff(from: values.source, by: isDiffEqual)
+        let diffs = CollectionDifference(from: values.source, to: values.target, by: isDiffEqual)
         changes.source = diffs.removals.mapContiguous { toChange($0, isSource: true) }
         changes.target = diffs.insertions.mapContiguous { toChange($0, isSource: false) }
         

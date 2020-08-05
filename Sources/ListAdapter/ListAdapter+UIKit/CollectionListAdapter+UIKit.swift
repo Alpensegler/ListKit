@@ -9,6 +9,10 @@
 import UIKit
 
 public extension DataSource {
+    typealias CollectionContext = ListContext<UICollectionView, SourceBase>
+    typealias CollectionItemContext = ListIndexContext<UICollectionView, SourceBase, IndexPath>
+    typealias CollectionSectionContext = ListIndexContext<UICollectionView, SourceBase, Int>
+    
     func collectionViewCellForItem(
         _ closure: @escaping (ListIndexContext<UICollectionView, SourceBase, IndexPath>, Item) -> UICollectionViewCell
     ) -> CollectionList<SourceBase> {
@@ -30,10 +34,6 @@ public extension DataSource {
 
 //Collection View Data Source
 public extension CollectionListAdapter {
-    typealias CollectionContext = ListContext<UICollectionView, SourceBase>
-    typealias CollectionItemContext = ListIndexContext<UICollectionView, SourceBase, IndexPath>
-    typealias CollectionSectionContext = ListIndexContext<UICollectionView, SourceBase, Int>
-    
     //Getting Views for Items
     @discardableResult
     func collectionViewSupplementaryViewForItem(

@@ -8,25 +8,21 @@
 #if os(iOS) || os(tvOS)
 import UIKit
 
-public extension TableListAdapter {
+public extension DataSource {
     func tableListWithCache<Cache>(
         forItem: @escaping (TableItemContext, Item) -> Cache,
         toTableList: (Self, @escaping (TableItemContext) -> Cache) -> TableList<SourceBase>
     ) -> TableList<SourceBase> {
         toTableList(self) { $0.itemCache(or: forItem) }
     }
-}
-
-public extension CollectionListAdapter {
+    
     func collectionListWithCache<Cache>(
-        forItem: @escaping (CollectionItemContext,Item) -> Cache,
+        forItem: @escaping (CollectionItemContext, Item) -> Cache,
         toCollectionList: (Self, @escaping (CollectionItemContext) -> Cache) -> CollectionList<SourceBase>
     ) -> CollectionList<SourceBase> {
         toCollectionList(self) { $0.itemCache(or: forItem) }
     }
-}
-
-public extension TableListAdapter {
+    
     func tableListWithCacheHeight(
         forItem: @escaping (TableItemContext, Item) -> CGFloat,
         cellForItem: @escaping (TableItemContext, CGFloat, Item) -> UITableViewCell = { (context, _, item) in
@@ -40,9 +36,7 @@ public extension TableListAdapter {
                 .tableViewHeightForRow { (context, _) in cacheGetter(context) }
         }
     }
-}
-
-public extension CollectionListAdapter {
+    
     func collectionListWithCacheSize(
         forItem: @escaping (CollectionItemContext, Item) -> CGSize,
         cellForItem: @escaping (CollectionItemContext, CGSize, Item) -> UICollectionViewCell

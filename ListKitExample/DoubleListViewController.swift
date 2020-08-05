@@ -22,7 +22,7 @@ class DoubleListViewController: ExampleViewController, TableListAdapter, Collect
     }
     
     var tableList: TableList<DoubleListViewController> {
-        tableListWithCacheHeight(forItem: { item in
+        tableListWithCacheHeight(forItem: { context, item in
             print("fake calculating height for \(item)")
             return 44
         })

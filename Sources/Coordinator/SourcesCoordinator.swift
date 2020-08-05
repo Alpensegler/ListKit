@@ -63,22 +63,10 @@ where
     var subsourceHasSectioned = false
     
     lazy var indices = toIndices(subsources)
-    var _subsources: ContiguousArray<Subsource>! {
-        didSet {
-            print("didset \(_subsources)")
-        }
-    }
-    var subsources: ContiguousArray<Subsource> {
-        get {
-            if let subsources = _subsources { return subsources }
-            guard case let .fromSourceBase(fromSource, _) = subsourceType else { fatalError() }
-            _subsources = toSubsources(fromSource(source))
-            return _subsources
-        }
-        set {
-            _subsources = newValue
-        }
-    }
+    lazy var subsources: ContiguousArray<Subsource> = {
+        guard case let .fromSourceBase(fromSource, _) = subsourceType else { fatalError() }
+        return toSubsources(fromSource(source))
+    }()
     
     var subsourcesArray: ContiguousArray<Source.Element> {
         var sources = ContiguousArray<Source.Element>(capacity: subsources.count)

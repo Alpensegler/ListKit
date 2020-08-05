@@ -55,9 +55,9 @@ extension ListIndexContext where Index == IndexPath {
         context.itemNestedCache[index.section][index.item] = update
     }
     
-    func itemCache<Cache>(or getter: (SourceBase.Item) -> Cache) -> Cache {
+    func itemCache<Cache>(or getter: (Self, SourceBase.Item) -> Cache) -> Cache {
         context.itemCaches[index.section][index.item] as? Cache ?? {
-            let cache = getter(itemValue)
+            let cache = getter(self, itemValue)
             context.itemCaches[index.section][index.item] = cache
             return cache
         }()

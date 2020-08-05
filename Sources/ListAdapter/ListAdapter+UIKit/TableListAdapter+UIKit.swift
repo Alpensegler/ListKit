@@ -9,6 +9,10 @@
 import UIKit
 
 public extension DataSource {
+    typealias TableContext = ListContext<UITableView, SourceBase>
+    typealias TableItemContext = ListIndexContext<UITableView, SourceBase, IndexPath>
+    typealias TableSectionContext = ListIndexContext<UITableView, SourceBase, Int>
+    
     func tableViewCellForRow(
         _ closure: @escaping (ListIndexContext<UITableView, SourceBase, IndexPath>, Item) -> UITableViewCell = { (context, item) in
             let cell = context.dequeueReusableCell(UITableViewCell.self)
@@ -36,10 +40,6 @@ public extension DataSource {
 
 //TableView DataSource
 public extension TableListAdapter {
-    typealias TableContext = ListContext<UITableView, SourceBase>
-    typealias TableItemContext = ListIndexContext<UITableView, SourceBase, IndexPath>
-    typealias TableSectionContext = ListIndexContext<UITableView, SourceBase, Int>
-    
     //Providing Cells, Headers, and Footers
     @discardableResult
     func tableViewHeaderTitleForSection(

@@ -8,9 +8,11 @@
 #if os(iOS) || os(tvOS)
 import UIKit
 
-public extension ScrollListAdapter {
+public extension DataSource {
     typealias ScrollContext = ListContext<UIScrollView, SourceBase>
-    
+}
+
+public extension ScrollListAdapter {
     @discardableResult
     func scrollViewDidScroll(_ closure: @escaping (ScrollContext) -> Void) -> ScrollList<SourceBase> {
         scrollList.set(\.didScroll) { closure($0.0) }

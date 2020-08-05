@@ -26,3 +26,8 @@ public struct AnySources: DataSource {
         }
     }
 }
+
+extension AnySources: CustomStringConvertible, CustomDebugStringConvertible {
+    public var description: String { "AnySources(\(source))" }
+    public var debugDescription: String { "AnySources(\(source))" }
+}

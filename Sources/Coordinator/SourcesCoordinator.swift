@@ -25,6 +25,19 @@ struct SourceElement<Element> where Element: DataSource {
     }
 }
 
+extension SourceElement: CustomStringConvertible, CustomDebugStringConvertible {
+    var description: String {
+        switch element {
+        case let .items(id: id, items):
+            return "Items(\(id), \(items().map { $0 }))"
+        case let .element(element):
+            return "Element(\(element))"
+        }
+    }
+    
+    var debugDescription: String { description }
+}
+
 final class SourcesCoordinator<SourceBase: DataSource, Source>: ListCoordinator<SourceBase>
 where
     SourceBase.SourceBase == SourceBase,
@@ -50,10 +63,22 @@ where
     var subsourceHasSectioned = false
     
     lazy var indices = toIndices(subsources)
-    lazy var subsources: ContiguousArray<Subsource> = {
-        guard case let .fromSourceBase(fromSource, _) = subsourceType else { fatalError() }
-        return toSubsources(fromSource(source))
-    }()
+    var _subsources: ContiguousArray<Subsource>! {
+        didSet {
+            print("didset \(_subsources)")
+        }
+    }
+    var subsources: ContiguousArray<Subsource> {
+        get {
+            if let subsources = _subsources { return subsources }
+            guard case let .fromSourceBase(fromSource, _) = subsourceType else { fatalError() }
+            _subsources = toSubsources(fromSource(source))
+            return _subsources
+        }
+        set {
+            _subsources = newValue
+        }
+    }
     
     var subsourcesArray: ContiguousArray<Source.Element> {
         var sources = ContiguousArray<Source.Element>(capacity: subsources.count)
@@ -94,6 +119,8 @@ where
         indices: Indices
     ) {
         defer { resetDelegates() }
+        Log.log("\(self) set indices: \(indices.map { $0 })")
+        Log.log("\(self) set subsources: \(subsources.map { $0 })")
         (self.subsources, self.indices) = (values, indices)
         guard case let .fromSourceBase(_, map) = subsourceType, let source = source else { return }
         self.source = map(source)

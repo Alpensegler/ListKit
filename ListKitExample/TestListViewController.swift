@@ -80,21 +80,23 @@ struct TestList_Preview: PreviewProvider {
 //extension TestListViewController {
 //    var source: AnyTableSources {
 //        AnyTableSources {
-//            if !toggle {
-//                Sources(items: ["a", "b", "c"])
-//                    .tableViewCellForRow()
-//                    .tableViewDidSelectRow { (context, item) in
-//                        context.deselectItem(animated: false)
-//                        print(item)
-//                    }
-//            } else {
-//                Sources(items: ["b", "c"])
+//            if toggle {
+//                Sources(item: "b")
 //                    .tableViewCellForRow()
 //                    .tableViewDidSelectRow { (context, item) in
 //                        context.deselectItem(animated: false)
 //                        print(item)
 //                    }
 //            }
+//            Sources(id: 1, items: ["a", "b", "c"])
+//                .tableViewCellForRow()
+//                .tableViewDidSelectRow { (context, item) in
+//                    context.deselectItem(animated: false)
+//                    print(item)
+//                }
+//                .tableViewHeaderTitleForSection { (context) -> String? in
+//                    "sources"
+//                }
 //        }
 //    }
 //}

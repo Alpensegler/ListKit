@@ -44,6 +44,11 @@ public struct Sources<Source, Item>: UpdatableDataSource {
     }
 }
 
+extension Sources: CustomStringConvertible, CustomDebugStringConvertible {
+    public var description: String { "Sources(\(source))" }
+    public var debugDescription: String { "Sources(\(source))" }
+}
+
 public extension Sources {
     struct Options: ListKit.Options {
         public typealias SourceBase = Sources<Source, Item>

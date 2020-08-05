@@ -59,13 +59,7 @@ where
     func updateSource(with changes: Differences) { fatalError("should be implemented by subclass") }
     func configChangesForDiff() -> Differences { fatalError("should be implemented by subclass") }
     
-    func toChange(_ change: Change, _ isSource: Bool) -> DifferenceChange {
-        fatalError("should be implemented by subclass")
-    }
-    
-    func append(change: Change, isSource: Bool, to changes: inout Differences) {
-        changes[keyPath: path(isSource)].append(.change(toChange(change, isSource)))
-    }
+    func append(change: Change, isSource: Bool, to changes: inout Differences) { }
     
     override func getSourceCount() -> Int { values.source.count }
     override func getTargetCount() -> Int { values.target.count }

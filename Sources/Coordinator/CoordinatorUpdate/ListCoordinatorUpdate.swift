@@ -46,7 +46,7 @@ where SourceBase.SourceBase == SourceBase {
     func getSourceCount() -> Int { 1 }
     func getTargetCount() -> Int { 1 }
     
-    func updateData(isSource: Bool) {
+    func updateData(_ isSource: Bool) {
         listCoordinator?.source = isSource ? sources.source : sources.target
     }
     
@@ -119,9 +119,10 @@ where SourceBase.SourceBase == SourceBase {
                     (0, (.init(section: $0.offset.source), .init(section: $0.offset.target)))
                 }
             ) else { return (count(1, isFake: isFake), nil, nil) }
-            return (count(1, isFake: isFake), .init(item: itemUpdate), change)
+            let changes = hasNext(order, context) ? change : (change + finalChange)
+            return (count(1, isFake: isFake), .init(item: itemUpdate), changes)
         case (.third, _):
-            return (count(targetSectionCount), nil, nil)
+            return (count(targetSectionCount), nil, finalChange)
         }
     }
 }
@@ -136,8 +137,8 @@ extension ListCoordinatorUpdate {
     var sourceSectionCount: Int { isSectioned ? sourceCount : sourceHasSection ? 1 : 0 }
     var targetSectionCount: Int { isSectioned ? targetCount : targetHasSection ? 1 : 0 }
     
-    var finalChange: (() -> Void)? { { [unowned self] in self.updateData(isSource: false) } }
-    var firstChange: (() -> Void)? { { [unowned self] in self.updateData(isSource: true) } }
+    var firstChange: (() -> Void)? { { [unowned self] in self.updateData(true) } }
+    var finalChange: (() -> Void)? { { [unowned self] in self.updateData(false) } }
     
     func itemsOnly(_ isSource: Bool) -> Bool {
         isSectioned && hasSectionIfEmpty(isSource: isSource)
@@ -145,7 +146,10 @@ extension ListCoordinatorUpdate {
     
     func listUpdatesForSections() -> BatchUpdates {
         .batch(Order.allCases.compactMapContiguous { order in
+            Log.log("---\(order)---")
+            Log.log("-source-")
             let source = generateSourceSectionUpdate(order: order)
+            Log.log("-target-")
             let target = generateTargetSectionUpdate(order: order)
             guard !source.update.isEmpty || !target.update.isEmpty else { return nil }
             return .init(update: (source.update, target.update), change: target.change)
@@ -154,7 +158,10 @@ extension ListCoordinatorUpdate {
     
     func listUpdatesForItems() -> BatchUpdates {
         .batch([Order.second, Order.third].compactMapContiguous { order in
+            Log.log("---\(order)---")
+            Log.log("-source-")
             let source = generateSourceItemUpdate(order: order)
+            Log.log("-target-")
             let target = generateTargetItemUpdate(order: order)
             guard !source.update.isEmpty || !target.update.isEmpty else { return nil }
             return .init(update: (source.update, target.update), change: target.change)

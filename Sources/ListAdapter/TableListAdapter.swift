@@ -94,6 +94,11 @@ public extension TableListAdapter {
     }
 }
 
+extension TableList: CustomStringConvertible, CustomDebugStringConvertible {
+    public var description: String { "TableList(\(source))" }
+    public var debugDescription: String { "TableList(\(source))" }
+}
+
 extension TableList: ListAdapter {
     typealias View = TableView
     

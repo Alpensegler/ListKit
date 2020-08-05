@@ -4,8 +4,8 @@ public typealias UpdatableCollectionListAdapter = CollectionListAdapter & Updata
 public enum Log {
     public static var logger: ((String) -> Void)? = nil
     
-    static func log(_ text: @autoclosure () -> String) {
+    static func log(_ text: @autoclosure () -> String?) {
         guard let logger = logger else { return }
-        logger(text())
+        text().map(logger)
     }
 }

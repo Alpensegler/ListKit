@@ -95,12 +95,8 @@ where
         return .init(element: .element(element), context: context, offset: 0, count: count)
     }
     
-    override func toChange(_ change: Change, _ isSource: Bool) -> DifferenceChange {
-        .change(change, isSource: isSource)
-    }
-    
     override func append(change: Change, isSource: Bool, to changes: inout Differences) {
-        super.append(change: change, isSource: isSource, to: &changes)
+        changes[keyPath: path(isSource)].append(.change(.change(change, isSource: isSource)))
         guard change.associated[nil] == nil else { return }
         changes[keyPath: path(!isSource)].append(.change(.change(change, isSource: isSource)))
     }
@@ -130,10 +126,11 @@ where
         }
     }
     
-    override func updateData(isSource: Bool) {
-        super.updateData(isSource: isSource)
+    override func updateData(_ isSource: Bool) {
+        super.updateData(isSource)
         coordinator?.subsources = isSource ? values.source : values.target
         coordinator?.indices = isSource ? indices.source : indices.target
+        coordinator.map { print("setTo", $0.subsources, $0.indices) }
     }
     
     override func isEqual(lhs: Subsource, rhs: Subsource) -> Bool {
@@ -241,6 +238,8 @@ extension SourcesCoordinatorUpdate {
             offsets[ObjectIdentifier(update)] = count
             count += subcount
             subupdate.map { result.add($0) }
+            Log.log("\(update)\(subupdate.isEmpty ? " none" : "")")
+            Log.log(subupdate.isEmpty ? nil : subupdate?.description)
         }
         
         func reload(from value: Subsource, to other: Subsource) {
@@ -349,6 +348,8 @@ extension SourcesCoordinatorUpdate {
             change = change + subchange
             index += 1
             indices.append(contentsOf: subindices)
+            Log.log("\(value)\(subupdate.isEmpty ? " none" : "")")
+            Log.log(subupdate.isEmpty ? nil : subupdate?.description)
             updateMaxIfNeeded(update, context, subcontext)
         }
         

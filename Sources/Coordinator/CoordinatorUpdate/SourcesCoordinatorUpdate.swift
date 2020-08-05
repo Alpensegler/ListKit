@@ -130,7 +130,6 @@ where
         super.updateData(isSource)
         coordinator?.subsources = isSource ? values.source : values.target
         coordinator?.indices = isSource ? indices.source : indices.target
-        coordinator.map { print("setTo", $0.subsources, $0.indices) }
     }
     
     override func isEqual(lhs: Subsource, rhs: Subsource) -> Bool {

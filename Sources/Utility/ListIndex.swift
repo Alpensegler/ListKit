@@ -66,7 +66,7 @@ extension IndexPath: ListIndex {
         _ itemMoves: inout [IndexPath: Cache?],
         _ sectionMoves: inout [Int: ContiguousArray<Cache?>]
     ) {
-        itemMoves[self] = caches[related.section][related.count]
+        itemMoves[self] = caches[related.section][related.item]
     }
     
     func remove<Cache>(from caches: inout ContiguousArray<ContiguousArray<Cache?>>) {
@@ -107,7 +107,7 @@ extension Int: ListIndex {
     }
     
     func remove<Cache>(from caches: inout ContiguousArray<ContiguousArray<Cache?>>) {
-        caches[section].remove(at: self)
+        caches.remove(at: self)
     }
     
     func insert<Cache>(

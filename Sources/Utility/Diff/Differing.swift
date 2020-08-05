@@ -111,55 +111,20 @@ extension RangeReplaceableCollection {
 }
 
 // MARK: Definition of API
-extension BidirectionalCollection {
-    /// Returns the difference needed to produce this collection's ordered
-    /// elements from the given collection, using the given predicate as an
-    /// equivalence test.
-    ///
-    /// This function does not infer element moves. If you need to infer moves,
-    /// call the `inferringMoves()` method on the resulting difference.
-    ///
-    /// - Parameters:
-    ///   - other: The base state.
-    ///   - areEquivalent: A closure that returns a Boolean value indicating
-    ///     whether two elements are equivalent.
-    ///
-    /// - Returns: The difference needed to produce the reciever's state from
-    ///   the parameter's state.
-    ///
-    /// - Complexity: Worst case performance is O(*n* * *m*), where *n* is the
-    ///   count of this collection and *m* is `other.count`. You can expect
-    ///   faster execution when the collections share many common elements.
-    public func diff<C: BidirectionalCollection>(
-        from other: C,
-        by areEquivalent: (C.Element, Element) -> Bool
-    ) -> CollectionDifference<Element>
-        where C.Element == Self.Element {
-        return _myers(from: other, to: self, using: areEquivalent)
+public extension CollectionDifference {
+    init<From: BidirectionalCollection, To: BidirectionalCollection>(
+        from: From, to: To,
+        by areEquivalent: (ChangeElement, ChangeElement) -> Bool
+    ) where From.Element == ChangeElement, To.Element == ChangeElement {
+        self = _myers(from: from, to: to, using: areEquivalent)
     }
 }
 
-extension BidirectionalCollection where Element: Equatable {
-    /// Returns the difference needed to produce this collection's ordered
-    /// elements from the given collection.
-    ///
-    /// This function does not infer element moves. If you need to infer moves,
-    /// call the `inferringMoves()` method on the resulting difference.
-    ///
-    /// - Parameters:
-    ///   - other: The base state.
-    ///
-    /// - Returns: The difference needed to produce this collection's ordered
-    ///   elements from the given collection.
-    ///
-    /// - Complexity: Worst case performance is O(*n* * *m*), where *n* is the
-    ///   count of this collection and *m* is `other.count`. You can expect
-    ///   faster execution when the collections share many common elements, or
-    ///   if `Element` conforms to `Hashable`.
-    public func diff<C: BidirectionalCollection>(
-        from other: C
-    ) -> CollectionDifference<Element> where C.Element == Self.Element {
-        return diff(from: other, by: ==)
+public extension CollectionDifference where ChangeElement: Equatable {
+    init<From: BidirectionalCollection, To: BidirectionalCollection>(
+        from: From, to: To
+    ) where From.Element == ChangeElement, To.Element == ChangeElement {
+        self = _myers(from: from, to: to, using: ==)
     }
 }
 

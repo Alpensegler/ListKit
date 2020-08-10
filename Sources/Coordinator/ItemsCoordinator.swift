@@ -26,7 +26,7 @@ where
     }
     
     override func numbersOfItems(in section: Int) -> Int { items.count }
-    override func numbersOfSections() -> Int { isEmpty && !options.preferSection ? 0 : 1 }
+    override func numbersOfSections() -> Int { isEmpty && !options.keepEmptySection ? 0 : 1 }
     
     override func item(at section: Int, _ item: Int) -> Item { items[item] }
     

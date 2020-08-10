@@ -141,7 +141,7 @@ extension ListCoordinatorUpdate {
     var finalChange: (() -> Void)? { { [unowned self] in self.updateData(false) } }
     
     func itemsOnly(_ isSource: Bool) -> Bool {
-        isSectioned && hasSectionIfEmpty(isSource: isSource)
+        !isSectioned && hasSectionIfEmpty(isSource: isSource)
     }
     
     func listUpdatesForSections() -> BatchUpdates {

@@ -11,7 +11,12 @@ where
     Source.Element: DataSource,
     Source.Element.Item == Item
 {
-    init(_ id: AnyHashable?, dataSources: Source, update: ListUpdate<SourceBase>.Whole, options: Options) {
+    init(
+        _ id: AnyHashable?,
+        dataSources: Source,
+        update: ListUpdate<SourceBase>.Whole,
+        options: Options
+    ) {
         self.sourceValue = dataSources
         self.listUpdate = update
         self.listOptions = .init(id: id, options)
@@ -26,16 +31,29 @@ where
     Source.Element.Item == Item
 {
     init(
-        id: AnyHashable? = nil,
         dataSources: Source,
+        id: AnyHashable? = nil,
         update: ListUpdate<SourceBase>.Whole,
         options: Options = .init()
     ) {
         self.init(id, dataSources: dataSources, update: update, options: options)
     }
     
-    init(id: AnyHashable? = nil, dataSources: Source, options: Options = .init()) {
+    init(
+        wrappedValue: Source,
+        id: AnyHashable? = nil,
+        update: ListUpdate<SourceBase>.Whole,
+        options: Options = .init()
+    ) {
+        self.init(id, dataSources: wrappedValue, update: update, options: options)
+    }
+    
+    init(dataSources: Source, id: AnyHashable? = nil, options: Options = .init()) {
         self.init(id, dataSources: dataSources, update: .reload, options: options)
+    }
+    
+    init(wrappedValue: Source, id: AnyHashable? = nil, options: Options = .init()) {
+        self.init(id, dataSources: wrappedValue, update: .reload, options: options)
     }
 }
 
@@ -48,12 +66,21 @@ where
     Item: Equatable
 {
     init(
-        id: AnyHashable? = nil,
         dataSources: Source,
+        id: AnyHashable? = nil,
         update: ListUpdate<SourceBase>.Whole,
         options: Options = .init()
     ) {
         self.init(id, dataSources: dataSources, update: .diff, options: options)
+    }
+    
+    init(
+        wrappedValue: Source,
+        id: AnyHashable? = nil,
+        update: ListUpdate<SourceBase>.Whole,
+        options: Options = .init()
+    ) {
+        self.init(id, dataSources: wrappedValue, update: .diff, options: options)
     }
 }
 
@@ -66,12 +93,21 @@ where
     Item: Hashable
 {
     init(
-        id: AnyHashable? = nil,
         dataSources: Source,
+        id: AnyHashable? = nil,
         update: ListUpdate<SourceBase>.Whole,
         options: Options = .init()
     ) {
         self.init(id, dataSources: dataSources, update: .diff, options: options)
+    }
+    
+    init(
+        wrappedValue: Source,
+        id: AnyHashable? = nil,
+        update: ListUpdate<SourceBase>.Whole,
+        options: Options = .init()
+    ) {
+        self.init(id, dataSources: wrappedValue, update: .diff, options: options)
     }
 }
 
@@ -85,12 +121,21 @@ where
     Item: Identifiable
 {
     init(
-        id: AnyHashable? = nil,
         dataSources: Source,
+        id: AnyHashable? = nil,
         update: ListUpdate<SourceBase>.Whole,
         options: Options = .init()
     ) {
         self.init(id, dataSources: dataSources, update: .diff, options: options)
+    }
+    
+    init(
+        wrappedValue: Source,
+        id: AnyHashable? = nil,
+        update: ListUpdate<SourceBase>.Whole,
+        options: Options = .init()
+    ) {
+        self.init(id, dataSources: wrappedValue, update: .diff, options: options)
     }
 }
 
@@ -105,12 +150,21 @@ where
     Item: Equatable
 {
     init(
-        id: AnyHashable? = nil,
         dataSources: Source,
+        id: AnyHashable? = nil,
         update: ListUpdate<SourceBase>.Whole,
         options: Options = .init()
     ) {
         self.init(id, dataSources: dataSources, update: .diff, options: options)
+    }
+    
+    init(
+        wrappedValue: Source,
+        id: AnyHashable? = nil,
+        update: ListUpdate<SourceBase>.Whole,
+        options: Options = .init()
+    ) {
+        self.init(id, dataSources: wrappedValue, update: .diff, options: options)
     }
 }
 
@@ -125,11 +179,20 @@ where
     Item: Hashable
 {
     init(
-        id: AnyHashable? = nil,
         dataSources: Source,
+        id: AnyHashable? = nil,
         update: ListUpdate<SourceBase>.Whole,
         options: Options = .init()
     ) {
         self.init(id, dataSources: dataSources, update: .diff, options: options)
+    }
+    
+    init(
+        wrappedValue: Source,
+        id: AnyHashable? = nil,
+        update: ListUpdate<SourceBase>.Whole,
+        options: Options = .init()
+    ) {
+        self.init(id, dataSources: wrappedValue, update: .diff, options: options)
     }
 }

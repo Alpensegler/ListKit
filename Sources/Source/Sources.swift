@@ -59,6 +59,8 @@ public extension Sources {
     
 }
 
-public typealias ItemsSources<Item> = Sources<[Int], Int>
-public typealias SectionsSources<Item> = Sources<[[Int]], Int>
+public typealias ItemSources<Item> = Sources<Item, Item>
+public typealias ItemsSources<Item> = Sources<[Item], Item>
+public typealias SectionsSources<Item> = Sources<[[Item]], Item>
+public typealias SourceSources<Source: DataSource> = Sources<Source, Source.Item>
 public typealias SourcesSources<Source: DataSource> = Sources<[Source], Source.Item>

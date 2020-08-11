@@ -79,6 +79,12 @@ public extension UpdatableDataSource {
     func performUpdate(animated: Bool? = nil, completion: ((ListView, Bool) -> Void)? = nil) {
         perform(.whole(listUpdate), animated: animated, completion: completion)
     }
+    
+    func getCache<List: ListView>(for listView: List, at indexPath: IndexPath) -> Any? {
+        let c = listCoordinator.listContexts.first { $0.context?.listView == listView }?.context
+        guard let context = c, context.hasItemCaches else { return nil }
+        return context.itemCaches[indexPath.section][indexPath.item]
+    }
 }
 
 extension UpdatableDataSource where SourceBase == Self {

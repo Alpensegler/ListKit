@@ -14,7 +14,7 @@ public extension DataSource {
     typealias CollectionSectionContext = ListIndexContext<UICollectionView, SourceBase, Int>
     
     func collectionViewCellForItem(
-        _ closure: @escaping (ListIndexContext<UICollectionView, SourceBase, IndexPath>, Item) -> UICollectionViewCell
+        _ closure: @escaping (CollectionItemContext, Item) -> UICollectionViewCell
     ) -> CollectionList<SourceBase> {
         CollectionList.init(self).set(\.cellForItemAt) { closure($0.0, $0.0.itemValue) }
     }
@@ -22,7 +22,7 @@ public extension DataSource {
     func collectionViewCellForItem<Cell: UICollectionViewCell>(
         _ cellClass: Cell.Type,
         identifier: String = "",
-        _ closure: @escaping (Cell, ListIndexContext<UICollectionView, SourceBase, IndexPath>, Item) -> Void
+        _ closure: @escaping (Cell, CollectionItemContext, Item) -> Void
     ) -> CollectionList<SourceBase> {
         collectionViewCellForItem { (context, item) in
             let cell = context.dequeueReusableCell(cellClass, identifier: identifier)

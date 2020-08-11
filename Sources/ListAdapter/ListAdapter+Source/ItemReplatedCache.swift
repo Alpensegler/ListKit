@@ -37,12 +37,36 @@ public extension DataSource {
         }
     }
     
+    func tableListWithCacheHeight<Cell: UITableViewCell>(
+        forItem: @escaping (TableItemContext, Item) -> CGFloat,
+        _ cellClass: Cell.Type,
+        identifier: String = "",
+        _ closure: @escaping (Cell, TableItemContext, CGFloat, Item) -> Void
+    ) -> TableList<SourceBase> {
+        tableListWithCache(forItem: forItem) { (self, cacheGetter) in
+            self.tableViewCellForRow(cellClass, identifier: identifier) { closure($0, $1, cacheGetter($1), $2) }
+                .tableViewHeightForRow { (context, _) in cacheGetter(context) }
+        }
+    }
+    
     func collectionListWithCacheSize(
         forItem: @escaping (CollectionItemContext, Item) -> CGSize,
         cellForItem: @escaping (CollectionItemContext, CGSize, Item) -> UICollectionViewCell
     ) -> CollectionList<SourceBase> {
         collectionListWithCache(forItem: forItem) { (self, cacheGetter) in
             self.collectionViewCellForItem { cellForItem($0, cacheGetter($0), $1) }
+                .collectionViewLayoutSizeForItem { (context, _, _) in cacheGetter(context) }
+        }
+    }
+    
+    func collectionListWithCacheSize<Cell: UICollectionViewCell>(
+        forItem: @escaping (CollectionItemContext, Item) -> CGSize,
+        _ cellClass: Cell.Type,
+        identifier: String = "",
+        closure: @escaping (Cell, CollectionItemContext, CGSize, Item) -> Void
+    ) -> CollectionList<SourceBase> {
+        collectionListWithCache(forItem: forItem) { (self, cacheGetter) in
+            self.collectionViewCellForItem(cellClass, identifier: identifier) { closure($0, $1, cacheGetter($1), $2) }
                 .collectionViewLayoutSizeForItem { (context, _, _) in cacheGetter(context) }
         }
     }

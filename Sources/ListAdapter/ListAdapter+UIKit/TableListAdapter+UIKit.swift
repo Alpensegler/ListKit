@@ -14,7 +14,7 @@ public extension DataSource {
     typealias TableSectionContext = ListIndexContext<UITableView, SourceBase, Int>
     
     func tableViewCellForRow(
-        _ closure: @escaping (ListIndexContext<UITableView, SourceBase, IndexPath>, Item) -> UITableViewCell = { (context, item) in
+        _ closure: @escaping (TableItemContext, Item) -> UITableViewCell = { (context, item) in
             let cell = context.dequeueReusableCell(UITableViewCell.self)
             cell.textLabel?.text = "\(item)"
             return cell
@@ -28,7 +28,7 @@ public extension DataSource {
     func tableViewCellForRow<Cell: UITableViewCell>(
         _ cellClass: Cell.Type,
         identifier: String = "",
-        _ closure: @escaping (Cell, ListIndexContext<UITableView, SourceBase, IndexPath>, Item) -> Void
+        _ closure: @escaping (Cell, TableItemContext, Item) -> Void
     ) -> TableList<SourceBase> {
         tableViewCellForRow { (context, item) in
             let cell = context.dequeueReusableCell(cellClass, identifier: identifier)

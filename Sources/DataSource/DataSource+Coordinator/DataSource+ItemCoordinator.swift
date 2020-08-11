@@ -16,3 +16,11 @@ public extension DataSource where SourceBase.Source == Item, SourceBase: Updatab
         sourceBase.coordinator(with: ItemCoordinator(sourceBase))
     }
 }
+
+public extension DataSource where Source == Self, Item == Self, SourceBase == Self {
+    var source: Source { self }
+    
+    var listCoordinator: ListCoordinator<SourceBase> {
+        ItemCoordinator(sourceBase)
+    }
+}

@@ -82,12 +82,6 @@
 		F3AD00DD238BC2AF000AF1B3 /* Differ.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3AD00DC238BC2AF000AF1B3 /* Differ.swift */; };
 		F3AD013A238BE6FE000AF1B3 /* ItemsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3AD0139238BE6FE000AF1B3 /* ItemsCoordinator.swift */; };
 		F3AD0680238FF3DA000AF1B3 /* SourcesCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3AD067F238FF3DA000AF1B3 /* SourcesCoordinator.swift */; };
-		F3B15BA024E5A48A009BE889 /* TestListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3B15B9B24E5A48A009BE889 /* TestListViewController.swift */; };
-		F3B15BA124E5A48A009BE889 /* DoubleListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3B15B9C24E5A48A009BE889 /* DoubleListViewController.swift */; };
-		F3B15BA224E5A48A009BE889 /* IdentifiableSectionListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3B15B9D24E5A48A009BE889 /* IdentifiableSectionListViewController.swift */; };
-		F3B15BA324E5A48A009BE889 /* NestedListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3B15B9E24E5A48A009BE889 /* NestedListViewController.swift */; };
-		F3B15BA424E5A48A009BE889 /* SectionListViewControlle.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3B15B9F24E5A48A009BE889 /* SectionListViewControlle.swift */; };
-		F3B15BA624E5A79F009BE889 /* ContentsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3B15BA524E5A79F009BE889 /* ContentsViewController.swift */; };
 		F3BDC78824CAAA50009F6272 /* BatchInitializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3BDC78724CAAA50009F6272 /* BatchInitializable.swift */; };
 		F3C2049024BAF1DE001E82C5 /* SourcesCoordinatorUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3C2048F24BAF1DE001E82C5 /* SourcesCoordinatorUpdate.swift */; };
 		F3C80B17248926C6005F6A5B /* CoordinatorUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3C80B16248926C6005F6A5B /* CoordinatorUpdate.swift */; };
@@ -107,6 +101,12 @@
 		F3EB15DC23A2ED1900C9AC5E /* ListAdapters+ListAdapters.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3EB15DB23A2ED1900C9AC5E /* ListAdapters+ListAdapters.swift */; };
 		F3EC388C24582C5A00DFE1B0 /* EmptyCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3EC388B24582C5A00DFE1B0 /* EmptyCoordinator.swift */; };
 		F3F349E824BC6A4700D38D16 /* CollectionCoordinatorUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3F349E724BC6A4700D38D16 /* CollectionCoordinatorUpdate.swift */; };
+		F3F799A124E5E32200771F7F /* ContentsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3F7999B24E5E32100771F7F /* ContentsViewController.swift */; };
+		F3F799A224E5E32200771F7F /* SectionListViewControlle.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3F7999C24E5E32100771F7F /* SectionListViewControlle.swift */; };
+		F3F799A324E5E32200771F7F /* IdentifiableSectionListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3F7999D24E5E32100771F7F /* IdentifiableSectionListViewController.swift */; };
+		F3F799A424E5E32200771F7F /* DoubleListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3F7999E24E5E32100771F7F /* DoubleListViewController.swift */; };
+		F3F799A524E5E32200771F7F /* TestListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3F7999F24E5E32100771F7F /* TestListViewController.swift */; };
+		F3F799A624E5E32200771F7F /* NestedListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3F799A024E5E32100771F7F /* NestedListViewController.swift */; };
 		OBJ_18 /* ListKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_8 /* ListKit.swift */; };
 		OBJ_25 /* Package.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_6 /* Package.swift */; };
 /* End PBXBuildFile section */
@@ -213,12 +213,6 @@
 		F3AD0139238BE6FE000AF1B3 /* ItemsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemsCoordinator.swift; sourceTree = "<group>"; };
 		F3AD067F238FF3DA000AF1B3 /* SourcesCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourcesCoordinator.swift; sourceTree = "<group>"; };
 		F3B15B8A24E598F8009BE889 /* ListKit.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = ListKit.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
-		F3B15B9B24E5A48A009BE889 /* TestListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TestListViewController.swift; path = ListKit.playground/Sources/TestListViewController.swift; sourceTree = SOURCE_ROOT; };
-		F3B15B9C24E5A48A009BE889 /* DoubleListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DoubleListViewController.swift; path = ListKit.playground/Sources/DoubleListViewController.swift; sourceTree = SOURCE_ROOT; };
-		F3B15B9D24E5A48A009BE889 /* IdentifiableSectionListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = IdentifiableSectionListViewController.swift; path = ListKit.playground/Sources/IdentifiableSectionListViewController.swift; sourceTree = SOURCE_ROOT; };
-		F3B15B9E24E5A48A009BE889 /* NestedListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NestedListViewController.swift; path = ListKit.playground/Sources/NestedListViewController.swift; sourceTree = SOURCE_ROOT; };
-		F3B15B9F24E5A48A009BE889 /* SectionListViewControlle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SectionListViewControlle.swift; path = ListKit.playground/Sources/SectionListViewControlle.swift; sourceTree = SOURCE_ROOT; };
-		F3B15BA524E5A79F009BE889 /* ContentsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ContentsViewController.swift; path = ListKit.playground/Sources/ContentsViewController.swift; sourceTree = SOURCE_ROOT; };
 		F3BDC78724CAAA50009F6272 /* BatchInitializable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatchInitializable.swift; sourceTree = "<group>"; };
 		F3C2048F24BAF1DE001E82C5 /* SourcesCoordinatorUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourcesCoordinatorUpdate.swift; sourceTree = "<group>"; };
 		F3C80B16248926C6005F6A5B /* CoordinatorUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoordinatorUpdate.swift; sourceTree = "<group>"; };
@@ -238,6 +232,12 @@
 		F3EB15DB23A2ED1900C9AC5E /* ListAdapters+ListAdapters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ListAdapters+ListAdapters.swift"; sourceTree = "<group>"; };
 		F3EC388B24582C5A00DFE1B0 /* EmptyCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyCoordinator.swift; sourceTree = "<group>"; };
 		F3F349E724BC6A4700D38D16 /* CollectionCoordinatorUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionCoordinatorUpdate.swift; sourceTree = "<group>"; };
+		F3F7999B24E5E32100771F7F /* ContentsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ContentsViewController.swift; path = ListKit.playground/Sources/ContentsViewController.swift; sourceTree = "<group>"; };
+		F3F7999C24E5E32100771F7F /* SectionListViewControlle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SectionListViewControlle.swift; path = ListKit.playground/Sources/SectionListViewControlle.swift; sourceTree = "<group>"; };
+		F3F7999D24E5E32100771F7F /* IdentifiableSectionListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = IdentifiableSectionListViewController.swift; path = ListKit.playground/Sources/IdentifiableSectionListViewController.swift; sourceTree = "<group>"; };
+		F3F7999E24E5E32100771F7F /* DoubleListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DoubleListViewController.swift; path = ListKit.playground/Sources/DoubleListViewController.swift; sourceTree = "<group>"; };
+		F3F7999F24E5E32100771F7F /* TestListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TestListViewController.swift; path = ListKit.playground/Sources/TestListViewController.swift; sourceTree = "<group>"; };
+		F3F799A024E5E32100771F7F /* NestedListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NestedListViewController.swift; path = ListKit.playground/Sources/NestedListViewController.swift; sourceTree = "<group>"; };
 		"ListKit::ListKit::Product" /* ListKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = ListKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		OBJ_12 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		OBJ_6 /* Package.swift */ = {isa = PBXFileReference; explicitFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
@@ -369,12 +369,13 @@
 			isa = PBXGroup;
 			children = (
 				F365502B2451B51D0038172F /* SupportFiles */,
-				F3B15BA524E5A79F009BE889 /* ContentsViewController.swift */,
-				F3B15B9C24E5A48A009BE889 /* DoubleListViewController.swift */,
-				F3B15B9F24E5A48A009BE889 /* SectionListViewControlle.swift */,
-				F3B15B9E24E5A48A009BE889 /* NestedListViewController.swift */,
-				F3B15B9D24E5A48A009BE889 /* IdentifiableSectionListViewController.swift */,
-				F3B15B9B24E5A48A009BE889 /* TestListViewController.swift */,
+				F3B15B8A24E598F8009BE889 /* ListKit.playground */,
+				F3F7999B24E5E32100771F7F /* ContentsViewController.swift */,
+				F3F7999E24E5E32100771F7F /* DoubleListViewController.swift */,
+				F3F7999D24E5E32100771F7F /* IdentifiableSectionListViewController.swift */,
+				F3F799A024E5E32100771F7F /* NestedListViewController.swift */,
+				F3F7999C24E5E32100771F7F /* SectionListViewControlle.swift */,
+				F3F7999F24E5E32100771F7F /* TestListViewController.swift */,
 			);
 			path = ListKitExample;
 			sourceTree = "<group>";
@@ -571,7 +572,6 @@
 		OBJ_5 = {
 			isa = PBXGroup;
 			children = (
-				F3B15B8A24E598F8009BE889 /* ListKit.playground */,
 				OBJ_12 /* README.md */,
 				OBJ_6 /* Package.swift */,
 				OBJ_7 /* Sources */,
@@ -705,13 +705,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F3F799A124E5E32200771F7F /* ContentsViewController.swift in Sources */,
 				F365501A2451B4060038172F /* AppDelegate.swift in Sources */,
-				F3B15BA624E5A79F009BE889 /* ContentsViewController.swift in Sources */,
-				F3B15BA424E5A48A009BE889 /* SectionListViewControlle.swift in Sources */,
-				F3B15BA024E5A48A009BE889 /* TestListViewController.swift in Sources */,
-				F3B15BA124E5A48A009BE889 /* DoubleListViewController.swift in Sources */,
-				F3B15BA224E5A48A009BE889 /* IdentifiableSectionListViewController.swift in Sources */,
-				F3B15BA324E5A48A009BE889 /* NestedListViewController.swift in Sources */,
+				F3F799A524E5E32200771F7F /* TestListViewController.swift in Sources */,
+				F3F799A424E5E32200771F7F /* DoubleListViewController.swift in Sources */,
+				F3F799A324E5E32200771F7F /* IdentifiableSectionListViewController.swift in Sources */,
+				F3F799A624E5E32200771F7F /* NestedListViewController.swift in Sources */,
+				F3F799A224E5E32200771F7F /* SectionListViewControlle.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

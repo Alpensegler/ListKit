@@ -1,17 +1,11 @@
-//
-//  TestViewController.swift
-//  ListKitDemo
-//
-//  Created by Frain on 2019/12/18.
-//  Copyright © 2019 Frain. All rights reserved.
-//
-
 import UIKit
 import ListKit
 
-class TestListViewController: ExampleViewController, UpdatableTableListAdapter {
-    typealias Item = Any
-    var source: AnyTableSources {
+public class TestListViewController: UIViewController, UpdatableTableListAdapter {
+    public var toggle = true
+    
+    public typealias Item = Any
+    public var source: AnyTableSources {
         AnyTableSources {
             Sources(item: 1.0)
                 .tableViewCellForRow()
@@ -57,21 +51,42 @@ class TestListViewController: ExampleViewController, UpdatableTableListAdapter {
         }
     }
     
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         apply(by: tableView)
         
-        addRefreshAction { [unowned self] in self.performUpdate() }
+        let item = UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(refresh))
+        navigationItem.rightBarButtonItem = item
+    }
+    
+    @objc func refresh() {
+        toggle.toggle()
+        performUpdate()
     }
 }
 
-#if canImport(SwiftUI) && DEBUG
+extension TestListViewController {
+    var tableView: UITableView {
+        let tableView = UITableView(frame: view.bounds)
+        view.addSubview(tableView)
+        tableView.autoresizingMask = [.flexibleHeight, .flexibleWidth]
+        return tableView
+    }
+}
+
+#if canImport(SwiftUI) && EXAMPLE
 
 import SwiftUI
 
 @available(iOS 13.0, *)
-struct TestList_Preview: PreviewProvider {
-    static var previews: some View {
-        ExampleView(viewController: TestListViewController())
+struct TestList_Preview: UIViewControllerRepresentable, PreviewProvider {
+    static var previews: some View { TestList_Preview() }
+    
+    func makeUIViewController(context: Self.Context) -> UINavigationController {
+        UINavigationController(rootViewController: TestListViewController())
+    }
+    
+    func updateUIViewController(_ uiViewController: UINavigationController, context: Self.Context) {
+        
     }
 }
 

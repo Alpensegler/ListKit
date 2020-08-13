@@ -22,8 +22,6 @@
 		F314FAE223BC71EA0060985E /* ListDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F314FAE123BC71EA0060985E /* ListDelegate.swift */; };
 		F314FAE623BDC66A0060985E /* AnyTableSourcesBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F39A23F123A16B660024F9AF /* AnyTableSourcesBuilder.swift */; };
 		F314FAE723BDC66C0060985E /* AnyCollectionSourcesBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F32959E523A11CF5001D6063 /* AnyCollectionSourcesBuilder.swift */; };
-		F31E7226246A7F5C00493C4D /* DoubleListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31E7225246A7F5C00493C4D /* DoubleListViewController.swift */; };
-		F31E7228246A7F7200493C4D /* SectionListViewControlle.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31E7227246A7F7200493C4D /* SectionListViewControlle.swift */; };
 		F32282A023AA0733001AEBFD /* ItemReplatedCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = F322829F23AA0733001AEBFD /* ItemReplatedCache.swift */; };
 		F329598323A10B7D001D6063 /* ListViewStorage+UIKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = F329598223A10B7D001D6063 /* ListViewStorage+UIKit.swift */; };
 		F32E6CC524901F6C008D6D97 /* DataSource+ListAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F32E6CC424901F6C008D6D97 /* DataSource+ListAdapter.swift */; };
@@ -44,16 +42,10 @@
 		F365501A2451B4060038172F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F36550192451B4060038172F /* AppDelegate.swift */; };
 		F36550232451B4070038172F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F36550222451B4070038172F /* Assets.xcassets */; };
 		F36550262451B4070038172F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F36550242451B4070038172F /* LaunchScreen.storyboard */; };
-		F365502E2451B6710038172F /* Cell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F365502D2451B6710038172F /* Cell.swift */; };
-		F36550312451B6840038172F /* TestListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F365502F2451B6840038172F /* TestListViewController.swift */; };
-		F36550322451B6840038172F /* NestedListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F36550302451B6840038172F /* NestedListViewController.swift */; };
 		F36550342451B6910038172F /* ListKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "ListKit::ListKit::Product" /* ListKit.framework */; };
 		F36550352451B6910038172F /* ListKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = "ListKit::ListKit::Product" /* ListKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		F365503A2451B6B20038172F /* ExampleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F36550392451B6B20038172F /* ExampleViewController.swift */; };
 		F365503E2451B78B0038172F /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F365503D2451B78B0038172F /* Default-568h@2x.png */; };
-		F36550402451BA2D0038172F /* ContentsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F365503F2451BA2D0038172F /* ContentsViewController.swift */; };
 		F366F40C24ADF4B100F2E5C1 /* DiffableCoordinatgorUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F366F40B24ADF4B100F2E5C1 /* DiffableCoordinatgorUpdate.swift */; };
-		F368F05C247E2DE900CE2B8B /* IdentifiableSectionListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F368F05B247E2DE900CE2B8B /* IdentifiableSectionListViewController.swift */; };
 		F372F6E4248E51B3001B42D5 /* CoordinatorContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = F372F6E3248E51B3001B42D5 /* CoordinatorContext.swift */; };
 		F372F6E6248E52E9001B42D5 /* ListCoordinatorContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = F372F6E5248E52E9001B42D5 /* ListCoordinatorContext.swift */; };
 		F372F6E8248E79F6001B42D5 /* WrapperCoordinatorContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = F372F6E7248E79F6001B42D5 /* WrapperCoordinatorContext.swift */; };
@@ -90,6 +82,12 @@
 		F3AD00DD238BC2AF000AF1B3 /* Differ.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3AD00DC238BC2AF000AF1B3 /* Differ.swift */; };
 		F3AD013A238BE6FE000AF1B3 /* ItemsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3AD0139238BE6FE000AF1B3 /* ItemsCoordinator.swift */; };
 		F3AD0680238FF3DA000AF1B3 /* SourcesCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3AD067F238FF3DA000AF1B3 /* SourcesCoordinator.swift */; };
+		F3B15BA024E5A48A009BE889 /* TestListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3B15B9B24E5A48A009BE889 /* TestListViewController.swift */; };
+		F3B15BA124E5A48A009BE889 /* DoubleListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3B15B9C24E5A48A009BE889 /* DoubleListViewController.swift */; };
+		F3B15BA224E5A48A009BE889 /* IdentifiableSectionListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3B15B9D24E5A48A009BE889 /* IdentifiableSectionListViewController.swift */; };
+		F3B15BA324E5A48A009BE889 /* NestedListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3B15B9E24E5A48A009BE889 /* NestedListViewController.swift */; };
+		F3B15BA424E5A48A009BE889 /* SectionListViewControlle.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3B15B9F24E5A48A009BE889 /* SectionListViewControlle.swift */; };
+		F3B15BA624E5A79F009BE889 /* ContentsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3B15BA524E5A79F009BE889 /* ContentsViewController.swift */; };
 		F3BDC78824CAAA50009F6272 /* BatchInitializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3BDC78724CAAA50009F6272 /* BatchInitializable.swift */; };
 		F3C2049024BAF1DE001E82C5 /* SourcesCoordinatorUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3C2048F24BAF1DE001E82C5 /* SourcesCoordinatorUpdate.swift */; };
 		F3C80B17248926C6005F6A5B /* CoordinatorUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3C80B16248926C6005F6A5B /* CoordinatorUpdate.swift */; };
@@ -151,8 +149,6 @@
 		F312515B239E352100E77969 /* ListDelegate+UITableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ListDelegate+UITableView.swift"; sourceTree = "<group>"; };
 		F314E8EA23A62200003C203B /* SelestorSets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelestorSets.swift; sourceTree = "<group>"; };
 		F314FAE123BC71EA0060985E /* ListDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListDelegate.swift; sourceTree = "<group>"; };
-		F31E7225246A7F5C00493C4D /* DoubleListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoubleListViewController.swift; sourceTree = "<group>"; };
-		F31E7227246A7F7200493C4D /* SectionListViewControlle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionListViewControlle.swift; sourceTree = "<group>"; };
 		F322829F23AA0733001AEBFD /* ItemReplatedCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemReplatedCache.swift; sourceTree = "<group>"; };
 		F329598223A10B7D001D6063 /* ListViewStorage+UIKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ListViewStorage+UIKit.swift"; sourceTree = "<group>"; };
 		F32959E523A11CF5001D6063 /* AnyCollectionSourcesBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyCollectionSourcesBuilder.swift; sourceTree = "<group>"; };
@@ -177,14 +173,8 @@
 		F36550222451B4070038172F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F36550252451B4070038172F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		F36550272451B4070038172F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		F365502D2451B6710038172F /* Cell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Cell.swift; sourceTree = "<group>"; };
-		F365502F2451B6840038172F /* TestListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestListViewController.swift; sourceTree = "<group>"; };
-		F36550302451B6840038172F /* NestedListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NestedListViewController.swift; sourceTree = "<group>"; };
-		F36550392451B6B20038172F /* ExampleViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExampleViewController.swift; sourceTree = "<group>"; };
 		F365503D2451B78B0038172F /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
-		F365503F2451BA2D0038172F /* ContentsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ContentsViewController.swift; path = ListKitExample/ContentsViewController.swift; sourceTree = SOURCE_ROOT; };
 		F366F40B24ADF4B100F2E5C1 /* DiffableCoordinatgorUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiffableCoordinatgorUpdate.swift; sourceTree = "<group>"; };
-		F368F05B247E2DE900CE2B8B /* IdentifiableSectionListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdentifiableSectionListViewController.swift; sourceTree = "<group>"; };
 		F372F6E3248E51B3001B42D5 /* CoordinatorContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoordinatorContext.swift; sourceTree = "<group>"; };
 		F372F6E5248E52E9001B42D5 /* ListCoordinatorContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListCoordinatorContext.swift; sourceTree = "<group>"; };
 		F372F6E7248E79F6001B42D5 /* WrapperCoordinatorContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WrapperCoordinatorContext.swift; sourceTree = "<group>"; };
@@ -222,6 +212,13 @@
 		F3AD00DC238BC2AF000AF1B3 /* Differ.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Differ.swift; sourceTree = "<group>"; };
 		F3AD0139238BE6FE000AF1B3 /* ItemsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemsCoordinator.swift; sourceTree = "<group>"; };
 		F3AD067F238FF3DA000AF1B3 /* SourcesCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourcesCoordinator.swift; sourceTree = "<group>"; };
+		F3B15B8A24E598F8009BE889 /* ListKit.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = ListKit.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		F3B15B9B24E5A48A009BE889 /* TestListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TestListViewController.swift; path = ListKit.playground/Sources/TestListViewController.swift; sourceTree = SOURCE_ROOT; };
+		F3B15B9C24E5A48A009BE889 /* DoubleListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DoubleListViewController.swift; path = ListKit.playground/Sources/DoubleListViewController.swift; sourceTree = SOURCE_ROOT; };
+		F3B15B9D24E5A48A009BE889 /* IdentifiableSectionListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = IdentifiableSectionListViewController.swift; path = ListKit.playground/Sources/IdentifiableSectionListViewController.swift; sourceTree = SOURCE_ROOT; };
+		F3B15B9E24E5A48A009BE889 /* NestedListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NestedListViewController.swift; path = ListKit.playground/Sources/NestedListViewController.swift; sourceTree = SOURCE_ROOT; };
+		F3B15B9F24E5A48A009BE889 /* SectionListViewControlle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SectionListViewControlle.swift; path = ListKit.playground/Sources/SectionListViewControlle.swift; sourceTree = SOURCE_ROOT; };
+		F3B15BA524E5A79F009BE889 /* ContentsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ContentsViewController.swift; path = ListKit.playground/Sources/ContentsViewController.swift; sourceTree = SOURCE_ROOT; };
 		F3BDC78724CAAA50009F6272 /* BatchInitializable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatchInitializable.swift; sourceTree = "<group>"; };
 		F3C2048F24BAF1DE001E82C5 /* SourcesCoordinatorUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourcesCoordinatorUpdate.swift; sourceTree = "<group>"; };
 		F3C80B16248926C6005F6A5B /* CoordinatorUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoordinatorUpdate.swift; sourceTree = "<group>"; };
@@ -372,13 +369,12 @@
 			isa = PBXGroup;
 			children = (
 				F365502B2451B51D0038172F /* SupportFiles */,
-				F365502C2451B6710038172F /* View */,
-				F365503F2451BA2D0038172F /* ContentsViewController.swift */,
-				F31E7225246A7F5C00493C4D /* DoubleListViewController.swift */,
-				F31E7227246A7F7200493C4D /* SectionListViewControlle.swift */,
-				F36550302451B6840038172F /* NestedListViewController.swift */,
-				F368F05B247E2DE900CE2B8B /* IdentifiableSectionListViewController.swift */,
-				F365502F2451B6840038172F /* TestListViewController.swift */,
+				F3B15BA524E5A79F009BE889 /* ContentsViewController.swift */,
+				F3B15B9C24E5A48A009BE889 /* DoubleListViewController.swift */,
+				F3B15B9F24E5A48A009BE889 /* SectionListViewControlle.swift */,
+				F3B15B9E24E5A48A009BE889 /* NestedListViewController.swift */,
+				F3B15B9D24E5A48A009BE889 /* IdentifiableSectionListViewController.swift */,
+				F3B15B9B24E5A48A009BE889 /* TestListViewController.swift */,
 			);
 			path = ListKitExample;
 			sourceTree = "<group>";
@@ -393,15 +389,6 @@
 				F36550272451B4070038172F /* Info.plist */,
 			);
 			path = SupportFiles;
-			sourceTree = "<group>";
-		};
-		F365502C2451B6710038172F /* View */ = {
-			isa = PBXGroup;
-			children = (
-				F36550392451B6B20038172F /* ExampleViewController.swift */,
-				F365502D2451B6710038172F /* Cell.swift */,
-			);
-			path = View;
 			sourceTree = "<group>";
 		};
 		F36550332451B6910038172F /* Frameworks */ = {
@@ -584,6 +571,7 @@
 		OBJ_5 = {
 			isa = PBXGroup;
 			children = (
+				F3B15B8A24E598F8009BE889 /* ListKit.playground */,
 				OBJ_12 /* README.md */,
 				OBJ_6 /* Package.swift */,
 				OBJ_7 /* Sources */,
@@ -718,14 +706,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				F365501A2451B4060038172F /* AppDelegate.swift in Sources */,
-				F36550402451BA2D0038172F /* ContentsViewController.swift in Sources */,
-				F31E7226246A7F5C00493C4D /* DoubleListViewController.swift in Sources */,
-				F36550322451B6840038172F /* NestedListViewController.swift in Sources */,
-				F31E7228246A7F7200493C4D /* SectionListViewControlle.swift in Sources */,
-				F365503A2451B6B20038172F /* ExampleViewController.swift in Sources */,
-				F36550312451B6840038172F /* TestListViewController.swift in Sources */,
-				F368F05C247E2DE900CE2B8B /* IdentifiableSectionListViewController.swift in Sources */,
-				F365502E2451B6710038172F /* Cell.swift in Sources */,
+				F3B15BA624E5A79F009BE889 /* ContentsViewController.swift in Sources */,
+				F3B15BA424E5A48A009BE889 /* SectionListViewControlle.swift in Sources */,
+				F3B15BA024E5A48A009BE889 /* TestListViewController.swift in Sources */,
+				F3B15BA124E5A48A009BE889 /* DoubleListViewController.swift in Sources */,
+				F3B15BA224E5A48A009BE889 /* IdentifiableSectionListViewController.swift in Sources */,
+				F3B15BA324E5A48A009BE889 /* NestedListViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -909,6 +895,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
+				OTHER_SWIFT_FLAGS = "$(inherited) -DXcode -DEXAMPLE";
 				PRODUCT_BUNDLE_IDENTIFIER = com.frain.ListKitExample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -968,6 +955,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				OTHER_SWIFT_FLAGS = "$(inherited) -DXcode -DEXAMPLE";
 				PRODUCT_BUNDLE_IDENTIFIER = com.frain.ListKitExample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;

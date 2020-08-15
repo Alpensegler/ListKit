@@ -8,7 +8,7 @@
 import Foundation
 
 enum ListUpdateWay<Item> {
-    case diff(Differ<Item>)
+    case diff(ListDiffer<Item>)
     case subpdate
     case reload
     case remove
@@ -53,16 +53,16 @@ public enum ListUpdate<SourceBase: DataSource> where SourceBase.SourceBase == So
 }
 
 extension ListUpdate.Whole: DiffInitializableUpdate {
-    var diff: Differ<SourceBase.Item>? {
+    var diff: ListDiffer<SourceBase.Item>? {
         guard case let .diff(differ) = way else { return nil }
         return differ
     }
     
     init(id: ((Value) -> AnyHashable)? = nil, by areEquivalent: ((Value, Value) -> Bool)? = nil) {
-        self.init(diff: Differ(identifier: id, areEquivalent: areEquivalent))
+        self.init(diff: ListDiffer(identifier: id, areEquivalent: areEquivalent))
     }
     
-    init(diff: Differ<Value>) {
+    init(diff: ListDiffer<Value>) {
         way = .diff(diff)
     }
 }

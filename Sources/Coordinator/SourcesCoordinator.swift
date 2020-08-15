@@ -88,7 +88,12 @@ where
     ) {
         let source = sourceBase.source
         subsourceType = .fromSourceBase(toSource, fromSource)
-        super.init(source: source, update: sourceBase.listUpdate, options: sourceBase.listOptions)
+        super.init(
+            source: source,
+            update: sourceBase.listUpdate,
+            differ: sourceBase.listDiffer,
+            options: sourceBase.listOptions
+        )
     }
     
     init(

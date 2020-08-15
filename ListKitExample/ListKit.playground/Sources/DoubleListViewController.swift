@@ -22,9 +22,11 @@ public class DoubleListViewController: UIViewController, TableListAdapter, Colle
     
     public var collectionList: CollectionList<DoubleListViewController> {
         collectionViewCellForItem(CenterLabelCell.self) { (cell, _, item) in
-            cell.text = "\(item)" }
+            cell.text = "\(item)"
+        }
         .collectionViewLayoutSizeForItem { (_, _, _) in
-            CGSize(width: 75, height: 75) }
+            CGSize(width: 75, height: 75)
+        }
         .collectionViewLayoutInsetForSection { (_, _) in
             UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
         }

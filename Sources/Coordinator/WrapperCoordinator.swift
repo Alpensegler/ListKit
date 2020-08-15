@@ -75,7 +75,7 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
     // Updates:
     override func identifier(for sourceBase: SourceBase) -> AnyHashable {
         let id = ObjectIdentifier(sourceBaseType)
-        guard let identifier = options.differ?.identifier else {
+        guard let identifier = differ.identifier else {
             return HashCombiner(id, sectioned)
         }
         return HashCombiner(id, sectioned, identifier(sourceBase))

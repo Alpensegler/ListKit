@@ -10,7 +10,7 @@ extension Room: CollectionListAdapter {
     public typealias Item = String
     
     public var source: [String] { people }
-    public var listOptions: ListOptions<Room> { .diff(id: \.name) }
+    public var listDiffer: ListDiffer<Room> { .diff(id: \.name) }
     
     public var collectionList: CollectionList<Room> {
         collectionViewCellForItem(CenterLabelCell.self) { (cell, context, item) in
@@ -84,8 +84,7 @@ extension Room: CustomStringConvertible {
             results.append(.init(name, people))
         }
         
-        return results
-            .sorted { $0.people.count > $1.people.count }
+        return results.sorted { $0.people.count > $1.people.count }
     }
     
     

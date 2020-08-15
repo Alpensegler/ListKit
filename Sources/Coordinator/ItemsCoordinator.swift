@@ -18,7 +18,7 @@ where
     var updateType: ItemsCoordinatorUpdate<SourceBase>.Type {
         ItemsCoordinatorUpdate<SourceBase>.self
     }
-    
+
     override var isEmpty: Bool { source.isEmpty }
     
     func toItems(_ source: SourceBase.Source) -> ContiguousArray<Item> {
@@ -27,11 +27,11 @@ where
     
     override func numbersOfItems(in section: Int) -> Int { items.count }
     override func numbersOfSections() -> Int { isEmpty && !options.keepEmptySection ? 0 : 1 }
-    
+
     override func item(at section: Int, _ item: Int) -> Item { items[item] }
-    
+
     override func isSectioned() -> Bool { options.preferSection || super.isSectioned() }
-    
+
     override func update(
         from coordinator: ListCoordinator<SourceBase>,
         updateWay: ListUpdateWay<Item>?
@@ -45,7 +45,7 @@ where
             keepSectionIfEmpty: (coordinator.options.keepEmptySection, options.keepEmptySection)
         )
     }
-    
+
     override func update(_ update: ListUpdate<SourceBase>) -> CoordinatorUpdate {
         let sourcesAfterUpdate = update.source
         let itemsAfterUpdate = sourcesAfterUpdate.map(toItems)

@@ -1,14 +1,35 @@
 //
-//  Differ.swift
+//  ListDiffer.swift
 //  ListKit
 //
 //  Created by Frain on 2019/11/25.
 //
 
-struct Differ<Value> {
+public struct ListDiffer<Value>: DiffInitializable {
     var identifier: ((Value) -> AnyHashable)?
     var areEquivalent: ((Value, Value) -> Bool)?
+}
+
+public extension ListDiffer {
+    static var none: ListDiffer<Value> { .init() }
     
+    static func diff(by areEquivalent: @escaping (Value, Value) -> Bool) -> Self {
+        .init(areEquivalent: areEquivalent)
+    }
+    
+    static func diff<ID: Hashable>(id: @escaping (Value) -> ID) -> Self {
+        .init(identifier: id)
+    }
+    
+    static func diff<ID: Hashable>(
+        id: @escaping (Value) -> ID,
+        by areEquivalent: @escaping (Value, Value) -> Bool
+    ) -> Self {
+        .init(identifier: id, areEquivalent: areEquivalent)
+    }
+}
+
+extension ListDiffer {
     var shouldHash: Bool { identifier != nil }
     var isNone: Bool { identifier == nil && areEquivalent == nil }
     
@@ -29,14 +50,16 @@ struct Differ<Value> {
         default: return false
         }
     }
-}
-
-extension Differ {
+    
     init<OtherValue>(
-        _ differ: Differ<OtherValue>,
+        _ differ: ListDiffer<OtherValue>,
         cast: @escaping (Value) -> (OtherValue) = { $0 as! OtherValue }
     ) {
         self.identifier = differ.identifier.map { id in { id(cast($0)) } }
         self.areEquivalent = differ.areEquivalent.map { equal in { equal(cast($0), cast($1)) } }
+    }
+    
+    init(id: AnyHashable?) {
+        self.identifier = id.map { id in { _ in id } }
     }
 }

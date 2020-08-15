@@ -15,6 +15,7 @@ public protocol DataSource {
     var sourceBase: SourceBase { get }
     
     var listUpdate: ListUpdate<SourceBase>.Whole { get }
+    var listDiffer: ListDiffer<SourceBase> { get }
     var listOptions: ListOptions<SourceBase> { get }
     
     var listCoordinator: ListCoordinator<SourceBase> { get }

@@ -5,56 +5,24 @@
 //  Created by Frain on 2020/6/9.
 //
 
-public struct ListOptions<SourceBase> {
+public struct ListOptions<SourceBase>: OptionSet {
     public private(set) var rawValue: Int8
-    var differ: Differ<SourceBase>?
-}
-
-extension ListOptions: Options, DiffInitializable {
-    init<OtherSourceBase>(
-        _ other: ListOptions<OtherSourceBase>,
-        cast: @escaping (Value) -> (OtherSourceBase) = { $0 as! OtherSourceBase }
-    ) {
-        rawValue = other.rawValue
-        differ = other.differ.map { .init($0, cast: cast) }
-    }
     
-    init<OtherOptions: Options>(id: AnyHashable?, _ other: OtherOptions) {
-        rawValue = other.rawValue
-        differ = id.map { id in .init(identifier: { _ in id }) }
-    }
+    public init(rawValue: Int8) { self.rawValue = rawValue }
 }
 
 public extension ListOptions {
-    static var none: ListOptions<SourceBase> { .init() }
-    
-    static func diff(by areEquivalent: @escaping (SourceBase, SourceBase) -> Bool) -> Self {
-        .init(rawValue: 0, differ: .init(areEquivalent: areEquivalent))
-    }
-    
-    static func diff<ID: Hashable>(id: @escaping (SourceBase) -> ID) -> Self {
-        .init(rawValue: 0, differ: .init(identifier: id))
-    }
-    
-    static func diff<ID: Hashable>(
-        id: @escaping (SourceBase) -> ID,
-        by areEquivalent: @escaping (SourceBase, SourceBase) -> Bool
-    ) -> Self {
-        .init(rawValue: 0, differ: .init(identifier: id, areEquivalent: areEquivalent))
-    }
+    static var none: Self { .init() }
+    static var preferNoAnimation: Self { .init(rawValue: 1 << 0) }
+    static var preferSection: Self { .init(rawValue: 1 << 1) }
+    static var keepEmptySection: Self { .init(rawValue: 1 << 2) }
 }
 
-public extension ListOptions {
-    init(rawValue: Int8) { self.rawValue = rawValue }
-    
-    mutating func formUnion(_ other: Self) {
-        rawValue = rawValue | other.rawValue
-        differ = differ ?? other.differ
+extension ListOptions {
+    init<OtherSourceBase>(_ otherOptions: ListOptions<OtherSourceBase>) {
+        rawValue = otherOptions.rawValue
     }
     
-    @discardableResult
-    mutating func insert(_ newMember: Self) -> (inserted: Bool, memberAfterInsert: Self) {
-        formUnion(newMember)
-        return (true, self)
-    }
+    var preferSection: Bool { contains(.init(rawValue: 1 << 1)) }
+    var keepEmptySection: Bool { contains(.init(rawValue: 1 << 2))  }
 }

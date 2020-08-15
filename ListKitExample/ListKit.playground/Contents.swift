@@ -2,14 +2,6 @@ import UIKit
 import PlaygroundSupport
 import ListKit
 
-class NavigationController: UINavigationController {
-    override func loadView() {
-        super.loadView()
-        
-        view.frame = CGRect(origin: .zero, size: CGSize(width: 375, height: 812))
-    }
-}
-
 let contentsViewController = ContentsViewController()
 contentsViewController.source = [
     ("DoubleList", DoubleListViewController.self),
@@ -19,6 +11,6 @@ contentsViewController.source = [
     ("TestList", TestListViewController.self)
 ]
 
-let navigationController = NavigationController(rootViewController: contentsViewController)
-
+let navigationController = UINavigationController(rootViewController: contentsViewController)
+navigationController.view.frame = CGRect(origin: .zero, size: CGSize(width: 375, height: 812))
 PlaygroundPage.current.liveView = navigationController.view

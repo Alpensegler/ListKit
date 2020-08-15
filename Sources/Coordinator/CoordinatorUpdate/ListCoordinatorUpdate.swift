@@ -18,7 +18,7 @@ where SourceBase.SourceBase == SourceBase {
     var update: ListUpdate<SourceBase>.Whole?
     var sources: Mapping<SourceBase.Source?>
     
-    var differ: Differ<SourceBase.Item>! { update?.diff ?? defaultUpdate?.diff }
+    var differ: ListDiffer<SourceBase.Item>! { update?.diff ?? defaultUpdate?.diff }
     var diffable: Bool { differ?.isNone == false }
     var moveAndReloadable: Bool { false }
     

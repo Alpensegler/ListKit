@@ -12,6 +12,10 @@ extension Optional: DataSource where Wrapped: DataSource {
     
     public var source: Source { self }
     
+    public var listDiffer: ListDiffer<SourceBase> {
+        (source?.listDiffer).map { .init($0) } ?? .none
+    }
+    
     public var listUpdate: ListUpdate<SourceBase>.Whole {
         (source?.listUpdate).map { .init(way: $0.way) } ?? .reload
     }

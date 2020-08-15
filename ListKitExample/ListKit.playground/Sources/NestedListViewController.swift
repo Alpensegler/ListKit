@@ -15,10 +15,14 @@ public class NestedListViewController: UIViewController, UpdatableTableListAdapt
                 .tableViewCellForRow(EmbeddedCell.self) { (cell, context, item) in
                     context.nestedAdapter(applyBy: cell.collectionView)
                 }
-                .tableViewHeightForRow { _, _ in return 100 }
+                .tableViewHeightForRow { _, _ in
+                    100
+                }
             Sources(items: ["a", "b", "c"])
                 .tableViewCellForRow()
-                .tableViewHeightForRow { _, _ in return 50 }
+                .tableViewHeightForRow { _, _ in
+                    50
+                }
         }
     }
     

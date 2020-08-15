@@ -17,7 +17,8 @@ public struct Sources<Source, Item>: UpdatableDataSource {
         nonmutating set { performUpdate(to: newValue) }
     }
     
-    public let listUpdate: ListUpdate<SourceBase>.Whole
+    public let listDiffer: ListDiffer<Self>
+    public let listUpdate: ListUpdate<Self>.Whole
     public var listOptions: ListOptions<Self>
     
     public var listCoordinator: ListCoordinator<Self> { coordinator(with: coordinatorMaker(self)) }
@@ -47,16 +48,6 @@ public struct Sources<Source, Item>: UpdatableDataSource {
 extension Sources: CustomStringConvertible, CustomDebugStringConvertible {
     public var description: String { "Sources(\(source))" }
     public var debugDescription: String { "Sources(\(source))" }
-}
-
-public extension Sources {
-    struct Options: ListKit.Options {
-        public typealias SourceBase = Sources<Source, Item>
-        
-        public var rawValue: Int8
-        public init(rawValue: Int8) { self.rawValue = rawValue }
-    }
-    
 }
 
 public typealias ItemSources<Item> = Sources<Item, Item>

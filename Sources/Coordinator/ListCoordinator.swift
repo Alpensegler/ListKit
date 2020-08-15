@@ -14,6 +14,7 @@ public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase
     }
     
     let update: ListUpdate<SourceBase>.Whole
+    let differ: ListDiffer<SourceBase>
     let options: ListOptions<SourceBase>
     var source: SourceBase.Source!
     
@@ -29,14 +30,17 @@ public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase
     init(
         source: SourceBase.Source!,
         update: ListUpdate<SourceBase>.Whole,
-        options: ListOptions<SourceBase> = .init()
+        differ: ListDiffer<SourceBase> = .none,
+        options: ListOptions<SourceBase> = .none
     ) {
         self.update = update
+        self.differ = differ
         self.options = options
         self.source = source
     }
     
     init(_ sourceBase: SourceBase) {
+        self.differ = sourceBase.listDiffer
         self.update = sourceBase.listUpdate
         self.options = sourceBase.listOptions
         self.source = sourceBase.source
@@ -62,14 +66,14 @@ public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase
     // Updates:
     func identifier(for sourceBase: SourceBase) -> AnyHashable {
         let id = ObjectIdentifier(sourceBaseType)
-        guard let identifier = options.differ?.identifier else {
+        guard let identifier = differ.identifier else {
             return HashCombiner(id, sectioned)
         }
         return HashCombiner(id, sectioned, identifier(sourceBase))
     }
     
     func equal(lhs: SourceBase, rhs: SourceBase) -> Bool {
-        options.differ?.areEquivalent?(lhs, rhs) ?? true
+        differ.areEquivalent?(lhs, rhs) ?? true
     }
     
     func update(

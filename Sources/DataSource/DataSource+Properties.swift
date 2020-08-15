@@ -1,18 +1,19 @@
 //
-//  DataSource+DiffInitializable.swift
+//  DataSource+Properties.swift
 //  ListKit
 //
 //  Created by Frain on 2020/2/22.
 //
 
 public extension DataSource {
+    var listDiffer: ListDiffer<SourceBase> { .none }
     var listOptions: ListOptions<SourceBase> { .none }
     var listUpdate: ListUpdate<SourceBase>.Whole { .reload }
 }
 
 //Equatable
 public extension DataSource where SourceBase: Equatable {
-    var listOptions: ListOptions<SourceBase> { .diff }
+    var listDiffer: ListDiffer<SourceBase> { .diff }
 }
 
 public extension DataSource where SourceBase.Item: Equatable {
@@ -21,7 +22,7 @@ public extension DataSource where SourceBase.Item: Equatable {
 
 //Hashable
 public extension DataSource where SourceBase: Hashable {
-    var listOptions: ListOptions<SourceBase> { .diff }
+    var listDiffer: ListDiffer<SourceBase> { .diff }
 }
 
 public extension DataSource where SourceBase.Item: Hashable {
@@ -31,7 +32,7 @@ public extension DataSource where SourceBase.Item: Hashable {
 //Identifiable
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public extension DataSource where SourceBase: Identifiable {
-    var listOptions: ListOptions<SourceBase> { .diff }
+    var listDiffer: ListDiffer<SourceBase> { .diff }
 }
 
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
@@ -42,7 +43,7 @@ public extension DataSource where SourceBase.Item: Identifiable {
 //Identifiable + Equatable
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public extension DataSource where SourceBase: Identifiable, SourceBase: Equatable {
-    var listOptions: ListOptions<SourceBase> { .diff }
+    var listDiffer: ListDiffer<SourceBase> { .diff }
 }
 
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
@@ -53,7 +54,7 @@ public extension DataSource where SourceBase.Item: Identifiable, SourceBase.Item
 //Identifiable + Hashable
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public extension DataSource where SourceBase: Identifiable, SourceBase: Hashable {
-    var listOptions: ListOptions<SourceBase> { .diff }
+    var listDiffer: ListDiffer<SourceBase> { .diff }
 }
 
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
@@ -63,17 +64,17 @@ public extension DataSource where SourceBase.Item: Identifiable, SourceBase.Item
 
 //Object
 public extension DataSource where SourceBase: AnyObject {
-    var listOptions: ListOptions<SourceBase> { .diff(id: { ObjectIdentifier($0) }) }
+    var listDiffer: ListDiffer<SourceBase> { .diff(id: { ObjectIdentifier($0) }) }
 }
 
 //Object + Equatable
 public extension DataSource where SourceBase: AnyObject, SourceBase: Equatable {
-    var listOptions: ListOptions<SourceBase> { .diff }
+    var listDiffer: ListDiffer<SourceBase> { .diff }
 }
 
 //Object + Hashable
 public extension DataSource where SourceBase: AnyObject, SourceBase: Hashable {
-    var listOptions: ListOptions<SourceBase> { .diff }
+    var listDiffer: ListDiffer<SourceBase> { .diff }
 }
 
 //Subupdate

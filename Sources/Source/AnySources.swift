@@ -12,6 +12,7 @@ public struct AnySources: DataSource {
     
     public let source: Any
     
+    public let listDiffer: ListDiffer<AnySources>
     public let listOptions: ListOptions<AnySources>
     public let listUpdate: ListUpdate<SourceBase>.Whole
     
@@ -19,7 +20,8 @@ public struct AnySources: DataSource {
     
     public init<Source: DataSource>(_ dataSource: Source) {
         self.source = dataSource
-        self.listOptions = .init(dataSource.listOptions) { (($0.source) as! Source).sourceBase }
+        self.listDiffer = .init(dataSource.listDiffer) { (($0.source) as! Source).sourceBase }
+        self.listOptions = .init(dataSource.listOptions)
         self.listUpdate = dataSource.listUpdate.diff.map { .init(diff: .init($0)) } ?? .reload
         self.coordinatorMaker = {
             WrapperCoordinator<AnySources, Source>($0, wrapped: dataSource) { $0 }

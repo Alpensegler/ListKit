@@ -25,8 +25,9 @@ final class ListDelegate: NSObject {
         let isCoordinator = context?.isCoordinator(coordinator) ?? false
 //        let rawcontext = context
         let context = coordinator.context(with: setups)
-        context.listViewGetter = { [weak listView] in
-            listView?.isCoordinator($0) == true ? listView : nil
+        context.listViewGetter = { [weak listView, weak context, weak self] in
+            guard let self = self, let listView = listView else { return nil }
+            return listView.isDelegate(self) && self.context === context ? listView : nil
         }
         context.resetDelegates = { [weak listView, weak self] in
             guard let listView = listView, let self = self else { return }

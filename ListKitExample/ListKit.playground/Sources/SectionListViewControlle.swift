@@ -27,8 +27,11 @@ public class SectionListViewControlle: UIViewController, UpdatableCollectionList
         super.viewDidLoad()
         apply(by: collectionView)
            
-        let item = UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(refresh))
-        navigationItem.rightBarButtonItem = item
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            barButtonSystemItem: .refresh,
+            target: self,
+            action: #selector(refresh)
+        )
     }
     
     @objc func refresh() {

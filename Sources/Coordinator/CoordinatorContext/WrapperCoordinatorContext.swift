@@ -9,7 +9,19 @@ class WrapperCoordinatorContext<SourceBase, Other>: ListCoordinatorContext<Sourc
 where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSource {
     lazy var finalSelectorSets = configSelectedSet()
     var wrapped: ListCoordinatorContext<Other.SourceBase>? {
-        didSet { reconfigSelectorSet() }
+        didSet { reconfig() }
+    }
+    
+    override var index: Int {
+        didSet { wrapped?.index = index }
+    }
+    
+    override var update: ((Int, CoordinatorUpdate, Bool) -> [(CoordinatorContext, CoordinatorUpdate)])? {
+        didSet { wrapped?.update = update }
+    }
+    
+    override var listViewGetter: (() -> ListView?)? {
+        didSet { wrapped?.listViewGetter = listViewGetter }
     }
     
     override var selectorSets: SelectorSets { finalSelectorSets }
@@ -23,11 +35,6 @@ where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSo
         super.init(coordinator, setups: setups)
     }
     
-    func reconfigSelectorSet() {
-        finalSelectorSets = configSelectedSet()
-        resetDelegates?()
-    }
-    
     func configSelectedSet() -> SelectorSets {
         wrapped.map { SelectorSets(merging: selfSelectorSets, $0.selectorSets) } ?? selfSelectorSets
     }
@@ -38,6 +45,15 @@ where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSo
         with input: Input
     ) -> CoordinatorContext? {
         wrapped?.selectorSets.contains(delegate.selector) == false ? wrapped : nil
+    }
+    
+    override func reconfig() {
+        wrapped.map { ($0.index, $0.update) = (index, update) }
+        finalSelectorSets = configSelectedSet()
+        resetDelegates?()
+        wrapped?.update = update
+        wrapped?.index = index
+        wrapped?.listViewGetter = listViewGetter
     }
     
     override func apply<Object: AnyObject, Input, Output, Index>(

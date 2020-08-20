@@ -53,3 +53,7 @@ func + (lhs: (() -> Void)?, rhs: (() -> Void)?) -> (() -> Void)? {
         return nil
     }
 }
+
+func notImplemented(function: StaticString = #function) -> Never {
+    fatalError("\(function) not implemented")
+}

@@ -5,8 +5,6 @@
 //  Created by Frain on 2019/12/17.
 //
 
-import Foundation
-
 public extension NSDataSource where SourceBase: NSDataSource {
     var listCoordinator: ListCoordinator<SourceBase> {
         sourceBase.coordinator(with: NSCoordinator(sourceBase))

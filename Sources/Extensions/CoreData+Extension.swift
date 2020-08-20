@@ -8,18 +8,31 @@
 #if canImport(CoreData)
 import CoreData
 
-open class FetchedResultsController<Item>: NSObject, NSFetchedResultsControllerDelegate
+public class ListFetchedResultsController<Item>: NSObject, NSFetchedResultsControllerDelegate
 where Item: NSFetchRequestResult {
-    open var fetchedResultController: NSFetchedResultsController<Item>
-    open var completion: ((ListView, Bool) -> Void)?
-    open var listUpdate = ListUpdate<FetchedResultsController<Item>>.Whole.appendOrRemoveLast
-    open var listOptions = ListOptions<FetchedResultsController<Item>>()
+    public var fetchedResultController: NSFetchedResultsController<Item>
+    public var listUpdate = ListUpdate<ListFetchedResultsController<Item>>.Whole.appendOrRemoveLast
+    public var listDiffer = ListDiffer<ListFetchedResultsController<Item>>.diff
+    public var listOptions = ListOptions<ListFetchedResultsController<Item>>.keepEmptySection
+    public var didChangeContent: (() -> Void)?
+    public var updateCompletion: ((ListView, Bool) -> Void)?
+    public var shouldReloadItem: ((Item, IndexPath) -> Bool)?
     var update: ListUpdate<SourceBase>!
+    
+    public var fetchedObjects: [Item] {
+        fetchedResultController.fetchedObjects ?? []
+    }
+    
+    public var sectionInfo: [NSFetchedResultsSectionInfo] {
+        fetchedResultController.sections ?? []
+    }
 
     public init(_ fetchedResultController: NSFetchedResultsController<Item>) {
         self.fetchedResultController = fetchedResultController
         super.init()
         self.fetchedResultController.delegate = self
+        guard fetchedResultController.sectionNameKeyPath?.isEmpty == false else { return }
+        listOptions.insert(.preferSection)
     }
 
     public init(
@@ -36,6 +49,12 @@ where Item: NSFetchRequestResult {
         )
         super.init()
         fetchedResultController.delegate = self
+        guard sectionNameKeyPath?.isEmpty == false else { return }
+        listOptions.insert(.preferSection)
+    }
+    
+    public func performFetch() throws {
+        try fetchedResultController.performFetch()
     }
     
     public func controllerWillChangeContent(
@@ -47,7 +66,8 @@ where Item: NSFetchRequestResult {
     public func controllerDidChangeContent(
         _ controller: NSFetchedResultsController<NSFetchRequestResult>
     ) {
-        perform(update, completion: completion)
+        perform(update, completion: updateCompletion)
+        didChangeContent?()
     }
     
     public func controller(
@@ -74,14 +94,20 @@ where Item: NSFetchRequestResult {
         switch type {
         case .insert: update.add(.insertItem(at: newIndexPath!))
         case .delete: update.add(.deleteItem(at: indexPath!))
-        case .update: update.add(.reloadItem(at: indexPath!))
+        case .update: reload(at: indexPath, newIndexPath: newIndexPath, object: anObject)
         case .move: update.add(.moveItem(at: indexPath!, to: newIndexPath!))
-        @unknown default: break
+        default: break
         }
+    }
+    
+    func reload(at indexPath: IndexPath?, newIndexPath: IndexPath?, object: Any) {
+        guard let indexPath = indexPath, let object = object as? Item else { return }
+        if shouldReloadItem?(object, indexPath) == false { return }
+        update.add(.reloadItem(at: indexPath, newIndexPath: newIndexPath))
     }
 }
 
-extension FetchedResultsController: NSDataSource {
+extension ListFetchedResultsController: NSDataSource {
     public func item(at section: Int, _ item: Int) -> Item {
         fetchedResultController.object(at: IndexPath(item: item, section: section))
     }

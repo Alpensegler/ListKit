@@ -43,8 +43,6 @@ where
         super.init(coordinator, update: update, values, sources, keepSectionIfEmpty)
     }
     
-    func toSource(_ items: ContiguousArray<Item>) -> Source { fatalError() }
-    
     override func isEqual(lhs: Item, rhs: Item) -> Bool { differ.equal(lhs: lhs, rhs: rhs) }
     override func identifier(for value: Item) -> AnyHashable { differ.identifier!(value) }
     override func isDiffEqual(lhs: Item, rhs: Item) -> Bool { differ.diffEqual(lhs: lhs, rhs: rhs) }
@@ -53,6 +51,10 @@ where
     
     override func append(change: Change, isSource: Bool, to changes: inout Differences) {
         changes[keyPath: path(isSource)].append(.change(change))
+    }
+    
+    override func append(change: Change, into values: inout ContiguousArray<Item>) {
+        values.append(change.value)
     }
     
     override func updateData(_ isSource: Bool) {
@@ -64,6 +66,7 @@ where
         order: Order,
         context: UpdateContext<IndexPath>? = nil
     ) -> UpdateSource<BatchUpdates.ItemSource> {
+        if isMoreUpdate { return super.generateSourceItemUpdate(order: order, context: context) }
         if notUpdate(order, context) { return (targetCount, nil) }
         var update = BatchUpdates.ItemSource()
         if order == .third {
@@ -90,15 +93,12 @@ where
         order: Order,
         context: UpdateContext<Offset<IndexPath>>? = nil
     ) -> UpdateTarget<BatchUpdates.ItemTarget> {
-        func indices(_ count: Int) -> Indices {
-            .init(repeatElement: (context?.offset.index ?? 0, false), count: count)
-        }
-        
-        if notUpdate(order, context) { return (indices(targetCount), nil, nil) }
+        if isMoreUpdate { return super.generateTargetItemUpdate(order: order, context: context) }
+        if notUpdate(order, context) { return (toIndices(targetCount, context), nil, nil) }
         var update = BatchUpdates.ItemTarget()
         if order == .third {
             extraChanges[context?.id].target.forEach {  update.reload($0.indexPath(context?.id)) }
-            return (indices(targetCount), update, finalChange)
+            return (toIndices(targetCount, context), update, finalChange)
         } else {
             for value in changes.target {
                 switch value {
@@ -133,7 +133,7 @@ where
             } else {
                 change = finalChange
             }
-            return (indices(targetCount), update, change)
+            return (toIndices(targetCount, context), update, change)
         }
     }
 }
@@ -147,5 +147,5 @@ where
     SourceBase.Item == SourceBase.Source.Element
 {
     override var moveAndReloadable: Bool { true }
-    override func toSource(_ items: ContiguousArray<Item>) -> Source { .init(items) }
+    override func toSource(_ items: ContiguousArray<Item>) -> SourceBase.Source? { .init(items) }
 }

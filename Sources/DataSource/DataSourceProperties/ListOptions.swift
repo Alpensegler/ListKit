@@ -19,10 +19,10 @@ public extension ListOptions {
 }
 
 extension ListOptions {
+    var preferSection: Bool { contains(.init(rawValue: 1 << 1)) }
+    var keepEmptySection: Bool { contains(.init(rawValue: 1 << 2))  }
+    
     init<OtherSourceBase>(_ otherOptions: ListOptions<OtherSourceBase>) {
         rawValue = otherOptions.rawValue
     }
-    
-    var preferSection: Bool { contains(.init(rawValue: 1 << 1)) }
-    var keepEmptySection: Bool { contains(.init(rawValue: 1 << 2))  }
 }

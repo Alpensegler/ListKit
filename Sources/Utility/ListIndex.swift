@@ -50,13 +50,24 @@ extension IndexPath: ListIndex {
         self = value?.offseted(offset) ?? .init(item: offset)
     }
     
+    init(_ value: IndexPath?, section: Int, item: Int) {
+        self = value?.offseted(section, item) ?? .init(section: section, item: item)
+    }
+    
     init(section: Int = 0, item: Int = 0) {
         self = [section, item]
     }
     
     func offseted(_ offset: Int = 0) -> IndexPath {
         var indexPath = self
-        indexPath.item = item
+        indexPath.item = item + offset
+        return indexPath
+    }
+    
+    func offseted(_ section: Int, _ item: Int) -> IndexPath {
+        var indexPath = self
+        indexPath.item = self.item + item
+        indexPath.section = self.section + section
         return indexPath
     }
     

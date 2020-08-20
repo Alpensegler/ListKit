@@ -8,13 +8,25 @@
 @propertyWrapper
 @dynamicMemberLookup
 public struct Sources<Source, Item>: UpdatableDataSource {
+    enum Value {
+        case value(Source)
+        case getter(() -> Source)
+    }
+    
     public typealias SourceBase = Self
-    let sourceValue: Source
+    let sourceValue: Value
     let coordinatorMaker: (Self) -> ListCoordinator<Self>
     
     public var source: Source {
-        get { coordinatorStorage.coordinator?.source ?? sourceValue }
-        nonmutating set { performUpdate(to: newValue) }
+        get {
+            switch sourceValue {
+            case let .value(value): return coordinatorStorage.coordinator?.source ?? value
+            case let .getter(getter): return getter()
+            }
+        }
+        nonmutating set {
+            performUpdate(to: newValue)
+        }
     }
     
     public let listDiffer: ListDiffer<Self>

@@ -5,8 +5,6 @@
 //  Created by Frain on 2020/6/7.
 //
 
-import Foundation
-
 enum ListUpdateWay<Item> {
     case diff(ListDiffer<Item>)
     case subpdate
@@ -25,6 +23,23 @@ enum ListUpdateWay<Item> {
         case .insert: self = .insert
         case .appendOrRemoveLast: self = .appendOrRemoveLast
         case .prependOrRemoveFirst: self = .prependOrRemoveFirst
+        }
+    }
+    
+    var isRemove: Bool {
+        guard case .remove = self else { return false }
+        return true
+    }
+    
+    var isAppend: Bool {
+        guard case .appendOrRemoveLast = self else { return false }
+        return true
+    }
+    
+    var isMoreUpdate: Bool {
+        switch self {
+        case .appendOrRemoveLast, .prependOrRemoveFirst: return true
+        default: return false
         }
     }
 }

@@ -4,29 +4,30 @@ import ListKit
 public class TestListViewController: UIViewController, UpdatableTableListAdapter {
     public var toggle = true
     
+    lazy var itemsSource = Sources(items: ["a", "b", "c"])
+        .tableViewCellForRow()
+        .tableViewDidSelectRow { [unowned self] (context, item) in
+            self.batchRemove(at: context.item)
+        }
+        .tableViewHeaderTitleForSection { (context) -> String? in
+            "items"
+        }
+    
     public typealias Item = Any
     public var source: AnyTableSources {
         AnyTableSources {
-            Sources(item: 1.0)
-                .tableViewCellForRow()
-                .tableViewDidSelectRow { (context, item) in
-                    context.deselectItem(animated: false)
-                    print(item)
-                }
-                .tableViewHeaderTitleForSection { (context) -> String? in
-                    "item"
-                }
             if toggle {
-                Sources(items: ["a", "b", "c"])
+                Sources(item: 1.0)
                     .tableViewCellForRow()
                     .tableViewDidSelectRow { (context, item) in
                         context.deselectItem(animated: false)
                         print(item)
                     }
                     .tableViewHeaderTitleForSection { (context) -> String? in
-                        "items"
+                        "item"
                     }
             }
+            itemsSource
             Sources(sections: [[1, 2, 3], [1, 2, 3]])
                 .tableViewCellForRow()
                 .tableViewHeaderTitleForSection { (context) -> String? in
@@ -54,13 +55,20 @@ public class TestListViewController: UIViewController, UpdatableTableListAdapter
     public override func viewDidLoad() {
         apply(by: tableView)
         
-        let item = UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(refresh))
-        navigationItem.rightBarButtonItem = item
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            barButtonSystemItem: .refresh,
+            target: self,
+            action: #selector(refresh)
+        )
     }
     
     @objc func refresh() {
         toggle.toggle()
         performUpdate()
+    }
+    
+    func batchRemove(at item: Int) {
+        itemsSource.perform(.remove(at: item))
     }
 }
 

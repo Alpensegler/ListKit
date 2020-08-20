@@ -42,11 +42,6 @@ where
         return SelectorSets(merging: selfSelectorSets, others)
     }
     
-    func reconfigSelectorSet() {
-        finalSelectorSets = configSelectedSet()
-        resetDelegates?()
-    }
-    
     func subcoordinatorApply<Object: AnyObject, Input, Output, Index>(
         _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Input, Output, Index>>,
         root: CoordinatorContext,
@@ -71,6 +66,11 @@ where
         if listContext.selectorSets.contains(delegate.selector) { return nil }
         coordinator.sectioned ? (sectionOffset += context.offset) : (itemOffset += context.offset)
         return listContext.apply(keyPath, root: root, object: object, with: input, sectionOffset, itemOffset)
+    }
+    
+    override func reconfig() {
+        finalSelectorSets = configSelectedSet()
+        resetDelegates?()
     }
     
     override func apply<Object: AnyObject, Input, Output, Index>(

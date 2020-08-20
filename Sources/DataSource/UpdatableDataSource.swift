@@ -32,24 +32,22 @@ public extension UpdatableDataSource {
         var coordinator: ListCoordinator<SourceBase>!
         var coordinatorUpdate: CoordinatorUpdate!
         let work = {
-            if case let .whole(whole, nil) = update {
-                update = .whole(whole, self.sourceBase.source)
-            }
             coordinator = self.listCoordinator
-            update.source.map { Log.log("----start-update----\nfrom \(self.currentSource)\n  to \($0)") }
+            if case let .whole(whole, nil) = update, !whole.way.isRemove {
+                update = .whole(whole, self.sourceBase.source)
+                Log.log("----start-update----")
+                Log.log("from \(self.currentSource)")
+                Log.log("to   \(update.source!)")
+            }
             coordinatorUpdate = coordinator.update(update)
-            coordinator.currentCoordinatorUpdate = coordinatorUpdate
         }
-        if isMainThread {
-            work()
-        } else {
-            DispatchQueue.main.sync(execute: work)
-        }
+        isMainThread ? work() : DispatchQueue.main.sync(execute: work)
+        coordinator.currentCoordinatorUpdate = coordinatorUpdate
         let updateAnimated = animated ?? !coordinator.options.contains(.preferNoAnimation)
         var results = [(CoordinatorContext, CoordinatorUpdate)]()
         for context in coordinator.listContexts {
             guard let context = context.context else { return }
-            results += context.parentUpdate?(coordinatorUpdate, context.index) ?? []
+            results += context.update?(context.index, coordinatorUpdate, coordinator.sectioned) ?? []
             if context.listView != nil, coordinatorUpdate?.listUpdates != nil {
                 results.append((context, coordinatorUpdate))
             }

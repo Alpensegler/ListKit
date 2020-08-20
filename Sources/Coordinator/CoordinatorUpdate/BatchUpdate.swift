@@ -66,12 +66,6 @@ enum BatchUpdates {
         var reloads = Collection()
         var isEmpty = true
         
-        init() { }
-        
-        init(move index: Element) {
-            all = .init(index)
-        }
-        
         mutating func add(_ other: Self) {
             if !other.deletes.isEmpty { deletes.add(other.deletes) }
             if !other.reloads.isEmpty { reloads.add(other.reloads) }
@@ -127,16 +121,6 @@ enum BatchUpdates {
         var moves = [Mapping<Element>]()
         var moveDict = [Element: Element]()
         var isEmpty = true
-        
-        init() { }
-        
-        init(move index: Element, to newIndex: Element) {
-            all = .init(newIndex)
-            moves = [(index, newIndex)]
-            moveDict[newIndex] = index
-            guard index != newIndex else { return }
-            isEmpty = false
-        }
         
         mutating func move(_ index: Element, to newIndex: Element) {
             all.isEmpty ? all = .init(newIndex) : all.add(newIndex)
@@ -358,6 +342,22 @@ extension Optional where Wrapped: UpdateCollection {
         } else {
             self = other
         }
+    }
+}
+
+extension BatchUpdates.Source {
+    init(move index: Element) {
+        all = .init(index)
+    }
+}
+
+extension BatchUpdates.Target {
+    init(move index: Element, to newIndex: Element) {
+        all = .init(newIndex)
+        moves = [(index, newIndex)]
+        moveDict[newIndex] = index
+        guard index != newIndex else { return }
+        isEmpty = false
     }
 }
 

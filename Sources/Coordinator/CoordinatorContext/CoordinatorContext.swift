@@ -16,7 +16,7 @@ protocol CoordinatorContext: AnyObject {
     var itemCaches: ContiguousArray<ContiguousArray<Any?>> { get set }
     var itemNestedCache: ContiguousArray<ContiguousArray<((Any) -> Void)?>> { get set }
     
-    func isCoordinator<SourceBase>(_ coordinator: ListCoordinator<SourceBase>) -> Bool
+    func isCoordinator(_ coordinator: AnyObject) -> Bool
     
     func numbersOfSections() -> Int
     func numbersOfItems(in section: Int) -> Int

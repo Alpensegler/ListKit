@@ -193,7 +193,7 @@ final class UICollectionListDelegate {
 
     //Controlling the Spring-Loading Behavior
     private var anyShouldSpringLoadItemAtWith: Any = {
-        guard #available(iOS 13.0, *) else { return () }
+        guard #available(iOS 11.0, *) else { return () }
         return Delegate<(IndexPath, UISpringLoadedInteractionContext), Bool, IndexPath>(
             index: \.0,
             #selector(UICollectionViewDelegate.collectionView(_:shouldSpringLoadItemAt:with:))

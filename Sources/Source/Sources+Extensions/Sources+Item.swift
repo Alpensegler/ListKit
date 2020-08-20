@@ -7,7 +7,7 @@
 
 extension Sources where Source == Item {
     init(_ id: AnyHashable?, item: Source, update: ListUpdate<SourceBase>.Whole, options: ListOptions<SourceBase>) {
-        self.sourceValue = item
+        self.sourceValue = .value(item)
         self.listDiffer = .init(id: id)
         self.listOptions = options
         self.listUpdate = update
@@ -20,7 +20,7 @@ public extension Sources where Source == Item {
         item: Source,
         id: AnyHashable? = nil,
         update: ListUpdate<SourceBase>.Whole,
-        options: ListOptions<SourceBase> = .init()
+        options: ListOptions<SourceBase> = .none
     ) {
         self.init(id, item: item, update: update, options: options)
     }
@@ -28,38 +28,38 @@ public extension Sources where Source == Item {
         wrappedValue: Source,
         id: AnyHashable? = nil,
         update: ListUpdate<SourceBase>.Whole,
-        options: ListOptions<SourceBase> = .init()
+        options: ListOptions<SourceBase> = .none
     ) {
         self.init(id, item: wrappedValue, update: update, options: options)
     }
     
-    init(item: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .init()) {
+    init(item: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
         self.init(id, item: item, update: .reload, options: options)
     }
     
-    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .init()) {
+    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
         self.init(id, item: wrappedValue, update: .reload, options: options)
     }
 }
 
 //Equatable
 public extension Sources where Source == Item, Item: Equatable {
-    init(item: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .init()) {
+    init(item: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
         self.init(id, item: item, update: .diff, options: options)
     }
     
-    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .init()) {
+    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
         self.init(id, item: wrappedValue, update: .diff, options: options)
     }
 }
 
 //Hashable
 public extension Sources where Source == Item, Item: Hashable {
-    init(item: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .init()) {
+    init(item: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
         self.init(id, item: item, update: .diff, options: options)
     }
     
-    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .init()) {
+    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
         self.init(id, item: wrappedValue, update: .diff, options: options)
     }
 }
@@ -67,11 +67,11 @@ public extension Sources where Source == Item, Item: Hashable {
 //Identifiable
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public extension Sources where Source == Item, Item: Identifiable {
-    init(item: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .init()) {
+    init(item: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
         self.init(id, item: item, update: .diff, options: options)
     }
     
-    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .init()) {
+    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
         self.init(id, item: wrappedValue, update: .diff, options: options)
     }
 }
@@ -79,11 +79,11 @@ public extension Sources where Source == Item, Item: Identifiable {
 //Identifiable + Equatable
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public extension Sources where Source == Item, Item: Identifiable, Item: Equatable {
-    init(item: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .init()) {
+    init(item: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
         self.init(id, item: item, update: .diff, options: options)
     }
     
-    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .init()) {
+    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
         self.init(id, item: wrappedValue, update: .diff, options: options)
     }
 }
@@ -91,11 +91,11 @@ public extension Sources where Source == Item, Item: Identifiable, Item: Equatab
 //Identifiable + Hashable
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public extension Sources where Source == Item, Item: Identifiable, Item: Hashable {
-    init(item: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .init()) {
+    init(item: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
         self.init(id, item: item, update: .diff, options: options)
     }
     
-    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .init()) {
+    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
         self.init(id, item: wrappedValue, update: .diff, options: options)
     }
 }

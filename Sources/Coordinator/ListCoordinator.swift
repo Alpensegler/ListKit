@@ -46,10 +46,10 @@ public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase
         self.source = sourceBase.source
     }
     
-    func numbersOfSections() -> Int { fatalError() }
-    func numbersOfItems(in section: Int) -> Int { fatalError() }
+    func numbersOfSections() -> Int { notImplemented() }
+    func numbersOfItems(in section: Int) -> Int { notImplemented() }
     
-    func item(at section: Int, _ item: Int) -> Item { fatalError() }
+    func item(at section: Int, _ item: Int) -> Item { notImplemented() }
     
     func isSectioned() -> Bool {
         listContexts.contains { $0.context?.selectorSets.hasIndex == true }
@@ -66,9 +66,7 @@ public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase
     // Updates:
     func identifier(for sourceBase: SourceBase) -> AnyHashable {
         let id = ObjectIdentifier(sourceBaseType)
-        guard let identifier = differ.identifier else {
-            return HashCombiner(id, sectioned)
-        }
+        guard let identifier = differ.identifier else { return HashCombiner(id, sectioned) }
         return HashCombiner(id, sectioned, identifier(sourceBase))
     }
     
@@ -76,14 +74,12 @@ public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase
         differ.areEquivalent?(lhs, rhs) ?? true
     }
     
+    func update(_ update: ListUpdate<SourceBase>) -> CoordinatorUpdate { notImplemented() }
+    
     func update(
         from coordinator: ListCoordinator<SourceBase>,
         updateWay: ListUpdateWay<Item>?
     ) -> CoordinatorUpdate {
-        fatalError("should be implemented by subclass")
-    }
-    
-    func update(_ update: ListUpdate<SourceBase>) -> CoordinatorUpdate {
-        fatalError("should be implemented by subclass")
+        notImplemented()
     }
 }

@@ -29,15 +29,10 @@ where
     func identifier(for value: Value) -> AnyHashable { false }
     func isDiffEqual(lhs: Value, rhs: Value) -> Bool { false }
     
-    func configChangeAssociated(
-        for mapping: Mapping<Change>,
-        context: ContextAndID?
-    ) {
-        
-    }
+    func configChangeAssociated(for mapping: Mapping<Change>, context: ContextAndID?) { }
     
-    func append(from: Mapping<Int>, to: Mapping<Int>, to changes: inout Differences) {
-        appendBoth(from: from, to: to, to: &changes)
+    func diffAppend(from: Mapping<Int>, to: Mapping<Int>, to changes: inout Differences) {
+        append(from: from, to: to, to: &changes)
     }
     
     override func configChangesForDiff() -> Differences {
@@ -69,7 +64,7 @@ where
         enumerateChangesWithOffset(changes: changes, body: { (isSource, change) in
             append(change: change, isSource: isSource, to: &result)
         }, offset: { (from, to) in
-            append(from: from, to: to, to: &result)
+            diffAppend(from: from, to: to, to: &result)
         })
         
         return result

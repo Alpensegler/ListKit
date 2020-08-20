@@ -12,7 +12,20 @@ extension Sources where Source: DataSource, Source.Item == Item {
         update: ListUpdate<SourceBase>.Whole,
         options: ListOptions<SourceBase>
     ) {
-        self.sourceValue = dataSource
+        self.sourceValue = .value(dataSource)
+        self.listDiffer = .init(id: id)
+        self.listUpdate = update
+        self.listOptions = options
+        self.coordinatorMaker = { $0.coordinator(with: WrapperCoordinator(wrapper: $0)) }
+    }
+    
+    init(
+        _ id: AnyHashable? = nil,
+        update: ListUpdate<SourceBase>.Whole,
+        options: ListOptions<SourceBase>,
+        getter: @escaping () -> Source
+    ) {
+        self.sourceValue = .getter(getter)
         self.listDiffer = .init(id: id)
         self.listUpdate = update
         self.listOptions = options
@@ -25,46 +38,84 @@ public extension Sources where Source: DataSource, Source.Item == Item {
         dataSource: Source,
         id: AnyHashable? = nil,
         update: ListUpdate<SourceBase>.Whole,
-        options: ListOptions<SourceBase> = .init()
+        options: ListOptions<SourceBase> = .none
     ) {
         self.init(id, dataSource: dataSource, update: update, options: options)
     }
+    
     init(
         wrappedValue: Source,
         id: AnyHashable? = nil,
         update: ListUpdate<SourceBase>.Whole,
-        options: ListOptions<SourceBase> = .init()
+        options: ListOptions<SourceBase> = .none
     ) {
         self.init(id, dataSource: wrappedValue, update: update, options: options)
     }
     
-    init(dataSource: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .init()) {
+    init(dataSource: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
         self.init(id, dataSource: dataSource, update: .reload, options: options)
     }
     
-    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .init()) {
+    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
         self.init(id, dataSource: wrappedValue, update: .reload, options: options)
+    }
+}
+
+public extension Sources where Source == AnySources, Item == Any {
+    init<Source: DataSource>(
+        id: AnyHashable? = nil,
+        update: ListUpdate<SourceBase>.Whole = .subupdate,
+        options: ListOptions<SourceBase> = .none,
+        @AnySourcesBuilder source: @escaping () -> Source
+    ) {
+        self.init(id, update: update, options: options, getter: { .init(source()) })
+    }
+}
+
+public extension TableList where Source == AnySources {
+    
+}
+
+public extension Sources where Source == AnyTableSources, Item == Any {
+    init<Source: TableListAdapter>(
+        id: AnyHashable? = nil,
+        update: ListUpdate<SourceBase>.Whole = .subupdate,
+        options: ListOptions<SourceBase> = .none,
+        @AnyTableSourcesBuilder source: @escaping () -> Source
+    ) {
+        self.init(id, update: update, options: options, getter: { .init(source()) })
+    }
+}
+
+public extension Sources where Source == AnyCollectionSources, Item == Any {
+    init<Source: CollectionListAdapter>(
+        id: AnyHashable? = nil,
+        update: ListUpdate<SourceBase>.Whole = .subupdate,
+        options: ListOptions<SourceBase> = .none,
+        @AnyCollectionSourcesBuilder source: @escaping () -> Source
+    ) {
+        self.init(id, update: update, options: options, getter: { .init(source()) })
     }
 }
 
 //Equatable
 public extension Sources where Source: DataSource, Source.Item == Item, Item: Equatable {
-    init(dataSource: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .init()) {
+    init(dataSource: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
         self.init(id, dataSource: dataSource, update: .diff, options: options)
     }
     
-    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .init()) {
+    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
         self.init(id, dataSource: wrappedValue, update: .diff, options: options)
     }
 }
 
 //Hashable
 public extension Sources where Source: DataSource, Source.Item == Item, Item: Hashable {
-    init(dataSource: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .init()) {
+    init(dataSource: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
         self.init(id, dataSource: dataSource, update: .diff, options: options)
     }
     
-    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .init()) {
+    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
         self.init(id, dataSource: wrappedValue, update: .diff, options: options)
     }
 }
@@ -77,11 +128,11 @@ where
     Source.Item == Item,
     Item: Identifiable
 {
-    init(dataSource: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .init()) {
+    init(dataSource: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
         self.init(id, dataSource: dataSource, update: .diff, options: options)
     }
     
-    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .init()) {
+    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
         self.init(id, dataSource: wrappedValue, update: .diff, options: options)
     }
 }
@@ -95,11 +146,11 @@ where
     Item: Identifiable,
     Item: Equatable
 {
-    init(dataSource: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .init()) {
+    init(dataSource: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
         self.init(id, dataSource: dataSource, update: .diff, options: options)
     }
     
-    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .init()) {
+    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
         self.init(id, dataSource: wrappedValue, update: .diff, options: options)
     }
 }
@@ -113,11 +164,11 @@ where
     Item: Identifiable,
     Item: Hashable
 {
-    init(dataSource: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .init()) {
+    init(dataSource: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
         self.init(id, dataSource: dataSource, update: .diff, options: options)
     }
     
-    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .init()) {
+    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
         self.init(id, dataSource: wrappedValue, update: .diff, options: options)
     }
 }

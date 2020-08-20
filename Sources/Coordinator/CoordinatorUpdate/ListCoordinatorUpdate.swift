@@ -22,8 +22,9 @@ where SourceBase.SourceBase == SourceBase {
     var diffable: Bool { differ?.isNone == false }
     var moveAndReloadable: Bool { false }
     
-    lazy var sourceCount = getSourceCount()
-    lazy var targetCount = getTargetCount()
+    var isMoreUpdate: Bool {
+        update?.way.isMoreUpdate == true
+    }
     
     init(
         coordinator: ListCoordinator<SourceBase>?,
@@ -37,14 +38,12 @@ where SourceBase.SourceBase == SourceBase {
         switch update {
         case let .whole(whole, _):
             self.update = whole
+            isRemove = whole.way.isRemove
         case let .batch(batch):
             batch.operations.forEach { $0(self) }
             hasBatchUpdate = true
         }
     }
-    
-    func getSourceCount() -> Int { 1 }
-    func getTargetCount() -> Int { 1 }
     
     func updateData(_ isSource: Bool) {
         listCoordinator?.source = isSource ? sources.source : sources.target
@@ -54,10 +53,11 @@ where SourceBase.SourceBase == SourceBase {
     
     override func configChangeType() -> ChangeType {
         switch (update?.way, sourceIsEmpty, targetIsEmpty) {
+        case (.reload, _, _): return .reload
         case (.insert, _, true), (.remove, true, _), (_, true, true): return .none
         case (.remove, _, _), (_, false, true): return .remove(itemsOnly: itemsOnly(true))
         case (.insert, _, _), (_, true, false): return .insert(itemsOnly: itemsOnly(false))
-        case (_, false, false): return diffable || hasBatchUpdate ? .batchUpdates : .reload
+        default: return isMoreUpdate || hasBatchUpdate || diffable ? .batchUpdates : .reload
         }
     }
     
@@ -66,7 +66,7 @@ where SourceBase.SourceBase == SourceBase {
         return isSectioned ? generateListUpdatesForSections() : generateListUpdatesForItems()
     }
     
-    override func generateSourceSectionUpdate(
+    override func generateSourceUpdate(
         order: Order,
         context: UpdateContext<Int>? = nil
     ) -> UpdateSource<BatchUpdates.ListSource> {
@@ -92,7 +92,7 @@ where SourceBase.SourceBase == SourceBase {
         }
     }
     
-    override func generateTargetSectionUpdate(
+    override func generateTargetUpdate(
         order: Order,
         context: UpdateContext<Offset<Int>>? = nil
     ) -> UpdateTarget<BatchUpdates.ListTarget> {
@@ -121,9 +121,36 @@ where SourceBase.SourceBase == SourceBase {
             ) else { return (count(1, isFake: isFake), nil, nil) }
             let changes = hasNext(order, context) ? change : (change + finalChange)
             return (count(1, isFake: isFake), .init(item: itemUpdate), changes)
+        case (.third, .remove(itemsOnly: false)):
+            return (count(0), nil, finalChange)
         case (.third, _):
             return (count(targetSectionCount), nil, finalChange)
         }
+    }
+    
+    override func generateSourceItemUpdate(
+        order: Order,
+        context: UpdateContext<IndexPath>? = nil
+    ) -> UpdateSource<BatchUpdates.ItemSource> {
+        let diff = sourceCount - targetCount
+        guard isMoreUpdate, order == .second, diff > 0 else { return (sourceCount, nil) }
+        var start = context?.offset ?? .zero
+        if update?.way.isAppend == true { start = start.offseted(targetCount) }
+        return (sourceCount, .init(\.deletes, start, start.offseted(diff)))
+    }
+    
+    override func generateTargetItemUpdate(
+        order: Order,
+        context: UpdateContext<Offset<IndexPath>>? = nil
+    ) -> UpdateTarget<BatchUpdates.ItemTarget> {
+        let diff = targetCount - sourceCount
+        guard isMoreUpdate, order == .second, diff > 0 else {
+            return (toIndices(targetCount, context), nil, nil)
+        }
+        var start = context?.offset.offset.target ?? .zero
+        if update?.way.isAppend == true { start = start.offseted(sourceCount) }
+        let update = BatchUpdates.ItemTarget(\.inserts, start, start.offseted(diff))
+        return (toIndices(targetCount, context), update, finalChange)
     }
 }
 
@@ -148,9 +175,9 @@ extension ListCoordinatorUpdate {
         .batch(Order.allCases.compactMapContiguous { order in
             Log.log("---\(order)---")
             Log.log("-source-")
-            let source = generateSourceSectionUpdate(order: order)
+            let source = generateSourceUpdate(order: order)
             Log.log("-target-")
-            let target = generateTargetSectionUpdate(order: order)
+            let target = generateTargetUpdate(order: order)
             guard !source.update.isEmpty || !target.update.isEmpty else { return nil }
             return .init(update: (source.update, target.update), change: target.change)
         })
@@ -182,6 +209,10 @@ extension ListCoordinatorUpdate {
     func toIndices<O>(_ indices: Indices, _ context: UpdateContext<Offset<O>>?) -> Indices {
         guard let index = context?.offset.index else { return indices }
         return indices.mapContiguous { (index, $0.isFake) }
+    }
+    
+    func toIndices<O>(_ count: Int, _ context: UpdateContext<Offset<O>>?) -> Indices {
+        .init(repeatElement: (context?.offset.index ?? 0, false), count: count)
     }
     
     func generateListUpdatesForItems() -> BatchUpdates? {

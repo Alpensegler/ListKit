@@ -29,11 +29,11 @@ where
     
     func toIndices(_ sections: ContiguousArray<ContiguousArray<Item>>) -> Indices {
         if options.keepEmptySection { return sections.indices.mapContiguous { ($0, false) } }
-        var offsets = Indices(capacity: sections.count)
+        var indices = Indices(capacity: sections.count)
         for (i, section) in sections.enumerated() where !section.isEmpty {
-            offsets.append((i, false))
+            indices.append((i, false))
         }
-        return offsets
+        return indices
     }
     
     override func item(at section: Int, _ item: Int) -> Item {

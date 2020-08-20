@@ -107,14 +107,27 @@ class ToDo: NSManagedObject {
     @NSManaged var createAt: Date
     
     static func insert(title: String, priority: Int16) {
+        #if EXAMPLE
         let toDo = ToDo(context: CoreDataListViewController.managedObjectContext)
         toDo.title = title
         toDo.priority = priority
         toDo.createAt = .init()
+        #else
+        let toDo = NSEntityDescription.insertNewObject(
+            forEntityName: entityName,
+            into: CoreDataListViewController.managedObjectContext
+        )
+        toDo.setValue(title, forKey: "title")
+        toDo.setValue(priority, forKey: "priority")
+        toDo.setValue(Date(), forKey: "createAt")
+        #endif
         CoreDataListViewController.saveContext()
     }
-    
-    func toggleDone() {
+}
+
+#if EXAMPLE
+extension ToDo {
+    func toggle() {
         done.toggle()
         CoreDataListViewController.saveContext()
     }
@@ -124,6 +137,22 @@ class ToDo: NSManagedObject {
         CoreDataListViewController.saveContext()
     }
 }
+#else
+extension NSManagedObject {
+    func toggle() {
+        guard let done = value(forKey: "done") as? Bool else { return }
+        willChangeValue(forKey: "done")
+        setValue(!done, forKey: "done")
+        didChangeValue(forKey: "done")
+        CoreDataListViewController.saveContext()
+    }
+    
+    func delete() {
+        CoreDataListViewController.managedObjectContext.delete(self)
+        CoreDataListViewController.saveContext()
+    }
+}
+#endif
 
 extension DataSource where Item == ToDo {
     func tableConfig() -> TableList<SourceBase> {
@@ -133,7 +162,7 @@ extension DataSource where Item == ToDo {
         .tableViewDidSelectRow { (context, todo) in
             context.deselectItem(animated: true)
             let cell = context.cell
-            todo.toggleDone()
+            todo.toggle()
             cell?.configUI(with: todo)
         }
         .tableViewCanEditRow { (context, todo) -> Bool in
@@ -148,8 +177,14 @@ extension DataSource where Item == ToDo {
 
 extension UITableViewCell {
     func configUI(with todo: ToDo) {
+        let isDone: Bool
         textLabel?.text = todo.title
-        textLabel?.textColor = todo.done ? UIColor.lightGray : UIColor.black
+        #if EXAMPLE
+        isDone = todo.done
+        #else
+        isDone = (todo.value(forKey: "done") as? Bool) == true
+        #endif
+        textLabel?.textColor = isDone ? UIColor.lightGray : UIColor.black
         textLabel?.textAlignment = .natural
     }
 }
@@ -204,3 +239,21 @@ extension CoreDataListViewController {
         alert.textFields?.first?.selectAll(nil)
     }
 }
+
+
+#if canImport(SwiftUI) && EXAMPLE
+
+import SwiftUI
+
+@available(iOS 13.0, *)
+struct CoreDataList_Preview: UIViewControllerRepresentable, PreviewProvider {
+    static var previews: some View { CoreDataList_Preview() }
+    
+    func makeUIViewController(context: Self.Context) -> UINavigationController {
+        UINavigationController(rootViewController: CoreDataListViewController())
+    }
+    
+    func updateUIViewController(_ uiViewController: UINavigationController, context: Self.Context) { }
+}
+
+#endif

@@ -61,8 +61,8 @@
 		F383064323506BAC00AE8B97 /* CollectionDifference.swift in Sources */ = {isa = PBXBuildFile; fileRef = F383064023506BAC00AE8B97 /* CollectionDifference.swift */; };
 		F383064423506BAC00AE8B97 /* Differing.swift in Sources */ = {isa = PBXBuildFile; fileRef = F383064123506BAC00AE8B97 /* Differing.swift */; };
 		F3831D8224EDE520002B5D73 /* DataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = F3831D8024EDE520002B5D73 /* DataModel.xcdatamodeld */; };
-		F3831EB624EE718C002B5D73 /* AllSelectors.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3831EB524EE718C002B5D73 /* AllSelectors.swift */; };
 		F3831EB824EE89E4002B5D73 /* CoreDataListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3831EB724EE89E4002B5D73 /* CoreDataListViewController.swift */; };
+		F3831F8624EE95E1002B5D73 /* AllSelectors.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3831F8524EE95E1002B5D73 /* AllSelectors.swift */; };
 		F3841D5D2355E0DA006386E3 /* Collection+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3841D5C2355E0DA006386E3 /* Collection+Extension.swift */; };
 		F398E1BF24008714000A5637 /* DiffInitializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F398E1BE24008714000A5637 /* DiffInitializable.swift */; };
 		F398E1C224008DA1000A5637 /* DataSource+Properties.swift in Sources */ = {isa = PBXBuildFile; fileRef = F398E1C124008DA1000A5637 /* DataSource+Properties.swift */; };
@@ -190,8 +190,8 @@
 		F383064023506BAC00AE8B97 /* CollectionDifference.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CollectionDifference.swift; sourceTree = "<group>"; };
 		F383064123506BAC00AE8B97 /* Differing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Differing.swift; sourceTree = "<group>"; };
 		F3831D8124EDE520002B5D73 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
-		F3831EB524EE718C002B5D73 /* AllSelectors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AllSelectors.swift; path = ../../../Temp/AllSelectors.swift; sourceTree = "<group>"; };
 		F3831EB724EE89E4002B5D73 /* CoreDataListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CoreDataListViewController.swift; path = ListKit.playground/Sources/CoreDataListViewController.swift; sourceTree = "<group>"; };
+		F3831F8524EE95E1002B5D73 /* AllSelectors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AllSelectors.swift; sourceTree = "<group>"; };
 		F3841D5C2355E0DA006386E3 /* Collection+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Collection+Extension.swift"; sourceTree = "<group>"; };
 		F398E1BE24008714000A5637 /* DiffInitializable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiffInitializable.swift; sourceTree = "<group>"; };
 		F398E1C124008DA1000A5637 /* DataSource+Properties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataSource+Properties.swift"; sourceTree = "<group>"; };
@@ -305,7 +305,7 @@
 				F314FAE123BC71EA0060985E /* ListDelegate.swift */,
 				F314E8EA23A62200003C203B /* SelestorSets.swift */,
 				F31250F3239DB57100E77969 /* Delegate.swift */,
-				F3831EB524EE718C002B5D73 /* AllSelectors.swift */,
+				F3831F8524EE95E1002B5D73 /* AllSelectors.swift */,
 			);
 			path = ListDelegate;
 			sourceTree = "<group>";
@@ -801,7 +801,7 @@
 				F37A122E239FC0CB0001E9EE /* CollectionListAdapter+UIKit.swift in Sources */,
 				F30CF60924E7D23F0078720C /* SourcesCoordinator.swift in Sources */,
 				F35BBA07239FD1600024EA7D /* TableListAdapter+UIKit.swift in Sources */,
-				F3831EB624EE718C002B5D73 /* AllSelectors.swift in Sources */,
+				F3831F8624EE95E1002B5D73 /* AllSelectors.swift in Sources */,
 				F3C9537E23A0F1440015049A /* AnySourcesBuilder.swift in Sources */,
 				OBJ_18 /* ListKit.swift in Sources */,
 				F314FAE623BDC66A0060985E /* AnyTableSourcesBuilder.swift in Sources */,

@@ -32,11 +32,11 @@ where
     }
     
     func configSelectedSet() -> SelectorSets {
-        let others = initialSelectorSets()
+        let others = SelectorSets()
         for subsource in sourcesCoordinator.subsources {
-            others.void.formIntersection(subsource.context.selectorSets.void)
-            others.withIndex.formIntersection(subsource.context.selectorSets.withIndex)
-            others.withIndexPath.formIntersection(subsource.context.selectorSets.withIndexPath)
+            others.void.formUnion(subsource.context.selectorSets.void)
+            others.withIndex.formUnion(subsource.context.selectorSets.withIndex)
+            others.withIndexPath.formUnion(subsource.context.selectorSets.withIndexPath)
             others.hasIndex = others.hasIndex || subsource.context.selectorSets.hasIndex
         }
         return SelectorSets(merging: selfSelectorSets, others)
@@ -63,7 +63,7 @@ where
             return nil
         }
         let context = subsources[index], listContext = context.context
-        if listContext.selectorSets.contains(delegate.selector) { return nil }
+        guard listContext.selectorSets.contains(delegate.selector) else { return nil }
         coordinator.sectioned ? (sectionOffset += context.offset) : (itemOffset += context.offset)
         return listContext.apply(keyPath, root: root, object: object, with: input, sectionOffset, itemOffset)
     }

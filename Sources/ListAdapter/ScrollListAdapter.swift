@@ -10,7 +10,8 @@ public protocol ScrollListAdapter: DataSource {
 }
 
 public extension ScrollListAdapter {
-    var scrollList: ScrollList<SourceBase> { ScrollList(source: sourceBase) }
+    var scrollList: ScrollList<SourceBase> { defaultScrollList }
+    var defaultScrollList: ScrollList<SourceBase> { ScrollList(source: sourceBase) }
 }
 
 @propertyWrapper

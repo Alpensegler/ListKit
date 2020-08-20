@@ -7,18 +7,18 @@
 
 public extension DataSource where Self: TableListAdapter {
     var listContextSetups: [(ListCoordinatorContext<SourceBase>) -> Void] {
-        tableList.listContextSetups
+        scrollList.listContextSetups + tableList.listContextSetups
     }
 }
 
 public extension DataSource where Self: CollectionListAdapter {
     var listContextSetups: [(ListCoordinatorContext<SourceBase>) -> Void] {
-        collectionList.listContextSetups
+        scrollList.listContextSetups + collectionList.listContextSetups
     }
 }
 
 public extension DataSource where Self: TableListAdapter, Self: CollectionListAdapter {
     var listContextSetups: [(ListCoordinatorContext<SourceBase>) -> Void] {
-        collectionList.listContextSetups + tableList.listContextSetups
+        scrollList.listContextSetups + collectionList.listContextSetups + tableList.listContextSetups
     }
 }

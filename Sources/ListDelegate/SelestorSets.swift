@@ -32,10 +32,10 @@ class SelectorSets {
     }
     
     init(merging lhs: SelectorSets, _ rhs: SelectorSets) {
-        self.void = lhs.void.intersection(rhs.void)
-        self.value = lhs.value.intersection(rhs.value)
-        self.withIndex = lhs.withIndex.intersection(rhs.withIndex)
-        self.withIndexPath = lhs.withIndexPath.intersection(rhs.withIndexPath)
+        self.void = lhs.void.union(rhs.void)
+        self.value = lhs.value.union(rhs.value)
+        self.withIndex = lhs.withIndex.union(rhs.withIndex)
+        self.withIndexPath = lhs.withIndexPath.union(rhs.withIndexPath)
         self.withoutIndex = lhs.withoutIndex || rhs.withoutIndex
         self.hasIndex = lhs.hasIndex || rhs.hasIndex
     }

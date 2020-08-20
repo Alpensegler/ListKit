@@ -44,7 +44,7 @@ where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSo
         object: Object,
         with input: Input
     ) -> CoordinatorContext? {
-        wrapped?.selectorSets.contains(delegate.selector) == false ? wrapped : nil
+        wrapped?.selectorSets.contains(delegate.selector) == true ? wrapped : nil
     }
     
     override func reconfig() {

@@ -76,7 +76,7 @@ final class ListDelegate: NSObject {
     }
     
     override func responds(to aSelector: Selector!) -> Bool {
-        if aSelector.map(context.selectorSets.contains) == true { return false }
-        return super.responds(to: aSelector)
+        guard allSelectors.contains(aSelector) else { return super.responds(to: aSelector) }
+        return aSelector.map(context.selectorSets.contains) == true
     }
 }

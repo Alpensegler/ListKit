@@ -64,17 +64,4 @@ extension CoordinatorContext {
     ) {
         self[keyPath: keyPath].closure?(object, input, root, sectionOffset, itemOffset)
     }
-    
-    func initialSelectorSets(withoutIndex: Bool = false) -> SelectorSets {
-        var selectorSets = SelectorSets()
-        selectorSets.withoutIndex = withoutIndex
-        
-        #if os(iOS) || os(tvOS)
-        scrollListDelegate.add(by: &selectorSets)
-        collectionListDelegate.add(by: &selectorSets)
-        tableListDelegate.add(by: &selectorSets)
-        #endif
-        
-        return selectorSets
-    }
 }

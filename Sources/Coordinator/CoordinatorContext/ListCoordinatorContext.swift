@@ -22,7 +22,7 @@ where SourceBase.SourceBase == SourceBase {
     var hasItemCaches = false
     var hasNestedCaches = false
     
-    lazy var selfSelectorSets = initialSelectorSets()
+    lazy var selfSelectorSets = SelectorSets()
     lazy var itemCaches: ContiguousArray<ContiguousArray<Any?>> = {
         hasItemCaches = true
         return initialCaches()
@@ -130,12 +130,12 @@ extension ListCoordinatorContext {
         self[keyPath: keyPath].closure = { [unowned self] in closure(self, $0, $1, $2, $3, $4) }
         let delegate = self[keyPath: keyPath]
         if Index.self == Int.self {
-            selectorSets.withIndex.remove(delegate.selector)
+            selectorSets.withIndex.insert(delegate.selector)
             selectorSets.hasIndex = true
         } else if Index.self == IndexPath.self {
-            selectorSets.withIndexPath.remove(delegate.selector)
+            selectorSets.withIndexPath.insert(delegate.selector)
         } else {
-            selectorSets.value.remove(delegate.selector)
+            selectorSets.value.insert(delegate.selector)
         }
     }
 
@@ -145,6 +145,7 @@ extension ListCoordinatorContext {
     ) {
         self[keyPath: keyPath].closure = { [unowned self] in closure(self, $0, $1, $2, $3, $4) }
         let delegate = self[keyPath: keyPath]
-        selectorSets.void.remove(delegate.selector)
+        print(delegate)
+        selectorSets.void.insert(delegate.selector)
     }
 }

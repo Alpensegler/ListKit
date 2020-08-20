@@ -28,7 +28,7 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
         super.init(sourceBase)
     }
     
-    func update(from: Wrapped?, to: Wrapped?, updateWay: ListUpdateWay<Item>?) -> CoordinatorUpdate {
+    func update(from: Wrapped?, to: Wrapped?, way: ListUpdateWay<Item>?) -> CoordinatorUpdate {
         switch (from, to) {
         case (nil, nil):
             return .init()
@@ -37,7 +37,7 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
         case (let (_, from)?, nil):
             return from.update(.remove)
         case (let (_, from)?, let (_, to)?):
-            let updateWay = updateWay.map { ListUpdateWay($0, cast: itemTransform) }
+            let updateWay = way.map { ListUpdateWay($0, cast: itemTransform) }
             return to.update(from: from, updateWay: updateWay)
         }
     }
@@ -75,9 +75,7 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
     // Updates:
     override func identifier(for sourceBase: SourceBase) -> AnyHashable {
         let id = ObjectIdentifier(sourceBaseType)
-        guard let identifier = differ.identifier else {
-            return HashCombiner(id, sectioned)
-        }
+        guard let identifier = differ.identifier else { return HashCombiner(id, sectioned) }
         return HashCombiner(id, sectioned, identifier(sourceBase))
     }
     
@@ -86,7 +84,7 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
         updateWay: ListUpdateWay<Item>?
     ) -> CoordinatorUpdate {
         let coordinator = coordinator as! WrapperCoordinator<SourceBase, Other>
-        return update(from: coordinator.wrapped, to: wrapped, updateWay: updateWay)
+        return update(from: coordinator.wrapped, to: wrapped, way: updateWay)
     }
     
     override func update(_ update: ListUpdate<SourceBase>) -> CoordinatorUpdate {
@@ -98,7 +96,7 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
                 ($0.context as? WrapperCoordinatorContext<SourceBase, Other>)?.wrapped = context
             }
             defer { self.wrapped = wrapped }
-            return self.update(from: self.wrapped, to: wrapped, updateWay: whole.way)
+            return self.update(from: self.wrapped, to: wrapped, way: whole.way)
         } else {
             let way = ListUpdateWay(whole.way, cast: itemTransform)
             return wrapped?.coordinator.update(.whole(.init(way: way), nil)) ?? .init()

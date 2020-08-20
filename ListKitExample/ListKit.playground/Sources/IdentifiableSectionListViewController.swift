@@ -1,7 +1,8 @@
 import UIKit
 import ListKit
 
-public struct Room {
+public struct Room: UpdatableDataSource {
+    public var coordinatorStorage = CoordinatorStorage<Room>()
     let name: String
     let people: [String]
 }
@@ -9,13 +10,16 @@ public struct Room {
 extension Room: CollectionListAdapter {
     public typealias Item = String
     
-    public var source: [String] { people }
+    public var source: [String] { people.shuffled() }
     public var listDiffer: ListDiffer<Room> { .diff(id: \.name) }
     
     public var collectionList: CollectionList<Room> {
         collectionViewCellForItem(CenterLabelCell.self) { (cell, context, item) in
             cell.text = item
         }
+        .collectionViewDidSelectItem({ (context, item) in
+            self.perform(.remove(at: context.item))
+        })
         .collectionViewLayoutSizeForItem { (_, _, _) in
             CGSize(width: 70, height: 70)
         }
@@ -51,8 +55,11 @@ public class IdentifiableSectionListViewController: UIViewController, UpdatableC
         
         apply(by: collectionView)
         
-        let item = UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(refresh))
-        navigationItem.rightBarButtonItem = item
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            barButtonSystemItem: .refresh,
+            target: self,
+            action: #selector(refresh)
+        )
     }
     
     @objc func refresh() {
@@ -67,7 +74,16 @@ extension Room: CustomStringConvertible {
         "Bernard", "Mai", "Melissa", "Kippa", "Jerry"
     ]
     
+//    static var toggle = false
+    
     static var random: [Room] {
+//        toggle.toggle()
+//        if toggle {
+//            return [Room("A", [1]), Room("B", [4, 5, 6])]
+//        } else {
+//            return [Room("B", [4, 5, 6]), Room("A", [1, 2, 3])]
+//        }
+
         var shuffled = members.shuffled()
         var rooms = [
             ("Interview B", 2),
@@ -76,14 +92,14 @@ extension Room: CustomStringConvertible {
             ("Meeting", 6),
         ]
         var results = [Room]()
-        
+
         while let (name, limit) = rooms.popLast() {
             let people = Bool.random() || Bool.random()
                 ? (0...Int.random(in: 0..<limit)).compactMap { _ in shuffled.popLast() }
                 : []
             results.append(.init(name, people))
         }
-        
+
         return results.sorted { $0.people.count > $1.people.count }
     }
     
@@ -91,6 +107,10 @@ extension Room: CustomStringConvertible {
     init(_ name: String, _ people: [String]) {
         self.name = name
         self.people = people
+    }
+    init(_ name: String, _ people: [Int]) {
+        self.name = name
+        self.people = people.map { "\($0)" }
     }
     
     public var description: String { "Room(\"\(name)\", \(people))" }
@@ -143,9 +163,28 @@ extension Room {
             return view
         }()
         
+        lazy private var refreshButton: UIButton = {
+            let button = UIButton(type: .system)
+            button.setTitle("Refresh", for: .normal)
+            button.addTarget(self, action: #selector(refreshAction), for: .touchUpInside)
+            button.isHidden = true
+            button.sizeToFit()
+            button.frame.origin.x = UIScreen.main.bounds.width - button.frame.size.width
+            self.addSubview(button)
+            return button
+        }()
+        
         var text: String? {
             get { return label.text }
             set { label.text = newValue }
+        }
+        
+        var refresh: (() -> Void)? {
+            didSet { refreshButton.isHidden = refresh == nil }
+        }
+        
+        @objc func refreshAction() {
+            refresh?()
         }
     }
 }

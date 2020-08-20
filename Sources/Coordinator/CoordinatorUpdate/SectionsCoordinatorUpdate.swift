@@ -64,14 +64,14 @@ where
         itemsUpdates.forEach { $0.inferringMoves(context: context ?? defaultContext) }
     }
     
-    override func generateSourceSectionUpdate(
+    override func generateSourceUpdate(
         order: Order,
         context: UpdateContext<Int>? = nil
     ) -> UpdateSource<BatchUpdates.ListSource> {
         if notUpdate(order, context) { return (targetCount, nil) }
         var (count, update) = (0, BatchUpdates.ListSource())
         for itemUpdate in itemsUpdates {
-            let (subsectionCount, subupdate) = itemUpdate.generateSourceSectionUpdate(
+            let (subsectionCount, subupdate) = itemUpdate.generateSourceUpdate(
                 order: order,
                 context: toContext(context, or: 0) { $0 + count }
             )
@@ -81,7 +81,7 @@ where
         return (count, update)
     }
     
-    override func generateTargetSectionUpdate(
+    override func generateTargetUpdate(
         order: Order,
         context: UpdateContext<Offset<Int>>? = nil
     ) -> UpdateTarget<BatchUpdates.ListTarget> {
@@ -91,7 +91,7 @@ where
             let subcontext = toContext(context, or: (0, (0, 0))) {
                 (i, ($0.offset.source + indices.count, $0.offset.target + indices.count))
             }
-            let (subsectionCount, subupdate, _) = itemUpdate.generateTargetSectionUpdate(
+            let (subsectionCount, subupdate, _) = itemUpdate.generateTargetUpdate(
                 order: order,
                 context: subcontext
             )

@@ -60,6 +60,8 @@
 		F37DD4E323A190AE00689CAD /* TableListAdapter+Source.swift in Sources */ = {isa = PBXBuildFile; fileRef = F37DD4E223A190AE00689CAD /* TableListAdapter+Source.swift */; };
 		F383064323506BAC00AE8B97 /* CollectionDifference.swift in Sources */ = {isa = PBXBuildFile; fileRef = F383064023506BAC00AE8B97 /* CollectionDifference.swift */; };
 		F383064423506BAC00AE8B97 /* Differing.swift in Sources */ = {isa = PBXBuildFile; fileRef = F383064123506BAC00AE8B97 /* Differing.swift */; };
+		F3831D7F24EDBBD0002B5D73 /* CoreDataListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3831D7E24EDBBCF002B5D73 /* CoreDataListViewController.swift */; };
+		F3831D8224EDE520002B5D73 /* DataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = F3831D8024EDE520002B5D73 /* DataModel.xcdatamodeld */; };
 		F3841D5D2355E0DA006386E3 /* Collection+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3841D5C2355E0DA006386E3 /* Collection+Extension.swift */; };
 		F398E1BF24008714000A5637 /* DiffInitializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F398E1BE24008714000A5637 /* DiffInitializable.swift */; };
 		F398E1C224008DA1000A5637 /* DataSource+Properties.swift in Sources */ = {isa = PBXBuildFile; fileRef = F398E1C124008DA1000A5637 /* DataSource+Properties.swift */; };
@@ -186,6 +188,8 @@
 		F37DD4E223A190AE00689CAD /* TableListAdapter+Source.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TableListAdapter+Source.swift"; sourceTree = "<group>"; };
 		F383064023506BAC00AE8B97 /* CollectionDifference.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CollectionDifference.swift; sourceTree = "<group>"; };
 		F383064123506BAC00AE8B97 /* Differing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Differing.swift; sourceTree = "<group>"; };
+		F3831D7E24EDBBCF002B5D73 /* CoreDataListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataListViewController.swift; sourceTree = "<group>"; };
+		F3831D8124EDE520002B5D73 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		F3841D5C2355E0DA006386E3 /* Collection+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Collection+Extension.swift"; sourceTree = "<group>"; };
 		F398E1BE24008714000A5637 /* DiffInitializable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiffInitializable.swift; sourceTree = "<group>"; };
 		F398E1C124008DA1000A5637 /* DataSource+Properties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataSource+Properties.swift"; sourceTree = "<group>"; };
@@ -374,6 +378,7 @@
 				F3F799A024E5E32100771F7F /* NestedListViewController.swift */,
 				F3F7999C24E5E32100771F7F /* SectionListViewControlle.swift */,
 				F3F7999F24E5E32100771F7F /* TestListViewController.swift */,
+				F3831D7E24EDBBCF002B5D73 /* CoreDataListViewController.swift */,
 			);
 			path = ListKitExample;
 			sourceTree = "<group>";
@@ -381,6 +386,7 @@
 		F365502B2451B51D0038172F /* SupportFiles */ = {
 			isa = PBXGroup;
 			children = (
+				F3831D8024EDE520002B5D73 /* DataModel.xcdatamodeld */,
 				F36550222451B4070038172F /* Assets.xcassets */,
 				F365503D2451B78B0038172F /* Default-568h@2x.png */,
 				F36550242451B4070038172F /* LaunchScreen.storyboard */,
@@ -704,8 +710,10 @@
 			files = (
 				F3F799A124E5E32200771F7F /* ContentsViewController.swift in Sources */,
 				F365501A2451B4060038172F /* AppDelegate.swift in Sources */,
+				F3831D7F24EDBBD0002B5D73 /* CoreDataListViewController.swift in Sources */,
 				F3F799A524E5E32200771F7F /* TestListViewController.swift in Sources */,
 				F3F799A424E5E32200771F7F /* DoubleListViewController.swift in Sources */,
+				F3831D8224EDE520002B5D73 /* DataModel.xcdatamodeld in Sources */,
 				F3F799A324E5E32200771F7F /* IdentifiableSectionListViewController.swift in Sources */,
 				F3F799A624E5E32200771F7F /* NestedListViewController.swift in Sources */,
 				F3F799A224E5E32200771F7F /* SectionListViewControlle.swift in Sources */,
@@ -1177,6 +1185,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		F3831D8024EDE520002B5D73 /* DataModel.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				F3831D8124EDE520002B5D73 /* Model.xcdatamodel */,
+			);
+			currentVersion = F3831D8124EDE520002B5D73 /* Model.xcdatamodel */;
+			path = DataModel.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = OBJ_1 /* Project object */;
 }

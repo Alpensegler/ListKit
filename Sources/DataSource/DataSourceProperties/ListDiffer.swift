@@ -30,7 +30,6 @@ public extension ListDiffer {
 }
 
 extension ListDiffer {
-    var shouldHash: Bool { identifier != nil }
     var isNone: Bool { identifier == nil && areEquivalent == nil }
     
     func hash(value: Value, into hasher: inout Hasher) {

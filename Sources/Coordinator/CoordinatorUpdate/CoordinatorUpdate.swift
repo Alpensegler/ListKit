@@ -15,6 +15,8 @@ class CoordinatorUpdate {
     enum ChangeType: Equatable {
         case insert(itemsOnly: Bool = true), remove(itemsOnly: Bool = false)
         case reload, batchUpdates, none
+        
+        var shouldGetSubupdate: Bool { self != .reload && self != .none }
     }
     
     struct Cache<Value> {
@@ -59,6 +61,7 @@ class CoordinatorUpdate {
     typealias UpdateTarget<Update> = (indices: Indices, update: Update?, change: (() -> Void)?)
     
     var isSectioned = false
+    var isRemove = false
     
     lazy var itemMaxOrder = Cache(value: Order.second)
     lazy var sectionMaxOrder = Cache(
@@ -72,19 +75,25 @@ class CoordinatorUpdate {
         return (value, ObjectIdentifier(value))
     }()
     
+    lazy var sourceCount = getSourceCount()
+    lazy var targetCount = getTargetCount()
+    
+    func getSourceCount() -> Int { 1 }
+    func getTargetCount() -> Int { 1 }
+    
     func inferringMoves(context: ContextAndID? = nil) { }
     
     func configChangeType() -> ChangeType { .none }
     func generateListUpdates() -> BatchUpdates? { nil }
     
-    func generateSourceSectionUpdate(
+    func generateSourceUpdate(
         order: Order,
         context: UpdateContext<Int>? = nil
     ) -> UpdateSource<BatchUpdates.ListSource> {
         (0, nil)
     }
     
-    func generateTargetSectionUpdate(
+    func generateTargetUpdate(
         order: Order,
         context: UpdateContext<Offset<Int>>? = nil
     ) -> UpdateTarget<BatchUpdates.ListTarget> {
@@ -154,16 +163,8 @@ extension CoordinatorUpdate {
 
 extension CoordinatorUpdate.Cache {
     subscript(id: ObjectIdentifier?) -> Value {
-        get {
-            id.flatMap { dict[$0] } ?? value
-        }
-        set {
-            if let id = id {
-                dict[id] = newValue
-            } else {
-                value = newValue
-            }
-        }
+        get { id.flatMap { dict[$0] } ?? value }
+        set { id.map { dict[$0] = newValue } ?? (value = newValue) }
     }
 }
 

@@ -32,7 +32,7 @@ extension CoordinatorUpdate {
         Source.Element: DataSource,
         Source.Element.SourceBase.Item == SourceBase.Item
     {
-        case update(Int, SourceElement<Source.Element>, CoordinatorUpdate)
+        case update(Mapping<Int>, Mapping<SourceElement<Source.Element>>, CoordinatorUpdate)
         case change(SourcesChange<SourceBase, Source>, isSource: Bool)
     }
 }
@@ -59,8 +59,10 @@ where
     
     weak var coordinator: SourcesCoordinator<SourceBase, Source>?
     
+    var subsourceType: SourcesCoordinator<SourceBase, Source>.SubsourceType
     var indices: Mapping<Indices>
-    var subupdates = [() -> Void]()
+    lazy var operations = [() -> Void]()
+    lazy var subupdates = [Int: CoordinatorUpdate]()
     
     lazy var offsetForOrder = Cache(value: [Order: [ObjectIdentifier: Int]]())
     
@@ -68,6 +70,7 @@ where
     override var equaltable: Bool { true }
     override var identifiable: Bool { true }
     override var moveAndReloadable: Bool { true }
+    override var shouldConsiderUpdate: Bool { super.shouldConsiderUpdate || !subupdates.isEmpty }
     
     init(
         coordinator: SourcesCoordinator<SourceBase, Source>,
@@ -78,6 +81,7 @@ where
         keepSectionIfEmpty: Mapping<Bool>,
         isSectioned: Bool
     ) {
+        self.subsourceType = coordinator.subsourceType
         self.coordinator = coordinator
         self.indices = indices
         super.init(coordinator, update: update, values, sources, keepSectionIfEmpty)
@@ -95,19 +99,68 @@ where
         return .init(element: .element(element), context: context, offset: 0, count: count)
     }
     
+    override func toSource(_ values: ContiguousArray<Subsource>) -> SourceBase.Source? {
+        guard case let .fromSourceBase(_, map) = subsourceType else { return nil }
+        return map(.init(values.flatMap { subsource -> ContiguousArray<Element> in
+            switch subsource.element {
+            case let .items(_, items): return items()
+            case let .element(element): return [element]
+            }
+        }))
+    }
+    
+    override func updateIndicesAfterUpdateIfNeeded() {
+        var offset = 0
+        values.target = values.target.mapContiguous { value in
+            defer { offset += value.count }
+            return .init(
+                element: value.element,
+                context: value.context,
+                offset: offset,
+                count: value.count
+            )
+        }
+        indices.target = SourcesCoordinator<SourceBase, Source>.toIndices(values.target)
+    }
+    
     override func append(change: Change, isSource: Bool, to changes: inout Differences) {
         changes[keyPath: path(isSource)].append(.change(.change(change, isSource: isSource)))
         guard change.associated[nil] == nil else { return }
         changes[keyPath: path(!isSource)].append(.change(.change(change, isSource: isSource)))
     }
     
-    override func append(from: Mapping<Int>, to: Mapping<Int>, to changes: inout Differences) {
+    override func append(change: DifferenceChange, into values: inout ContiguousArray<Subsource>) {
+        switch change {
+        case let .change(change, isSource: isSource) where !isSource:
+            values.append(change.value)
+        case let .update(_, value, update):
+            values.append(.init(
+                element: value.target.element,
+                context: value.target.context,
+                offset: 0,
+                count: update.targetCount
+            ))
+        default: break
+        }
+    }
+    
+    override func canConfigUpdateAt(index: Mapping<Int>, last: Mapping<Int>, into changes: inout Differences) -> Bool {
+        if super.canConfigUpdateAt(index: index, last: last, into: &changes) { return true }
+        guard let update = subupdates[index.source] else { return false }
+        appendUnchanged(index: index, last: last, to: &changes)
+        let value: Mapping = (values.source[index.source], values.source[index.target])
+        changes.source.append(.change(.update(index, value, update)))
+        changes.target.append(.change(.update(index, value, update)))
+        return true
+    }
+    
+    override func diffAppend(from: Mapping<Int>, to: Mapping<Int>, to changes: inout Differences) {
         for (s, t) in zip(from.source..<to.source, from.target..<to.target) {
             let source = values.source[s], target = values.target[t]
             let way = differ.map { ListUpdateWay.diff($0) }
             let update = target.coordinator.update(from: source.coordinator, updateWay: way)
-            changes.source.append(.change(.update(t, target, update)))
-            changes.target.append(.change(.update(t, target, update)))
+            changes.source.append(.change(.update((s, t), (source, target), update)))
+            changes.target.append(.change(.update((s, t), (source, target), update)))
         }
     }
     
@@ -128,8 +181,11 @@ where
     
     override func updateData(_ isSource: Bool) {
         super.updateData(isSource)
-        coordinator?.subsources = isSource ? values.source : values.target
-        coordinator?.indices = isSource ? indices.source : indices.target
+        guard let coordinator = coordinator else { return }
+        if hasBatchUpdate { updateIndicesAfterUpdateIfNeeded() }
+        coordinator.subsources = coordinator.settingIndex(isSource ? values.source : values.target)
+        coordinator.indices = isSource ? indices.source : indices.target
+        if !isSource { coordinator.resetDelegates() }
     }
     
     override func isEqual(lhs: Subsource, rhs: Subsource) -> Bool {
@@ -169,24 +225,20 @@ where
         mapping.target.update[context?.id] = update
     }
     
-    override func generateSourceSectionUpdate(
+    override func generateSourceUpdate(
         order: Order,
         context: UpdateContext<Int>? = nil
     ) -> UpdateSource<BatchUpdates.ListSource> {
-        guard isSectioned else {
-            return super.generateSourceSectionUpdate(order: order, context: context)
-        }
-        return sourceUpdate(order, in: context, \.section, Subupdate.generateSourceSectionUpdate)
+        guard isSectioned else { return super.generateSourceUpdate(order: order, context: context) }
+        return sourceUpdate(order, in: context, \.section, Subupdate.generateSourceUpdate)
     }
     
-    override func generateTargetSectionUpdate(
+    override func generateTargetUpdate(
         order: Order,
         context: UpdateContext<Offset<Int>>? = nil
     ) -> UpdateTarget<BatchUpdates.ListTarget> {
-        guard isSectioned else {
-            return super.generateTargetSectionUpdate(order: order, context: context)
-        }
-        return targetUpdate(order, in: context, \.section, Subupdate.generateTargetSectionUpdate)
+        guard isSectioned else { return super.generateTargetUpdate(order: order, context: context) }
+        return targetUpdate(order, in: context, \.section, Subupdate.generateTargetUpdate)
     }
     
     override func generateSourceItemUpdate(
@@ -211,7 +263,15 @@ extension SourcesCoordinatorUpdate {
         animated: Bool? = nil,
         completion: ((ListView, Bool) -> Void)? = nil
     ) {
-        subupdates.append { source.perform(update, animated: animated, completion: completion) }
+        operations.append { source.perform(update, animated: animated, completion: completion) }
+    }
+    
+    func add(subupdate: CoordinatorUpdate, at index: Int) {
+        if subupdate.isRemove {
+            remove(at: index)
+        } else {
+            subupdates[index] = subupdate
+        }
     }
     
     func sourceUpdate<Collection: UpdateIndexCollection, Result: BatchUpdate, O>(
@@ -243,7 +303,7 @@ extension SourcesCoordinatorUpdate {
         
         func reload(from value: Subsource, to other: Subsource) {
             let (diff, minValue) = (value.count - other.count, min(value.count, other.count))
-            count += value.count
+            defer { count += value.count }
             if minValue > 0 {
                 result[keyPath: keyPath].add(\.reloads, offset, offset.offseted(minValue))
             }
@@ -299,8 +359,14 @@ extension SourcesCoordinatorUpdate {
                 } else {
                     add(change.update(false, context?.id), isMoved: false)
                 }
-            case let .change(.update(_, _, update)):
-                add(update, isMoved: false)
+            case let .change(.update(_, value, update)):
+                switch update.changeType {
+                case .none where value.source.count != value.target.count && isMain(order),
+                     .reload where isMain(order):
+                    reload(from: value.source, to: value.target)
+                default:
+                    add(update, isMoved: false)
+                }
             case let .unchanged(from: from, to: to):
                 guard context?.isMoved != true else { fatalError("TODO") }
                 (from.source..<to.source).forEach { add(value: values.source[$0]) }
@@ -325,36 +391,36 @@ extension SourcesCoordinatorUpdate {
         if notUpdate(order, context) { return (toIndices(indices.target, context), nil, nil) }
         var subsources = ContiguousArray<Subsource>(capacity: values.target.count)
         var indices = Indices(capacity: self.indices.source.count)
-        var result = Result(), change: (() -> Void)?, index = 0
+        var result = Result(), change: (() -> Void)?
         var offset: O { .init(context?.offset.offset.target, offset: indices.count) }
+        var index: Int { subsources.count }
         let offsets = offsetForOrder[context?.id][order]!
         
         func add(value: Subsource) {
-            let value = value.setting(offset: indices.count)
-            subsources.append(value)
+            let count = indices.count
             indices.append(repeatElement: (index, false), count: value.count)
-            index += 1
+            subsources.append(value.setting(offset: count))
         }
         
-        func add(value: Subsource, update: Subupdate, isMoved: Bool) {
+        func add(value: Subsource, update: Subupdate, isMoved: Bool, isSource: Bool = false) {
             guard let o = offsets[ObjectIdentifier(update)] else { return }
             let subcontext = toContext(context, isMoved, or: (0, (.zero, .zero))) {
                 (index, ($0.offset.source.offseted(o), $0.offset.source.offseted(indices.count)))
             }
             let (subindices, subupdate, subchange) = toSubresult(update)(order, subcontext)
-            subsources.append(value.setting(offset: indices.count, count: subindices.count))
             subupdate.map { result.add($0) }
             change = change + subchange
-            index += 1
-            indices.append(contentsOf: subindices)
             Log.log("\(value)\(subupdate.isEmpty ? " none" : "")")
             Log.log(subupdate.isEmpty ? nil : subupdate?.description)
             updateMaxIfNeeded(update, context, subcontext)
+            if isSource, !hasNext(order, context) { return }
+            let count = indices.count
+            indices.append(contentsOf: subindices)
+            subsources.append(value.setting(offset: count, count: subindices.count))
         }
         
         func reload(from other: Subsource, to value: Subsource) {
             let diff = value.count - other.count, minValue = min(other.count, value.count)
-            subsources.append(value.setting(offset: indices.count))
             if minValue != 0 {
                 result[keyPath: keyPath].reload(offset, offset.offseted(minValue))
             }
@@ -362,8 +428,9 @@ extension SourcesCoordinatorUpdate {
                 let upper = offset.offseted(value.count)
                 result[keyPath: keyPath].add(\.inserts, upper.offseted(-diff), upper)
             }
+            let count = indices.count
             indices.append(repeatElement: (index, false), count: value.count)
-            index += 1
+            subsources.append(value.setting(offset: count))
         }
         
         func configChange(_ change: Change) {
@@ -414,35 +481,35 @@ extension SourcesCoordinatorUpdate {
             case let .change(.change(change, isSource: isSource)):
                 if isSource {
                     let update = change.update(false, context?.id)
-                    add(value: change.value, update: update, isMoved: false)
+                    add(value: change.value, update: update, isMoved: false, isSource: true)
                 } else {
                     configChange(change)
                 }
             case let .change(.update(_, value, update)):
-                let value = value.setting(offset: indices.count)
-                add(value: value, update: update, isMoved: false)
+                switch update.changeType {
+                case .none where value.source.count != value.target.count && isMain(order),
+                     .reload where isMain(order):
+                    reload(from: value.source, to: value.target)
+                case _ where update.changeType.shouldGetSubupdate:
+                    add(value: value.target, update: update, isMoved: false)
+                default:
+                    add(value: value.target)
+                }
             case let .unchanged(from: from, to: to):
                 guard context?.isMoved != true else { fatalError("TODO") }
-                (from.source..<to.source).forEach { add(value: values.target[$0]) }
+                (from.target..<to.target).forEach { add(value: values.target[$0]) }
             }
         }
         
-        if hasNext(order, context) {
-            let source = Source(subsources.flatMap { subsource -> ContiguousArray<Element> in
-                switch subsource.element {
-                case let .items(_, items):
-                    return items()
-                case let .element(element):
-                    return [element]
-                }
-            })
-            
-            
-            change = change + { [unowned self] in
-                self.coordinator?.set(source: source, values: subsources, indices: indices)
-            }
-        } else {
-            change = change + finalChange
+        let source = toSource(subsources)
+        change = change + { [unowned self] in
+            guard let coordinator = self.coordinator else { return }
+            Log.log("\(self) set indices: \(indices.map { $0 })")
+            Log.log("\(self) set subsources: \(subsources.map { $0 })")
+            coordinator.subsources = coordinator.settingIndex(subsources)
+            coordinator.indices = indices
+            coordinator.resetDelegates()
+            coordinator.source = source
         }
         
         return (toIndices(indices, context), result, change)

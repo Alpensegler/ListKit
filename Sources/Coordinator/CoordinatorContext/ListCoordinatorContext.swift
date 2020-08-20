@@ -35,11 +35,11 @@ where SourceBase.SourceBase == SourceBase {
     
     var index = 0
     var isSectioned = true
-    var listViewGetter: ((ListCoordinator<SourceBase>) -> ListView?)?
+    var listViewGetter: (() -> ListView?)?
     var resetDelegates: (() -> Void)?
-    var parentUpdate: ((CoordinatorUpdate, Int) -> [(CoordinatorContext, CoordinatorUpdate)])?
+    var update: ((Int, CoordinatorUpdate, Bool) -> [(CoordinatorContext, CoordinatorUpdate)])?
     
-    var listView: ListView? { listViewGetter?(coordinator) }
+    var listView: ListView? { listViewGetter?() }
     var selectorSets: SelectorSets { selfSelectorSets }
     
     init(
@@ -50,10 +50,9 @@ where SourceBase.SourceBase == SourceBase {
         setups.forEach { $0(self) }
     }
     
-    func isCoordinator<SourceBase>(_ coordinator: ListCoordinator<SourceBase>) -> Bool {
-        self.coordinator === coordinator
-    }
+    func isCoordinator(_ coordinator: AnyObject) -> Bool { self.coordinator === coordinator }
     
+    func reconfig() { }
     func numbersOfSections() -> Int { coordinator.numbersOfSections() }
     func numbersOfItems(in section: Int) -> Int { coordinator.numbersOfItems(in: section) }
     

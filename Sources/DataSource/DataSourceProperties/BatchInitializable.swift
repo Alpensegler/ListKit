@@ -154,12 +154,12 @@ public extension BatchInitializable where SourceBase: NSDataSource {
         .init { $0.deleteSections(sections) }
     }
     
-    static func reloadSection(_ section: Int) -> Self {
-        .init { $0.reloadSection(section) }
+    static func reloadSection(_ section: Int, newSection: Int? = nil) -> Self {
+        .init { $0.reloadSection(section, newSection: newSection ?? section) }
     }
     
-    static func reloadSections(_ sections: IndexSet) -> Self {
-        .init { $0.reloadSections(sections) }
+    static func reloadSections(_ sections: IndexSet, newSections: IndexSet? = nil) -> Self {
+        .init { $0.reloadSections(sections, newSections: newSections ?? sections) }
     }
     
     static func moveSection(_ section: Int, toSection newSection: Int) -> Self {
@@ -182,12 +182,12 @@ public extension BatchInitializable where SourceBase: NSDataSource {
         .init { $0.deleteItems(at: indexPaths) }
     }
     
-    static func reloadItem(at indexPath: IndexPath) -> Self {
-        .init { $0.reloadItem(at: indexPath) }
+    static func reloadItem(at indexPath: IndexPath, newIndexPath: IndexPath? = nil) -> Self {
+        .init { $0.reloadItem(at: indexPath, newIndexPath: newIndexPath ?? indexPath) }
     }
     
-    static func reloadItems(at indexPaths: [IndexPath]) -> Self {
-        .init { $0.reloadItems(at: indexPaths) }
+    static func reloadItems(at indexPaths: [IndexPath], newIndexPaths: [IndexPath]? = nil) -> Self {
+        .init { $0.reloadItems(at: indexPaths, newIndexPaths: newIndexPaths ?? indexPaths) }
     }
     
     static func moveItem(at indexPath: IndexPath, to newIndexPath: IndexPath) -> Self {

@@ -5,6 +5,7 @@ public class DoubleListViewController: UIViewController, TableListAdapter, Colle
     private let _models = ["Roy", "Pinlin", "Zhiyi", "Frain", "Jack", "Cookie", "Kubrick", "Jeremy", "Juhao", "Herry"]
     
     public typealias Item = String
+    var toggle = false
     
     public var source: [String] {
         var shuffledModels = _models.shuffled()
@@ -14,19 +15,19 @@ public class DoubleListViewController: UIViewController, TableListAdapter, Colle
     }
     
     public var tableList: TableList<DoubleListViewController> {
-        tableListWithCacheHeight(forItem: { context, item in
-            print("fake calculating height for \(item)")
-            return 44
-        })
+        tableViewCellForRow()
+        .tableViewDidSelectRow { [unowned self] (context, item) in
+            self.perform(.remove(at: context.item))
+        }
     }
     
     public var collectionList: CollectionList<DoubleListViewController> {
-        collectionViewCellForItem(CenterLabelCell.self) { (cell, _, item) in
+        collectionListWithCacheSize(forItem: { context, item in
+            print("fake calculating size for \(item)")
+            return CGSize(width: 75, height: 75)
+        }, CenterLabelCell.self, closure: { (cell, _, _, item) in
             cell.text = "\(item)"
-        }
-        .collectionViewLayoutSizeForItem { (_, _, _) in
-            CGSize(width: 75, height: 75)
-        }
+        })
         .collectionViewLayoutInsetForSection { (_, _) in
             UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
         }
@@ -37,12 +38,18 @@ public class DoubleListViewController: UIViewController, TableListAdapter, Colle
         apply(by: collectionView)
         apply(by: tableView)
         
-        let item = UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(refresh))
-        navigationItem.rightBarButtonItem = item
-    }
-    
-    @objc func refresh() {
-        performUpdate()
+        navigationItem.rightBarButtonItems = [
+            UIBarButtonItem(
+                barButtonSystemItem: .refresh,
+                target: self,
+                action: #selector(refresh)
+            ),
+            UIBarButtonItem(
+                barButtonSystemItem: .add,
+                target: self,
+                action: #selector(add)
+            ),
+        ]
     }
 }
 
@@ -88,6 +95,27 @@ extension DoubleListViewController {
         collectionView.backgroundColor = .white
         return collectionView
     }
+    
+    @objc func refresh() {
+        perform(.appendOrRemoveLast)
+    }
+    
+    @objc func add() {
+        let alert = UIAlertController(title: "Add content", message: nil, preferredStyle: .alert)
+        alert.addTextField { (textField) in
+            textField.text = "Content"
+            textField.selectAll(nil)
+        }
+        
+        alert.addAction(UIAlertAction(title: "cancel", style: .cancel))
+        
+        let ok = UIAlertAction(title: "Done", style: .default) { [unowned self, unowned alert] _ in
+            guard let content = alert.textFields?.first?.text, !content.isEmpty else { return }
+            self.perform(.append(content))
+        }
+        alert.addAction(ok)
+        present(alert, animated: true)
+    }
 }
 
 
@@ -109,7 +137,13 @@ struct DoubleList_Preview: UIViewControllerRepresentable, PreviewProvider {
 
 #endif
 
-//extension DoubleListViewController {
+public extension DoubleListViewController {
+//    typealias Item = String
+//
+//    var source: [Item] {
+//        [1, 2, 3].map { "\($0)" }
+//    }
+//
 //    typealias Item = (Int, Bool)
 //
 //    var source: [Item] {
@@ -123,5 +157,5 @@ struct DoubleList_Preview: UIViewControllerRepresentable, PreviewProvider {
 //    var listUpdate: ListUpdate<DoubleListViewController>.Whole {
 //        .diff(id: \.0) { $0.1 == $1.1 }
 //    }
-//}
+}
 

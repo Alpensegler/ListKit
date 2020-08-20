@@ -14,6 +14,16 @@ public class DoubleListViewController: UIViewController, TableListAdapter, Colle
         return shuffledModels.shuffled()
     }
     
+    public var scrollList: ScrollList<DoubleListViewController> {
+        defaultScrollList
+        .scrollViewDidScroll { (context) in
+            print("didScroll")
+        }
+        .scrollViewWillBeginDragging { (context) in
+            print("didDrag")
+        }
+    }
+    
     public var tableList: TableList<DoubleListViewController> {
         tableViewCellForRow()
         .tableViewDidSelectRow { [unowned self] (context, item) in

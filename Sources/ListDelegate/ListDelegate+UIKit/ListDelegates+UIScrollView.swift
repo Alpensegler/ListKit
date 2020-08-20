@@ -1,5 +1,5 @@
 //
-//  ListDelegate+UIScrollView.swift
+//  ListDelegates+UIScrollView.swift
 //  ListKit
 //
 //  Created by Frain on 2019/12/8.
@@ -74,25 +74,6 @@ final class UIScrollListDelegate {
     var didChangeAdjustedContentInset: Delegate<Void, Void> {
         get { anyDidChangeAdjustedContentInset as! Delegate<Void, Void> }
         set { anyDidChangeAdjustedContentInset = newValue }
-    }
-    
-    func add(by selectorSets: inout SelectorSets) {
-        selectorSets.add(didScroll)
-        selectorSets.add(didZoom)
-        selectorSets.add(willBeginDragging)
-        selectorSets.add(willEndDragging)
-        selectorSets.add(didEndDragging)
-        selectorSets.add(willBeginDecelerating)
-        selectorSets.add(didEndDecelerating)
-        selectorSets.add(didEndScrollingAnimation)
-        selectorSets.add(viewForZooming)
-        selectorSets.add(willBeginZooming)
-        selectorSets.add(didEndZooming)
-        selectorSets.add(shouldScrollToTop)
-        selectorSets.add(didScrollToTop)
-        if #available(iOS 11.0, *) {
-            selectorSets.add(didChangeAdjustedContentInset)
-        }
     }
 }
 

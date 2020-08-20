@@ -77,7 +77,7 @@ public extension TableListAdapter {
         let tableList = self.tableList
         tableView.listDelegate.setCoordinator(
             coordinator: tableList.storage.listCoordinator,
-            setups: tableList.listContextSetups,
+            setups: listContextSetups,
             update: update,
             animated: animated,
             completion: completion

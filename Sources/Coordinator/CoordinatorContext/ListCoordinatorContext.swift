@@ -145,7 +145,6 @@ extension ListCoordinatorContext {
     ) {
         self[keyPath: keyPath].closure = { [unowned self] in closure(self, $0, $1, $2, $3, $4) }
         let delegate = self[keyPath: keyPath]
-        print(delegate)
         selectorSets.void.insert(delegate.selector)
     }
 }

@@ -8,6 +8,7 @@ contentsViewController.source = [
     ("SectionList", SectionListViewControlle.self),
     ("NestedList", NestedListViewController.self),
     ("IdentifiableSectionList", IdentifiableSectionListViewController.self),
+    ("CoreDataListViewController", CoreDataListViewController.self),
     ("TestList", TestListViewController.self)
 ]
 

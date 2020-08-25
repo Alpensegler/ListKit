@@ -5,8 +5,10 @@
 //  Created by Frain on 2019/12/5.
 //
 
+import Foundation
+
 public protocol NSDataSource: AnyObject, UpdatableDataSource where Source == [Int] {
-    func item(at section: Int, _ item: Int) -> Item
+    func item(at indexPath: IndexPath) -> Item
     func numbersOfSections() -> Int
     func numbersOfItem(in section: Int) -> Int
 }

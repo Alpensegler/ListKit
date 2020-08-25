@@ -33,10 +33,11 @@ where
     var updateDict = [Int: (change: Change, value: Value)]()
     
     lazy var changes = hasBatchUpdate ? configChangesForBatchUpdates() : configChangesForDiff()
-    lazy var sourceValuesCount = values.source.count
-    lazy var targetValuesCount = values.target.count
     
     var shouldConsiderUpdate: Bool { !updateDict.isEmpty }
+    
+    override var sourceCount: Int { values.source.count }
+    override var targetCount: Int { values.target.count }
     
     init(
         _ coordinator: ListCoordinator<SourceBase>? = nil,
@@ -48,7 +49,7 @@ where
         self.values = values
         super.init(coordinator: coordinator, update: update, sources: sources)
         self.keepSectionIfEmpty = keepSectionIfEmpty
-        guard case let .whole(whole, _) = update else { return }
+        guard case let .whole(whole) = update.updateType else { return }
         switch whole.way {
         case .insert: self.keepSectionIfEmpty.source = false
         case .remove: self.keepSectionIfEmpty.target = false
@@ -56,18 +57,20 @@ where
         }
     }
     
-    func toCount(_ value: Value) -> Int { 1 }
     func toValue(_ element: Element) -> Value { notImplemented() }
     func toSource(_ values: ContiguousArray<Value>) -> SourceBase.Source? { notImplemented() }
     func configChangesForDiff() -> Differences { notImplemented() }
-    func updateIndicesAfterUpdateIfNeeded() { }
     
     func append(change: Change, isSource: Bool, to changes: inout Differences) { notImplemented() }
     func append(change: DifferenceChange, into values: inout ContiguousArray<Value>) {
         notImplemented()
     }
     
-    func canConfigUpdateAt(index: Mapping<Int>, last: Mapping<Int>, into changes: inout Differences) -> Bool {
+    func canConfigUpdateAt(
+        index: Mapping<Int>,
+        last: Mapping<Int>,
+        into changes: inout Differences
+    ) -> Bool {
         guard let (source, value) = updateDict[index.source] else { return false }
         appendUnchanged(index: index, last: last, to: &changes)
         let target = Change(value, index.target)
@@ -79,21 +82,31 @@ where
         return true
     }
     
-    
-    override func getSourceCount() -> Int { values.source.count }
-    override func getTargetCount() -> Int { values.target.count }
-    
     override func hasSectionIfEmpty(isSource: Bool) -> Bool {
         isSource ? keepSectionIfEmpty.source : keepSectionIfEmpty.target
     }
     
-    override func configChangeType() -> ChangeType {
-        if hasBatchUpdate { _ = changes }
-        return super.configChangeType()
+    override func prepareData() {
+        guard shouldPrepareData else { return }
+        var valuesAfter = ContiguousArray<Value>(capacity: values.source.count)
+        for update in changes.target {
+            switch update {
+            case let .change(differenceChange):
+                append(change: differenceChange, into: &valuesAfter)
+            case let .unchanged(from: from, to: to):
+                valuesAfter.append(contentsOf: values.source[from.source..<to.source])
+            }
+        }
+        (sources.target, values.target) = (toSource(valuesAfter), valuesAfter)
     }
 }
 
 extension CollectionCoordinatorUpdate {
+    var shouldPrepareData: Bool {
+        guard hasBatchUpdate else { return false }
+        return !changes.source.isEmpty || !changes.target.isEmpty || shouldConsiderUpdate
+    }
+    
     func append(from: Mapping<Int>, to: Mapping<Int>, to changes: inout Differences) {
         changes.source.append(.unchanged(from: from, to: to))
         changes.target.append(.unchanged(from: from, to: to))
@@ -125,20 +138,6 @@ extension CollectionCoordinatorUpdate {
                 append(from: from, to: to, to: &result)
             }
         })
-        if changes.source.isEmpty && changes.target.isEmpty && !shouldConsiderUpdate {
-            return result
-        }
-        var valuesAfter = ContiguousArray<Value>(capacity: values.source.count)
-        for update in result.target {
-            switch update {
-            case let .change(differenceChange):
-                append(change: differenceChange, into: &valuesAfter)
-            case let .unchanged(from: from, to: to):
-                valuesAfter.append(contentsOf: values.source[from.source..<to.source])
-            }
-        }
-        (sources.target, values.target) = (toSource(valuesAfter), valuesAfter)
-        updateIndicesAfterUpdateIfNeeded()
         return result
     }
 }
@@ -206,8 +205,8 @@ extension CollectionCoordinatorUpdate {
             body(isSource, change)
         }
         
-        guard index.source < sourceValuesCount else { return }
-        offset(index, (sourceValuesCount, targetValuesCount))
+        guard index.source < values.source.count else { return }
+        offset(index, (values.source.count, values.target.count))
     }
     
     func enumerate<Collection: RangeReplaceableCollection>(
@@ -245,8 +244,6 @@ extension CollectionCoordinatorUpdate {
         let value = toValue(element)
         changeIndices.target.insert(targetCount)
         changeDict.target[targetCount] = .init(value, targetCount)
-        targetValuesCount += 1
-        targetCount += toCount(value)
     }
     
     func append<S: Sequence>(contentsOf elements: S) where Element == S.Element {
@@ -255,19 +252,15 @@ extension CollectionCoordinatorUpdate {
             let value = toValue(element)
             changeDict.target[upper] = .init(value, upper)
             upper += 1
-            targetCount += toCount(value)
         }
         guard upper != targetCount else { return }
         changeIndices.target.insert(integersIn: targetCount..<upper)
-        targetValuesCount = upper
     }
     
     func insert(_ element: Element, at index: Int) {
         let value = toValue(element)
         changeIndices.target.insert(index)
         changeDict.target[index] = .init(value, index)
-        targetValuesCount += 1
-        targetCount += toCount(value)
     }
     
     func insert<C: Collection>(contentsOf elements: C, at index: Int) where Element == C.Element {
@@ -277,17 +270,13 @@ extension CollectionCoordinatorUpdate {
             let value = toValue(element)
             changeDict.target[upper] = .init(value, upper)
             upper += 1
-            targetCount += toCount(value)
         }
         changeIndices.target.insert(integersIn: index..<upper)
-        targetValuesCount = upper
     }
     
     func remove(at index: Int) {
         changeIndices.source.insert(index)
         changeDict.source[index] = .init(values.source[index], index)
-        targetValuesCount -= 1
-        targetCount -= toCount(values.source[index])
     }
     
     func update(_ element: Element, at index: Int) {

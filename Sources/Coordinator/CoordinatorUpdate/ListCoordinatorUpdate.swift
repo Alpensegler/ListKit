@@ -35,8 +35,8 @@ where SourceBase.SourceBase == SourceBase {
         self.sources = sources
         self.defaultUpdate = coordinator?.update
         super.init()
-        switch update {
-        case let .whole(whole, _):
+        switch update.updateType {
+        case let .whole(whole):
             self.update = whole
             isRemove = whole.way.isRemove
         case let .batch(batch):
@@ -45,11 +45,9 @@ where SourceBase.SourceBase == SourceBase {
         }
     }
     
-    func updateData(_ isSource: Bool) {
+    override func updateData(_ isSource: Bool) {
         listCoordinator?.source = isSource ? sources.source : sources.target
     }
-    
-    func hasSectionIfEmpty(isSource: Bool) -> Bool { false }
     
     override func configChangeType() -> ChangeType {
         switch (update?.way, sourceIsEmpty, targetIsEmpty) {
@@ -59,11 +57,6 @@ where SourceBase.SourceBase == SourceBase {
         case (.insert, _, _), (_, true, false): return .insert(itemsOnly: itemsOnly(false))
         default: return isMoreUpdate || hasBatchUpdate || diffable ? .batchUpdates : .reload
         }
-    }
-    
-    override func generateListUpdates() -> BatchUpdates? {
-        if !sourceIsEmpty || !targetIsEmpty { inferringMoves() }
-        return isSectioned ? generateListUpdatesForSections() : generateListUpdatesForItems()
     }
     
     override func generateSourceUpdate(
@@ -155,44 +148,8 @@ where SourceBase.SourceBase == SourceBase {
 }
 
 extension ListCoordinatorUpdate {
-    var sourceIsEmpty: Bool { sourceCount == 0 }
-    var targetIsEmpty: Bool { targetCount == 0 }
-    
-    var sourceHasSection: Bool { !sourceIsEmpty || hasSectionIfEmpty(isSource: true) }
-    var targetHasSection: Bool { !targetIsEmpty || hasSectionIfEmpty(isSource: false) }
-    
-    var sourceSectionCount: Int { isSectioned ? sourceCount : sourceHasSection ? 1 : 0 }
-    var targetSectionCount: Int { isSectioned ? targetCount : targetHasSection ? 1 : 0 }
-    
-    var firstChange: (() -> Void)? { { [unowned self] in self.updateData(true) } }
-    var finalChange: (() -> Void)? { { [unowned self] in self.updateData(false) } }
-    
     func itemsOnly(_ isSource: Bool) -> Bool {
         !isSectioned && hasSectionIfEmpty(isSource: isSource)
-    }
-    
-    func listUpdatesForSections() -> BatchUpdates {
-        .batch(Order.allCases.compactMapContiguous { order in
-            Log.log("---\(order)---")
-            Log.log("-source-")
-            let source = generateSourceUpdate(order: order)
-            Log.log("-target-")
-            let target = generateTargetUpdate(order: order)
-            guard !source.update.isEmpty || !target.update.isEmpty else { return nil }
-            return .init(update: (source.update, target.update), change: target.change)
-        })
-    }
-    
-    func listUpdatesForItems() -> BatchUpdates {
-        .batch([Order.second, Order.third].compactMapContiguous { order in
-            Log.log("---\(order)---")
-            Log.log("-source-")
-            let source = generateSourceItemUpdate(order: order)
-            Log.log("-target-")
-            let target = generateTargetItemUpdate(order: order)
-            guard !source.update.isEmpty || !target.update.isEmpty else { return nil }
-            return .init(update: (source.update, target.update), change: target.change)
-        })
     }
     
     func toContext<Offset, OtherOffset>(
@@ -213,42 +170,6 @@ extension ListCoordinatorUpdate {
     
     func toIndices<O>(_ count: Int, _ context: UpdateContext<Offset<O>>?) -> Indices {
         .init(repeatElement: (context?.offset.index ?? 0, false), count: count)
-    }
-    
-    func generateListUpdatesForItems() -> BatchUpdates? {
-        switch changeType {
-        case .insert(false):
-            return .init(target: BatchUpdates.SectionTarget(\.inserts, 0), finalChange)
-        case .insert(true):
-            let indices = [IndexPath](IndexPath(item: 0), IndexPath(item: targetCount))
-            return .init(target: BatchUpdates.ItemTarget(\.inserts, indices), finalChange)
-        case .remove(false):
-            return .init(source: BatchUpdates.SectionSource(\.deletes, 0), finalChange)
-        case .remove(true):
-            let indices = [IndexPath](IndexPath(item: 0), IndexPath(item: sourceCount))
-            return .init(source: BatchUpdates.ItemSource(\.deletes, indices), finalChange)
-        case .batchUpdates:
-            return listUpdatesForItems()
-        case .reload:
-            return .reload(change: finalChange)
-        case .none:
-            return .none
-        }
-    }
-    
-    func generateListUpdatesForSections() -> BatchUpdates? {
-        switch changeType {
-        case .insert:
-            return .init(target: BatchUpdates.SectionTarget(\.inserts, 0, targetCount), finalChange)
-        case .remove:
-            return .init(source: BatchUpdates.SectionSource(\.deletes, 0, sourceCount), finalChange)
-        case .batchUpdates:
-            return listUpdatesForSections()
-        case .reload:
-            return .reload(change: finalChange)
-        case .none:
-            return .none
-        }
     }
 }
 

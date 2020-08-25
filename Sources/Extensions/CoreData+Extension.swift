@@ -17,6 +17,7 @@ where Item: NSFetchRequestResult {
     public var didChangeContent: (() -> Void)?
     public var updateCompletion: ((ListView, Bool) -> Void)?
     public var shouldReloadItem: ((Item, IndexPath) -> Bool)?
+    public var shouldMoveItem: ((Item, IndexPath) -> Bool)?
     var update: ListUpdate<SourceBase>!
     
     public var fetchedObjects: [Item] {
@@ -105,11 +106,21 @@ where Item: NSFetchRequestResult {
         if shouldReloadItem?(object, indexPath) == false { return }
         update.add(.reloadItem(at: indexPath, newIndexPath: newIndexPath))
     }
+    
+    func move(at indexPath: IndexPath?, newIndexPath: IndexPath?, object: Any) {
+        guard let indexPath = indexPath, let object = object as? Item else { return }
+        if shouldMoveItem?(object, indexPath) == false {
+            update.add(.deleteItem(at: indexPath))
+            update.add(.insertItem(at: newIndexPath!))
+        } else {
+            update.add(.moveItem(at: indexPath, to: newIndexPath!))
+        }
+    }
 }
 
 extension ListFetchedResultsController: NSDataSource {
-    public func item(at section: Int, _ item: Int) -> Item {
-        fetchedResultController.object(at: IndexPath(item: item, section: section))
+    public func item(at indexPath: IndexPath) -> Item {
+        fetchedResultController.object(at: indexPath)
     }
     
     public func numbersOfSections() -> Int {

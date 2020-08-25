@@ -33,6 +33,9 @@ where
     
     var updateType: ItemsUpdate.Type { ItemsUpdate.self }
     
+    override var sourceCount: Int { indices.source.count }
+    override var targetCount: Int { indices.target.count }
+    
     required init(
         coordinator: SectionsCoordinator<SourceBase>,
         update: ListUpdate<SourceBase>,
@@ -50,9 +53,6 @@ where
     func toSource(values: ContiguousArray<ItemsUpdate>, id: ObjectIdentifier?) -> Source {
         fatalError()
     }
-    
-    override func getSourceCount() -> Int { indices.source.count }
-    override func getTargetCount() -> Int { indices.target.count }
     
     override func updateData(_ isSource: Bool) {
         super.updateData(isSource)

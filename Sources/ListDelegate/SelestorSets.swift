@@ -7,37 +7,20 @@
 
 import Foundation
 
-class SelectorSets {
+struct SelectorSets {
     var void = Set<Selector>()
     var value = Set<Selector>()
     var withIndex = Set<Selector>()
     var withIndexPath = Set<Selector>()
-    var withoutIndex = false
-    var hasIndex = false
-    
-    init(
-        void: Set<Selector> = .init(),
-        value: Set<Selector> = .init(),
-        withIndex: Set<Selector> = .init(),
-        withIndexPath: Set<Selector> = .init(),
-        withoutIndex: Bool = false,
-        hasIndex: Bool = false
-    ) {
-        self.void = void
-        self.value = value
-        self.withIndex = withIndex
-        self.withIndexPath = withIndexPath
-        self.withoutIndex = withoutIndex
-        self.hasIndex = hasIndex
-    }
-    
+    var hasIndex: Bool { !withIndex.isEmpty }
+}
+
+extension SelectorSets {
     init(merging lhs: SelectorSets, _ rhs: SelectorSets) {
         self.void = lhs.void.union(rhs.void)
         self.value = lhs.value.union(rhs.value)
         self.withIndex = lhs.withIndex.union(rhs.withIndex)
         self.withIndexPath = lhs.withIndexPath.union(rhs.withIndexPath)
-        self.withoutIndex = lhs.withoutIndex || rhs.withoutIndex
-        self.hasIndex = lhs.hasIndex || rhs.hasIndex
     }
     
     func contains(_ selector: Selector) -> Bool {
@@ -47,19 +30,21 @@ class SelectorSets {
             || withIndex.contains(selector)
     }
     
-    func add<Input, Object, Output, Index>(
-        _ closureDelegate: Delegate<Object, Input, Output, Index>
+    mutating func add<Input, Object, Output, Index>(
+        _ delegate: IndexDelegate<Object, Input, Output, Index>
     ) {
-        if closureDelegate.index == nil {
-            value.insert(closureDelegate.selector)
-        } else if Index.self == IndexPath.self, !withoutIndex {
-            withIndexPath.insert(closureDelegate.selector)
-        } else if Index.self == Int.self, !withoutIndex {
-            withIndex.insert(closureDelegate.selector)
+        if Index.isSection {
+            withIndex.insert(delegate.selector)
+        } else {
+            withIndexPath.insert(delegate.selector)
         }
     }
     
-    func add<Input, Object, Index>(_ closureDelegate: Delegate<Object, Input, Void, Index>) {
-        void.insert(closureDelegate.selector)
+    mutating func add<Input, Output, Object>(_ delegate: Delegate<Object, Input, Output>) {
+        value.insert(delegate.selector)
+    }
+    
+    mutating func add<Input, Object>(_ delegate: Delegate<Object, Input, Void>) {
+        void.insert(delegate.selector)
     }
 }

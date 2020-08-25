@@ -8,62 +8,60 @@
 #if os(iOS) || os(tvOS)
 import UIKit
 
-final class UIScrollListDelegate {
-    typealias Delegate<Input, Output> = ListKit.Delegate<UIScrollView, Input, Output, Void>
-    
-    var didScroll = Delegate<Void, Void>(
+final class UIScrollListDelegate: ListDelegates<UIScrollView> {
+    lazy var didScroll = Delegate<Void, Void>(
         #selector(UIScrollViewDelegate.scrollViewDidScroll(_:))
     )
     
-    var didZoom = Delegate<Void, Void>(
+    lazy var didZoom = Delegate<Void, Void>(
         #selector(UIScrollViewDelegate.scrollViewDidZoom(_:))
     )
     
-    var willBeginDragging = Delegate<Void, Void>(
+    lazy var willBeginDragging = Delegate<Void, Void>(
         #selector(UIScrollViewDelegate.scrollViewWillBeginDragging(_:))
     )
     
-    var willEndDragging = Delegate<(CGPoint, UnsafeMutablePointer<CGPoint>), Void>(
+    lazy var willEndDragging = Delegate<(CGPoint, UnsafeMutablePointer<CGPoint>), Void>(
         #selector(UIScrollViewDelegate.scrollViewWillEndDragging(_:withVelocity:targetContentOffset:))
     )
     
-    var didEndDragging = Delegate<Bool, Void>(
+    lazy var didEndDragging = Delegate<Bool, Void>(
         #selector(UIScrollViewDelegate.scrollViewDidEndDragging(_:willDecelerate:))
     )
     
-    var willBeginDecelerating = Delegate<Void, Void>(
+    lazy var willBeginDecelerating = Delegate<Void, Void>(
         #selector(UIScrollViewDelegate.scrollViewWillBeginDecelerating(_:))
     )
     
-    var didEndDecelerating = Delegate<Void, Void>(
+    lazy var didEndDecelerating = Delegate<Void, Void>(
         #selector(UIScrollViewDelegate.scrollViewDidEndDecelerating(_:))
     )
     
-    var didEndScrollingAnimation = Delegate<Void, Void>(
+    lazy var didEndScrollingAnimation = Delegate<Void, Void>(
         #selector(UIScrollViewDelegate.scrollViewDidEndScrollingAnimation(_:))
     )
     
-    var viewForZooming = Delegate<Void, UIView?>(
+    lazy var viewForZooming = Delegate<Void, UIView?>(
         #selector(UIScrollViewDelegate.viewForZooming(in:))
     )
     
-    var willBeginZooming = Delegate<UIView?, Void>(
+    lazy var willBeginZooming = Delegate<UIView?, Void>(
         #selector(UIScrollViewDelegate.scrollViewWillBeginZooming(_:with:))
     )
     
-    var didEndZooming = Delegate<(UIView?, CGFloat), Void>(
+    lazy var didEndZooming = Delegate<(UIView?, CGFloat), Void>(
         #selector(UIScrollViewDelegate.scrollViewDidEndZooming(_:with:atScale:))
     )
     
-    var shouldScrollToTop = Delegate<Void, Bool>(
+    lazy var shouldScrollToTop = Delegate<Void, Bool>(
         #selector(UIScrollViewDelegate.scrollViewShouldScrollToTop(_:))
     )
     
-    var didScrollToTop = Delegate<Void, Void>(
+    lazy var didScrollToTop = Delegate<Void, Void>(
         #selector(UIScrollViewDelegate.scrollViewDidScrollToTop(_:))
     )
     
-    private var anyDidChangeAdjustedContentInset: Any = {
+    private lazy var anyDidChangeAdjustedContentInset: Any = {
         guard #available(iOS 11.0, *) else { return () }
         return Delegate<Void, Void>(
             #selector(UIScrollViewDelegate.scrollViewDidChangeAdjustedContentInset(_:))

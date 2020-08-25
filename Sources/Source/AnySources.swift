@@ -19,13 +19,11 @@ public struct AnySources: DataSource {
     public var listCoordinator: ListCoordinator<Self> { coordinatorMaker(self) }
     
     public init<Source: DataSource>(_ dataSource: Source) {
-        self.source = dataSource
-        self.listDiffer = .init(dataSource.listDiffer) { (($0.source) as! Source).sourceBase }
-        self.listOptions = .init(dataSource.listOptions)
-        self.listUpdate = dataSource.listUpdate.diff.map { .init(diff: .init($0)) } ?? .reload
-        self.coordinatorMaker = {
-            WrapperCoordinator<AnySources, Source>($0, wrapped: dataSource) { $0 }
-        }
+        source = dataSource
+        listDiffer = .init(dataSource.listDiffer) { (($0.source) as! Source).sourceBase }
+        listOptions = .init(dataSource.listOptions)
+        listUpdate = dataSource.listUpdate.diff.map { .init(diff: .init($0)) } ?? .reload
+        coordinatorMaker = { WrapperCoordinator($0, toItem: { $0 }, toOther: { $0 as? Source }) }
     }
 }
 

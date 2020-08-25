@@ -9,41 +9,63 @@ import Foundation
 
 final class WrapperCoordinator<SourceBase: DataSource, Other>: ListCoordinator<SourceBase>
 where SourceBase.SourceBase == SourceBase, Other: DataSource {
-    typealias Wrapped = (value: Other, coordinator: ListCoordinator<Other.SourceBase>)
+    struct Wrapped {
+        var value: Other
+        var context: ListCoordinatorContext<Other.SourceBase>
+        var coordinator: ListCoordinator<Other.SourceBase> { context.listCoordinator }
+    }
     
-    let itemTransform: (Other.Item) -> SourceBase.Item
-    var wrapped: Wrapped?
+    let toItem: (Other.Item) -> SourceBase.Item
+    let toOther: (SourceBase.Source) -> Other?
     
-    override var isEmpty: Bool { wrapped?.coordinator.isEmpty != false }
+    lazy var wrapped = toOther(source).map(toWrapped)
+    
     override var sourceBaseType: Any.Type { Other.SourceBase.self }
     
     init(
         _ sourceBase: SourceBase,
-        wrapped: Other?,
-        itemTransform: @escaping (Other.Item) -> SourceBase.Item
+        toItem: @escaping (Other.Item) -> SourceBase.Item,
+        toOther: @escaping (SourceBase.Source) -> Other?
     ) {
-        self.wrapped = wrapped.map { ($0, $0.listCoordinator) }
-        self.itemTransform = itemTransform
+        self.toItem = toItem
+        self.toOther = toOther
         
         super.init(sourceBase)
     }
     
-    func update(from: Wrapped?, to: Wrapped?, way: ListUpdateWay<Item>?) -> CoordinatorUpdate {
+    func toWrapped(_ other: Other) -> Wrapped {
+        let context = other.listCoordinator.context(with: other.listContextSetups)
+        context.update = { [weak self] (_, update) in
+            guard let self = self else { return [] }
+            let update = WrapperCoordinatorUpdate(
+                coordinator: self,
+                update: .init(nil, or: self.update),
+                wrappeds: (self.wrapped, self.wrapped),
+                sources: (self.source, self.source),
+                subupdate: update,
+                isSectioned: self.sectioned
+            )
+            return self.contextAndUpdates(update: update)
+        }
+        return .init(value: other, context: context)
+    }
+    
+    func update(from: Wrapped?, to: Wrapped?, way: ListUpdateWay<Item>?) -> CoordinatorUpdate? {
         switch (from, to) {
         case (nil, nil):
-            return .init()
-        case (nil, let (_, to)?):
-            return to.update(.insert)
-        case (let (_, from)?, nil):
-            return from.update(.remove)
-        case (let (_, from)?, let (_, to)?):
-            let updateWay = way.map { ListUpdateWay($0, cast: itemTransform) }
-            return to.update(from: from, updateWay: updateWay)
+            return nil
+        case (nil, let to?):
+            return to.coordinator.update(.insert)
+        case (let from?, nil):
+            return  from.coordinator.update(.remove)
+        case (let from?, let to?):
+            let updateWay =  way.map { ListUpdateWay($0, cast: toItem) }
+            return to.coordinator.update(from: from.coordinator, updateWay: updateWay)
         }
     }
     
-    override func item(at section: Int, _ item: Int) -> Item {
-        itemTransform(wrapped!.coordinator.item(at: section, item))
+    override func item(at indexPath: IndexPath) -> Item {
+        toItem(wrapped!.coordinator.item(at: indexPath))
     }
     
     override func numbersOfSections() -> Int {
@@ -63,11 +85,7 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
     override func context(
         with setups: [(ListCoordinatorContext<SourceBase>) -> Void] = []
     ) -> ListCoordinatorContext<SourceBase> {
-        let context = WrapperCoordinatorContext<SourceBase, Other>(
-            wrapped.map { $0.coordinator.context(with: $0.value.listContextSetups) },
-            self,
-            setups: setups
-        )
+        let context = WrapperCoordinatorContext(self, setups: setups)
         listContexts.append(.init(context: context))
         return context
     }
@@ -84,28 +102,42 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
         updateWay: ListUpdateWay<Item>?
     ) -> CoordinatorUpdate {
         let coordinator = coordinator as! WrapperCoordinator<SourceBase, Other>
-        return update(from: coordinator.wrapped, to: wrapped, way: updateWay)
+        return WrapperCoordinatorUpdate(
+            coordinator: self,
+            update: .init(updateWay, or: update),
+            wrappeds: (coordinator.wrapped, wrapped),
+            sources: (coordinator.source, source),
+            subupdate: update(from: coordinator.wrapped, to: wrapped, way: updateWay),
+            isSectioned: sectioned
+        )
     }
     
     override func update(_ update: ListUpdate<SourceBase>) -> CoordinatorUpdate {
-        guard case let .whole(whole, source) = update else { fatalError() }
-        if let source = source {
-            let wrapped: Wrapped? = (source as? Other).map { ($0, $0.listCoordinator) }
-            let context = wrapped.map { $0.coordinator.context(with: $0.value.listContextSetups) }
-            listContexts.forEach {
-                ($0.context as? WrapperCoordinatorContext<SourceBase, Other>)?.wrapped = context
-            }
-            defer { self.wrapped = wrapped }
-            return self.update(from: self.wrapped, to: wrapped, way: whole.way)
+        guard case let .whole(whole) = update.updateType else { fatalError() }
+        let subupdate: CoordinatorUpdate?, targetWrapped: Wrapped?, targetSource: SourceBase.Source!
+        if let source = update.source {
+            targetSource = source
+            targetWrapped = toOther(source).map(toWrapped)
+            subupdate = self.update(from: wrapped, to: targetWrapped, way: whole.way)
         } else {
-            let way = ListUpdateWay(whole.way, cast: itemTransform)
-            return wrapped?.coordinator.update(.whole(.init(way: way), nil)) ?? .init()
+            let way = ListUpdateWay(whole.way, cast: toItem)
+            targetSource = source
+            targetWrapped = wrapped
+            subupdate = wrapped?.coordinator.update(.init(updateType: .whole(.init(way: way))))
         }
+        return WrapperCoordinatorUpdate(
+            coordinator: self,
+            update: update,
+            wrappeds: (wrapped, targetWrapped),
+            sources: (source, targetSource),
+            subupdate: subupdate,
+            isSectioned: sectioned
+        )
     }
 }
 
 extension WrapperCoordinator where SourceBase.Source == Other, SourceBase.Item == Other.Item {
     convenience init(wrapper sourceBase: SourceBase) {
-        self.init(sourceBase, wrapped: sourceBase.source) { $0 }
+        self.init(sourceBase, toItem: { $0 }, toOther: { $0 })
     }
 }

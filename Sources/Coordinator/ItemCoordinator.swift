@@ -12,7 +12,7 @@ where SourceBase.Item == SourceBase.Source, SourceBase.SourceBase == SourceBase 
     override func numbersOfSections() -> Int { 1 }
     override func numbersOfItems(in section: Int) -> Int { 1 }
     
-    override func item(at section: Int, _ item: Int) -> Item { source }
+    override func item(at indexPath: IndexPath) -> Item { source }
     
     override func isSectioned() -> Bool { options.preferSection || super.isSectioned() }
     
@@ -30,7 +30,6 @@ where SourceBase.Item == SourceBase.Source, SourceBase.SourceBase == SourceBase 
     
     override func update(_ update: ListUpdate<SourceBase>) -> CoordinatorUpdate {
         let sourcesAfterUpdate = update.source
-        defer { source = sourcesAfterUpdate ?? source }
         return ItemCoordinatorUpdate(
             coordinator: self,
             update: update,

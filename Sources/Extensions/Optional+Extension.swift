@@ -25,7 +25,7 @@ extension Optional: DataSource where Wrapped: DataSource {
     }
     
     public var listCoordinator: ListCoordinator<SourceBase> {
-        WrapperCoordinator(self, wrapped: self) { $0 }
+        WrapperCoordinator(self, toItem: { $0 }, toOther: { $0 })
     }
 }
 

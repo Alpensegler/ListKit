@@ -75,16 +75,26 @@ class CoordinatorUpdate {
         return (value, ObjectIdentifier(value))
     }()
     
-    lazy var sourceCount = getSourceCount()
-    lazy var targetCount = getTargetCount()
+    var sourceCount: Int { 1 }
+    var targetCount: Int { 1 }
     
-    func getSourceCount() -> Int { 1 }
-    func getTargetCount() -> Int { 1 }
+    var sourceSectionCount: Int { isSectioned ? sourceCount : sourceHasSection ? 1 : 0 }
+    var targetSectionCount: Int { isSectioned ? targetCount : targetHasSection ? 1 : 0 }
     
     func inferringMoves(context: ContextAndID? = nil) { }
     
+    func prepareData() { }
     func configChangeType() -> ChangeType { .none }
-    func generateListUpdates() -> BatchUpdates? { nil }
+    func generateListUpdates() -> BatchUpdates? {
+        prepareData()
+        inferringMoves()
+        return isSectioned ? generateListUpdatesForSections() : generateListUpdatesForItems()
+    }
+    
+    func add(subupdate: CoordinatorUpdate, at index: Int) { }
+    
+    func updateData(_ isSource: Bool)  { }
+    func hasSectionIfEmpty(isSource: Bool) -> Bool { false }
     
     func generateSourceUpdate(
         order: Order,
@@ -112,6 +122,77 @@ class CoordinatorUpdate {
         context: UpdateContext<Offset<IndexPath>>? = nil
     ) -> UpdateTarget<BatchUpdates.ItemTarget> {
         ([], nil, nil)
+    }
+}
+
+extension CoordinatorUpdate {
+    var sourceIsEmpty: Bool { sourceCount == 0 }
+    var targetIsEmpty: Bool { targetCount == 0 }
+    
+    var sourceHasSection: Bool { !sourceIsEmpty || hasSectionIfEmpty(isSource: true) }
+    var targetHasSection: Bool { !targetIsEmpty || hasSectionIfEmpty(isSource: false) }
+    
+    var firstChange: (() -> Void)? { { [unowned self] in self.updateData(true) } }
+    var finalChange: (() -> Void)? { { [unowned self] in self.updateData(false) } }
+    
+    func generateListUpdatesForItems() -> BatchUpdates? {
+        switch changeType {
+        case .insert(false):
+            return .init(target: BatchUpdates.SectionTarget(\.inserts, 0), finalChange)
+        case .insert(true):
+            let indices = [IndexPath](IndexPath(item: 0), IndexPath(item: targetCount))
+            return .init(target: BatchUpdates.ItemTarget(\.inserts, indices), finalChange)
+        case .remove(false):
+            return .init(source: BatchUpdates.SectionSource(\.deletes, 0), finalChange)
+        case .remove(true):
+            let indices = [IndexPath](IndexPath(item: 0), IndexPath(item: sourceCount))
+            return .init(source: BatchUpdates.ItemSource(\.deletes, indices), finalChange)
+        case .batchUpdates:
+            return listUpdatesForItems()
+        case .reload:
+            return .reload(change: finalChange)
+        case .none:
+            return .none
+        }
+    }
+    
+    func generateListUpdatesForSections() -> BatchUpdates? {
+        switch changeType {
+        case .insert:
+            return .init(target: BatchUpdates.SectionTarget(\.inserts, 0, targetCount), finalChange)
+        case .remove:
+            return .init(source: BatchUpdates.SectionSource(\.deletes, 0, sourceCount), finalChange)
+        case .batchUpdates:
+            return listUpdatesForSections()
+        case .reload:
+            return .reload(change: finalChange)
+        case .none:
+            return .none
+        }
+    }
+    
+    func listUpdatesForSections() -> BatchUpdates {
+        .batch(Order.allCases.compactMapContiguous { order in
+            Log.log("---\(order)---")
+            Log.log("-source-")
+            let source = generateSourceUpdate(order: order)
+            Log.log("-target-")
+            let target = generateTargetUpdate(order: order)
+            guard !source.update.isEmpty || !target.update.isEmpty else { return nil }
+            return .init(update: (source.update, target.update), change: target.change)
+        })
+    }
+    
+    func listUpdatesForItems() -> BatchUpdates {
+        .batch([Order.second, Order.third].compactMapContiguous { order in
+            Log.log("---\(order)---")
+            Log.log("-source-")
+            let source = generateSourceItemUpdate(order: order)
+            Log.log("-target-")
+            let target = generateTargetItemUpdate(order: order)
+            guard !source.update.isEmpty || !target.update.isEmpty else { return nil }
+            return .init(update: (source.update, target.update), change: target.change)
+        })
     }
 }
 

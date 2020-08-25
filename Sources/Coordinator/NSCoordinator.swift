@@ -12,8 +12,6 @@ where SourceBase.SourceBase == SourceBase {
     unowned let sourceBase: SourceBase
     lazy var indices = toIndices(source)
     
-    override var isEmpty: Bool { numbersOfSections() == 0 }
-    
     func toIndices(_ source: [Int]) -> Indices {
         guard sectioned else {
             guard let index = source[safe: 0], index != 0 else { return [] }
@@ -31,9 +29,7 @@ where SourceBase.SourceBase == SourceBase {
         return source[index.index]
     }
     
-    override func item(at section: Int, _ item: Int) -> Item {
-        sourceBase.item(at: indices[section].index, item)
-    }
+    override func item(at indexPath: IndexPath) -> Item { sourceBase.item(at: indexPath) }
     
     override func isSectioned() -> Bool {
         options.preferSection || super.isSectioned() || source.count > 1
@@ -60,12 +56,8 @@ where SourceBase.SourceBase == SourceBase {
     }
 
     override func update(_ update: ListUpdate<SourceBase>) -> CoordinatorUpdate {
-        let sourcesAfterUpdate = sourceBase.source
-        let indicesAfterUpdate = toIndices(sourcesAfterUpdate)
-        defer {
-            source = sourcesAfterUpdate
-            indices = indicesAfterUpdate
-        }
+        let sourcesAfterUpdate = update.source
+        let indicesAfterUpdate = toIndices(update.source)
         return NSCoordinatorUpdate(
             self,
             update: update,

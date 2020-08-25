@@ -1,5 +1,5 @@
 //
-//  ClosureDelegate.swift
+//  Delegate.swift
 //  ListKit
 //
 //  Created by Frain on 2019/12/9.
@@ -7,37 +7,42 @@
 
 import Foundation
 
-struct Delegate<Object: AnyObject, Input, Output, Index> {
+struct Delegate<Object: AnyObject, Input, Output> {
     let selector: Selector
-    let index: KeyPath<Input, Index>!
-    var closure: ((Object, Input, CoordinatorContext, Int, Int) -> Output)?
-    var defaultOutput: ((Input, Object) -> Output)?
+    var closure: ((Object, Input, CoordinatorContext) -> Output)?
+    
+    init(_ selector: Selector) {
+        self.selector = selector
+        self.closure = nil
+    }
+}
+
+struct IndexDelegate<Object: AnyObject, Input, Output, Index: ListIndex> {
+    let selector: Selector
+    let index: KeyPath<Input, Index>
+    let output: (Input, Object) -> Output
+    var closure: ((Object, Input, CoordinatorContext, Index) -> Output)?
     
     func output(with input: Input, objct: Object) -> Output {
-        defaultOutput!(input, objct)
+        output(input, objct)
     }
     
-    init(index: KeyPath<Input, Index>, _ selector: Selector, output: ((Input, Object) -> Output)?) {
-        self.index = index
+    init(
+        _ selector: Selector,
+        index: KeyPath<Input, Index>,
+        output: @escaping (Input, Object) -> Output
+    ) {
         self.selector = selector
+        self.index = index
         self.closure = nil
-        self.defaultOutput = output
+        self.output = output
     }
 }
 
-extension Delegate where Output == Void {
-    init(index: KeyPath<Input, Index>, _ selector: Selector) {
+extension IndexDelegate where Output == Void {
+    init(_ selector: Selector, index: KeyPath<Input, Index>) {
         self.index = index
         self.selector = selector
-        self.closure = nil
-        self.defaultOutput = { _, _ in () }
-    }
-}
-
-extension Delegate where Index == Void {
-    init(_ selector: Selector) {
-        self.index = nil
-        self.selector = selector
-        self.closure = nil
+        self.output = { _, _ in () }
     }
 }

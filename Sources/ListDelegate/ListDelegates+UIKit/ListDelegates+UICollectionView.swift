@@ -8,291 +8,289 @@
 #if os(iOS) || os(tvOS)
 import UIKit
 
-final class UICollectionListDelegate {
-    typealias Delegate<Input, Output, Index> = ListKit.Delegate<UICollectionView, Input, Output, Index>
+final class UICollectionListDelegate: ListDelegates<UICollectionView> {
     //MARK - DataSources
     
     //Getting Views for Items
-    var cellForItemAt = Delegate<IndexPath, UICollectionViewCell, IndexPath>(
-        index: \.self,
+    lazy var cellForItemAt = ItemDelegate<IndexPath, UICollectionViewCell>(
         #selector(UICollectionViewDataSource.collectionView(_:cellForItemAt:)),
-        output: nil
-    )
+        index: \.self
+    ) { _, _  in UICollectionViewCell() }
     
-    var viewForSupplementaryElementOfKindAt = Delegate<(String, IndexPath), UICollectionReusableView, IndexPath>(
-        index: \.1,
-        #selector(UICollectionViewDataSource.collectionView(_:viewForSupplementaryElementOfKind:at:))
+    lazy var viewForSupplementaryElementOfKindAt = ItemDelegate<(String, IndexPath), UICollectionReusableView>(
+        #selector(UICollectionViewDataSource.collectionView(_:viewForSupplementaryElementOfKind:at:)),
+        index: \.1
     ) { _, _ in UICollectionReusableView() }
 
     //Reordering Items
-    var canMoveItemAt = Delegate<IndexPath, Bool, IndexPath>(
-        index: \.self,
-        #selector(UICollectionViewDataSource.collectionView(_:canMoveItemAt:))
+    lazy var canMoveItemAt = ItemDelegate<IndexPath, Bool>(
+        #selector(UICollectionViewDataSource.collectionView(_:canMoveItemAt:)),
+        index: \.self
     ) { _, _ in true }
     
-    var moveItemAtTo = Delegate<(IndexPath, IndexPath), Void, Void>(
+    lazy var moveItemAtTo = Delegate<(IndexPath, IndexPath), Void>(
         #selector(UICollectionViewDataSource.collectionView(_:moveItemAt:to:))
     )
     
     //Configuring an Index
-    var indexTitles = Delegate<Void, [String]?, Void>(
+    lazy var indexTitles = Delegate<Void, [String]?>(
         #selector(UICollectionViewDataSource.indexTitles(for:))
     )
     
-    var indexPathForIndexTitleAt = Delegate<(String, Int), IndexPath, Void>(
+    lazy var indexPathForIndexTitleAt = Delegate<(String, Int), IndexPath>(
         #selector(UICollectionViewDataSource.collectionView(_:indexPathForIndexTitle:at:))
     )
     
     //MARK: - Delegates
     
     //Managing the Selected Cells
-    var shouldSelectItemAt = Delegate<IndexPath, Bool, IndexPath>(
-        index: \.self,
-        #selector(UICollectionViewDelegate.collectionView(_:shouldSelectItemAt:))
+    lazy var shouldSelectItemAt = ItemDelegate<IndexPath, Bool>(
+        #selector(UICollectionViewDelegate.collectionView(_:shouldSelectItemAt:)),
+        index: \.self
     ) { _, _ in true }
     
-    var didSelectItemAt = Delegate<IndexPath, Void, IndexPath>(
-        index: \.self,
-        #selector(UICollectionViewDelegate.collectionView(_:didSelectItemAt:))
+    lazy var didSelectItemAt = ItemDelegate<IndexPath, Void>(
+        #selector(UICollectionViewDelegate.collectionView(_:didSelectItemAt:)),
+        index: \.self
     )
     
-    var shouldDeselectItemAt = Delegate<IndexPath, Bool, IndexPath>(
-        index: \.self,
-        #selector(UICollectionViewDelegate.collectionView(_:shouldDeselectItemAt:))
+    lazy var shouldDeselectItemAt = ItemDelegate<IndexPath, Bool>(
+        #selector(UICollectionViewDelegate.collectionView(_:shouldDeselectItemAt:)),
+        index: \.self
     ) { _, _ in true }
     
-    var didDeselectItemAt = Delegate<IndexPath, Void, IndexPath>(
-        index: \.self,
-        #selector(UICollectionViewDelegate.collectionView(_:didDeselectItemAt:))
+    lazy var didDeselectItemAt = ItemDelegate<IndexPath, Void>(
+        #selector(UICollectionViewDelegate.collectionView(_:didDeselectItemAt:)),
+        index: \.self
     )
     
-    private var anyShouldBeginMultipleSelectionInteractionAt: Any = {
+    private lazy var anyShouldBeginMultipleSelectionInteractionAt: Any = {
         guard #available(iOS 13, *) else { return () }
-        return Delegate<IndexPath, Bool, IndexPath>(
-            index: \.self,
-            #selector(UICollectionViewDelegate.collectionView(_:shouldBeginMultipleSelectionInteractionAt:))
+        return ItemDelegate<IndexPath, Bool>(
+            #selector(UICollectionViewDelegate.collectionView(_:shouldBeginMultipleSelectionInteractionAt:)),
+            index: \.self
         ) { _, _ in false }
     }()
     
-    private var anyDidBeginMultipleSelectionInteractionAt: Any = {
+    private lazy var anyDidBeginMultipleSelectionInteractionAt: Any = {
         guard #available(iOS 13, *) else { return () }
-        return Delegate<IndexPath, Void, IndexPath>(
-            index: \.self,
-            #selector(UICollectionViewDelegate.collectionView(_:didBeginMultipleSelectionInteractionAt:))
+        return ItemDelegate<IndexPath, Void>(
+            #selector(UICollectionViewDelegate.collectionView(_:didBeginMultipleSelectionInteractionAt:)),
+            index: \.self
         )
     }()
     
-    private var anyDidEndMultipleSelectionInteraction: Any = {
+    private lazy var anyDidEndMultipleSelectionInteraction: Any = {
         guard #available(iOS 13, *) else { return () }
-        return Delegate<Void, Void, Void>(
+        return Delegate<Void, Void>(
             #selector(UICollectionViewDelegate.collectionViewDidEndMultipleSelectionInteraction(_:))
         )
     }()
     
     @available(iOS 13.0, *)
-    var shouldBeginMultipleSelectionInteractionAt: Delegate<IndexPath, Bool, IndexPath> {
-        get { anyShouldBeginMultipleSelectionInteractionAt as! Delegate<IndexPath, Bool, IndexPath> }
+    var shouldBeginMultipleSelectionInteractionAt: ItemDelegate<IndexPath, Bool> {
+        get { anyShouldBeginMultipleSelectionInteractionAt as! ItemDelegate<IndexPath, Bool> }
         set { anyShouldBeginMultipleSelectionInteractionAt = newValue }
     }
     
     @available(iOS 13.0, *)
-    var didBeginMultipleSelectionInteractionAt: Delegate<IndexPath, Void, IndexPath> {
-        get { anyDidBeginMultipleSelectionInteractionAt as! Delegate<IndexPath, Void, IndexPath> }
+    var didBeginMultipleSelectionInteractionAt: ItemDelegate<IndexPath, Void> {
+        get { anyDidBeginMultipleSelectionInteractionAt as! ItemDelegate<IndexPath, Void> }
         set { anyDidBeginMultipleSelectionInteractionAt = newValue }
     }
     
     @available(iOS 13.0, *)
-    var didEndMultipleSelectionInteraction: Delegate<Void, Void, Void> {
-        get { anyDidEndMultipleSelectionInteraction as! Delegate<Void, Void, Void> }
+    var didEndMultipleSelectionInteraction: Delegate<Void, Void> {
+        get { anyDidEndMultipleSelectionInteraction as! Delegate<Void, Void> }
         set { anyDidEndMultipleSelectionInteraction = newValue }
     }
     
     //Managing Cell Highlighting
-    var shouldHighlightItemAt = Delegate<IndexPath, Bool, IndexPath>(
-        index: \.self,
-        #selector(UICollectionViewDelegate.collectionView(_:shouldHighlightItemAt:))
+    lazy var shouldHighlightItemAt = ItemDelegate<IndexPath, Bool>(
+        #selector(UICollectionViewDelegate.collectionView(_:shouldHighlightItemAt:)),
+        index: \.self
     ) { _, _ in true }
     
-    var didHighlightItemAt = Delegate<IndexPath, Void, IndexPath>(
-        index: \.self,
-        #selector(UICollectionViewDelegate.collectionView(_:didHighlightItemAt:))
+    lazy var didHighlightItemAt = ItemDelegate<IndexPath, Void>(
+        #selector(UICollectionViewDelegate.collectionView(_:didHighlightItemAt:)),
+        index: \.self
     )
     
-    var didUnhighlightItemAt = Delegate<IndexPath, Void, IndexPath>(
-        index: \.self,
-        #selector(UICollectionViewDelegate.collectionView(_:didUnhighlightItemAt:))
+    lazy var didUnhighlightItemAt = ItemDelegate<IndexPath, Void>(
+        #selector(UICollectionViewDelegate.collectionView(_:didUnhighlightItemAt:)),
+        index: \.self
     )
 
     //Tracking the Addition and Removal of Views
-    var willDisplayForItemAt = Delegate<(UICollectionViewCell, IndexPath), Void, IndexPath>(
-        index: \.1,
-        #selector(UICollectionViewDelegate.collectionView(_:willDisplay:forItemAt:))
+    lazy var willDisplayForItemAt = ItemDelegate<(UICollectionViewCell, IndexPath), Void>(
+        #selector(UICollectionViewDelegate.collectionView(_:willDisplay:forItemAt:)),
+        index: \.1
     )
     
-    var willDisplaySupplementaryViewForElementKindAt = Delegate<(UICollectionReusableView, String, IndexPath), Void, IndexPath>(
-        index: \.2,
-        #selector(UICollectionViewDelegate.collectionView(_:willDisplaySupplementaryView:forElementKind:at:))
+    lazy var willDisplaySupplementaryViewForElementKindAt = ItemDelegate<(UICollectionReusableView, String, IndexPath), Void>(
+        #selector(UICollectionViewDelegate.collectionView(_:willDisplaySupplementaryView:forElementKind:at:)),
+        index: \.2
     )
     
-    var didEndDisplayingForItemAt = Delegate<(UICollectionViewCell, IndexPath), Void, IndexPath>(
-        index: \.1,
-        #selector(UICollectionViewDelegate.collectionView(_:didEndDisplaying:forItemAt:))
+    lazy var didEndDisplayingForItemAt = ItemDelegate<(UICollectionViewCell, IndexPath), Void>(
+        #selector(UICollectionViewDelegate.collectionView(_:didEndDisplaying:forItemAt:)),
+        index: \.1
     )
     
-    var didEndDisplayingSupplementaryViewForElementOfKindAt = Delegate<(UICollectionReusableView, String, IndexPath), Void, IndexPath>(
-        index: \.2,
-        #selector(UICollectionViewDelegate.collectionView(_:didEndDisplayingSupplementaryView:forElementOfKind:at:))
+    lazy var didEndDisplayingSupplementaryViewForElementOfKindAt = ItemDelegate<(UICollectionReusableView, String, IndexPath), Void>(
+        #selector(UICollectionViewDelegate.collectionView(_:didEndDisplayingSupplementaryView:forElementOfKind:at:)),
+        index: \.2
     )
     
     //Handling Layout Changes
-    var transitionLayoutForOldLayoutNewLayout = Delegate<(UICollectionViewLayout, UICollectionViewLayout), UICollectionViewTransitionLayout, Void>(
+    lazy var transitionLayoutForOldLayoutNewLayout = Delegate<(UICollectionViewLayout, UICollectionViewLayout), UICollectionViewTransitionLayout>(
         #selector(UICollectionViewDelegate.collectionView(_:transitionLayoutForOldLayout:newLayout:))
     )
     
-    var targetContentOffsetForProposedContentOffset = Delegate<CGPoint, CGPoint, Void>(
+    lazy var targetContentOffsetForProposedContentOffset = Delegate<CGPoint, CGPoint>(
         #selector(UICollectionViewDelegate.collectionView(_:targetContentOffsetForProposedContentOffset:))
     )
     
-    var targetIndexPathForMoveFromItemAtToProposedIndexPath = Delegate<(IndexPath, IndexPath), IndexPath, Void>(
+    lazy var targetIndexPathForMoveFromItemAtToProposedIndexPath = Delegate<(IndexPath, IndexPath), IndexPath>(
         #selector(UICollectionViewDelegate.collectionView(_:targetIndexPathForMoveFromItemAt:toProposedIndexPath:))
     )
     
     //Managing Actions for Cells
-    var shouldShowMenuForItemAt = Delegate<IndexPath, Bool, IndexPath>(
-        index: \.self,
-        #selector(UICollectionViewDelegate.collectionView(_:shouldShowMenuForItemAt:))
+    lazy var shouldShowMenuForItemAt = ItemDelegate<IndexPath, Bool>(
+        #selector(UICollectionViewDelegate.collectionView(_:shouldShowMenuForItemAt:)),
+        index: \.self
     ) { _, _ in false }
     
-    var canPerformActionForItemAtWithSender = Delegate<(Selector, IndexPath, Any?), Bool, IndexPath>(
-        index: \.1,
-        #selector(UICollectionViewDelegate.collectionView(_:canPerformAction:forItemAt:withSender:))
+    lazy var canPerformActionForItemAtWithSender = ItemDelegate<(Selector, IndexPath, Any?), Bool>(
+        #selector(UICollectionViewDelegate.collectionView(_:canPerformAction:forItemAt:withSender:)),
+        index: \.1
     ) { _, _ in false }
     
-    var performActionForItemAtWithSender = Delegate<(Selector, IndexPath, Any?), Void, IndexPath>(
-        index: \.1,
-        #selector(UICollectionViewDelegate.collectionView(_:performAction:forItemAt:withSender:))
+    lazy var performActionForItemAtWithSender = ItemDelegate<(Selector, IndexPath, Any?), Void>(
+        #selector(UICollectionViewDelegate.collectionView(_:performAction:forItemAt:withSender:)),
+        index: \.1
     )
     
     //Managing Focus in a Collection View
-    var canFocusItemAt = Delegate<IndexPath, Bool, IndexPath>(
-        index: \.self,
-        #selector(UICollectionViewDelegate.collectionView(_:canFocusItemAt:))
+    lazy var canFocusItemAt = ItemDelegate<IndexPath, Bool>(
+        #selector(UICollectionViewDelegate.collectionView(_:canFocusItemAt:)),
+        index: \.self
     ) { _, _ in true }
     
-    var indexPathForPreferredFocusedView = Delegate<Void, IndexPath?, Void>(
+    lazy var indexPathForPreferredFocusedView = Delegate<Void, IndexPath?>(
         #selector(UICollectionViewDelegate.indexPathForPreferredFocusedView(in:))
     )
     
-    var shouldUpdateFocusIn = Delegate<UICollectionViewFocusUpdateContext, Bool, Void>(
+    lazy var shouldUpdateFocusIn = Delegate<UICollectionViewFocusUpdateContext, Bool>(
         #selector(UICollectionViewDelegate.collectionView(_:shouldUpdateFocusIn:))
     )
     
-    var didUpdateFocusInWith = Delegate<(UICollectionViewFocusUpdateContext, UIFocusAnimationCoordinator), Void, Void>(
+    lazy var didUpdateFocusInWith = Delegate<(UICollectionViewFocusUpdateContext, UIFocusAnimationCoordinator), Void>(
         #selector(UICollectionViewDelegate.collectionView(_:didUpdateFocusIn:with:))
     )
 
     //Controlling the Spring-Loading Behavior
-    private var anyShouldSpringLoadItemAtWith: Any = {
+    private lazy var anyShouldSpringLoadItemAtWith: Any = {
         guard #available(iOS 11.0, *) else { return () }
-        return Delegate<(IndexPath, UISpringLoadedInteractionContext), Bool, IndexPath>(
-            index: \.0,
-            #selector(UICollectionViewDelegate.collectionView(_:shouldSpringLoadItemAt:with:))
+        return ItemDelegate<(IndexPath, UISpringLoadedInteractionContext), Bool>(
+            #selector(UICollectionViewDelegate.collectionView(_:shouldSpringLoadItemAt:with:)),
+            index: \.0
         ) { _, _ in true }
     }()
     
     
     @available(iOS 11.0, *)
-    var shouldSpringLoadItemAtWith: Delegate<(IndexPath, UISpringLoadedInteractionContext), Bool, IndexPath> {
-        get { anyShouldSpringLoadItemAtWith as! Delegate<(IndexPath, UISpringLoadedInteractionContext), Bool, IndexPath> }
+    var shouldSpringLoadItemAtWith: ItemDelegate<(IndexPath, UISpringLoadedInteractionContext), Bool> {
+        get { anyShouldSpringLoadItemAtWith as! ItemDelegate<(IndexPath, UISpringLoadedInteractionContext), Bool> }
         set { anyShouldSpringLoadItemAtWith = newValue }
     }
     
     //Instance Methods
-    private var anyContextMenuConfigurationForItemAtPoint: Any = {
+    private lazy var anyContextMenuConfigurationForItemAtPoint: Any = {
         guard #available(iOS 13.0, *) else { return () }
-        return Delegate<(IndexPath, CGPoint), UIContextMenuConfiguration?, IndexPath>(
-            index: \.0,
-            #selector(UICollectionViewDelegate.collectionView(_:contextMenuConfigurationForItemAt:point:))
+        return ItemDelegate<(IndexPath, CGPoint), UIContextMenuConfiguration?>(
+            #selector(UICollectionViewDelegate.collectionView(_:contextMenuConfigurationForItemAt:point:)),
+            index: \.0
         ) { _, _ in nil }
     }()
     
-    private var anyPreviewForDismissingContextMenuWithConfiguration: Any = {
+    private lazy var anyPreviewForDismissingContextMenuWithConfiguration: Any = {
         guard #available(iOS 13.0, *) else { return () }
-        return Delegate<UIContextMenuConfiguration, UITargetedPreview, Void>(
+        return Delegate<UIContextMenuConfiguration, UITargetedPreview>(
             #selector(UICollectionViewDelegate.collectionView(_:previewForDismissingContextMenuWithConfiguration:))
         )
     }()
     
-    private var anyPreviewForHighlightingContextMenuWithConfiguration: Any = {
+    private lazy var anyPreviewForHighlightingContextMenuWithConfiguration: Any = {
         guard #available(iOS 13.0, *) else { return () }
-        return Delegate<UIContextMenuConfiguration, UITargetedPreview, Void>(
+        return Delegate<UIContextMenuConfiguration, UITargetedPreview>(
             #selector(UICollectionViewDelegate.collectionView(_:previewForHighlightingContextMenuWithConfiguration:))
         )
     }()
     
-    private var anyWillPerformPreviewActionForMenuWithAnimator: Any = {
+    private lazy var anyWillPerformPreviewActionForMenuWithAnimator: Any = {
         guard #available(iOS 13.0, *) else { return () }
-        return Delegate<(UIContextMenuConfiguration, UIContextMenuInteractionCommitAnimating), Void, Void>(
+        return Delegate<(UIContextMenuConfiguration, UIContextMenuInteractionCommitAnimating), Void>(
             #selector(UICollectionViewDelegate.collectionView(_:willPerformPreviewActionForMenuWith:animator:))
         )
     }()
     
     @available(iOS 13.0, *)
-    var contextMenuConfigurationForItemAtPoint: Delegate<(IndexPath, CGPoint), UIContextMenuConfiguration?, IndexPath> {
-        get { anyContextMenuConfigurationForItemAtPoint as! Delegate<(IndexPath, CGPoint), UIContextMenuConfiguration?, IndexPath> }
+    var contextMenuConfigurationForItemAtPoint: ItemDelegate<(IndexPath, CGPoint), UIContextMenuConfiguration?> {
+        get { anyContextMenuConfigurationForItemAtPoint as! ItemDelegate<(IndexPath, CGPoint), UIContextMenuConfiguration?> }
         set { anyContextMenuConfigurationForItemAtPoint = newValue }
     }
     
     @available(iOS 13.0, *)
-    var previewForDismissingContextMenuWithConfiguration: Delegate<UIContextMenuConfiguration, UITargetedPreview, Void> {
-        get { anyPreviewForDismissingContextMenuWithConfiguration as! Delegate<UIContextMenuConfiguration, UITargetedPreview, Void> }
+    var previewForDismissingContextMenuWithConfiguration: Delegate<UIContextMenuConfiguration, UITargetedPreview> {
+        get { anyPreviewForDismissingContextMenuWithConfiguration as! Delegate<UIContextMenuConfiguration, UITargetedPreview> }
         set { anyPreviewForDismissingContextMenuWithConfiguration = newValue }
     }
     
     @available(iOS 13.0, *)
-    var previewForHighlightingContextMenuWithConfiguration: Delegate<UIContextMenuConfiguration, UITargetedPreview, Void> {
-        get { anyPreviewForHighlightingContextMenuWithConfiguration as! Delegate<UIContextMenuConfiguration, UITargetedPreview, Void> }
+    var previewForHighlightingContextMenuWithConfiguration: Delegate<UIContextMenuConfiguration, UITargetedPreview> {
+        get { anyPreviewForHighlightingContextMenuWithConfiguration as! Delegate<UIContextMenuConfiguration, UITargetedPreview> }
         set { anyPreviewForHighlightingContextMenuWithConfiguration = newValue }
     }
     
     @available(iOS 13.0, *)
-    var willPerformPreviewActionForMenuWithAnimator: Delegate<(UIContextMenuConfiguration, UIContextMenuInteractionCommitAnimating), Void, Void> {
-        get { anyWillPerformPreviewActionForMenuWithAnimator as! Delegate<(UIContextMenuConfiguration, UIContextMenuInteractionCommitAnimating), Void, Void> }
+    var willPerformPreviewActionForMenuWithAnimator: Delegate<(UIContextMenuConfiguration, UIContextMenuInteractionCommitAnimating), Void> {
+        get { anyWillPerformPreviewActionForMenuWithAnimator as! Delegate<(UIContextMenuConfiguration, UIContextMenuInteractionCommitAnimating), Void> }
         set { anyWillPerformPreviewActionForMenuWithAnimator = newValue }
     }
     
     //MARK: - FlowLayout
     //Getting the Size of Items
-    var layoutSizeForItemAt = Delegate<(UICollectionViewLayout, IndexPath), CGSize, IndexPath>(
-        index: \.1,
-        #selector(UICollectionViewDelegateFlowLayout.collectionView(_:layout:sizeForItemAt:))
+    lazy var layoutSizeForItemAt = ItemDelegate<(UICollectionViewLayout, IndexPath), CGSize>(
+        #selector(UICollectionViewDelegateFlowLayout.collectionView(_:layout:sizeForItemAt:)),
+        index: \.1
     ) { input, _ in (input.0 as? UICollectionViewFlowLayout)?.itemSize ?? .zero }
     
     //Getting the Section Spacing
-    var layoutInsetForSectionAt = Delegate<(UICollectionViewLayout, Int), UIEdgeInsets, Int>(
-        index: \.1,
-        #selector(UICollectionViewDelegateFlowLayout.collectionView(_:layout:insetForSectionAt:))
+    lazy var layoutInsetForSectionAt = SectionDelegate<(UICollectionViewLayout, Int), UIEdgeInsets>(
+        #selector(UICollectionViewDelegateFlowLayout.collectionView(_:layout:insetForSectionAt:)),
+        index: \.1
     ) { input, _ in (input.0 as? UICollectionViewFlowLayout)?.sectionInset ?? .zero }
     
-    var layoutMinimumLineSpacingForSectionAt = Delegate<(UICollectionViewLayout, Int), CGFloat, Int>(
-        index: \.1,
-        #selector(UICollectionViewDelegateFlowLayout.collectionView(_:layout:minimumLineSpacingForSectionAt:))
+    lazy var layoutMinimumLineSpacingForSectionAt = SectionDelegate<(UICollectionViewLayout, Int), CGFloat>(
+        #selector(UICollectionViewDelegateFlowLayout.collectionView(_:layout:minimumLineSpacingForSectionAt:)),
+        index: \.1
     ) { input, _ in (input.0 as? UICollectionViewFlowLayout)?.minimumLineSpacing ?? 0 }
     
-    var layoutMinimumInteritemSpacingForSectionAt = Delegate<(UICollectionViewLayout, Int), CGFloat, Int>(
-        index: \.1,
-        #selector(UICollectionViewDelegateFlowLayout.collectionView(_:layout:minimumInteritemSpacingForSectionAt:))
+    lazy var layoutMinimumInteritemSpacingForSectionAt = SectionDelegate<(UICollectionViewLayout, Int), CGFloat>(
+        #selector(UICollectionViewDelegateFlowLayout.collectionView(_:layout:minimumInteritemSpacingForSectionAt:)),
+        index: \.1
     ) { input, _ in (input.0 as? UICollectionViewFlowLayout)?.minimumInteritemSpacing ?? 0 }
     
     //Getting the Header and Footer Sizes
-    var layoutReferenceSizeForHeaderInSection = Delegate<(UICollectionViewLayout, Int), CGSize, Int>(
-        index: \.1,
-        #selector(UICollectionViewDelegateFlowLayout.collectionView(_:layout:referenceSizeForHeaderInSection:))
+    lazy var layoutReferenceSizeForHeaderInSection = SectionDelegate<(UICollectionViewLayout, Int), CGSize>(
+        #selector(UICollectionViewDelegateFlowLayout.collectionView(_:layout:referenceSizeForHeaderInSection:)),
+        index: \.1
     ) { input, _ in (input.0 as? UICollectionViewFlowLayout)?.headerReferenceSize ?? .zero }
     
-    var layoutReferenceSizeForFooterInSection = Delegate<(UICollectionViewLayout, Int), CGSize, Int>(
-        index: \.1,
-        #selector(UICollectionViewDelegateFlowLayout.collectionView(_:layout:referenceSizeForFooterInSection:))
+    lazy var layoutReferenceSizeForFooterInSection = SectionDelegate<(UICollectionViewLayout, Int), CGSize>(
+        #selector(UICollectionViewDelegateFlowLayout.collectionView(_:layout:referenceSizeForFooterInSection:)),
+        index: \.1
     ) { input, _ in (input.0 as? UICollectionViewFlowLayout)?.footerReferenceSize ?? .zero }
 }
 

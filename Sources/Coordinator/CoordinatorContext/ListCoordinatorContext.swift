@@ -10,8 +10,9 @@ import Foundation
 public class ListCoordinatorContext<SourceBase: DataSource>: CoordinatorContext
 where SourceBase.SourceBase == SourceBase {
     typealias Item = SourceBase.Item
+    typealias Caches<Cache> = ContiguousArray<ContiguousArray<Cache?>>
     
-    let coordinator: ListCoordinator<SourceBase>
+    let listCoordinator: ListCoordinator<SourceBase>
     
     #if os(iOS) || os(tvOS)
     lazy var scrollListDelegate = UIScrollListDelegate()
@@ -19,25 +20,25 @@ where SourceBase.SourceBase == SourceBase {
     lazy var tableListDelegate = UITableListDelegate()
     #endif
     
-    var hasItemCaches = false
-    var hasNestedCaches = false
+    var _itemCaches: Caches<Any>?
+    var _itemNestedCache: Caches<((Any) -> Void)>?
     
     lazy var selfSelectorSets = SelectorSets()
-    lazy var itemCaches: ContiguousArray<ContiguousArray<Any?>> = {
-        hasItemCaches = true
-        return initialCaches()
-    }()
+    var itemCaches: Caches<Any> {
+        get { cachesOrCreate(&_itemCaches) }
+        set { _itemCaches = newValue }
+    }
     
-    lazy var itemNestedCache: ContiguousArray<ContiguousArray<((Any) -> Void)?>> = {
-        hasNestedCaches = true
-        return initialCaches()
-    }()
+    var itemNestedCache: Caches<((Any) -> Void)> {
+        get { cachesOrCreate(&_itemNestedCache) }
+        set { _itemNestedCache = newValue }
+    }
     
     var index = 0
     var isSectioned = true
     var listViewGetter: (() -> ListView?)?
     var resetDelegates: (() -> Void)?
-    var update: ((Int, CoordinatorUpdate, Bool) -> [(CoordinatorContext, CoordinatorUpdate)])?
+    var update: ((Int, CoordinatorUpdate) -> [(CoordinatorContext, CoordinatorUpdate)])?
     
     var listView: ListView? { listViewGetter?() }
     var selectorSets: SelectorSets { selfSelectorSets }
@@ -46,43 +47,60 @@ where SourceBase.SourceBase == SourceBase {
         _ coordinator: ListCoordinator<SourceBase>,
         setups: [(ListCoordinatorContext<SourceBase>) -> Void] = []
     ) {
-        self.coordinator = coordinator
+        self.listCoordinator = coordinator
         setups.forEach { $0(self) }
     }
     
-    func isCoordinator(_ coordinator: AnyObject) -> Bool { self.coordinator === coordinator }
+    func isCoordinator(_ coordinator: AnyObject) -> Bool { self.listCoordinator === coordinator }
     
     func reconfig() { }
-    func numbersOfSections() -> Int { coordinator.numbersOfSections() }
-    func numbersOfItems(in section: Int) -> Int { coordinator.numbersOfItems(in: section) }
+    func numbersOfSections() -> Int { listCoordinator.numbersOfSections() }
+    func numbersOfItems(in section: Int) -> Int { listCoordinator.numbersOfItems(in: section) }
     
     // Selectors
+    func apply<Object: AnyObject, Input, Output>(
+        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Input, Output>>,
+        root: CoordinatorContext,
+        object: Object,
+        with input: Input
+    ) -> Output {
+        self[keyPath: keyPath].closure!(object, input, root)
+    }
+    
+    func apply<Object: AnyObject, Input>(
+        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Input, Void>>,
+        root: CoordinatorContext,
+        object: Object,
+        with input: Input
+    ) {
+        self[keyPath: keyPath].closure?(object, input, root)
+    }
+    
     func apply<Object: AnyObject, Input, Output, Index>(
-        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Input, Output, Index>>,
+        _ keyPath: KeyPath<CoordinatorContext, IndexDelegate<Object, Input, Output, Index>>,
         root: CoordinatorContext,
         object: Object,
         with input: Input,
-        _ sectionOffset: Int,
-        _ itemOffset: Int
+        _ offset: Index
     ) -> Output? {
-        self[keyPath: keyPath].closure?(object, input, root, sectionOffset, itemOffset)
+        self[keyPath: keyPath].closure?(object, input, root, offset)
     }
     
     func apply<Object: AnyObject, Input, Index>(
-        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Input, Void, Index>>,
+        _ keyPath: KeyPath<CoordinatorContext, IndexDelegate<Object, Input, Void, Index>>,
         root: CoordinatorContext,
         object: Object,
         with input: Input,
-        _ sectionOffset: Int,
-        _ itemOffset: Int
+        _ offset: Index
     ) {
-        self[keyPath: keyPath].closure?(object, input, root, sectionOffset, itemOffset)
+        self[keyPath: keyPath].closure?(object, input, root, offset)
     }
     
     func perform(updates: BatchUpdates, animated: Bool, completion: ((ListView, Bool) -> Void)?) {
         guard let list = listView else { return }
         switch updates {
         case let .reload(change: change):
+            (_itemCaches, _itemNestedCache) = (nil, nil)
             change?()
             list.reloadSynchronously(animated: animated)
             completion?(list, true)
@@ -95,7 +113,7 @@ where SourceBase.SourceBase == SourceBase {
                     list.map { completion?($0, finish) }
                 } : nil
                 list.perform({
-                    switch (hasItemCaches, hasNestedCaches) {
+                    switch (_itemCaches != nil, _itemNestedCache != nil) {
                     case (true, true):
                         batchUpdate.apply(caches: &itemCaches, countIn: numbersOfItems(in:)) {
                             $0.apply(caches: &itemNestedCache, countIn: numbersOfItems(in:))
@@ -116,35 +134,51 @@ where SourceBase.SourceBase == SourceBase {
 
 
 extension ListCoordinatorContext {
-    func initialCaches<Cache>() -> ContiguousArray<ContiguousArray<Cache?>> {
-        if coordinator.isEmpty { return .init() }
-        return (0..<numbersOfSections()).mapContiguous {
-            (0..<numbersOfItems(in: $0)).mapContiguous { _ in nil }
-        }
+    typealias Context = ListCoordinatorContext<SourceBase>
+    
+    func cachesOrCreate<Cache>(_ caches: inout Caches<Cache>?) -> Caches<Cache> {
+        return caches ?? {
+            let initialCaches: Caches<Cache> = (0..<numbersOfSections()).mapContiguous {
+                (0..<numbersOfItems(in: $0)).mapContiguous { _ in nil }
+            }
+            caches = initialCaches
+            return initialCaches
+        }()
+    }
+    
+    func set<Object: AnyObject, Input, Output>(
+        _ keyPath: ReferenceWritableKeyPath<CoordinatorContext, Delegate<Object, Input, Output>>,
+        _ closure: @escaping (Context, Object, Input, CoordinatorContext) -> Output
+    ) {
+        self[keyPath: keyPath].closure = { [unowned self] in closure(self, $0, $1, $2) }
+        selfSelectorSets.value.insert(self[keyPath: keyPath].selector)
+    }
+
+    func set<Object: AnyObject, Input>(
+        _ keyPath: ReferenceWritableKeyPath<CoordinatorContext, Delegate<Object, Input, Void>>,
+        _ closure: @escaping (Context, Object, Input, CoordinatorContext) -> Void
+    ) {
+        self[keyPath: keyPath].closure = { [unowned self] in closure(self, $0, $1, $2) }
+        selfSelectorSets.void.insert(self[keyPath: keyPath].selector)
     }
     
     func set<Object: AnyObject, Input, Output, Index>(
-        _ keyPath: ReferenceWritableKeyPath<CoordinatorContext, Delegate<Object, Input, Output, Index>>,
-        _ closure: @escaping (ListCoordinatorContext<SourceBase>, Object, Input, CoordinatorContext, Int, Int) -> Output
+        _ keyPath: ReferenceWritableKeyPath<CoordinatorContext, IndexDelegate<Object, Input, Output, Index>>,
+        _ closure: @escaping (Context, Object, Input, CoordinatorContext, Index) -> Output
     ) {
-        self[keyPath: keyPath].closure = { [unowned self] in closure(self, $0, $1, $2, $3, $4) }
-        let delegate = self[keyPath: keyPath]
-        if Index.self == Int.self {
-            selectorSets.withIndex.insert(delegate.selector)
-            selectorSets.hasIndex = true
-        } else if Index.self == IndexPath.self {
-            selectorSets.withIndexPath.insert(delegate.selector)
+        self[keyPath: keyPath].closure = { [unowned self] in closure(self, $0, $1, $2, $3) }
+        if Index.isSection {
+            selfSelectorSets.withIndex.insert(self[keyPath: keyPath].selector)
         } else {
-            selectorSets.value.insert(delegate.selector)
+            selfSelectorSets.withIndexPath.insert(self[keyPath: keyPath].selector)
         }
     }
-
+    
     func set<Object: AnyObject, Input, Index>(
-        _ keyPath: ReferenceWritableKeyPath<CoordinatorContext, Delegate<Object, Input, Void, Index>>,
-        _ closure: @escaping (ListCoordinatorContext<SourceBase>, Object, Input, CoordinatorContext, Int, Int) -> Void
+        _ keyPath: ReferenceWritableKeyPath<CoordinatorContext, IndexDelegate<Object, Input, Void, Index>>,
+        _ closure: @escaping (Context, Object, Input, CoordinatorContext, Index) -> Void
     ) {
-        self[keyPath: keyPath].closure = { [unowned self] in closure(self, $0, $1, $2, $3, $4) }
-        let delegate = self[keyPath: keyPath]
-        selectorSets.void.insert(delegate.selector)
+        self[keyPath: keyPath].closure = { [unowned self] in closure(self, $0, $1, $2, $3) }
+        selfSelectorSets.void.insert(self[keyPath: keyPath].selector)
     }
 }

@@ -21,8 +21,6 @@ where
         SectionsCoordinatorUpdate<SourceBase>.self
     }
     
-    override var isEmpty: Bool { indices.isEmpty }
-    
     func toSections(_ source: SourceBase.Source) -> ContiguousArray<ContiguousArray<Item>> {
         source.mapContiguous { $0.mapContiguous { $0 } }
     }
@@ -36,8 +34,8 @@ where
         return indices
     }
     
-    override func item(at section: Int, _ item: Int) -> Item {
-        sections[indices[section].index][item]
+    override func item(at indexPath: IndexPath) -> Item {
+        sections[indices[indexPath.section].index][indexPath.item]
     }
     
     override func numbersOfSections() -> Int { indices.count }
@@ -68,11 +66,6 @@ where
         let sourcesAfterUpdate = update.source
         let sectionsAfterUpdate = sourcesAfterUpdate.map(toSections)
         let indicesAfterUpdate =  sectionsAfterUpdate.map(toIndices)
-        defer {
-            sections = sectionsAfterUpdate ?? sections
-            source = sourcesAfterUpdate ?? source
-            indices = indicesAfterUpdate ?? indices
-        }
         return updateType.init(
             coordinator: self,
             update: update,

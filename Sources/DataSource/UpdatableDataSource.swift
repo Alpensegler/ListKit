@@ -29,41 +29,33 @@ public extension UpdatableDataSource {
         if update.isEmpty { return }
         let isMainThread = Thread.isMainThread
         var update = update
-        var coordinator: ListCoordinator<SourceBase>!
-        var coordinatorUpdate: CoordinatorUpdate!
+        var coordinator: ListCoordinator<SourceBase>!, options: ListOptions<SourceBase>!
         let work = {
             coordinator = self.listCoordinator
-            if case let .whole(whole, nil) = update, !whole.way.isRemove {
-                update = .whole(whole, self.sourceBase.source)
-                Log.log("----start-update----")
+            options = self.listOptions
+            Log.log("----start-update: \(update.updateType)----")
+            if update.needSource, update.source == nil {
+                update.source = self.sourceBase.source
                 Log.log("from \(self.currentSource)")
                 Log.log("to   \(update.source!)")
             }
-            coordinatorUpdate = coordinator.update(update)
         }
         isMainThread ? work() : DispatchQueue.main.sync(execute: work)
+        let coordinatorUpdate = coordinator.update(update)
         coordinator.currentCoordinatorUpdate = coordinatorUpdate
-        let updateAnimated = animated ?? !coordinator.options.contains(.preferNoAnimation)
-        var results = [(CoordinatorContext, CoordinatorUpdate)]()
-        for context in coordinator.listContexts {
-            guard let context = context.context else { return }
-            results += context.update?(context.index, coordinatorUpdate, coordinator.sectioned) ?? []
-            if context.listView != nil, coordinatorUpdate?.listUpdates != nil {
-                results.append((context, coordinatorUpdate))
-            }
+        let contextAndUpdates = coordinator.contextAndUpdates(update: coordinatorUpdate)
+        let results = contextAndUpdates.compactMap { arg in
+            arg.1.listUpdates.map { (arg.0, arg.1, $0) }
         }
         if results.isEmpty { return }
         let afterWork = {
-            for (context, update) in results {
-                guard let update = update.listUpdates else { continue }
+            let updateAnimated = animated ?? !options.contains(.preferNoAnimation)
+            for (context, coordinatorUpdate, update) in results {
+                coordinatorUpdate.finalChange?()
                 context.perform(updates: update, animated: updateAnimated, completion: completion)
             }
         }
-        if isMainThread {
-            afterWork()
-        } else {
-            DispatchQueue.main.async(execute: afterWork)
-        }
+        isMainThread ? afterWork() : DispatchQueue.main.sync(execute: afterWork)
     }
     
     func performUpdate(
@@ -71,16 +63,20 @@ public extension UpdatableDataSource {
         to source: SourceBase.Source,
         completion: ((ListView, Bool) -> Void)? = nil
     ) {
-        perform(.whole(listUpdate, source), animated: animated, completion: completion)
+        perform(
+            .init(updateType: .whole(listUpdate), source: source),
+            animated: animated,
+            completion: completion
+        )
     }
     
     func performUpdate(animated: Bool? = nil, completion: ((ListView, Bool) -> Void)? = nil) {
-        perform(.whole(listUpdate), animated: animated, completion: completion)
+        perform(.init(updateType: .whole(listUpdate)), animated: animated, completion: completion)
     }
     
     func getCache<List: ListView>(for listView: List, at indexPath: IndexPath) -> Any? {
         let c = listCoordinator.listContexts.first { $0.context?.listView == listView }?.context
-        guard let context = c, context.hasItemCaches else { return nil }
+        guard let context = c, context._itemCaches != nil else { return nil }
         return context.itemCaches[indexPath.section][indexPath.item]
     }
 }

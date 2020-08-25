@@ -5,33 +5,22 @@
 //  Created by Frain on 2020/6/8.
 //
 
+import Foundation
+
 class WrapperCoordinatorContext<SourceBase, Other>: ListCoordinatorContext<SourceBase>
 where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSource {
+    var coordinator: WrapperCoordinator<SourceBase, Other>
+    
     lazy var finalSelectorSets = configSelectedSet()
-    var wrapped: ListCoordinatorContext<Other.SourceBase>? {
-        didSet { reconfig() }
-    }
-    
-    override var index: Int {
-        didSet { wrapped?.index = index }
-    }
-    
-    override var update: ((Int, CoordinatorUpdate, Bool) -> [(CoordinatorContext, CoordinatorUpdate)])? {
-        didSet { wrapped?.update = update }
-    }
-    
-    override var listViewGetter: (() -> ListView?)? {
-        didSet { wrapped?.listViewGetter = listViewGetter }
-    }
+    var wrapped: ListCoordinatorContext<Other.SourceBase>? { coordinator.wrapped?.context }
     
     override var selectorSets: SelectorSets { finalSelectorSets }
     
     init(
-        _ wrapped: ListCoordinatorContext<Other.SourceBase>?,
-        _ coordinator: ListCoordinator<SourceBase>,
+        _ coordinator: WrapperCoordinator<SourceBase, Other>,
         setups: [(ListCoordinatorContext<SourceBase>) -> Void]
     ) {
-        self.wrapped = wrapped
+        self.coordinator = coordinator
         super.init(coordinator, setups: setups)
     }
     
@@ -39,48 +28,59 @@ where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSo
         wrapped.map { SelectorSets(merging: selfSelectorSets, $0.selectorSets) } ?? selfSelectorSets
     }
     
-    func subcontext<Object: AnyObject, Input, Output, Index>(
-        for delegate: Delegate<Object, Input, Output, Index>,
-        object: Object,
-        with input: Input
-    ) -> CoordinatorContext? {
-        wrapped?.selectorSets.contains(delegate.selector) == true ? wrapped : nil
+    func subcontext(for selector: Selector) -> CoordinatorContext? {
+        wrapped?.selectorSets.contains(selector) == true ? wrapped : nil
     }
     
     override func reconfig() {
-        wrapped.map { ($0.index, $0.update) = (index, update) }
         finalSelectorSets = configSelectedSet()
         resetDelegates?()
-        wrapped?.update = update
-        wrapped?.index = index
-        wrapped?.listViewGetter = listViewGetter
+    }
+    
+    // Selectors
+    override func apply<Object: AnyObject, Input, Output>(
+        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Input, Output>>,
+        root: CoordinatorContext,
+        object: Object,
+        with input: Input
+    ) -> Output {
+        let context = subcontext(for: self[keyPath: keyPath].selector)
+        return context?.apply(keyPath, root: root, object: object, with: input)
+            ?? super.apply(keyPath, root: root, object: object, with: input)
+    }
+    
+    override func apply<Object: AnyObject, Input>(
+        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Input, Void>>,
+        root: CoordinatorContext,
+        object: Object,
+        with input: Input
+    ) {
+        let context = subcontext(for: self[keyPath: keyPath].selector)
+        context?.apply(keyPath, root: root, object: object, with: input)
+        super.apply(keyPath, root: root, object: object, with: input)
     }
     
     override func apply<Object: AnyObject, Input, Output, Index>(
-        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Input, Output, Index>>,
+        _ keyPath: KeyPath<CoordinatorContext, IndexDelegate<Object, Input, Output, Index>>,
         root: CoordinatorContext,
         object: Object,
         with input: Input,
-        _ sectionOffset: Int,
-        _ itemOffset: Int
+        _ offset: Index
     ) -> Output? {
-        let delegate = self[keyPath: keyPath]
-        let context = subcontext(for: delegate, object: object, with: input)
-        return context?.apply(keyPath, root: root, object: object, with: input, sectionOffset, itemOffset)
-            ?? super.apply(keyPath, root: root, object: object, with: input, sectionOffset, itemOffset)
+        let context = subcontext(for: self[keyPath: keyPath].selector)
+        return context?.apply(keyPath, root: root, object: object, with: input, offset)
+            ?? super.apply(keyPath, root: root, object: object, with: input, offset)
     }
     
     override func apply<Object: AnyObject, Input, Index>(
-        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Input, Void, Index>>,
+        _ keyPath: KeyPath<CoordinatorContext, IndexDelegate<Object, Input, Void, Index>>,
         root: CoordinatorContext,
         object: Object,
         with input: Input,
-        _ sectionOffset: Int,
-        _ itemOffset: Int
+        _ offset: Index
     ) {
-        let delegate = self[keyPath: keyPath]
-        let context = subcontext(for: delegate, object: object, with: input)
-        context?.apply(keyPath, root: root, object: object, with: input, sectionOffset, itemOffset)
-        super.apply(keyPath, root: root, object: object, with: input, sectionOffset, itemOffset)
+        let context = subcontext(for: self[keyPath: keyPath].selector)
+        context?.apply(keyPath, root: root, object: object, with: input, offset)
+        super.apply(keyPath, root: root, object: object, with: input, offset)
     }
 }

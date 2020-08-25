@@ -21,17 +21,25 @@ where ArrayLiteralElement == ListUpdate<SourceBase>.Batch {
 
 public extension BatchInitializable {
     init(arrayLiteral elements: ListUpdate<SourceBase>.Batch...) {
-        self = .init(.init(operations: elements.flatMap { $0.operations }))
+        let operations = elements.flatMap { $0.operations }
+        self = .init(.init(operations: operations, needSource: elements.contains { $0.needSource }))
     }
     
     mutating func add(_ other: ListUpdate<SourceBase>.Batch) {
-        self = .init(.init(operations: (batch?.operations ?? []) + other.operations))
+        self = .init(.init(
+            operations: (batch?.operations ?? []) + other.operations,
+            needSource: (batch?.needSource ?? false) || other.needSource
+        ))
     }
 }
 
 extension BatchInitializable {
-    init<Update>(_ type: Update.Type, _ operation: @escaping (Update) -> Void) {
-        self.init(.init(operations: [{ ($0 as? Update).map(operation) }]))
+    init<Update>(
+        _ type: Update.Type,
+        needSource: Bool = false,
+        _ operation: @escaping (Update) -> Void
+    ) {
+        self.init(.init(operations: [{ ($0 as? Update).map(operation) }], needSource: needSource))
     }
 }
 
@@ -135,7 +143,7 @@ where
 
 public extension BatchInitializable where SourceBase: NSDataSource {
     internal init(operation: @escaping (NSCoordinatorUpdate<SourceBase>) -> Void) {
-        self.init(NSCoordinatorUpdate<SourceBase>.self, operation)
+        self.init(NSCoordinatorUpdate<SourceBase>.self, needSource: true, operation)
     }
     
     static func insertSection(_ section: Int) -> Self {

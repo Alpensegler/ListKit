@@ -219,6 +219,7 @@ extension CoreDataListViewController {
         let alert = UIAlertController(title: "Add ToDo", message: nil, preferredStyle: .alert)
         alert.addTextField { (textField) in
             textField.text = "Title"
+            textField.selectAll(nil)
         }
         
         alert.addTextField { (textField) in

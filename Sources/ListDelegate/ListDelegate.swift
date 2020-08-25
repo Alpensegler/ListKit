@@ -44,34 +44,50 @@ final class ListDelegate: NSObject {
         completion?(true)
     }
     
-    func apply<Object: AnyObject, Input, Output, Index>(
-        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Input, Output, Index>>,
+    func apply<Object: AnyObject, Input, Output>(
+        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Input, Output>>,
         object: Object,
         with input: Input
     ) -> Output {
-        context.apply(keyPath, root: context, object: object, with: input, 0, 0) ??
-            context[keyPath: keyPath].output(with: input, objct: object)
+        context.apply(keyPath, root: context, object: object, with: input)
     }
     
-    func apply<Object: AnyObject, Input, Index>(
-        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Input, Void, Index>>,
+    func apply<Object: AnyObject, Input>(
+        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Input, Void>>,
         object: Object,
         with input: Input
     ) {
-        context.apply(keyPath, root: context, object: object, with: input, 0, 0)
+        context.apply(keyPath, root: context, object: object, with: input)
+    }
+    
+    func apply<Object: AnyObject, Input, Output, Index: ListIndex>(
+        _ keyPath: KeyPath<CoordinatorContext, IndexDelegate<Object, Input, Output, Index>>,
+        object: Object,
+        with input: Input
+    ) -> Output {
+        context.apply(keyPath, root: context, object: object, with: input, .zero) ??
+            context[keyPath: keyPath].output(with: input, objct: object)
+    }
+    
+    func apply<Object: AnyObject, Input, Index: ListIndex>(
+        _ keyPath: KeyPath<CoordinatorContext, IndexDelegate<Object, Input, Void, Index>>,
+        object: Object,
+        with input: Input
+    ) {
+        context.apply(keyPath, root: context, object: object, with: input, .zero)
     }
     
     func apply<Object: AnyObject, Output>(
-        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Void, Output, Void>>,
+        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Void, Output>>,
         object: Object
     ) -> Output {
         apply(keyPath, object: object, with: ())
     }
     
-    func apply<Object: AnyObject>(
-        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Void, Void, Void>>,
+    func apply<Object: AnyObject, Output, Index: ListIndex>(
+        _ keyPath: KeyPath<CoordinatorContext, IndexDelegate<Object, Void, Output, Index>>,
         object: Object
-    ) {
+    ) -> Output {
         apply(keyPath, object: object, with: ())
     }
     
@@ -80,3 +96,10 @@ final class ListDelegate: NSObject {
         return aSelector.map(context.selectorSets.contains) == true
     }
 }
+
+class ListDelegates<Object: AnyObject> {
+    typealias Delegate<Input, Output> = ListKit.Delegate<Object, Input, Output>
+    typealias SectionDelegate<Input, Output> = ListKit.IndexDelegate<Object, Input, Output, Int>
+    typealias ItemDelegate<Input, Output> = ListKit.IndexDelegate<Object, Input, Output, IndexPath>
+}
+

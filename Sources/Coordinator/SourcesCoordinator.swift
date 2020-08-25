@@ -18,7 +18,7 @@ struct SourceElement<Element> where Element: DataSource {
     let offset: Int
     let count: Int
     
-    var coordinator: ListCoordinator<Element.SourceBase> { context.coordinator }
+    var coordinator: ListCoordinator<Element.SourceBase> { context.listCoordinator }
     
     func setting(offset: Int, count: Int? = nil) -> Self {
         .init(element: element, context: context, offset: offset, count: count ?? self.count)
@@ -79,8 +79,6 @@ where
         return sources
     }
     
-    override var isEmpty: Bool { indices.isEmpty }
-    
     init(
         _ sourceBase: SourceBase,
         toSource: @escaping (SourceBase.Source) -> (Source),
@@ -106,28 +104,13 @@ where
         sectioned = false
     }
     
-    func resetDelegates() {
-        listContexts.forEach { $0.context?.reconfig() }
-    }
-    
     func settingIndex(_ values: ContiguousArray<Subsource>) -> ContiguousArray<Subsource> {
         values.enumerated().forEach { $0.element.context.index = $0.offset }
         return values
     }
     
-    func pathAndCoordinator(
-        section: Int,
-        item: Int
-    ) -> (section: Int, item: Int, coordinator: Subcoordinator) {
-        var (section, item) = (section, item)
-        let index = sourceIndex(for: section, item)
-        let context = subsources[index]
-        sectioned ? (section -= context.offset) : (item -= context.offset)
-        return (section, item, context.coordinator)
-    }
-    
-    func sourceIndex(for section: Int, _ item: Int) -> Int {
-        indices[sectioned ? section : item].index
+    func sourceIndex<Index: ListIndex>(for listIndex: Index) -> Int {
+        indices[sectioned ? listIndex.section : listIndex.item].index
     }
     
     func toSubsources(_ source: Source) -> ContiguousArray<Subsource> {
@@ -187,24 +170,20 @@ where
     }
     
     func addUpdate(to context: ListCoordinatorContext<Source.Element.SourceBase>) {
-        context.update = { [weak self] in self?.perform(subupdate: $1, at: $0, sectioned: $2) ?? [] }
+        context.update = { [weak self] in self?.perform(subupdate: $1, at: $0) ?? [] }
     }
     
     func perform(
         subupdate: CoordinatorUpdate,
-        at index: Int,
-        sectioned: Bool
+        at index: Int
     ) -> [(CoordinatorContext, CoordinatorUpdate)] {
-        if let update = currentCoordinatorUpdate as? SourcesCoordinatorUpdate<SourceBase, Source> {
+        if let update = currentCoordinatorUpdate {
             update.add(subupdate: subupdate, at: index)
-            if sectioned == self.sectioned {
-                update.targetCount += subupdate.targetCount - subupdate.sourceCount
-            }
             return []
         }
         let update = SourcesCoordinatorUpdate<SourceBase, Source>(
             coordinator: self,
-            update: .batch(.init()),
+            update: .init(updateType: .batch(.init())),
             values: (subsources, subsources),
             sources: (source, source),
             indices: (indices, indices),
@@ -212,29 +191,18 @@ where
             isSectioned: self.sectioned
         )
         update.add(subupdate: subupdate, at: index)
-        if sectioned == self.sectioned {
-            update.targetCount += subupdate.targetCount - subupdate.sourceCount
-        }
         currentCoordinatorUpdate = update
-        var result = [(CoordinatorContext, CoordinatorUpdate)]()
-        for context in listContexts {
-            guard let context = context.context else { continue }
-            if context.listView != nil {
-                result.append((context, update))
-            } else if let parentUpdate = context.update {
-                result += parentUpdate(context.index, update, self.sectioned)
-            }
-        }
-        return result
+        return contextAndUpdates(update: update)
     }
     
-    override func item(at section: Int, _ item: Int) -> Item {
-        let (section, item, subcoordinator) = pathAndCoordinator(section: section, item: item)
-        return subcoordinator.item(at: section, item)
+    override func item(at indexPath: IndexPath) -> Item {
+        let index = sourceIndex(for: indexPath), context = subsources[index]
+        let indexPath = indexPath.offseted(-context.offset, isSection: sectioned)
+        return context.coordinator.item(at: indexPath)
     }
     
     override func numbersOfSections() -> Int {
-        sectioned ? indices.count : isEmpty && !options.keepEmptySection ? 0 : 1
+        sectioned ? indices.count : indices.isEmpty && !options.keepEmptySection ? 0 : 1
     }
     
     override func numbersOfItems(in section: Int) -> Int {
@@ -279,11 +247,6 @@ where
             subsourceType.from.map { toSubsources($0(value)) }
         }
         let indicesAfterUpdate = subsourcesAfterUpdate.map(Self.toIndices)
-        defer {
-            source = sourcesAfterUpdate ?? source
-            subsources = subsourcesAfterUpdate ?? subsources
-            indices = indicesAfterUpdate ?? indices
-        }
         return SourcesCoordinatorUpdate(
             coordinator: self,
             update: update,

@@ -44,26 +44,37 @@ enum ListUpdateWay<Item> {
     }
 }
 
-public enum ListUpdate<SourceBase: DataSource> where SourceBase.SourceBase == SourceBase {
+public struct ListUpdate<SourceBase: DataSource> where SourceBase.SourceBase == SourceBase {
     public struct Whole {
         let way: ListUpdateWay<SourceBase.Item>
     }
     
     public struct Batch {
         var operations = [(ListCoordinatorUpdate<SourceBase>) -> Void]()
+        var needSource = false
     }
     
-    case whole(Whole, Source? = nil)
-    case batch(Batch)
-    
-    var source: Source? {
-        guard case let .whole(_, source) = self else { return nil }
-        return source
+    enum UpdateType {
+        case whole(Whole)
+        case batch(Batch)
     }
+    
+    var updateType: UpdateType
+    var source: SourceBase.Source!
     
     var isEmpty: Bool {
-        guard case let .batch(batch) = self else { return false }
+        guard case let .batch(batch) = updateType else { return false }
         return batch.operations.isEmpty
+    }
+    
+    var needSource: Bool {
+        switch updateType {
+        case let .batch(batch):
+            return batch.needSource
+        case let .whole(whole):
+            if case .remove = whole.way { return false }
+            return true
+        }
     }
 }
 
@@ -100,9 +111,12 @@ public extension ListUpdate.Batch {
 extension ListUpdate: BatchInitializable, DiffInitializableUpdate {
     static var insert: Self { .init(.init(way: .insert)) }
     
-    init(_ whole: ListUpdate<SourceBase>.Whole, _ source: Source) { self = .whole(whole, source) }
+    init(_ whole: ListUpdate<SourceBase>.Whole, _ source: Source) {
+        self.updateType = .whole(whole)
+        self.source = source
+    }
     init(_ way: ListUpdateWay<SourceBase.Item>?, or update: ListUpdate<SourceBase>.Whole) {
-        self = .whole(way.map { .init(way: $0) } ?? update)
+        self.updateType = .whole(way.map { .init(way: $0) } ?? update)
     }
 }
 
@@ -113,13 +127,13 @@ public extension ListUpdate {
     static func reload(to source: Source) -> Self { .init(.init(way: .reload), source) }
     
     var batch: Batch? {
-        guard case let .batch(batch) = self else { return nil }
+        guard case let .batch(batch) = updateType else { return nil }
         return batch
     }
     
-    init(_ whole: ListUpdate<SourceBase>.Whole) { self = .whole(whole) }
-    init(_ batch: Batch) { self = .batch(batch) }
-    init() { self = .batch(.init(operations: [])) }
+    init(_ whole: ListUpdate<SourceBase>.Whole) { updateType = .whole(whole) }
+    init(_ batch: Batch) { updateType = .batch(batch) }
+    init() { updateType = .batch(.init(operations: [])) }
 }
 
 public extension ListUpdate where Source: Collection {

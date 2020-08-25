@@ -59,6 +59,9 @@ where SourceBase.SourceBase == SourceBase {
     var sectionDict = [Int: Int]()
     var itemDict = [IndexPath: IndexPath]()
     
+    override var sourceCount: Int { indices.source.count }
+    override var targetCount: Int { indices.target.count }
+    
     init(
         _ coordinator: NSCoordinator<SourceBase>,
         update: ListUpdate<SourceBase>,
@@ -103,7 +106,7 @@ where SourceBase.SourceBase == SourceBase {
         dict.reserveCapacity(itemDict.count)
         let moves: [Mapping<IndexPath>] = itemMove.indexPaths().compactMap {
             guard let indexPath = itemDict[$0] else { return nil }
-            let source = offset?.source.offseted(indexPath.section, indexPath.item) ?? indexPath
+            let source = offset?.source.offseted(indexPath) ?? indexPath
             let target = offset?.target.offseted($0.section, $0.item) ?? $0
             dict[target] = source
             return (source, target)
@@ -121,9 +124,6 @@ where SourceBase.SourceBase == SourceBase {
         if hasBatchUpdate { protectFromSectionItemBothChange() }
         return super.configChangeType()
     }
-    
-    override func getSourceCount() -> Int { indices.source.count }
-    override func getTargetCount() -> Int { indices.target.count }
     
     override func updateData(_ isSource: Bool) {
         super.updateData(isSource)

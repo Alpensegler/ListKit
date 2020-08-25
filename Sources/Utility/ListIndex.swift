@@ -9,12 +9,15 @@ import Foundation
 
 protocol ListIndex: Hashable {
     static var zero: Self { get }
+    static var isSection: Bool { get }
     var section: Int { get }
     var item: Int { get }
     
     init(_ value: Self?, offset: Int)
     init(section: Int, item: Int)
     func offseted(_ offset: Int) -> Self
+    func offseted(_ offset: Int, isSection: Bool) -> Self
+    func offseted(_ index: Self, plus: Bool) -> Self
     
     func add<Cache>(
         _ related: Self,
@@ -35,6 +38,7 @@ protocol ListIndex: Hashable {
 
 extension IndexPath: ListIndex {
     static var zero: IndexPath { IndexPath(section: 0, item: 0) }
+    static var isSection: Bool { false }
     
     var section: Int {
         get { self[startIndex] }
@@ -64,11 +68,22 @@ extension IndexPath: ListIndex {
         return indexPath
     }
     
-    func offseted(_ section: Int, _ item: Int) -> IndexPath {
+    func offseted(_ offset: Int, isSection: Bool) -> IndexPath {
         var indexPath = self
-        indexPath.item = self.item + item
-        indexPath.section = self.section + section
+        isSection ? (indexPath.section += offset) : (indexPath.item += offset)
         return indexPath
+    }
+    
+    func offseted(_ section: Int, _ item: Int, plus: Bool = true) -> IndexPath {
+        if section == 0, item == 0 { return self }
+        var indexPath = self
+        indexPath.item = self.item + (plus ? item : -item)
+        indexPath.section = self.section + (plus ? section : -section)
+        return indexPath
+    }
+    
+    func offseted(_ index: IndexPath, plus: Bool = true) -> IndexPath {
+        offseted(index.section, index.item, plus: plus)
     }
     
     func add<Cache>(
@@ -100,6 +115,8 @@ extension IndexPath: ListIndex {
 }
 
 extension Int: ListIndex {
+    static var isSection: Bool { true }
+    
     var section: Int { self }
     var item: Int { 0 }
     
@@ -107,6 +124,8 @@ extension Int: ListIndex {
     init(section: Int = 0, item: Int = 0) { self = section }
     
     func offseted(_ offset: Int) -> Int { self + offset }
+    func offseted(_ offset: Int, isSection: Bool) -> Int { isSection ? self + offset : self }
+    func offseted(_ index: Int, plus: Bool) -> Int { self + (plus ? index : -index) }
     
     func add<Cache>(
         _ related: Self,

@@ -33,7 +33,7 @@ where SourceBase.SourceBase == SourceBase {
 }
 
 public extension Context {
-    var source: SourceBase.Source { context.coordinator.source }
+    var source: SourceBase.Source { context.listCoordinator.source }
 
     subscript<Value>(dynamicMember keyPath: KeyPath<SourceBase.Source, Value>) -> Value {
         source[keyPath: keyPath]
@@ -50,7 +50,10 @@ public extension ListIndexContext where Index == IndexPath {
 }
 
 extension ListIndexContext where Index == IndexPath {
-    var itemValue: SourceBase.Item { context.coordinator.item(at: section, item) }
+    var itemValue: SourceBase.Item {
+        context.listCoordinator.item(at: index.offseted(offset, plus: false))
+    }
+    
     func setNestedCache(update: @escaping (Any) -> Void) {
         root.itemNestedCache[index.section][index.item] = update
     }

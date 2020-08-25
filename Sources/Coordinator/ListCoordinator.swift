@@ -5,6 +5,8 @@
 //  Created by Frain on 2019/11/25.
 //
 
+import Foundation
+
 public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase == SourceBase {
     typealias Item = SourceBase.Item
     typealias Indices = ContiguousArray<(index: Int, isFake: Bool)>
@@ -24,7 +26,6 @@ public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase
     
     lazy var sectioned = isSectioned()
     
-    var isEmpty: Bool { false }
     var sourceBaseType: Any.Type { SourceBase.self }
     
     init(
@@ -49,7 +50,7 @@ public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase
     func numbersOfSections() -> Int { notImplemented() }
     func numbersOfItems(in section: Int) -> Int { notImplemented() }
     
-    func item(at section: Int, _ item: Int) -> Item { notImplemented() }
+    func item(at indexPath: IndexPath) -> Item { notImplemented() }
     
     func isSectioned() -> Bool {
         listContexts.contains { $0.context?.selectorSets.hasIndex == true }
@@ -81,5 +82,24 @@ public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase
         updateWay: ListUpdateWay<Item>?
     ) -> CoordinatorUpdate {
         notImplemented()
+    }
+}
+
+extension ListCoordinator {
+    func contextAndUpdates(update: CoordinatorUpdate) -> [(CoordinatorContext, CoordinatorUpdate)] {
+        var results = [(CoordinatorContext, CoordinatorUpdate)]()
+        for context in listContexts {
+            guard let context = context.context else { continue }
+            if context.listView != nil {
+                results.append((context, update))
+            } else if let parentUpdate = context.update  {
+                results += parentUpdate(context.index, update)
+            }
+        }
+        return results
+    }
+    
+    func resetDelegates() {
+        listContexts.forEach { $0.context?.reconfig() }
     }
 }

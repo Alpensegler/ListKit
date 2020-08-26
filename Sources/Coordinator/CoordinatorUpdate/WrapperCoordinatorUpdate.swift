@@ -59,8 +59,8 @@ where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSo
     }
     
     override func updateData(_ isSource: Bool) {
-        super.updateData(isSource)
         subupdate?.updateData(isSource)
+        super.updateData(isSource)
         coordinator.wrapped = wrappeds.target
         if !isSource { coordinator.resetDelegates() }
     }

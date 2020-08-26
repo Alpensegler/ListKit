@@ -77,12 +77,12 @@ extension Room: CustomStringConvertible {
     static var toggle = false
     
     static var random: [Room] {
-        toggle.toggle()
-        if toggle {
-            return [Room("A", [1]), Room("B", [4, 5, 6])]
-        } else {
-            return [Room("B", [4, 5, 6]), Room("A", [1, 2, 3])]
-        }
+//        toggle.toggle()
+//        if toggle {
+//            return [Room("A", [1]), Room("B", [4, 5, 6])]
+//        } else {
+//            return [Room("B", [4, 5, 6]), Room("A", [1, 2, 3])]
+//        }
 
         var shuffled = members.shuffled()
         var rooms = [

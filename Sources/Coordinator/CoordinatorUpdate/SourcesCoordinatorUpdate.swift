@@ -176,6 +176,7 @@ where
     }
     
     override func updateData(_ isSource: Bool) {
+        subupdates.values.forEach { $0.updateData(isSource) }
         super.updateData(isSource)
         guard let coordinator = coordinator else { return }
         coordinator.subsources = coordinator.settingIndex(isSource ? values.source : values.target)

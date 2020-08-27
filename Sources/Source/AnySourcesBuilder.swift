@@ -9,6 +9,14 @@ public extension AnySources {
     init<Source: DataSource>(@AnySourcesBuilder content: () -> Source) {
         self.init(content())
     }
+    
+    static func capture<Source: DataSource>(
+        id: AnyHashable? = nil,
+        options: ListOptions<AnySources> = .none,
+        @AnySourcesBuilder content: @escaping () -> Source
+    ) -> Self {
+        AnySources(options: options) { content() }
+    }
 }
 
 @_functionBuilder

@@ -44,6 +44,7 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
                 wrappeds: (self.wrapped, self.wrapped),
                 sources: (self.source, self.source),
                 subupdate: update,
+                keepSectionIfEmpty: (self.options.keepEmptySection, self.options.keepEmptySection),
                 isSectioned: self.sectioned
             )
             return self.contextAndUpdates(update: update)
@@ -78,8 +79,7 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
     }
     
     override func isSectioned() -> Bool {
-        if wrapped?.coordinator.sectioned == true || super.isSectioned() { return true }
-        return wrapped?.coordinator.sectioned ?? super.isSectioned()
+        wrapped?.coordinator.sectioned == true || super.isSectioned()
     }
     
     // Setup
@@ -109,6 +109,7 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
             wrappeds: (coordinator.wrapped, wrapped),
             sources: (coordinator.source, source),
             subupdate: update(from: coordinator.wrapped, to: wrapped, way: updateWay),
+            keepSectionIfEmpty: (coordinator.options.keepEmptySection, options.keepEmptySection),
             isSectioned: sectioned
         )
     }
@@ -132,6 +133,7 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
             wrappeds: (wrapped, targetWrapped),
             sources: (source, targetSource),
             subupdate: subupdate,
+            keepSectionIfEmpty: (options.keepEmptySection, options.keepEmptySection),
             isSectioned: sectioned
         )
     }

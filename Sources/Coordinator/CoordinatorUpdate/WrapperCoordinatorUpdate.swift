@@ -37,12 +37,13 @@ where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSo
         wrappeds: Mapping<Wrapped?>,
         sources: Sources,
         subupdate: CoordinatorUpdate?,
+        keepSectionIfEmpty: Mapping<Bool>,
         isSectioned: Bool
     ) {
         self.wrappeds = wrappeds
         self.coordinator = coordinator
         self.subupdate = subupdate
-        super.init(coordinator: coordinator, update: update, sources: sources)
+        super.init(coordinator: coordinator, update: update, sources: sources, keepSectionIfEmpty)
         self.isSectioned = isSectioned
     }
     

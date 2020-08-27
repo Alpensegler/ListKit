@@ -53,7 +53,7 @@ public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase
     func item(at indexPath: IndexPath) -> Item { notImplemented() }
     
     func isSectioned() -> Bool {
-        listContexts.contains { $0.context?.selectorSets.hasIndex == true }
+        options.preferSection || listContexts.contains { $0.context?.selectorSets.hasIndex == true }
     }
     
     func context(

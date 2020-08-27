@@ -28,8 +28,6 @@ where
 
     override func item(at indexPath: IndexPath) -> Item { items[indexPath.item] }
 
-    override func isSectioned() -> Bool { options.preferSection || super.isSectioned() }
-
     override func update(
         from coordinator: ListCoordinator<SourceBase>,
         updateWay: ListUpdateWay<Item>?

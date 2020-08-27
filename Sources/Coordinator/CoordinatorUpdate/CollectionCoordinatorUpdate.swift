@@ -26,7 +26,6 @@ where
     }
     
     var values: Values
-    var keepSectionIfEmpty = (source: false, target: false)
     
     var changeIndices: Mapping<IndexSet> = (.init(), .init())
     var changeDict: Mapping<[Int: Change]> = ([:], [:])
@@ -47,14 +46,7 @@ where
         _ keepSectionIfEmpty: Mapping<Bool>
     ) {
         self.values = values
-        super.init(coordinator: coordinator, update: update, sources: sources)
-        self.keepSectionIfEmpty = keepSectionIfEmpty
-        guard case let .whole(whole) = update.updateType else { return }
-        switch whole.way {
-        case .insert: self.keepSectionIfEmpty.source = false
-        case .remove: self.keepSectionIfEmpty.target = false
-        default: break
-        }
+        super.init(coordinator: coordinator, update: update, sources: sources, keepSectionIfEmpty)
     }
     
     func toValue(_ element: Element) -> Value { notImplemented() }
@@ -80,10 +72,6 @@ where
         append(change: source, isSource: true, to: &changes)
         append(change: target, isSource: false, to: &changes)
         return true
-    }
-    
-    override func hasSectionIfEmpty(isSource: Bool) -> Bool {
-        isSource ? keepSectionIfEmpty.source : keepSectionIfEmpty.target
     }
     
     override func prepareData() {

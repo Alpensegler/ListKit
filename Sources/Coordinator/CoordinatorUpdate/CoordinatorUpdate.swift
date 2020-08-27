@@ -62,6 +62,7 @@ class CoordinatorUpdate {
     
     var isSectioned = false
     var isRemove = false
+    var keepSectionIfEmpty = (source: false, target: false)
     
     lazy var itemMaxOrder = Cache(value: Order.second)
     lazy var sectionMaxOrder = Cache(
@@ -94,7 +95,6 @@ class CoordinatorUpdate {
     func add(subupdate: CoordinatorUpdate, at index: Int) { }
     
     func updateData(_ isSource: Bool)  { }
-    func hasSectionIfEmpty(isSource: Bool) -> Bool { false }
     
     func generateSourceUpdate(
         order: Order,
@@ -134,6 +134,10 @@ extension CoordinatorUpdate {
     
     var firstChange: (() -> Void)? { { [unowned self] in self.updateData(true) } }
     var finalChange: (() -> Void)? { { [unowned self] in self.updateData(false) } }
+    
+    func hasSectionIfEmpty(isSource: Bool) -> Bool {
+        isSource ? keepSectionIfEmpty.source : keepSectionIfEmpty.target
+    }
     
     func generateListUpdatesForItems() -> BatchUpdates? {
         switch changeType {

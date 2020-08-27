@@ -29,16 +29,26 @@ where SourceBase.SourceBase == SourceBase {
     init(
         coordinator: ListCoordinator<SourceBase>?,
         update: ListUpdate<SourceBase>,
-        sources: Mapping<SourceBase.Source?>
+        sources: Mapping<SourceBase.Source?>,
+        _ keepSectionIfEmpty: Mapping<Bool>
     ) {
         self.listCoordinator = coordinator
         self.sources = sources
         self.defaultUpdate = coordinator?.update
         super.init()
+        self.keepSectionIfEmpty = keepSectionIfEmpty
         switch update.updateType {
         case let .whole(whole):
             self.update = whole
-            isRemove = whole.way.isRemove
+            switch whole.way {
+            case .insert:
+                self.keepSectionIfEmpty.source = false
+            case .remove:
+                self.keepSectionIfEmpty.target = false
+                isRemove = true
+            default:
+                break
+            }
         case let .batch(batch):
             batch.operations.forEach { $0(self) }
             hasBatchUpdate = true

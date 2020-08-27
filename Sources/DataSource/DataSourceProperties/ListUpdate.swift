@@ -26,11 +26,6 @@ enum ListUpdateWay<Item> {
         }
     }
     
-    var isRemove: Bool {
-        guard case .remove = self else { return false }
-        return true
-    }
-    
     var isAppend: Bool {
         guard case .appendOrRemoveLast = self else { return false }
         return true

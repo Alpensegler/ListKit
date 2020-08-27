@@ -14,8 +14,6 @@ where SourceBase.Item == SourceBase.Source, SourceBase.SourceBase == SourceBase 
     
     override func item(at indexPath: IndexPath) -> Item { source }
     
-    override func isSectioned() -> Bool { options.preferSection || super.isSectioned() }
-    
     override func update(
         from coordinator: ListCoordinator<SourceBase>,
         updateWay: ListUpdateWay<Item>?
@@ -24,7 +22,8 @@ where SourceBase.Item == SourceBase.Source, SourceBase.SourceBase == SourceBase 
         return ItemCoordinatorUpdate(
             coordinator: self,
             update: .init(updateWay, or: update),
-            sources: (coordinator.source, source)
+            sources: (coordinator.source, source),
+            (true, true)
         )
     }
     
@@ -33,7 +32,8 @@ where SourceBase.Item == SourceBase.Source, SourceBase.SourceBase == SourceBase 
         return ItemCoordinatorUpdate(
             coordinator: self,
             update: update,
-            sources: (source, sourcesAfterUpdate ?? source)
+            sources: (source, sourcesAfterUpdate ?? source),
+            (true, true)
         )
     }
 }

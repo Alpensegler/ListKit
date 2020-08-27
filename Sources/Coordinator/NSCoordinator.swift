@@ -30,10 +30,7 @@ where SourceBase.SourceBase == SourceBase {
     }
     
     override func item(at indexPath: IndexPath) -> Item { sourceBase.item(at: indexPath) }
-    
-    override func isSectioned() -> Bool {
-        options.preferSection || super.isSectioned() || source.count > 1
-    }
+    override func isSectioned() -> Bool { super.isSectioned() || source.count > 1 }
     
     override init(_ sourceBase: SourceBase) {
         self.sourceBase = sourceBase

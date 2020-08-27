@@ -44,7 +44,6 @@ where SourceBase.SourceBase == SourceBase {
     
     weak var coordinator: NSCoordinator<SourceBase>?
     var indices: Mapping<Indices>
-    var keepSectionIfEmpty = (source: false, target: false)
     
     var sectionChanges: Mapping<IndexSet> = (.init(), .init())
     var sectionAllChanges: Mapping<IndexSet> = (.init(), .init())
@@ -72,8 +71,7 @@ where SourceBase.SourceBase == SourceBase {
     ) {
         self.coordinator = coordinator
         self.indices = indices
-        super.init(coordinator: coordinator, update: update, sources: sources)
-        self.keepSectionIfEmpty = keepSectionIfEmpty
+        super.init(coordinator: coordinator, update: update, sources: sources, keepSectionIfEmpty)
         self.isSectioned = isSectioned
     }
     

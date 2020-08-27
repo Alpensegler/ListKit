@@ -136,7 +136,7 @@ where
             itemSources.removeAll()
             id += 1
             itemOffset = 0
-            offset += 1
+            offset += count
         }
         
         for element in source {

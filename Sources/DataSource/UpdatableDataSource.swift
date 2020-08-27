@@ -79,6 +79,10 @@ public extension UpdatableDataSource {
         guard let context = c, context._itemCaches != nil else { return nil }
         return context.itemCaches[indexPath.section][indexPath.item]
     }
+    
+    func currentItem(at indexPath: IndexPath) -> Item {
+        listCoordinator.item(at: indexPath)
+    }
 }
 
 extension UpdatableDataSource where SourceBase == Self {

@@ -4,6 +4,27 @@ import ListKit
 public class TestListViewController: UIViewController, UpdatableTableListAdapter {
     public var toggle = true
     
+    lazy var itemSource = AnyTableSources.capture { [unowned self] in
+        if self.toggle {
+            Sources(item: 1.0)
+                .tableViewCellForRow()
+                .tableViewDidSelectRow { (context, item) in
+                    context.deselectItem(animated: false)
+                    print(item)
+                }
+        } else {
+            Sources(item: 2.0)
+                .tableViewCellForRow()
+                .tableViewDidSelectRow { (context, item) in
+                    context.deselectItem(animated: false)
+                    print(item)
+                }
+        }
+    }
+    .tableViewHeaderTitleForSection { (context) -> String? in
+        "item"
+    }
+    
     lazy var itemsSource = Sources(items: ["a", "b", "c"])
         .tableViewCellForRow()
         .tableViewDidSelectRow { [unowned self] (context, item) in
@@ -16,17 +37,7 @@ public class TestListViewController: UIViewController, UpdatableTableListAdapter
     public typealias Item = Any
     public var source: AnyTableSources {
         AnyTableSources {
-            if toggle {
-                Sources(item: 1.0)
-                    .tableViewCellForRow()
-                    .tableViewDidSelectRow { (context, item) in
-                        context.deselectItem(animated: false)
-                        print(item)
-                    }
-                    .tableViewHeaderTitleForSection { (context) -> String? in
-                        "item"
-                    }
-            }
+            itemSource
             itemsSource
             Sources(sections: [[1, 2, 3], [1, 2, 3]])
                 .tableViewCellForRow()
@@ -64,7 +75,7 @@ public class TestListViewController: UIViewController, UpdatableTableListAdapter
     
     @objc func refresh() {
         toggle.toggle()
-        performUpdate()
+        itemSource.performUpdate()
     }
     
     func batchRemove(at item: Int) {

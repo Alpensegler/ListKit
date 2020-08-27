@@ -18,7 +18,7 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
     let toItem: (Other.Item) -> SourceBase.Item
     let toOther: (SourceBase.Source) -> Other?
     
-    lazy var wrapped = toOther(source).map(toWrapped)
+    var wrapped: Wrapped?
     
     override var sourceBaseType: Any.Type { Other.SourceBase.self }
     
@@ -31,6 +31,7 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
         self.toOther = toOther
         
         super.init(sourceBase)
+        self.wrapped = toOther(source).map(toWrapped)
     }
     
     func toWrapped(_ other: Other) -> Wrapped {

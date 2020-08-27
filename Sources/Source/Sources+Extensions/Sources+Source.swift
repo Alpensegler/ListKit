@@ -61,43 +61,6 @@ public extension Sources where Source: DataSource, Source.Item == Item {
     }
 }
 
-public extension Sources where Source == AnySources, Item == Any {
-    init<Source: DataSource>(
-        id: AnyHashable? = nil,
-        update: ListUpdate<SourceBase>.Whole = .subupdate,
-        options: ListOptions<SourceBase> = .none,
-        @AnySourcesBuilder source: @escaping () -> Source
-    ) {
-        self.init(id, update: update, options: options, getter: { .init(source()) })
-    }
-}
-
-public extension TableList where Source == AnySources {
-    
-}
-
-public extension Sources where Source == AnyTableSources, Item == Any {
-    init<Source: TableListAdapter>(
-        id: AnyHashable? = nil,
-        update: ListUpdate<SourceBase>.Whole = .subupdate,
-        options: ListOptions<SourceBase> = .none,
-        @AnyTableSourcesBuilder source: @escaping () -> Source
-    ) {
-        self.init(id, update: update, options: options, getter: { .init(source()) })
-    }
-}
-
-public extension Sources where Source == AnyCollectionSources, Item == Any {
-    init<Source: CollectionListAdapter>(
-        id: AnyHashable? = nil,
-        update: ListUpdate<SourceBase>.Whole = .subupdate,
-        options: ListOptions<SourceBase> = .none,
-        @AnyCollectionSourcesBuilder source: @escaping () -> Source
-    ) {
-        self.init(id, update: update, options: options, getter: { .init(source()) })
-    }
-}
-
 //Equatable
 public extension Sources where Source: DataSource, Source.Item == Item, Item: Equatable {
     init(dataSource: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {

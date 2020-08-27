@@ -15,6 +15,14 @@ public extension TableList where SourceBase == AnySources {
     init<Source: TableListAdapter>(@AnyTableSourcesBuilder content: () -> Source) {
         self.init(content())
     }
+    
+    static func capture<Source: TableListAdapter>(
+        id: AnyHashable? = nil,
+        options: ListOptions<AnySources> = .none,
+        @AnyTableSourcesBuilder content: @escaping () -> Source
+    ) -> AnyTableSources {
+        TableList(AnySources.capture(id: id, options: options, content: content))
+    }
 }
 
 @_functionBuilder

@@ -127,9 +127,9 @@ where
             let context = coordinator.context()
             itemSources.forEach {
                 $0.context.isSectioned = false
-                coordinator.addUpdate(to: $0.context)
+                coordinator.addContext(to: $0.context)
             }
-            addUpdate(to: context)
+            addContext(to: context)
             let item = Subsource.Subelement.items(id: id) { coordinator.subsourcesArray }
             let count = context.numbersOfSections()
             subsources.append(.init(element: item, context: context, offset: offset, count: count))
@@ -143,7 +143,7 @@ where
             let coordinator = element.listCoordinator
             let context = coordinator.context(with: element.listContextSetups)
             if coordinator.sectioned {
-                addUpdate(to: context)
+                addContext(to: context)
                 if !itemSources.isEmpty { addItemSources() }
                 let count = context.numbersOfSections()
                 let element = Subsource.Subelement.element(element)
@@ -161,7 +161,7 @@ where
         case (true, false):
             addItemSources()
         case (false, false):
-            itemSources.forEach { addUpdate(to: $0.context) }
+            itemSources.forEach { addContext(to: $0.context) }
             subsources = itemSources
         default:
             break
@@ -170,30 +170,32 @@ where
         return settingIndex(subsources)
     }
     
-    func addUpdate(to context: ListCoordinatorContext<Source.Element.SourceBase>) {
-        context.update = { [weak self] in self?.perform(subupdate: $1, at: $0) ?? [] }
-    }
-    
-    func perform(
-        subupdate: CoordinatorUpdate,
-        at index: Int
-    ) -> [(CoordinatorContext, CoordinatorUpdate)] {
-        if let update = currentCoordinatorUpdate {
+    func addContext(to context: ListCoordinatorContext<Source.Element.SourceBase>) {
+        context.update = { [weak self] (index, subupdate) in
+            guard let self = self else { return [] }
+            if let update = self.currentCoordinatorUpdate {
+                update.add(subupdate: subupdate, at: index)
+                return []
+            }
+            let update = SourcesCoordinatorUpdate<SourceBase, Source>(
+                coordinator: self,
+                update: .init(updateType: .batch(.init())),
+                values: (self.subsources, self.subsources),
+                sources: (self.source, self.source),
+                indices: (self.indices, self.indices),
+                keepSectionIfEmpty: (self.options.keepEmptySection, self.options.keepEmptySection),
+                isSectioned: self.sectioned
+            )
             update.add(subupdate: subupdate, at: index)
-            return []
+            self.currentCoordinatorUpdate = update
+            return self.contextAndUpdates(update: update)
         }
-        let update = SourcesCoordinatorUpdate<SourceBase, Source>(
-            coordinator: self,
-            update: .init(updateType: .batch(.init())),
-            values: (subsources, subsources),
-            sources: (source, source),
-            indices: (indices, indices),
-            keepSectionIfEmpty: (options.keepEmptySection, options.keepEmptySection),
-            isSectioned: self.sectioned
-        )
-        update.add(subupdate: subupdate, at: index)
-        currentCoordinatorUpdate = update
-        return contextAndUpdates(update: update)
+        
+        context.contextAtIndex = { [weak self] (index, offset, listView) in
+            guard let self = self else { return nil }
+            let offset = offset.offseted(self.subsources[index].offset, isSection: self.sectioned)
+            return self.offsetAndRoot(offset: offset, list: listView)
+        }
     }
     
     override func item(at indexPath: IndexPath) -> Item {

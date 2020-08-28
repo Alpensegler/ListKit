@@ -73,7 +73,9 @@ public extension UpdatableDataSource {
     func performUpdate(animated: Bool? = nil, completion: ((ListView, Bool) -> Void)? = nil) {
         perform(.init(updateType: .whole(listUpdate)), animated: animated, completion: completion)
     }
-    
+}
+
+public extension UpdatableDataSource {
     func getCache<List: ListView>(for listView: List, at indexPath: IndexPath) -> Any? {
         let c = listCoordinator.listContexts.first { $0.context?.listView == listView }?.context
         guard let context = c, context._itemCaches != nil else { return nil }
@@ -82,6 +84,33 @@ public extension UpdatableDataSource {
     
     func currentItem(at indexPath: IndexPath) -> Item {
         listCoordinator.item(at: indexPath)
+    }
+
+    func indexContext<List: ListView>(
+        for listView: List,
+        at indexPath: IndexPath
+    ) -> ListIndexContext<List, SourceBase, IndexPath>? {
+        for context in listCoordinator.listContexts {
+            guard let context = context.context else { continue }
+            if context.listView === listView {
+                return .init(
+                    context: context,
+                    listView: listView,
+                    index: indexPath,
+                    offset: .zero,
+                    root: context
+                )
+            } else if let (offset, root) = context.contextAtIndex?(context.index, .zero, listView) {
+                return .init(
+                    context: context,
+                    listView: listView,
+                    index: indexPath.offseted(offset),
+                    offset: offset,
+                    root: root
+                )
+            }
+        }
+        return nil
     }
 }
 

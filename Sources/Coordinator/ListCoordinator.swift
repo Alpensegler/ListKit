@@ -99,6 +99,18 @@ extension ListCoordinator {
         return results
     }
     
+    func offsetAndRoot(offset: IndexPath, list: ListView) -> (IndexPath, CoordinatorContext)? {
+        for context in self.listContexts {
+            guard let context = context.context else { continue }
+            if context.listView === list {
+                return (offset, context)
+            } else if let result = context.contextAtIndex?(context.index, offset, list) {
+                return result
+            }
+        }
+        return nil
+    }
+    
     func resetDelegates() {
         listContexts.forEach { $0.context?.reconfig() }
     }

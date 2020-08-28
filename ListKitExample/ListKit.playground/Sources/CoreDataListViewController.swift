@@ -12,13 +12,31 @@ import ListKit
 public class CoreDataListViewController: UIViewController, UpdatableTableListAdapter {
     var fetchLimit = 3
     
+//    public var toggle = true
     lazy var todosList = configTodosList()
     lazy var recent = configRecentList()
     lazy var loadMore = configLoadMore()
+    lazy var tableView = _tableView
+    
+//    lazy var itemSource = AnyTableSources.capture(options: [.preferSection, .keepEmptySection]) { [unowned self] in
+//        if self.toggle {
+//            Sources(item: 1.0)
+//                .tableViewCellForRow()
+//                .tableViewDidSelectRow { (context, item) in
+//                    context.deselectItem(animated: false)
+//                    print(item)
+//                }
+//        }
+//    }
     
     public typealias Item = Any
     public var source: AnyTableSources {
         AnyTableSources {
+//            itemSource
+//            if !toggle {
+//                Sources(item: 0, options: .preferSection)
+//                    .tableViewCellForRow()
+//            }
             todosList
                 .tableConfig()
                 .tableViewHeaderTitleForSection { [unowned self] (context) -> String? in
@@ -49,6 +67,13 @@ public class CoreDataListViewController: UIViewController, UpdatableTableListAda
             managedObjectContext: Self.managedObjectContext,
             sectionNameKeyPath: "done"
         )
+        controller.shouldMoveItem = { [unowned self] (todo, indexPath) in
+            if let context = self.todosList.indexContext(for: self.tableView, at: indexPath) {
+                context.cell?.configUI(with: todo)
+                return true
+            }
+            return true
+        }
         try? controller.performFetch()
         return controller
     }
@@ -90,12 +115,24 @@ public class CoreDataListViewController: UIViewController, UpdatableTableListAda
         
         apply(by: tableView)
         
-        navigationItem.rightBarButtonItem = UIBarButtonItem(
-            barButtonSystemItem: .add,
-            target: self,
-            action: #selector(add)
-        )
+        navigationItem.rightBarButtonItems = [
+            UIBarButtonItem(
+                barButtonSystemItem: .add,
+                target: self,
+                action: #selector(add)
+            ),
+//            UIBarButtonItem(
+//                barButtonSystemItem: .refresh,
+//                target: self,
+//                action: #selector(refresh)
+//            )
+        ]
     }
+    
+//    @objc func refresh() {
+//        toggle.toggle()
+//        itemSource.performUpdate()
+//    }
 }
 
 class ToDo: NSManagedObject {
@@ -161,9 +198,7 @@ extension DataSource where Item == ToDo {
         }
         .tableViewDidSelectRow { (context, todo) in
             context.deselectItem(animated: true)
-            let cell = context.cell
             todo.toggle()
-            cell?.configUI(with: todo)
         }
         .tableViewCanEditRow { (context, todo) -> Bool in
             true
@@ -207,7 +242,7 @@ extension CoreDataListViewController {
         try? managedObjectContext.save()
     }
     
-    var tableView: UITableView {
+    var _tableView: UITableView {
         let tableView = UITableView(frame: view.bounds)
         tableView.allowsMultipleSelectionDuringEditing = true
         view.addSubview(tableView)

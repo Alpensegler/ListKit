@@ -96,7 +96,7 @@ where Item: NSFetchRequestResult {
         case .insert: update.add(.insertItem(at: newIndexPath!))
         case .delete: update.add(.deleteItem(at: indexPath!))
         case .update: reload(at: indexPath, newIndexPath: newIndexPath, object: anObject)
-        case .move: update.add(.moveItem(at: indexPath!, to: newIndexPath!))
+        case .move: move(at: indexPath, newIndexPath: newIndexPath, object: anObject)
         default: break
         }
     }

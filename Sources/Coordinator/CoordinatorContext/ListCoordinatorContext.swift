@@ -39,6 +39,7 @@ where SourceBase.SourceBase == SourceBase {
     var listViewGetter: (() -> ListView?)?
     var resetDelegates: (() -> Void)?
     var update: ((Int, CoordinatorUpdate) -> [(CoordinatorContext, CoordinatorUpdate)])?
+    var contextAtIndex: ((Int, IndexPath, ListView) -> (IndexPath, CoordinatorContext)?)?
     
     var listView: ListView? { listViewGetter?() }
     var selectorSets: SelectorSets { selfSelectorSets }

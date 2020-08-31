@@ -76,7 +76,13 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
         toItem(wrapped!.coordinator.item(at: indexPath))
     }
     
-    override func numbersOfSections() -> Int { wrapped?.coordinator.numbersOfSections() ?? 0 }
+    override func numbersOfSections() -> Int {
+        if !subIsSectiond, sectioned, wrapped?.coordinator.numbersOfItems(in: 0) == 0 {
+            return !options.keepEmptySection ? 0 : 1
+        }
+        return wrapped?.coordinator.numbersOfSections() ?? 0
+    }
+    
     override func numbersOfItems(in section: Int) -> Int {
         wrapped?.coordinator.numbersOfItems(in: section) ?? 0
     }

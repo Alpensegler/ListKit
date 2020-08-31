@@ -36,6 +36,18 @@ public extension DataSource {
             return cell
         }
     }
+    
+    func tableViewCellForRow<Cell: UITableViewCell>(
+        _ cellClass: Cell.Type,
+        storyBoardIdentifier: String,
+        _ closure: @escaping (Cell, TableItemContext, Item) -> Void = { _, _, _ in }
+    ) -> TableList<SourceBase> {
+        tableViewCellForRow { (context, item) in
+            let cell = context.dequeueReusableCell(cellClass, storyBoardIdentifier: storyBoardIdentifier)
+            closure(cell, context, item)
+            return cell
+        }
+    }
 }
 
 //TableView DataSource

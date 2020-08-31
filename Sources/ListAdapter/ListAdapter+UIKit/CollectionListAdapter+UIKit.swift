@@ -22,10 +22,22 @@ public extension DataSource {
     func collectionViewCellForItem<Cell: UICollectionViewCell>(
         _ cellClass: Cell.Type,
         identifier: String = "",
-        _ closure: @escaping (Cell, CollectionItemContext, Item) -> Void
+        _ closure: @escaping (Cell, CollectionItemContext, Item) -> Void = { _, _, _ in }
     ) -> CollectionList<SourceBase> {
         collectionViewCellForItem { (context, item) in
             let cell = context.dequeueReusableCell(cellClass, identifier: identifier)
+            closure(cell, context, item)
+            return cell
+        }
+    }
+    
+    func collectionViewCellForItem<Cell: UICollectionViewCell>(
+        _ cellClass: Cell.Type,
+        storyBoardIdentifier: String,
+        _ closure: @escaping (Cell, CollectionItemContext, Item) -> Void = { _, _, _ in }
+    ) -> CollectionList<SourceBase> {
+        collectionViewCellForItem { (context, item) in
+            let cell = context.dequeueReusableCell(cellClass, storyBoardIdentifier: storyBoardIdentifier)
             closure(cell, context, item)
             return cell
         }

@@ -34,13 +34,12 @@ public extension ListIndexContext where Index == IndexPath, List: UIListView {
 
     func dequeueReusableCell<CustomCell: UIView>(
         _ cellClass: CustomCell.Type,
-        storyBoardIdentifier: String,
-        indexPath: IndexPath
+        storyBoardIdentifier: String
     ) -> CustomCell {
         listView.dequeueReusableCell(
             cellClass,
             storyBoardIdentifier: storyBoardIdentifier,
-            indexPath: indexPath
+            indexPath: index
         )
     }
     

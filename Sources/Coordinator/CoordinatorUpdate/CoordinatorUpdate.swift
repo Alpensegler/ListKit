@@ -64,10 +64,8 @@ class CoordinatorUpdate {
     var isRemove = false
     var keepSectionIfEmpty = (source: false, target: false)
     
-    lazy var itemMaxOrder = Cache(value: Order.second)
-    lazy var sectionMaxOrder = Cache(
-        value: changeType == .remove(itemsOnly: false) ? Order.third : Order.first
-    )
+    lazy var itemMaxOrder = configItemMaxOrder()
+    lazy var sectionMaxOrder = configSectionMaxOrder()
     
     lazy var listUpdates = generateListUpdates()
     lazy var changeType = configChangeType()
@@ -83,6 +81,11 @@ class CoordinatorUpdate {
     var targetSectionCount: Int { isSectioned ? targetCount : targetHasSection ? 1 : 0 }
     
     func inferringMoves(context: ContextAndID? = nil) { }
+    
+    func configItemMaxOrder() -> Cache<Order> { Cache(value: Order.second) }
+    func configSectionMaxOrder() -> Cache<Order> {
+        .init(value: changeType == .remove(itemsOnly: false) ? Order.third : Order.first)
+    }
     
     func prepareData() { }
     func configChangeType() -> ChangeType { .none }

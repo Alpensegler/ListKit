@@ -63,8 +63,10 @@ where SourceBase.SourceBase == SourceBase {
         switch (update?.way, sourceIsEmpty, targetIsEmpty) {
         case (.reload, _, _): return .reload
         case (.insert, _, true), (.remove, true, _), (_, true, true): return .none
-        case (.remove, _, _), (_, false, true): return .remove(itemsOnly: itemsOnly(true))
-        case (.insert, _, _), (_, true, false): return .insert(itemsOnly: itemsOnly(false))
+        case (.remove, _, _): return .remove(itemsOnly: !isSectioned)
+        case (.insert, _, _): return .insert(itemsOnly: !isSectioned)
+        case (_, false, true): return .remove(itemsOnly: itemsOnly(true))
+        case (_, true, false): return .insert(itemsOnly: itemsOnly(false))
         default: return isMoreUpdate || hasBatchUpdate || diffable ? .batchUpdates : .reload
         }
     }

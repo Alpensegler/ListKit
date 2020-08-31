@@ -50,8 +50,7 @@ public extension UpdatableDataSource {
         if results.isEmpty { return }
         let afterWork = {
             let updateAnimated = animated ?? !options.contains(.preferNoAnimation)
-            for (context, coordinatorUpdate, update) in results {
-                coordinatorUpdate.finalChange?()
+            for (context, _, update) in results {
                 context.perform(updates: update, animated: updateAnimated, completion: completion)
             }
         }

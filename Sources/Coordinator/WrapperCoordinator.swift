@@ -34,18 +34,21 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
         self.wrapped = toOther(source).map(toWrapped)
     }
     
+    lazy var subIsSectiond = wrapped?.coordinator.sectioned == true
+    
     func toWrapped(_ other: Other) -> Wrapped {
         let context = other.listCoordinator.context(with: other.listContextSetups)
         context.update = { [weak self] (_, update) in
             guard let self = self else { return [] }
             let update = WrapperCoordinatorUpdate(
                 coordinator: self,
-                update: .init(nil, or: self.update),
+                update: .init(update.isRemove ? .remove : nil, or: self.update),
                 wrappeds: (self.wrapped, self.wrapped),
                 sources: (self.source, self.source),
                 subupdate: update,
                 keepSectionIfEmpty: (self.options.keepEmptySection, self.options.keepEmptySection),
-                isSectioned: self.sectioned
+                isSectioned: self.sectioned,
+                subIsSectioned: self.subIsSectiond
             )
             return self.contextAndUpdates(update: update)
         }
@@ -73,17 +76,12 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
         toItem(wrapped!.coordinator.item(at: indexPath))
     }
     
-    override func numbersOfSections() -> Int {
-        wrapped?.coordinator.numbersOfSections() ?? 0
-    }
-    
+    override func numbersOfSections() -> Int { wrapped?.coordinator.numbersOfSections() ?? 0 }
     override func numbersOfItems(in section: Int) -> Int {
         wrapped?.coordinator.numbersOfItems(in: section) ?? 0
     }
     
-    override func isSectioned() -> Bool {
-        wrapped?.coordinator.sectioned == true || super.isSectioned()
-    }
+    override func isSectioned() -> Bool { subIsSectiond || super.isSectioned() }
     
     // Setup
     override func context(
@@ -113,7 +111,8 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
             sources: (coordinator.source, source),
             subupdate: update(from: coordinator.wrapped, to: wrapped, way: updateWay),
             keepSectionIfEmpty: (coordinator.options.keepEmptySection, options.keepEmptySection),
-            isSectioned: sectioned
+            isSectioned: sectioned,
+            subIsSectioned: self.subIsSectiond
         )
     }
     
@@ -137,7 +136,8 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
             sources: (source, targetSource),
             subupdate: subupdate,
             keepSectionIfEmpty: (options.keepEmptySection, options.keepEmptySection),
-            isSectioned: sectioned
+            isSectioned: sectioned,
+            subIsSectioned: subIsSectiond
         )
     }
 }

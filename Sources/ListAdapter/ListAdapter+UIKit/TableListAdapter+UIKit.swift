@@ -28,7 +28,7 @@ public extension DataSource {
     func tableViewCellForRow<Cell: UITableViewCell>(
         _ cellClass: Cell.Type,
         identifier: String = "",
-        _ closure: @escaping (Cell, TableItemContext, Item) -> Void
+        _ closure: @escaping (Cell, TableItemContext, Item) -> Void = { _, _, _ in }
     ) -> TableList<SourceBase> {
         tableViewCellForRow { (context, item) in
             let cell = context.dequeueReusableCell(cellClass, identifier: identifier)

@@ -107,9 +107,9 @@ where SourceBase.SourceBase == SourceBase {
             completion?(list, true)
         case let .batch(batchUpdates):
             for (offset, batchUpdate) in batchUpdates.enumerated() {
-                Log.log("---batch-update---")
-                Log.log(batchUpdate.description)
                 let isLast = offset == batchUpdates.count - 1
+                Log.log("---batch-update-isLast: \(isLast)---")
+                Log.log(batchUpdate.description)
                 let completion: ((Bool) -> Void)? = isLast ? { [weak list] finish in
                     list.map { completion?($0, finish) }
                 } : nil

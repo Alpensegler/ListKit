@@ -193,8 +193,9 @@ extension CollectionCoordinatorUpdate {
             body(isSource, change)
         }
         
-        guard index.source < values.source.count else { return }
-        offset(index, (values.source.count, values.target.count))
+        let remaining = values.source.count - index.source
+        guard remaining > 0 else { return }
+        offset(index, (index.source + remaining, index.target + remaining))
     }
     
     func enumerate<Collection: RangeReplaceableCollection>(

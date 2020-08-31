@@ -14,22 +14,14 @@ where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSo
     var wrappeds: Mapping<Wrapped?>
     var subupdate: CoordinatorUpdate?
     var coordinator: WrapperCoordinator<SourceBase, Other>
+    var subIsSectioned = false
+    var shouldSuperUpdate: Bool { isSectioned && !subIsSectioned }
     
     override var sourceCount: Int { subupdate?.sourceCount ?? 0 }
     override var targetCount: Int { subupdate?.targetCount ?? 0 }
     
     override var sourceSectionCount: Int { subupdate?.sourceSectionCount ?? 0 }
     override var targetSectionCount: Int { subupdate?.targetSectionCount ?? 0 }
-    
-    override var itemMaxOrder: Cache<Order> {
-        get { subupdate?.itemMaxOrder ?? Cache(value: Order.first) }
-        set { subupdate?.itemMaxOrder = newValue }
-    }
-    
-    override var sectionMaxOrder: Cache<Order> {
-        get { subupdate?.sectionMaxOrder ?? Cache(value: Order.first) }
-        set { subupdate?.sectionMaxOrder = newValue }
-    }
     
     init(
         coordinator: WrapperCoordinator<SourceBase, Other>,
@@ -38,13 +30,15 @@ where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSo
         sources: Sources,
         subupdate: CoordinatorUpdate?,
         keepSectionIfEmpty: Mapping<Bool>,
-        isSectioned: Bool
+        isSectioned: Bool,
+        subIsSectioned: Bool
     ) {
         self.wrappeds = wrappeds
         self.coordinator = coordinator
         self.subupdate = subupdate
         super.init(coordinator: coordinator, update: update, sources: sources, keepSectionIfEmpty)
         self.isSectioned = isSectioned
+        self.subIsSectioned = subIsSectioned
     }
     
     override func inferringMoves(context: CoordinatorUpdate.ContextAndID? = nil) {
@@ -55,8 +49,24 @@ where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSo
         subupdate?.prepareData()
     }
     
+    override func configItemMaxOrder() -> Cache<CoordinatorUpdate.Order> {
+        subupdate?.itemMaxOrder ?? .init(value: .second)
+    }
+    
+    override func configSectionMaxOrder() -> Cache<CoordinatorUpdate.Order> {
+        if changeType == .remove(itemsOnly: false) { return Cache(value: Order.third) }
+        return subupdate?.sectionMaxOrder ?? .init(value: .second)
+    }
+    
     override func configChangeType() -> CoordinatorUpdate.ChangeType {
-        subupdate?.changeType ?? .none
+        if subIsSectioned { return subupdate?.changeType ?? .none }
+        switch (update?.way, sourceIsEmpty, targetIsEmpty) {
+        case (.remove, _, _): return .remove(itemsOnly: !isSectioned)
+        case (.insert, _, _): return .insert(itemsOnly: !isSectioned)
+        case (_, false, true): return .remove(itemsOnly: itemsOnly(true))
+        case (_, true, false): return .insert(itemsOnly: itemsOnly(false))
+        default: return subupdate?.changeType ?? .none
+        }
     }
     
     override func updateData(_ isSource: Bool) {
@@ -70,6 +80,7 @@ where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSo
         order: Order,
         context: UpdateContext<Int>? = nil
     ) -> UpdateSource<BatchUpdates.ListSource> {
+        if shouldSuperUpdate { return super.generateSourceUpdate(order: order, context: context) }
         guard let subupdate = subupdate else { return (0, nil) }
         return subupdate.generateSourceUpdate(order: order, context: context)
     }
@@ -78,9 +89,10 @@ where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSo
         order: Order,
         context: UpdateContext<Offset<Int>>? = nil
     ) -> UpdateTarget<BatchUpdates.ListTarget> {
+        if shouldSuperUpdate { return super.generateTargetUpdate(order: order, context: context) }
         guard let subupdate = subupdate else { return ([], nil, nil) }
         var update = subupdate.generateTargetUpdate(order: order, context: context)
-        if hasNext(order, context) {
+        if hasNext(order, context, isSectioned) {
             update.change = update.change + { [weak self] in self?.coordinator.resetDelegates() }
         } else {
             update.change = update.change + finalChange
@@ -102,7 +114,7 @@ where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSo
     ) -> UpdateTarget<BatchUpdates.ItemTarget> {
         guard let subupdate = subupdate else { return ([], nil, nil) }
         var update = subupdate.generateTargetItemUpdate(order: order, context: context)
-        if hasNext(order, context) {
+        if hasNext(order, context, isSectioned) {
             update.change = update.change + { [weak self] in self?.coordinator.resetDelegates() }
         } else {
             update.change = update.change + finalChange

@@ -36,8 +36,7 @@ where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSo
         self.wrappeds = wrappeds
         self.coordinator = coordinator
         self.subupdate = subupdate
-        super.init(coordinator: coordinator, update: update, sources: sources, keepSectionIfEmpty)
-        self.isSectioned = isSectioned
+        super.init(coordinator, update: update, sources: sources, keepSectionIfEmpty, isSectioned)
         self.subIsSectioned = subIsSectioned
     }
     
@@ -92,6 +91,7 @@ where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSo
         if shouldSuperUpdate { return super.generateTargetUpdate(order: order, context: context) }
         guard let subupdate = subupdate else { return ([], nil, nil) }
         var update = subupdate.generateTargetUpdate(order: order, context: context)
+        updateMaxIfNeeded(subupdate, context, context)
         if hasNext(order, context, isSectioned) {
             update.change = update.change + { [weak self] in self?.coordinator.resetDelegates() }
         } else {
@@ -114,6 +114,7 @@ where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSo
     ) -> UpdateTarget<BatchUpdates.ItemTarget> {
         guard let subupdate = subupdate else { return ([], nil, nil) }
         var update = subupdate.generateTargetItemUpdate(order: order, context: context)
+        updateMaxIfNeeded(subupdate, context, context)
         if hasNext(order, context, isSectioned) {
             update.change = update.change + { [weak self] in self?.coordinator.resetDelegates() }
         } else {

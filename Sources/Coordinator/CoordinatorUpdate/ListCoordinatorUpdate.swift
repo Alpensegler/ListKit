@@ -27,15 +27,17 @@ where SourceBase.SourceBase == SourceBase {
     }
     
     init(
-        coordinator: ListCoordinator<SourceBase>?,
+        _ coordinator: ListCoordinator<SourceBase>?,
         update: ListUpdate<SourceBase>,
         sources: Mapping<SourceBase.Source?>,
-        _ keepSectionIfEmpty: Mapping<Bool>
+        _ keepSectionIfEmpty: Mapping<Bool>,
+        _ sectioned: Bool
     ) {
         self.listCoordinator = coordinator
         self.sources = sources
         self.defaultUpdate = coordinator?.update
         super.init()
+        self.isSectioned = sectioned
         self.keepSectionIfEmpty = keepSectionIfEmpty
         switch update.updateType {
         case let .whole(whole):

@@ -107,7 +107,7 @@ extension DoubleListViewController {
     }
     
     @objc func refresh() {
-        perform(.appendOrRemoveLast)
+        performUpdate()
     }
     
     @objc func add() {

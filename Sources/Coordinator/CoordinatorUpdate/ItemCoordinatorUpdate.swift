@@ -13,6 +13,7 @@ where SourceBase.Item == SourceBase.Source, SourceBase.SourceBase == SourceBase 
     lazy var extraChange = Cache(value: (nil, nil) as Mapping<Change<Item>?>)
     
     override var moveAndReloadable: Bool { true }
+    override var isItems: Bool { true }
     
     func configChange() -> Mapping<Change<Item>?> {
         guard let s = sources.source, let t = sources.target else { return (nil, nil) }

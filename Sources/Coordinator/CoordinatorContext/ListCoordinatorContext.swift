@@ -138,13 +138,9 @@ extension ListCoordinatorContext {
     typealias Context = ListCoordinatorContext<SourceBase>
     
     func cachesOrCreate<Cache>(_ caches: inout Caches<Cache>?) -> Caches<Cache> {
-        return caches ?? {
-            let initialCaches: Caches<Cache> = (0..<numbersOfSections()).mapContiguous {
-                (0..<numbersOfItems(in: $0)).mapContiguous { _ in nil }
-            }
-            caches = initialCaches
-            return initialCaches
-        }()
+        caches.or((0..<numbersOfSections()).mapContiguous {
+            (0..<numbersOfItems(in: $0)).mapContiguous { _ in nil }
+        })
     }
     
     func set<Object: AnyObject, Input, Output>(

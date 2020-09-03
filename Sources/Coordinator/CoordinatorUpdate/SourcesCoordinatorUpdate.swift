@@ -88,8 +88,7 @@ where
         self.subsourceType = coordinator.subsourceType
         self.coordinator = coordinator
         self.indices = indices
-        super.init(coordinator, update: update, values, sources, keepSectionIfEmpty)
-        self.isSectioned = isSectioned
+        super.init(coordinator, update: update, values, sources, keepSectionIfEmpty, isSectioned)
     }
     
     override func toValue(_ element: Element) -> Subsource {

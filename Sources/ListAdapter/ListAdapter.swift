@@ -28,11 +28,7 @@ final class ListAdapterStorage<Source: DataSource> where Source.SourceBase == So
     var makeListCoordinator: () -> ListCoordinator<Source> = { fatalError() }
     
     lazy var listCoordinator = makeListCoordinator()
-    lazy var coordinatorStorage = listCoordinator.storage ?? {
-        let storage = CoordinatorStorage<Source>()
-        listCoordinator.storage = storage
-        return storage
-    }()
+    lazy var coordinatorStorage = listCoordinator.storage.or(.init())
     
     init(source: Source) {
         self.source = source

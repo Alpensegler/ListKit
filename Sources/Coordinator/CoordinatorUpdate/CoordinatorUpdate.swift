@@ -63,6 +63,7 @@ class CoordinatorUpdate {
     var isSectioned = false
     var isRemove = false
     var keepSectionIfEmpty = (source: false, target: false)
+    var isItems: Bool { false }
     
     lazy var itemMaxOrder = configItemMaxOrder()
     lazy var sectionMaxOrder = configSectionMaxOrder()
@@ -77,14 +78,18 @@ class CoordinatorUpdate {
     var sourceCount: Int { 1 }
     var targetCount: Int { 1 }
     
-    var sourceSectionCount: Int { isSectioned ? sourceCount : sourceHasSection ? 1 : 0 }
-    var targetSectionCount: Int { isSectioned ? targetCount : targetHasSection ? 1 : 0 }
+    var sourceSectionCount: Int { isSectioned && !isItems ? sourceCount : sourceHasSection ? 1 : 0 }
+    var targetSectionCount: Int { isSectioned && !isItems ? targetCount : targetHasSection ? 1 : 0 }
     
     func inferringMoves(context: ContextAndID? = nil) { }
     
     func configItemMaxOrder() -> Cache<Order> { Cache(value: Order.second) }
     func configSectionMaxOrder() -> Cache<Order> {
-        .init(value: changeType == .remove(itemsOnly: false) ? Order.third : Order.first)
+        switch changeType {
+        case .remove(itemsOnly: false): return .init(value: Order.third)
+        case .insert(itemsOnly: false): return .init(value: Order.second)
+        default: return .init(value: Order.first)
+        }
     }
     
     func prepareData() { }
@@ -92,6 +97,7 @@ class CoordinatorUpdate {
     func generateListUpdates() -> BatchUpdates? {
         prepareData()
         inferringMoves()
+        if isItems { return generateListUpdatesForItems() }
         return isSectioned ? generateListUpdatesForSections() : generateListUpdatesForItems()
     }
     

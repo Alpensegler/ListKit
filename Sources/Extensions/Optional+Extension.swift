@@ -38,6 +38,16 @@ extension Optional: CollectionListAdapter where Wrapped: CollectionListAdapter {
     public var collectionList: CollectionList<Self> { .init(self) }
 }
 
+extension Optional {
+    mutating func or(_ wrapped: @autoclosure () -> Wrapped) -> Wrapped {
+        return self ?? {
+            let wrapped = wrapped()
+            self = wrapped
+            return wrapped
+        }()
+    }
+}
+
 func + (lhs: (() -> Void)?, rhs: (() -> Void)?) -> (() -> Void)? {
     switch (lhs, rhs) {
     case let (lhs?, rhs?):

@@ -38,7 +38,8 @@ where
             update: .init(updateWay, or: update),
             values: (coordinator.items, items),
             sources: (coordinator.source, source),
-            keepSectionIfEmpty: (coordinator.options.keepEmptySection, options.keepEmptySection)
+            keepSectionIfEmpty: (coordinator.options.keepEmptySection, options.keepEmptySection),
+            isSectioned: sectioned
         )
     }
 
@@ -50,7 +51,8 @@ where
             update: update,
             values: (items, itemsAfterUpdate ?? items),
             sources: (source, sourcesAfterUpdate ?? source),
-            keepSectionIfEmpty: (options.keepEmptySection, options.keepEmptySection)
+            keepSectionIfEmpty: (options.keepEmptySection, options.keepEmptySection),
+            isSectioned: sectioned
         )
     }
 }

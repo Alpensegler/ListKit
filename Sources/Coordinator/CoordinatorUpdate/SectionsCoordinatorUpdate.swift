@@ -46,8 +46,7 @@ where
     ) {
         self.coordinator = coordinator
         self.indices = indices
-        super.init(coordinator, update: update, values, sources, keepSectionIfEmpty)
-        isSectioned = true
+        super.init(coordinator, update: update, values, sources, keepSectionIfEmpty, true)
     }
     
     func toSource(values: ContiguousArray<ItemsUpdate>, id: ObjectIdentifier?) -> Source {
@@ -139,7 +138,8 @@ extension SectionsCoordinatorUpdate {
                 update: (update?.way).map { .init(.init(way: $0)) } ?? .init(),
                 values: (source, target),
                 sources: (nil, elements?[safe: i]),
-                keepSectionIfEmpty: keepSectionIfEmpty
+                keepSectionIfEmpty: keepSectionIfEmpty,
+                isSectioned: true
             )
         }
     }

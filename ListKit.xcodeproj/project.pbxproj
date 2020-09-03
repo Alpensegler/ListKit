@@ -109,6 +109,8 @@
 		F3F799A424E5E32200771F7F /* DoubleListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3F7999E24E5E32100771F7F /* DoubleListViewController.swift */; };
 		F3F799A524E5E32200771F7F /* TestListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3F7999F24E5E32100771F7F /* TestListViewController.swift */; };
 		F3F799A624E5E32200771F7F /* NestedListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3F799A024E5E32100771F7F /* NestedListViewController.swift */; };
+		F3FAECCB24FFE0C3001CBA34 /* IndexPathSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3FAECCA24FFE0C3001CBA34 /* IndexPathSet.swift */; };
+		F3FAECCD24FFE16A001CBA34 /* ChangeSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3FAECCC24FFE16A001CBA34 /* ChangeSet.swift */; };
 		OBJ_18 /* ListKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_8 /* ListKit.swift */; };
 		OBJ_25 /* Package.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_6 /* Package.swift */; };
 /* End PBXBuildFile section */
@@ -242,6 +244,8 @@
 		F3F7999E24E5E32100771F7F /* DoubleListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DoubleListViewController.swift; path = ListKit.playground/Sources/DoubleListViewController.swift; sourceTree = "<group>"; };
 		F3F7999F24E5E32100771F7F /* TestListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TestListViewController.swift; path = ListKit.playground/Sources/TestListViewController.swift; sourceTree = "<group>"; };
 		F3F799A024E5E32100771F7F /* NestedListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NestedListViewController.swift; path = ListKit.playground/Sources/NestedListViewController.swift; sourceTree = "<group>"; };
+		F3FAECCA24FFE0C3001CBA34 /* IndexPathSet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IndexPathSet.swift; sourceTree = "<group>"; };
+		F3FAECCC24FFE16A001CBA34 /* ChangeSet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeSet.swift; sourceTree = "<group>"; };
 		"ListKit::ListKit::Product" /* ListKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = ListKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		OBJ_12 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		OBJ_6 /* Package.swift */ = {isa = PBXFileReference; explicitFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
@@ -480,6 +484,8 @@
 				F3D786FB2399318B00D7A5CD /* Associator.swift */,
 				F374B1432471A0FA0009420D /* Mapping.swift */,
 				F3A4A2EB2463AD22007FAB3B /* ListIndex.swift */,
+				F3FAECCA24FFE0C3001CBA34 /* IndexPathSet.swift */,
+				F3FAECCC24FFE16A001CBA34 /* ChangeSet.swift */,
 			);
 			path = Utility;
 			sourceTree = "<group>";
@@ -758,6 +764,7 @@
 				F39A23F623A16D1F0024F9AF /* CoreData+Extension.swift in Sources */,
 				F331623624B467390086B7CE /* ListUpdate.swift in Sources */,
 				F3BDC78824CAAA50009F6272 /* BatchInitializable.swift in Sources */,
+				F3FAECCD24FFE16A001CBA34 /* ChangeSet.swift in Sources */,
 				F3AC673823D057450070B991 /* Sources+Item.swift in Sources */,
 				F329598323A10B7D001D6063 /* ListViewStorage+UIKit.swift in Sources */,
 				F374B1442471A0FA0009420D /* Mapping.swift in Sources */,
@@ -797,6 +804,7 @@
 				F3A4A2EC2463AD22007FAB3B /* ListIndex.swift in Sources */,
 				F39E089F24F527C1006FC50E /* WrapperCoordinatorUpdate.swift in Sources */,
 				F3F349E824BC6A4700D38D16 /* CollectionCoordinatorUpdate.swift in Sources */,
+				F3FAECCB24FFE0C3001CBA34 /* IndexPathSet.swift in Sources */,
 				F3D786FE239931CE00D7A5CD /* UIListView.swift in Sources */,
 				F37A122E239FC0CB0001E9EE /* CollectionListAdapter+UIKit.swift in Sources */,
 				F30CF60924E7D23F0078720C /* SourcesCoordinator.swift in Sources */,

@@ -32,15 +32,18 @@ where
     override var equaltable: Bool { differ?.areEquivalent != nil }
     override var identifiable: Bool { differ?.identifier != nil }
     
+    override var isItems: Bool { true }
+    
     required init(
         coordinator: ItemsCoordinator<SourceBase>? = nil,
         update: ListUpdate<SourceBase>,
         values: Values,
         sources: Sources,
-        keepSectionIfEmpty: Mapping<Bool>
+        keepSectionIfEmpty: Mapping<Bool>,
+        isSectioned: Bool
     ) {
         self.coordinator = coordinator
-        super.init(coordinator, update: update, values, sources, keepSectionIfEmpty)
+        super.init(coordinator, update: update, values, sources, keepSectionIfEmpty, isSectioned)
     }
     
     override func isEqual(lhs: Item, rhs: Item) -> Bool { differ.equal(lhs: lhs, rhs: rhs) }

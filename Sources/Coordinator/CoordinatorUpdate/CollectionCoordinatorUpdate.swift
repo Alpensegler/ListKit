@@ -41,13 +41,12 @@ where
     init(
         _ coordinator: ListCoordinator<SourceBase>? = nil,
         update: ListUpdate<SourceBase>,
-        _ values: Values,
-        _ sources: Sources,
-        _ keepSectionIfEmpty: Mapping<Bool>,
-        _ isSectioned: Bool
+        values: Values,
+        sources: Sources,
+        options: Options
     ) {
         self.values = values
-        super.init(coordinator, update: update, sources: sources, keepSectionIfEmpty, isSectioned)
+        super.init(coordinator, update: update, sources: sources, options: options)
     }
     
     func toValue(_ element: Element) -> Value { notImplemented() }

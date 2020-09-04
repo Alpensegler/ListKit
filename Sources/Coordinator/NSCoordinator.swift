@@ -17,7 +17,7 @@ where SourceBase.SourceBase == SourceBase {
             guard let index = source[safe: 0], index != 0 else { return [] }
             return (0..<index).mapContiguous { ($0, false) }
         }
-        if options.keepEmptySection { return source.indices.mapContiguous { ($0, false) } }
+        if !options.removeEmptySection { return source.indices.mapContiguous { ($0, false) } }
         var indices = Indices(capacity: source.count)
         for (i, section) in source.enumerated() where section != 0 { indices.append((i, false)) }
         return indices
@@ -47,12 +47,14 @@ where SourceBase.SourceBase == SourceBase {
             update: .init(updateWay, or: update),
             sources: (coordinator.source, source),
             indices: (coordinator.indices, indices),
-            keepSectionIfEmpty: (coordinator.options.keepEmptySection, options.keepEmptySection),
-            isSectioned: sectioned
+            options: (coordinator.options, options)
         )
     }
 
-    override func update(_ update: ListUpdate<SourceBase>) -> CoordinatorUpdate {
+    override func update(
+        update: ListUpdate<SourceBase>,
+        options: ListOptions? = nil
+    ) -> CoordinatorUpdate {
         let sourcesAfterUpdate = update.source
         let indicesAfterUpdate = toIndices(update.source)
         return NSCoordinatorUpdate(
@@ -60,8 +62,7 @@ where SourceBase.SourceBase == SourceBase {
             update: update,
             sources: (source, sourcesAfterUpdate),
             indices: (indices, indicesAfterUpdate),
-            keepSectionIfEmpty: (options.keepEmptySection, options.keepEmptySection),
-            isSectioned: sectioned
+            options: (self.options, options ?? self.options)
         )
     }
 }

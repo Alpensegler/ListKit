@@ -99,9 +99,9 @@ where
         update: ListUpdate<SourceBase>.Whole
     ) {
         subsourceType = .values
-        super.init(source: nil, update: update)
+        super.init(source: nil, update: update, options: .removeEmptySection)
         subsources = elements
-        sectioned = false
+        sectioned = true
     }
     
     func settingIndex(_ values: ContiguousArray<Subsource>) -> ContiguousArray<Subsource> {
@@ -183,8 +183,8 @@ where
                 values: (self.subsources, self.subsources),
                 sources: (self.source, self.source),
                 indices: (self.indices, self.indices),
-                keepSectionIfEmpty: (self.options.keepEmptySection, self.options.keepEmptySection),
-                isSectioned: self.sectioned
+                options: (self.options, self.options),
+                isItems: !self.subsourceHasSectioned
             )
             update.add(subupdate: subupdate, at: index)
             self.currentCoordinatorUpdate = update
@@ -205,7 +205,7 @@ where
     }
     
     override func numbersOfSections() -> Int {
-        sectioned ? indices.count : indices.isEmpty && !options.keepEmptySection ? 0 : 1
+        sectioned ? indices.count : indices.isEmpty && options.removeEmptySection ? 0 : 1
     }
     
     override func numbersOfItems(in section: Int) -> Int {
@@ -239,12 +239,15 @@ where
             values: (coordinator.subsources, subsources),
             sources: (coordinator.source, source),
             indices: (coordinator.indices, indices),
-            keepSectionIfEmpty: (coordinator.options.keepEmptySection, options.keepEmptySection),
-            isSectioned: sectioned
+            options: (coordinator.options, options),
+            isItems: !subsourceHasSectioned
         )
     }
     
-    override func update(_ update: ListUpdate<SourceBase>) -> CoordinatorUpdate {
+    override func update(
+        update: ListUpdate<SourceBase>,
+        options: ListOptions? = nil
+    ) -> CoordinatorUpdate {
         let sourcesAfterUpdate = update.source
         let subsourcesAfterUpdate = sourcesAfterUpdate.flatMap { value in
             subsourceType.from.map { toSubsources($0(value)) }
@@ -256,8 +259,8 @@ where
             values: (subsources, subsourcesAfterUpdate ?? subsources),
             sources: (source, sourcesAfterUpdate ?? source),
             indices: (indices, indicesAfterUpdate ?? indices),
-            keepSectionIfEmpty: (options.keepEmptySection, options.keepEmptySection),
-            isSectioned: sectioned
+            options: (self.options, options ?? self.options),
+            isItems: !subsourceHasSectioned
         )
     }
 }

@@ -26,7 +26,7 @@ where
     }
     
     func toIndices(_ sections: ContiguousArray<ContiguousArray<Item>>) -> Indices {
-        if options.keepEmptySection { return sections.indices.mapContiguous { ($0, false) } }
+        if !options.removeEmptySection { return sections.indices.mapContiguous { ($0, false) } }
         var indices = Indices(capacity: sections.count)
         for (i, section) in sections.enumerated() where !section.isEmpty {
             indices.append((i, false))
@@ -58,11 +58,14 @@ where
             values: (coordinator.sections, sections),
             sources: (coordinator.source, source),
             indices: (coordinator.indices, indices),
-            keepSectionIfEmpty: (coordinator.options.keepEmptySection, options.keepEmptySection)
+            options: (coordinator.options, options)
         )
     }
     
-    override func update(_ update: ListUpdate<SourceBase>) -> CoordinatorUpdate {
+    override func update(
+        update: ListUpdate<SourceBase>,
+        options: ListOptions? = nil
+    ) -> CoordinatorUpdate {
         let sourcesAfterUpdate = update.source
         let sectionsAfterUpdate = sourcesAfterUpdate.map(toSections)
         let indicesAfterUpdate =  sectionsAfterUpdate.map(toIndices)
@@ -72,7 +75,7 @@ where
             values: (sections, sectionsAfterUpdate ?? sections),
             sources: (source, sourcesAfterUpdate ?? source),
             indices: (indices, indicesAfterUpdate ?? indices),
-            keepSectionIfEmpty: (options.keepEmptySection, options.keepEmptySection)
+            options: (self.options, options ?? self.options)
         )
     }
 }

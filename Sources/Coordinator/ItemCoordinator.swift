@@ -20,22 +20,23 @@ where SourceBase.Item == SourceBase.Source, SourceBase.SourceBase == SourceBase 
     ) -> CoordinatorUpdate {
         let coordinator = coordinator as! ItemCoordinator<SourceBase>
         return ItemCoordinatorUpdate(
-            self,
+            coordinator: self,
             update: .init(updateWay, or: update),
             sources: (coordinator.source, source),
-            (true, true),
-            sectioned
+            options: (coordinator.options, options)
         )
     }
     
-    override func update(_ update: ListUpdate<SourceBase>) -> CoordinatorUpdate {
+    override func update(
+        update: ListUpdate<SourceBase>,
+        options: ListOptions? = nil
+    ) -> CoordinatorUpdate {
         let sourcesAfterUpdate = update.source
         return ItemCoordinatorUpdate(
-            self,
+            coordinator: self,
             update: update,
             sources: (source, sourcesAfterUpdate ?? source),
-            (true, true),
-            sectioned
+            options: (self.options, options ?? self.options)
         )
     }
 }

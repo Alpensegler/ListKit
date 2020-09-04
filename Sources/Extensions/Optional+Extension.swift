@@ -20,9 +20,7 @@ extension Optional: DataSource where Wrapped: DataSource {
         (source?.listUpdate).map { .init(way: $0.way) } ?? .reload
     }
     
-    public var listOptions: ListOptions<SourceBase> {
-        (source?.listOptions).map { .init($0) } ?? .none
-    }
+    public var listOptions: ListOptions { source?.listOptions ?? .none }
     
     public var listCoordinator: ListCoordinator<SourceBase> {
         WrapperCoordinator(self, toItem: { $0 }, toOther: { $0 })

@@ -15,7 +15,7 @@ where
         _ id: AnyHashable?,
         dataSources: Source,
         update: ListUpdate<SourceBase>.Whole,
-        options: ListOptions<SourceBase>
+        options: ListOptions
     ) {
         self.sourceValue = .value(dataSources)
         self.listDiffer = .init(id: id)
@@ -35,7 +35,7 @@ where
         dataSources: Source,
         id: AnyHashable? = nil,
         update: ListUpdate<SourceBase>.Whole,
-        options: ListOptions<SourceBase> = .none
+        options: ListOptions = .none
     ) {
         self.init(id, dataSources: dataSources, update: update, options: options)
     }
@@ -44,16 +44,16 @@ where
         wrappedValue: Source,
         id: AnyHashable? = nil,
         update: ListUpdate<SourceBase>.Whole,
-        options: ListOptions<SourceBase> = .none
+        options: ListOptions = .none
     ) {
         self.init(id, dataSources: wrappedValue, update: update, options: options)
     }
     
-    init(dataSources: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
+    init(dataSources: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, dataSources: dataSources, update: .subupdate, options: options)
     }
     
-    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
+    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, dataSources: wrappedValue, update: .subupdate, options: options)
     }
 }
@@ -70,7 +70,7 @@ where
         dataSources: Source,
         id: AnyHashable? = nil,
         update: ListUpdate<SourceBase>.Whole,
-        options: ListOptions<SourceBase> = .none
+        options: ListOptions = .none
     ) {
         self.init(id, dataSources: dataSources, update: .diff, options: options)
     }
@@ -79,7 +79,7 @@ where
         wrappedValue: Source,
         id: AnyHashable? = nil,
         update: ListUpdate<SourceBase>.Whole,
-        options: ListOptions<SourceBase> = .none
+        options: ListOptions = .none
     ) {
         self.init(id, dataSources: wrappedValue, update: .diff, options: options)
     }
@@ -97,7 +97,7 @@ where
         dataSources: Source,
         id: AnyHashable? = nil,
         update: ListUpdate<SourceBase>.Whole,
-        options: ListOptions<SourceBase> = .none
+        options: ListOptions = .none
     ) {
         self.init(id, dataSources: dataSources, update: .diff, options: options)
     }
@@ -106,7 +106,7 @@ where
         wrappedValue: Source,
         id: AnyHashable? = nil,
         update: ListUpdate<SourceBase>.Whole,
-        options: ListOptions<SourceBase> = .none
+        options: ListOptions = .none
     ) {
         self.init(id, dataSources: wrappedValue, update: .diff, options: options)
     }
@@ -125,7 +125,7 @@ where
         dataSources: Source,
         id: AnyHashable? = nil,
         update: ListUpdate<SourceBase>.Whole,
-        options: ListOptions<SourceBase> = .none
+        options: ListOptions = .none
     ) {
         self.init(id, dataSources: dataSources, update: .diff, options: options)
     }
@@ -134,7 +134,7 @@ where
         wrappedValue: Source,
         id: AnyHashable? = nil,
         update: ListUpdate<SourceBase>.Whole,
-        options: ListOptions<SourceBase> = .none
+        options: ListOptions = .none
     ) {
         self.init(id, dataSources: wrappedValue, update: .diff, options: options)
     }
@@ -154,7 +154,7 @@ where
         dataSources: Source,
         id: AnyHashable? = nil,
         update: ListUpdate<SourceBase>.Whole,
-        options: ListOptions<SourceBase> = .none
+        options: ListOptions = .none
     ) {
         self.init(id, dataSources: dataSources, update: .diff, options: options)
     }
@@ -163,7 +163,7 @@ where
         wrappedValue: Source,
         id: AnyHashable? = nil,
         update: ListUpdate<SourceBase>.Whole,
-        options: ListOptions<SourceBase> = .none
+        options: ListOptions = .none
     ) {
         self.init(id, dataSources: wrappedValue, update: .diff, options: options)
     }
@@ -183,7 +183,7 @@ where
         dataSources: Source,
         id: AnyHashable? = nil,
         update: ListUpdate<SourceBase>.Whole,
-        options: ListOptions<SourceBase> = .none
+        options: ListOptions = .none
     ) {
         self.init(id, dataSources: dataSources, update: .diff, options: options)
     }
@@ -192,7 +192,7 @@ where
         wrappedValue: Source,
         id: AnyHashable? = nil,
         update: ListUpdate<SourceBase>.Whole,
-        options: ListOptions<SourceBase> = .none
+        options: ListOptions = .none
     ) {
         self.init(id, dataSources: wrappedValue, update: .diff, options: options)
     }

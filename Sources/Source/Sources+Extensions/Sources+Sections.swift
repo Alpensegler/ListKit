@@ -15,7 +15,7 @@ where
         _ id: AnyHashable?,
         sections: Source,
         update: ListUpdate<SourceBase>.Whole,
-        options: ListOptions<SourceBase>
+        options: ListOptions
     ) {
         self.sourceValue = .value(sections)
         self.listDiffer = .init(id: id)
@@ -35,7 +35,7 @@ where
         _ id: AnyHashable?,
         sections: Source,
         update: ListUpdate<SourceBase>.Whole,
-        options: ListOptions<SourceBase>
+        options: ListOptions
     ) {
         self.sourceValue = .value(sections)
         self.listDiffer = .init(id: id)
@@ -55,7 +55,7 @@ where
         sections: Source,
         id: AnyHashable? = nil,
         update: ListUpdate<SourceBase>.Whole,
-        options: ListOptions<SourceBase> = .none
+        options: ListOptions = .none
     ) {
         self.init(id, sections: sections, update: update, options: options)
     }
@@ -64,16 +64,16 @@ where
         wrappedValue: Source,
         id: AnyHashable? = nil,
         update: ListUpdate<SourceBase>.Whole,
-        options: ListOptions<SourceBase> = .none
+        options: ListOptions = .none
     ) {
         self.init(id, sections: wrappedValue, update: update, options: options)
     }
     
-    init(sections: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
+    init(sections: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, sections: sections, update: .reload, options: options)
     }
     
-    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
+    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, sections: wrappedValue, update: .reload, options: options)
     }
 }
@@ -88,7 +88,7 @@ where
         sections: Source,
         id: AnyHashable? = nil,
         update: ListUpdate<SourceBase>.Whole,
-        options: ListOptions<SourceBase> = .none
+        options: ListOptions = .none
     ) {
         self.init(id, sections: sections, update: update, options: options)
     }
@@ -97,16 +97,16 @@ where
         wrappedValue: Source,
         id: AnyHashable? = nil,
         update: ListUpdate<SourceBase>.Whole,
-        options: ListOptions<SourceBase> = .none
+        options: ListOptions = .none
     ) {
         self.init(id, sections: wrappedValue, update: update, options: options)
     }
     
-    init(sections: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
+    init(sections: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, sections: sections, update: .reload, options: options)
     }
     
-    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
+    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, sections: wrappedValue, update: .reload, options: options)
     }
 }
@@ -119,11 +119,11 @@ where
     Source.Element.Element == Item,
     Item: Equatable
 {
-    init(sections: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
+    init(sections: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, sections: sections, update: .diff, options: options)
     }
     
-    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
+    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, sections: wrappedValue, update: .diff, options: options)
     }
 }
@@ -135,11 +135,11 @@ where
     Source.Element.Element == Item,
     Item: Equatable
 {
-    init(sections: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
+    init(sections: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, sections: sections, update: .diff, options: options)
     }
     
-    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
+    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, sections: wrappedValue, update: .diff, options: options)
     }
 }
@@ -152,11 +152,11 @@ where
     Source.Element.Element == Item,
     Item: Hashable
 {
-    init(sections: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
+    init(sections: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, sections: sections, update: .diff, options: options)
     }
     
-    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
+    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, sections: wrappedValue, update: .diff, options: options)
     }
 }
@@ -168,11 +168,11 @@ where
     Source.Element.Element == Item,
     Item: Hashable
 {
-    init(sections: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
+    init(sections: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, sections: sections, update: .diff, options: options)
     }
     
-    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
+    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, sections: wrappedValue, update: .diff, options: options)
     }
 }
@@ -186,11 +186,11 @@ where
     Source.Element.Element == Item,
     Item: Identifiable
 {
-    init(sections: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
+    init(sections: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, sections: sections, update: .diff, options: options)
     }
     
-    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
+    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, sections: wrappedValue, update: .diff, options: options)
     }
 }
@@ -203,11 +203,11 @@ where
     Source.Element.Element == Item,
     Item: Identifiable
 {
-    init(sections: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
+    init(sections: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, sections: sections, update: .diff, options: options)
     }
     
-    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
+    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, sections: wrappedValue, update: .diff, options: options)
     }
 }
@@ -222,11 +222,11 @@ where
     Item: Identifiable,
     Item: Equatable
 {
-    init(sections: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
+    init(sections: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, sections: sections, update: .diff, options: options)
     }
     
-    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
+    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, sections: wrappedValue, update: .diff, options: options)
     }
 }
@@ -240,11 +240,11 @@ where
     Item: Identifiable,
     Item: Equatable
 {
-    init(sections: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
+    init(sections: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, sections: sections, update: .diff, options: options)
     }
     
-    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
+    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, sections: wrappedValue, update: .diff, options: options)
     }
 }
@@ -259,11 +259,11 @@ where
     Item: Identifiable,
     Item: Hashable
 {
-    init(sections: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
+    init(sections: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, sections: sections, update: .diff, options: options)
     }
     
-    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
+    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, sections: wrappedValue, update: .diff, options: options)
     }
 }
@@ -277,11 +277,11 @@ where
     Item: Identifiable,
     Item: Hashable
 {
-    init(sections: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
+    init(sections: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, sections: sections, update: .diff, options: options)
     }
     
-    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions<SourceBase> = .none) {
+    init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, sections: wrappedValue, update: .diff, options: options)
     }
 }

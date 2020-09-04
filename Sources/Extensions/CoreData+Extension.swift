@@ -11,10 +11,12 @@ import Foundation
 
 open class ListFetchedResultsController<Item>: NSObject, NSFetchedResultsControllerDelegate
 where Item: NSFetchRequestResult {
+    public typealias SourceBase = ListFetchedResultsController<Item>
     public var fetchedResultController: NSFetchedResultsController<Item>
-    public var listUpdate = ListUpdate<ListFetchedResultsController<Item>>.Whole.appendOrRemoveLast
-    public var listDiffer = ListDiffer<ListFetchedResultsController<Item>>.diff
-    public var listOptions = ListOptions<ListFetchedResultsController<Item>>.keepEmptySection
+    public var listUpdate = ListUpdate<SourceBase>.Whole.reload
+    public var listDiffer = ListDiffer<SourceBase>.diff
+    public var listOptions = ListOptions()
+    
     public var didChangeContent: (() -> Void)?
     public var willChangeContent: (() -> Void)?
     
@@ -167,7 +169,7 @@ extension ListFetchedResultsController {
             case (false, true):
                 item.changes.source.add(indexPath)
             case (false, false):
-                prepare(sets: &item, from: indexPath, to: $0, path: \.move, shouldMoveItem)
+                prepare(move: &item, from: indexPath, to: $0)
                 return
             }
             item.dict[$0] = nil
@@ -180,7 +182,7 @@ extension ListFetchedResultsController {
                 item.all.target.remove($0)
                 item.dict[$0] = nil
             } else {
-                prepare(sets: &item, from: indexPath, to: $0, path: \.reload, shouldReloadItem)
+                prepare(reload: &item, from: indexPath, to: $0)
             }
         }
         item.changes.source.elements().forEach {
@@ -221,15 +223,11 @@ extension ListFetchedResultsController {
     }
     
     func prepareUpdate(sets: inout ChangeSets<IndexPathSet>) {
-        if let shouldMoveItem = shouldMoveItem {
-            sets.move.elements().forEach {
-                prepare(sets: &sets, from: sets.dict[$0], to: $0, path: \.move, shouldMoveItem)
-            }
+        if shouldMoveItem != nil {
+            sets.move.elements().forEach { prepare(move: &sets, from: sets.dict[$0], to: $0) }
         }
-        if let shouldReloadItem = shouldReloadItem {
-            sets.reload.elements().forEach {
-                prepare(sets: &sets, from: sets.dict[$0], to: $0, path: \.reload, shouldReloadItem)
-            }
+        if shouldReloadItem != nil {
+            sets.reload.elements().forEach { prepare(reload: &sets, from: sets.dict[$0], to: $0) }
         }
         if let remove = removeItem {
             sets.changes.source.elements().forEach(remove)
@@ -239,17 +237,19 @@ extension ListFetchedResultsController {
         }
     }
     
-    func prepare(
-        sets: inout ChangeSets<IndexPathSet>,
-        from: IndexPath?,
-        to: IndexPath,
-        path: WritableKeyPath<ChangeSets<IndexPathSet>, IndexPathSet>,
-        _ shouldUpdate: ((Item, IndexPath, IndexPath) -> Bool)?
-    ) {
-        guard let from = from, shouldUpdate?(item(at: to), from, to) == false else { return }
-        sets[keyPath: path].remove(to)
+    func prepare(move sets: inout ChangeSets<IndexPathSet>, from: IndexPath?, to: IndexPath) {
+        guard let from = from, shouldMoveItem?(item(at: to), from, to) == false else { return }
+        sets.move.remove(to)
         sets.changes.source.add(from)
         sets.changes.target.add(to)
+        sets.dict[to] = nil
+    }
+    
+    func prepare(reload sets: inout ChangeSets<IndexPathSet>, from: IndexPath?, to: IndexPath) {
+        guard let from = from, shouldReloadItem?(item(at: to), from, to) == false else { return }
+        sets.reload.remove(to)
+        sets.all.source.remove(from)
+        sets.all.target.remove(to)
         sets.dict[to] = nil
     }
 }

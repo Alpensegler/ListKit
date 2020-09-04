@@ -24,7 +24,7 @@ where
     }
     
     override func numbersOfItems(in section: Int) -> Int { items.count }
-    override func numbersOfSections() -> Int { items.isEmpty && !options.keepEmptySection ? 0 : 1 }
+    override func numbersOfSections() -> Int { items.isEmpty && options.removeEmptySection ? 0 : 1 }
 
     override func item(at indexPath: IndexPath) -> Item { items[indexPath.item] }
 
@@ -38,12 +38,14 @@ where
             update: .init(updateWay, or: update),
             values: (coordinator.items, items),
             sources: (coordinator.source, source),
-            keepSectionIfEmpty: (coordinator.options.keepEmptySection, options.keepEmptySection),
-            isSectioned: sectioned
+            options: (coordinator.options, options)
         )
     }
 
-    override func update(_ update: ListUpdate<SourceBase>) -> CoordinatorUpdate {
+    override func update(
+        update: ListUpdate<SourceBase>,
+        options: ListOptions? = nil
+    ) -> CoordinatorUpdate {
         let sourcesAfterUpdate = update.source
         let itemsAfterUpdate = sourcesAfterUpdate.map(toItems)
         return updateType.init(
@@ -51,8 +53,7 @@ where
             update: update,
             values: (items, itemsAfterUpdate ?? items),
             sources: (source, sourcesAfterUpdate ?? source),
-            keepSectionIfEmpty: (options.keepEmptySection, options.keepEmptySection),
-            isSectioned: sectioned
+            options: (self.options, options ?? self.options)
         )
     }
 }

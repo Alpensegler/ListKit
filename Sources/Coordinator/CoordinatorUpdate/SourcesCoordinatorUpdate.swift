@@ -19,7 +19,7 @@ extension CoordinatorUpdate {
         
         func update(_ isSource: Bool, _ id: ObjectIdentifier?) -> CoordinatorUpdate {
             self.update[id] ?? {
-                let update = value.coordinator.update(isSource ? .remove : .insert)
+                let update = value.coordinator.update(update: isSource ? .remove : .insert)
                 self.update[nil] = update
                 return update
             }()
@@ -82,13 +82,14 @@ where
         values: Values,
         sources: Sources,
         indices: Mapping<Indices>,
-        keepSectionIfEmpty: Mapping<Bool>,
-        isSectioned: Bool
+        options: Options,
+        isItems: Bool
     ) {
         self.subsourceType = coordinator.subsourceType
         self.coordinator = coordinator
         self.indices = indices
-        super.init(coordinator, update: update, values, sources, keepSectionIfEmpty, isSectioned)
+        super.init(coordinator, update: update, values: values, sources: sources, options: options)
+        self.isItems = isItems
     }
     
     override func toValue(_ element: Element) -> Subsource {
@@ -120,7 +121,7 @@ where
             values.append(change.value)
         case let .update(_, value, update):
             update.prepareData()
-            let count = isSectioned ? update.targetSectionCount : update.targetCount
+            let count = isItems ? update.targetCount : update.targetSectionCount
             values.append(value.target.setting(offset: 0, count: count))
         default: break
         }
@@ -228,7 +229,7 @@ where
         order: Order,
         context: UpdateContext<Int>? = nil
     ) -> UpdateSource<BatchUpdates.ListSource> {
-        guard isSectioned else { return super.generateSourceUpdate(order: order, context: context) }
+        if isItems { return super.generateSourceUpdate(order: order, context: context) }
         return sourceUpdate(order, in: context, \.section, Subupdate.generateSourceUpdate)
     }
     
@@ -236,7 +237,7 @@ where
         order: Order,
         context: UpdateContext<Offset<Int>>? = nil
     ) -> UpdateTarget<BatchUpdates.ListTarget> {
-        guard isSectioned else { return super.generateTargetUpdate(order: order, context: context) }
+        if isItems { return super.generateTargetUpdate(order: order, context: context) }
         return targetUpdate(order, in: context, \.section, Subupdate.generateTargetUpdate)
     }
     

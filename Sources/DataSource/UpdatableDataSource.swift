@@ -29,7 +29,7 @@ public extension UpdatableDataSource {
         if update.isEmpty { return }
         let isMainThread = Thread.isMainThread
         var update = update
-        var coordinator: ListCoordinator<SourceBase>!, options: ListOptions<SourceBase>!
+        var coordinator: ListCoordinator<SourceBase>!, options: ListOptions!
         let work = {
             coordinator = self.listCoordinator
             options = self.listOptions
@@ -41,7 +41,7 @@ public extension UpdatableDataSource {
             }
         }
         isMainThread ? work() : DispatchQueue.main.sync(execute: work)
-        let coordinatorUpdate = coordinator.update(update)
+        let coordinatorUpdate = coordinator.update(update: update, options: options)
         coordinator.currentCoordinatorUpdate = coordinatorUpdate
         let contextAndUpdates = coordinator.contextAndUpdates(update: coordinatorUpdate)
         let results = contextAndUpdates.compactMap { arg in
@@ -49,8 +49,8 @@ public extension UpdatableDataSource {
         }
         if results.isEmpty { return }
         let afterWork = {
-            let updateAnimated = animated ?? !options.contains(.preferNoAnimation)
             for (context, coordinatorUpdate, update) in results {
+                let updateAnimated = animated ?? !coordinatorUpdate.preferNoAnimation
                 coordinatorUpdate.finalChange?()
                 context.perform(updates: update, animated: updateAnimated, completion: completion)
             }

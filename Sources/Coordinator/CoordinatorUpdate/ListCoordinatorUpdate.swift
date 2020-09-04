@@ -11,12 +11,14 @@ class ListCoordinatorUpdate<SourceBase: DataSource>: CoordinatorUpdate
 where SourceBase.SourceBase == SourceBase {
     typealias Item = SourceBase.Item
     typealias Sources = Mapping<SourceBase.Source?>
+    typealias Options = Mapping<ListOptions>
     
     weak var listCoordinator: ListCoordinator<SourceBase>?
     var hasBatchUpdate = false
     var defaultUpdate: ListUpdate<SourceBase>.Whole?
     var update: ListUpdate<SourceBase>.Whole?
-    var sources: Mapping<SourceBase.Source?>
+    var sources: Sources
+    var options: Options
     
     var differ: ListDiffer<SourceBase.Item>! { update?.diff ?? defaultUpdate?.diff }
     var diffable: Bool { differ?.isNone == false }
@@ -26,27 +28,28 @@ where SourceBase.SourceBase == SourceBase {
         update?.way.isMoreUpdate == true
     }
     
+    override var preferNoAnimation: Bool { options.target.preferNoAnimation }
+    
     init(
         _ coordinator: ListCoordinator<SourceBase>?,
         update: ListUpdate<SourceBase>,
-        sources: Mapping<SourceBase.Source?>,
-        _ keepSectionIfEmpty: Mapping<Bool>,
-        _ sectioned: Bool
+        sources: Sources,
+        options: Options
     ) {
         self.listCoordinator = coordinator
         self.sources = sources
         self.defaultUpdate = coordinator?.update
+        self.options = options
         super.init()
-        self.isSectioned = sectioned
-        self.keepSectionIfEmpty = keepSectionIfEmpty
+        self.isSectioned = coordinator?.sectioned ?? true
         switch update.updateType {
         case let .whole(whole):
             self.update = whole
             switch whole.way {
             case .insert:
-                self.keepSectionIfEmpty.source = false
+                self.options.source.insert(.removeEmptySection)
             case .remove:
-                self.keepSectionIfEmpty.target = false
+                self.options.target.insert(.removeEmptySection)
                 isRemove = true
             default:
                 break
@@ -59,6 +62,10 @@ where SourceBase.SourceBase == SourceBase {
     
     override func updateData(_ isSource: Bool) {
         listCoordinator?.source = isSource ? sources.source : sources.target
+    }
+    
+    override func hasSectionIfEmpty(isSource: Bool) -> Bool {
+        isSource ? !options.source.removeEmptySection : !options.target.removeEmptySection
     }
     
     override func configChangeType() -> ChangeType {
@@ -163,7 +170,8 @@ where SourceBase.SourceBase == SourceBase {
 
 extension ListCoordinatorUpdate {
     func itemsOnly(_ isSource: Bool) -> Bool {
-        !isSectioned && hasSectionIfEmpty(isSource: isSource)
+        guard isSectioned else { return true }
+        return hasSectionIfEmpty(isSource: isSource)
     }
     
     func toContext<Offset, OtherOffset>(

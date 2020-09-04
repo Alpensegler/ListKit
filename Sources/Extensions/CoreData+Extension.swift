@@ -27,8 +27,8 @@ where Item: NSFetchRequestResult {
     
     public var insertItem: ((Item, IndexPath) -> Void)?
     public var removeItem: ((IndexPath) -> Void)?
-    public var shouldReloadItem: ((Item, IndexPath) -> Bool)?
-    public var shouldMoveItem: ((Item, IndexPath) -> Bool)?
+    public var shouldReloadItem: ((Item, IndexPath, IndexPath) -> Bool)?
+    public var shouldMoveItem: ((Item, IndexPath, IndexPath) -> Bool)?
     
     var update: ListUpdate<SourceBase>!
     var _section: ChangeSets<IndexSet>?
@@ -203,10 +203,6 @@ extension ListFetchedResultsController {
     }
     
     func prepareUpdate(sets: inout ChangeSets<IndexSet>) {
-        if let remove = removeSection { sets.changes.source.forEach(remove) }
-        if let insert = insertSection {
-            sets.changes.target.forEach { insert(fetchedResultController.sections![$0], $0) }
-        }
         if let shuoldReload = shouldReloadSection {
             sets.reload.forEach {
                 if shuoldReload(fetchedResultController.sections![$0], $0) { return }
@@ -216,13 +212,15 @@ extension ListFetchedResultsController {
                 section.dict[$0] = nil
             }
         }
+        if let remove = removeSection {
+            sets.changes.source.forEach(remove)
+        }
+        if let insert = insertSection {
+            sets.changes.target.forEach { insert(fetchedResultController.sections![$0], $0) }
+        }
     }
     
     func prepareUpdate(sets: inout ChangeSets<IndexPathSet>) {
-        if let remove = removeItem { sets.changes.source.elements().forEach(remove) }
-        if let insert = insertItem {
-            sets.changes.target.elements().forEach { insert(item(at: $0), $0) }
-        }
         if let shouldMoveItem = shouldMoveItem {
             sets.move.elements().forEach {
                 prepare(sets: &sets, from: sets.dict[$0], to: $0, path: \.move, shouldMoveItem)
@@ -233,6 +231,12 @@ extension ListFetchedResultsController {
                 prepare(sets: &sets, from: sets.dict[$0], to: $0, path: \.reload, shouldReloadItem)
             }
         }
+        if let remove = removeItem {
+            sets.changes.source.elements().forEach(remove)
+        }
+        if let insert = insertItem {
+            sets.changes.target.elements().forEach { insert(item(at: $0), $0) }
+        }
     }
     
     func prepare(
@@ -240,9 +244,9 @@ extension ListFetchedResultsController {
         from: IndexPath?,
         to: IndexPath,
         path: WritableKeyPath<ChangeSets<IndexPathSet>, IndexPathSet>,
-        _ shouldUpdate: ((Item, IndexPath) -> Bool)?
+        _ shouldUpdate: ((Item, IndexPath, IndexPath) -> Bool)?
     ) {
-        guard let from = from, shouldUpdate?(item(at: to), from) == false else { return }
+        guard let from = from, shouldUpdate?(item(at: to), from, to) == false else { return }
         sets[keyPath: path].remove(to)
         sets.changes.source.add(from)
         sets.changes.target.add(to)

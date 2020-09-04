@@ -15,14 +15,6 @@ public extension CollectionList where SourceBase == AnySources {
     init<Source: CollectionListAdapter>(@AnyCollectionSourcesBuilder content: () -> Source) {
         self.init(content())
     }
-    
-    static func capture<Source: CollectionListAdapter>(
-        id: AnyHashable? = nil,
-        options: ListOptions<AnySources> = .none,
-        @AnyCollectionSourcesBuilder content: @escaping () -> Source
-    ) -> AnyCollectionSources {
-        CollectionList(AnySources.capture(id: id, options: options, content: content))
-    }
 }
 
 @_functionBuilder

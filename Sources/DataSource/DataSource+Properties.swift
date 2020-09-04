@@ -7,7 +7,7 @@
 
 public extension DataSource {
     var listDiffer: ListDiffer<SourceBase> { .none }
-    var listOptions: ListOptions<SourceBase> { .none }
+    var listOptions: ListOptions { .none }
     var listUpdate: ListUpdate<SourceBase>.Whole { .reload }
 }
 

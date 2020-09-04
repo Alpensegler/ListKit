@@ -5,24 +5,21 @@
 //  Created by Frain on 2020/6/9.
 //
 
-public struct ListOptions<SourceBase>: OptionSet {
+public struct ListOptions: OptionSet {
     public private(set) var rawValue: Int8
     
     public init(rawValue: Int8) { self.rawValue = rawValue }
 }
 
 public extension ListOptions {
-    static var none: Self { .init() }
-    static var preferNoAnimation: Self { .init(rawValue: 1 << 0) }
-    static var preferSection: Self { .init(rawValue: 1 << 1) }
-    static var keepEmptySection: Self { .init(rawValue: 1 << 2) }
+    static let none = ListOptions()
+    static let preferNoAnimation = ListOptions(rawValue: 1 << 0)
+    static let preferSection = ListOptions(rawValue: 1 << 1)
+    static let removeEmptySection = ListOptions(rawValue: 1 << 2)
 }
 
 extension ListOptions {
-    var preferSection: Bool { contains(.init(rawValue: 1 << 1)) }
-    var keepEmptySection: Bool { contains(.init(rawValue: 1 << 2))  }
-    
-    init<OtherSourceBase>(_ otherOptions: ListOptions<OtherSourceBase>) {
-        rawValue = otherOptions.rawValue
-    }
+    var preferSection: Bool { contains(.preferSection) }
+    var removeEmptySection: Bool { contains(.removeEmptySection)  }
+    var preferNoAnimation: Bool { contains(.preferSection) }
 }

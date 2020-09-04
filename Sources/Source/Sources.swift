@@ -31,7 +31,7 @@ public struct Sources<Source, Item>: UpdatableDataSource {
     
     public let listDiffer: ListDiffer<Self>
     public let listUpdate: ListUpdate<Self>.Whole
-    public var listOptions: ListOptions<Self>
+    public var listOptions: ListOptions
     
     public var listCoordinator: ListCoordinator<Self> { coordinator(with: coordinatorMaker(self)) }
     

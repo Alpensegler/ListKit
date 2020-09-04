@@ -46,8 +46,7 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
                 wrappeds: (self.wrapped, self.wrapped),
                 sources: (self.source, self.source),
                 subupdate: update,
-                keepSectionIfEmpty: (self.options.keepEmptySection, self.options.keepEmptySection),
-                isSectioned: self.sectioned,
+                options: (self.options, self.options),
                 subIsSectioned: self.subIsSectiond
             )
             return self.contextAndUpdates(update: update)
@@ -63,9 +62,9 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
         case (nil, nil):
             return nil
         case (nil, let to?):
-            return to.coordinator.update(.insert)
+            return to.coordinator.update(update: .insert)
         case (let from?, nil):
-            return  from.coordinator.update(.remove)
+            return  from.coordinator.update(update: .remove)
         case (let from?, let to?):
             let updateWay =  way.map { ListUpdateWay($0, cast: toItem) }
             return to.coordinator.update(from: from.coordinator, updateWay: updateWay)
@@ -78,7 +77,7 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
     
     override func numbersOfSections() -> Int {
         if !subIsSectiond, sectioned, wrapped?.coordinator.numbersOfItems(in: 0) == 0 {
-            return !options.keepEmptySection ? 0 : 1
+            return options.removeEmptySection ? 0 : 1
         }
         return wrapped?.coordinator.numbersOfSections() ?? 0
     }
@@ -116,13 +115,15 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
             wrappeds: (coordinator.wrapped, wrapped),
             sources: (coordinator.source, source),
             subupdate: update(from: coordinator.wrapped, to: wrapped, way: updateWay),
-            keepSectionIfEmpty: (coordinator.options.keepEmptySection, options.keepEmptySection),
-            isSectioned: sectioned,
+            options: (options, options),
             subIsSectioned: self.subIsSectiond
         )
     }
     
-    override func update(_ update: ListUpdate<SourceBase>) -> CoordinatorUpdate {
+    override func update(
+        update: ListUpdate<SourceBase>,
+        options: ListOptions? = nil
+    ) -> CoordinatorUpdate {
         guard case let .whole(whole) = update.updateType else { fatalError() }
         let subupdate: CoordinatorUpdate?, targetWrapped: Wrapped?, targetSource: SourceBase.Source!
         if let source = update.source {
@@ -133,7 +134,7 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
             let way = ListUpdateWay(whole.way, cast: toItem)
             targetSource = source
             targetWrapped = wrapped
-            subupdate = wrapped?.coordinator.update(.init(updateType: .whole(.init(way: way))))
+            subupdate = wrapped?.coordinator.update(update: .init(way, or: .reload))
         }
         return WrapperCoordinatorUpdate(
             coordinator: self,
@@ -141,8 +142,7 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
             wrappeds: (wrapped, targetWrapped),
             sources: (source, targetSource),
             subupdate: subupdate,
-            keepSectionIfEmpty: (options.keepEmptySection, options.keepEmptySection),
-            isSectioned: sectioned,
+            options: (self.options, options ?? self.options),
             subIsSectioned: subIsSectiond
         )
     }

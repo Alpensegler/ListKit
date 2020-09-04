@@ -26,7 +26,7 @@ where Source.SourceBase == Source {
     
     public var listUpdate: ListUpdate<SourceBase>.Whole { source.listUpdate }
     public var listDiffer: ListDiffer<Source> { source.listDiffer }
-    public var listOptions: ListOptions<Source> { source.listOptions }
+    public var listOptions: ListOptions { source.listOptions }
     
     public var listCoordinator: ListCoordinator<Source> { storage.listCoordinator }
     public let listContextSetups: [(ListCoordinatorContext<SourceBase>) -> Void]

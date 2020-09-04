@@ -17,7 +17,7 @@ public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase
     
     let update: ListUpdate<SourceBase>.Whole
     let differ: ListDiffer<SourceBase>
-    let options: ListOptions<SourceBase>
+    let options: ListOptions
     var source: SourceBase.Source!
     
     weak var storage: CoordinatorStorage<SourceBase>?
@@ -32,7 +32,7 @@ public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase
         source: SourceBase.Source!,
         update: ListUpdate<SourceBase>.Whole,
         differ: ListDiffer<SourceBase> = .none,
-        options: ListOptions<SourceBase> = .none
+        options: ListOptions = .none
     ) {
         self.update = update
         self.differ = differ
@@ -75,7 +75,12 @@ public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase
         differ.areEquivalent?(lhs, rhs) ?? true
     }
     
-    func update(_ update: ListUpdate<SourceBase>) -> CoordinatorUpdate { notImplemented() }
+    func update(
+        update: ListUpdate<SourceBase>,
+        options: ListOptions? = nil
+    ) -> CoordinatorUpdate {
+        notImplemented()
+    }
     
     func update(
         from coordinator: ListCoordinator<SourceBase>,

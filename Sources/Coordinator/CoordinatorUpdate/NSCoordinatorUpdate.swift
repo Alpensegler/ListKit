@@ -34,12 +34,12 @@ where SourceBase.SourceBase == SourceBase {
         update: ListUpdate<SourceBase>,
         sources: Sources,
         indices: Mapping<Indices>,
-        keepSectionIfEmpty: Mapping<Bool>,
-        isSectioned: Bool
+        options: Options
     ) {
         self.coordinator = coordinator
         self.indices = indices
-        super.init(coordinator, update: update, sources: sources, keepSectionIfEmpty, isSectioned)
+        super.init(coordinator, update: update, sources: sources, options: options)
+        isItems = !coordinator.sectioned
     }
     
     override func updateData(_ isSource: Bool) {

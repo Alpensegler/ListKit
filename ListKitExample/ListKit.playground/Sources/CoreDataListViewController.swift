@@ -67,7 +67,7 @@ public class CoreDataListViewController: UIViewController, UpdatableTableListAda
             managedObjectContext: Self.managedObjectContext,
             sectionNameKeyPath: "done"
         )
-        controller.shouldMoveItem = { [unowned self] (todo, indexPath) in
+        controller.shouldMoveItem = { [unowned self] (todo, indexPath, _) in
             if let context = self.todosList.indexContext(for: self.tableView, at: indexPath) {
                 context.cell?.configUI(with: todo)
                 return true

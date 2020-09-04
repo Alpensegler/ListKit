@@ -9,7 +9,7 @@
 import CoreData
 import Foundation
 
-public class ListFetchedResultsController<Item>: NSObject, NSFetchedResultsControllerDelegate
+open class ListFetchedResultsController<Item>: NSObject, NSFetchedResultsControllerDelegate
 where Item: NSFetchRequestResult {
     public var fetchedResultController: NSFetchedResultsController<Item>
     public var listUpdate = ListUpdate<ListFetchedResultsController<Item>>.Whole.appendOrRemoveLast

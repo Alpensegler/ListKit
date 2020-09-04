@@ -132,13 +132,16 @@ extension SectionsCoordinatorUpdate {
         if maxCount == 0 { return [] }
         let elements = sources.target?.mapContiguous { $0 }
         return (0..<maxCount).mapContiguous { i in
+            var (sourceOption, targetOption) = options
             let source = i < sourceCount ? values.source[i] : []
             let target = i < targetCount ? values.target[i] : []
+            if i >= targetCount { sourceOption.insert(.removeEmptySection) }
+            if i >= sourceCount { targetOption.insert(.removeEmptySection) }
             return updateType.init(
                 update: (update?.way).map { .init(.init(way: $0)) } ?? .init(),
                 values: (source, target),
                 sources: (nil, elements?[safe: i]),
-                options: options
+                options: (sourceOption, targetOption)
             )
         }
     }

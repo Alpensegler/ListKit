@@ -12,14 +12,15 @@ extension Room: CollectionListAdapter {
     
     public var source: [String] { people.shuffled() }
     public var listDiffer: ListDiffer<Room> { .diff(id: \.name) }
+    public var listOptions: ListOptions { .removeEmptySection }
     
     public var collectionList: CollectionList<Room> {
         collectionViewCellForItem(CenterLabelCell.self) { (cell, context, item) in
             cell.text = item
         }
-        .collectionViewDidSelectItem({ (context, item) in
+        .collectionViewDidSelectItem { (context, item) in
             self.perform(.remove(at: context.item))
-        })
+        }
         .collectionViewLayoutSizeForItem { (_, _, _) in
             CGSize(width: 70, height: 70)
         }
@@ -79,9 +80,9 @@ extension Room: CustomStringConvertible {
     static var random: [Room] {
 //        toggle.toggle()
 //        if toggle {
-//            return [Room("A", [1]), Room("B", [4, 5, 6])]
+//            return [Room("River View", ["Kubrick", "Jack"]), Room("Interview A", ["July", "Frain"]), Room("Interview B", ["Raynor"])]
 //        } else {
-//            return [Room("B", [4, 5, 6]), Room("A", [1, 2, 3])]
+//            return [Room("River View", ["Melissa", "Raynor", "Frain"]), Room("Interview B", ["Dooze", "Charlie"]), Room("Interview A", ["July"])]
 //        }
 
         var shuffled = members.shuffled()
@@ -108,7 +109,7 @@ extension Room: CustomStringConvertible {
         self.name = name
         self.people = people
     }
-    init(_ name: String, _ people: [Int]) {
+    init(_ name: String, _ people: [Int] = []) {
         self.name = name
         self.people = people.map { "\($0)" }
     }

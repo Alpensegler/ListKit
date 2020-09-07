@@ -97,7 +97,7 @@ extension ListCoordinator {
             guard let context = context.context else { continue }
             if context.listView != nil {
                 results.append((context, update))
-            } else if let parentUpdate = context.update  {
+            } else if let parentUpdate = context.update {
                 results += parentUpdate(context.index, update)
             }
         }

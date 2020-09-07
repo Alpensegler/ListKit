@@ -15,13 +15,18 @@ where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSo
     var subupdate: CoordinatorUpdate?
     var coordinator: WrapperCoordinator<SourceBase, Other>
     var subIsSectioned = false
-    var shouldSuperUpdate: Bool { isSectioned && !subIsSectioned }
+    var shouldHandle: Bool { isSectioned && !subIsSectioned }
     
     override var sourceCount: Int { subupdate?.sourceCount ?? 0 }
     override var targetCount: Int { subupdate?.targetCount ?? 0 }
     
-    override var sourceSectionCount: Int { subupdate?.sourceSectionCount ?? 0 }
-    override var targetSectionCount: Int { subupdate?.targetSectionCount ?? 0 }
+    override var sourceSectionCount: Int {
+        shouldHandle ? (sourceHasSection ? 1 : 0) : (subupdate?.sourceSectionCount ?? 0)
+    }
+    
+    override var targetSectionCount: Int {
+        shouldHandle ? (targetHasSection ? 1 : 0) : (subupdate?.targetSectionCount ?? 0)
+    }
     
     init(
         coordinator: WrapperCoordinator<SourceBase, Other>,
@@ -78,7 +83,7 @@ where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSo
         order: Order,
         context: UpdateContext<Int>? = nil
     ) -> UpdateSource<BatchUpdates.ListSource> {
-        if shouldSuperUpdate { return super.generateSourceUpdate(order: order, context: context) }
+        if shouldHandle { return super.generateSourceUpdate(order: order, context: context) }
         guard let subupdate = subupdate else { return (0, nil) }
         return subupdate.generateSourceUpdate(order: order, context: context)
     }
@@ -87,7 +92,7 @@ where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSo
         order: Order,
         context: UpdateContext<Offset<Int>>? = nil
     ) -> UpdateTarget<BatchUpdates.ListTarget> {
-        if shouldSuperUpdate { return super.generateTargetUpdate(order: order, context: context) }
+        if shouldHandle { return super.generateTargetUpdate(order: order, context: context) }
         guard let subupdate = subupdate else { return ([], nil, nil) }
         var update = subupdate.generateTargetUpdate(order: order, context: context)
         updateMaxIfNeeded(subupdate, context, context)

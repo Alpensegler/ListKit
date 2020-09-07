@@ -21,5 +21,5 @@ public extension ListOptions {
 extension ListOptions {
     var preferSection: Bool { contains(.preferSection) }
     var removeEmptySection: Bool { contains(.removeEmptySection)  }
-    var preferNoAnimation: Bool { contains(.preferSection) }
+    var preferNoAnimation: Bool { contains(.preferNoAnimation) }
 }

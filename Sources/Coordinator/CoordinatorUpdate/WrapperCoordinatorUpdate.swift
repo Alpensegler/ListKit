@@ -14,19 +14,9 @@ where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSo
     var wrappeds: Mapping<Wrapped?>
     var subupdate: CoordinatorUpdate?
     var coordinator: WrapperCoordinator<SourceBase, Other>
-    var subIsSectioned = false
+    var subIsSectioned: Bool
+    
     var shouldHandle: Bool { isSectioned && !subIsSectioned }
-    
-    override var sourceCount: Int { subupdate?.sourceCount ?? 0 }
-    override var targetCount: Int { subupdate?.targetCount ?? 0 }
-    
-    override var sourceSectionCount: Int {
-        shouldHandle ? (sourceHasSection ? 1 : 0) : (subupdate?.sourceSectionCount ?? 0)
-    }
-    
-    override var targetSectionCount: Int {
-        shouldHandle ? (targetHasSection ? 1 : 0) : (subupdate?.targetSectionCount ?? 0)
-    }
     
     init(
         coordinator: WrapperCoordinator<SourceBase, Other>,
@@ -40,8 +30,9 @@ where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSo
         self.wrappeds = wrappeds
         self.coordinator = coordinator
         self.subupdate = subupdate
-        super.init(coordinator, update: update, sources: sources, options: options)
         self.subIsSectioned = subIsSectioned
+        super.init(coordinator, update: update, sources: sources, options: options)
+        isItems = shouldHandle
     }
     
     override func inferringMoves(context: CoordinatorUpdate.ContextAndID? = nil) {
@@ -52,17 +43,15 @@ where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSo
         subupdate?.prepareData()
     }
     
-    override func configItemMaxOrder() -> Cache<CoordinatorUpdate.Order> {
-        subupdate?.itemMaxOrder ?? .init(value: .second)
+    override func configMaxOrder() -> Cache<Order> {
+        if shouldHandle { return super.configMaxOrder() }
+        return subupdate?.maxOrder ?? super.configMaxOrder()
     }
     
-    override func configSectionMaxOrder() -> Cache<CoordinatorUpdate.Order> {
-        if changeType == .remove(itemsOnly: false) { return Cache(value: Order.third) }
-        return subupdate?.sectionMaxOrder ?? .init(value: .second)
-    }
+    override func configCount() -> Mapping<Int> { subupdate?.count ?? (0, 0) }
     
-    override func configChangeType() -> CoordinatorUpdate.ChangeType {
-        if subIsSectioned { return subupdate?.changeType ?? .none }
+    override func configChangeType() -> ChangeType {
+        guard shouldHandle else { return subupdate?.changeType ?? .none }
         switch (update?.way, sourceIsEmpty, targetIsEmpty) {
         case (.remove, _, _): return .remove(itemsOnly: !isSectioned)
         case (.insert, _, _): return .insert(itemsOnly: !isSectioned)
@@ -96,7 +85,7 @@ where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSo
         guard let subupdate = subupdate else { return ([], nil, nil) }
         var update = subupdate.generateTargetUpdate(order: order, context: context)
         updateMaxIfNeeded(subupdate, context, context)
-        if hasNext(order, context, isSectioned) {
+        if hasNext(order, context) {
             update.change = update.change + { [weak self] in self?.coordinator.resetDelegates() }
         } else {
             update.change = update.change + finalChange
@@ -119,7 +108,7 @@ where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSo
         guard let subupdate = subupdate else { return ([], nil, nil) }
         var update = subupdate.generateTargetItemUpdate(order: order, context: context)
         updateMaxIfNeeded(subupdate, context, context)
-        if hasNext(order, context, isSectioned) {
+        if hasNext(order, context) {
             update.change = update.change + { [weak self] in self?.coordinator.resetDelegates() }
         } else {
             update.change = update.change + finalChange

@@ -33,9 +33,6 @@ where
     
     var updateType: ItemsUpdate.Type { ItemsUpdate.self }
     
-    override var sourceCount: Int { indices.source.count }
-    override var targetCount: Int { indices.target.count }
-    
     required init(
         coordinator: SectionsCoordinator<SourceBase>,
         update: ListUpdate<SourceBase>,
@@ -53,6 +50,8 @@ where
         fatalError()
     }
     
+    override func configCount() -> Mapping<Int> { (indices.source.count, indices.target.count) }
+    
     override func updateData(_ isSource: Bool) {
         super.updateData(isSource)
         coordinator?.sections = isSource ? values.source : values.target
@@ -67,7 +66,7 @@ where
         order: Order,
         context: UpdateContext<Int>? = nil
     ) -> UpdateSource<BatchUpdates.ListSource> {
-        if notUpdate(order, context) { return (targetCount, nil) }
+        if notUpdate(order, context) { return (count.target, nil) }
         var (count, update) = (0, BatchUpdates.ListSource())
         for itemUpdate in itemsUpdates {
             let (subsectionCount, subupdate) = itemUpdate.generateSourceUpdate(
@@ -106,10 +105,9 @@ where
                 self.coordinator?.sections = self.values.source
                 self.coordinator?.indices = indices
             }
-        case .second where hasNext(order, context, true):
-            let noItems = !hasNext(order, context, false)
-            let source = noItems ? sources.target : toSource(values: itemsUpdates, id: context?.id)
-            let sections = noItems ? values.target : itemsUpdates.mapContiguous {
+        case .second where hasNext(order, context):
+            let source = toSource(values: itemsUpdates, id: context?.id)
+            let sections = itemsUpdates.mapContiguous {
                 $0.hasNext(.second, context) ? $0.extraValues[context?.id] : $0.values.target
             }
             change = { [unowned self] in

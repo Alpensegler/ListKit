@@ -24,6 +24,8 @@ where SourceBase.Item == SourceBase.Source, SourceBase.SourceBase == SourceBase 
         isItems = true
     }
     
+    override func configCount() -> Mapping<Int> { (1, 1) }
+    
     func configChange() -> Mapping<Change<Item>?> {
         guard let s = sources.source, let t = sources.target else { return (nil, nil) }
         switch changeType {
@@ -94,7 +96,7 @@ where SourceBase.Item == SourceBase.Source, SourceBase.SourceBase == SourceBase 
             }
             
             let change: (() -> Void)?
-            if hasNext(order, context, false) {
+            if hasNext(order, context) {
                 let source = extraChange[context?.id].source?.value
                 change = { [unowned self] in self.listCoordinator?.source = source }
             } else {

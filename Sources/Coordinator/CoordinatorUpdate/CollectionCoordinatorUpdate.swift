@@ -32,11 +32,9 @@ where
     var updateDict = [Int: (change: Change, value: Value)]()
     
     lazy var changes = hasBatchUpdate ? configChangesForBatchUpdates() : configChangesForDiff()
+    lazy var batchChanges = configBatchChanges()
     
     var shouldConsiderUpdate: Bool { !updateDict.isEmpty }
-    
-    override var sourceCount: Int { values.source.count }
-    override var targetCount: Int { values.target.count }
     
     init(
         _ coordinator: ListCoordinator<SourceBase>? = nil,
@@ -50,8 +48,10 @@ where
     }
     
     func toValue(_ element: Element) -> Value { notImplemented() }
+    func toCount(_ value: Value) -> Int { 1 }
     func toSource(_ values: ContiguousArray<Value>) -> SourceBase.Source? { notImplemented() }
     func configChangesForDiff() -> Differences { notImplemented() }
+    func configUnchangedCount() -> Mapping<Int> { (values.source.count, values.target.count) }
     
     func append(change: Change, isSource: Bool, to changes: inout Differences) { notImplemented() }
     func append(change: DifferenceChange, into values: inout ContiguousArray<Value>) {
@@ -74,7 +74,19 @@ where
         return true
     }
     
+    override func configCount() -> Mapping<Int> {
+        var count = configUnchangedCount()
+        guard hasBatchUpdate else { return count }
+        batchChanges.source.forEach { count.target -= toCount($0.value) }
+        batchChanges.target.forEach { count.target += toCount($0.value) }
+        for (_, (change, value)) in updateDict {
+            count.target += toCount(value) - toCount(change.value)
+        }
+        return count
+    }
+    
     override func prepareData() {
+        _ = count
         guard shouldPrepareData else { return }
         var valuesAfter = ContiguousArray<Value>(capacity: values.source.count)
         for update in changes.target {
@@ -113,11 +125,16 @@ extension CollectionCoordinatorUpdate {
         if last.source < to.source { append(from: last, to: to, to: &changes) }
     }
     
-    func configChangesForBatchUpdates() -> Differences {
-        var changes: Changes = (.init(), .init()), result: Differences = (.init(), .init())
+    func configBatchChanges() -> Changes {
+        var changes: Changes = (.init(), .init())
         changeIndices.source.forEach { changeDict.source[$0].map { changes.source.append($0) } }
         changeIndices.target.forEach { changeDict.target[$0].map { changes.target.append($0) } }
-        enumerateChangesWithOffset(changes: changes, body: { (isSource, change) in
+        return changes
+    }
+    
+    func configChangesForBatchUpdates() -> Differences {
+        var result: Differences = (.init(), .init())
+        enumerateChangesWithOffset(changes: batchChanges, body: { (isSource, change) in
             append(change: change, isSource: isSource, to: &result)
         }, offset: { (from, to) in
             if shouldConsiderUpdate {
@@ -231,19 +248,19 @@ extension CollectionCoordinatorUpdate {
 extension CollectionCoordinatorUpdate {
     func append(_ element: Element) {
         let value = toValue(element)
-        changeIndices.target.insert(targetCount)
-        changeDict.target[targetCount] = .init(value, targetCount)
+        changeIndices.target.insert(values.target.count)
+        changeDict.target[values.target.count] = .init(value, values.target.count)
     }
     
     func append<S: Sequence>(contentsOf elements: S) where Element == S.Element {
-        var upper = targetCount
+        var upper = values.target.count
         for element in elements {
             let value = toValue(element)
             changeDict.target[upper] = .init(value, upper)
             upper += 1
         }
-        guard upper != targetCount else { return }
-        changeIndices.target.insert(integersIn: targetCount..<upper)
+        guard upper != values.target.count else { return }
+        changeIndices.target.insert(integersIn: values.target.count..<upper)
     }
     
     func insert(_ element: Element, at index: Int) {

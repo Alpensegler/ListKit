@@ -26,9 +26,6 @@ where SourceBase.SourceBase == SourceBase {
         set { _item = newValue }
     }
     
-    override var sourceCount: Int { indices.source.count }
-    override var targetCount: Int { indices.target.count }
-    
     init(
         _ coordinator: NSCoordinator<SourceBase>,
         update: ListUpdate<SourceBase>,
@@ -42,6 +39,15 @@ where SourceBase.SourceBase == SourceBase {
         isItems = !coordinator.sectioned
     }
     
+    override func configCount() -> Mapping<Int> {
+        if isSectioned { return (indices.source.count, indices.target.count) }
+        return (sources.source?.first ?? 0, sources.target?.first ?? 0)
+    }
+    
+    override func configMaxOrder() -> Cache<Order> {
+        _item != nil ? .init(value: .second) : super.maxOrder
+    }
+    
     override func updateData(_ isSource: Bool) {
         super.updateData(isSource)
         coordinator?.indices = indices.target
@@ -53,13 +59,13 @@ where SourceBase.SourceBase == SourceBase {
     ) -> UpdateSource<BatchUpdates.ListSource> {
         guard isSectioned else { return super.generateSourceUpdate(order: order, context: context) }
         switch order {
-        case .first: return (sourceCount, nil)
-        case .third: return (targetCount, nil)
+        case .first: return (count.source, nil)
+        case .third: return (count.target, nil)
         default: break
         }
         let section = _section?.toSource(offset: context?.offset)
         let item = _item?.toSource(offset: (context?.offset).map { .init(section: $0) })
-        return (targetCount, .init(item: item, section: section))
+        return (count.target, .init(item: item, section: section))
     }
     
     override func generateTargetUpdate(
@@ -68,8 +74,8 @@ where SourceBase.SourceBase == SourceBase {
     ) -> UpdateTarget<BatchUpdates.ListTarget> {
         guard isSectioned else { return super.generateTargetUpdate(order: order, context: context) }
         switch order {
-        case .first: return (toIndices(sourceCount, context), nil, nil)
-        case .third: return (toIndices(targetCount, context), nil, nil)
+        case .first: return (toIndices(count.source, context), nil, nil)
+        case .third: return (toIndices(count.target, context), nil, nil)
         default: break
         }
         let offset: Mapping<IndexPath>? = (context?.offset.offset).map {
@@ -77,7 +83,7 @@ where SourceBase.SourceBase == SourceBase {
         }
         let section = _section?.toTarget(offset: context?.offset.offset)
         let item = _item?.toTarget(offset: offset)
-        return (toIndices(targetCount, context), .init(item: item, section: section), finalChange)
+        return (toIndices(count.target, context), .init(item: item, section: section), finalChange)
     }
     
     override func generateSourceItemUpdate(
@@ -86,9 +92,9 @@ where SourceBase.SourceBase == SourceBase {
     ) -> UpdateSource<BatchUpdates.ItemSource> {
         if isMoreUpdate { return super.generateSourceItemUpdate(order: order, context: context) }
         switch order {
-        case .first: return (sourceCount, nil)
-        case .second: return (sourceCount, _item?.toSource(offset: context?.offset))
-        case .third: return (targetCount, nil)
+        case .first: return (count.source, nil)
+        case .second: return (count.source, _item?.toSource(offset: context?.offset))
+        case .third: return (count.target, nil)
         }
     }
     
@@ -98,11 +104,11 @@ where SourceBase.SourceBase == SourceBase {
     ) -> UpdateTarget<BatchUpdates.ItemTarget> {
         if isMoreUpdate { return super.generateTargetItemUpdate(order: order, context: context) }
         switch order {
-        case .first: return (toIndices(sourceCount, context), nil, nil)
-        case .third: return (toIndices(targetCount, context), nil, nil)
+        case .first: return (toIndices(count.source, context), nil, nil)
+        case .third: return (toIndices(count.target, context), nil, nil)
         default: break
         }
         let update = _item?.toTarget(offset: context?.offset.offset)
-        return (toIndices(targetCount, context), update, finalChange)
+        return (toIndices(count.target, context), update, finalChange)
     }
 }

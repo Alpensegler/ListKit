@@ -14,11 +14,12 @@ where SourceBase.SourceBase == SourceBase {
     typealias Options = Mapping<ListOptions>
     
     weak var listCoordinator: ListCoordinator<SourceBase>?
-    var hasBatchUpdate = false
     var defaultUpdate: ListUpdate<SourceBase>.Whole?
     var update: ListUpdate<SourceBase>.Whole?
     var sources: Sources
     var options: Options
+    
+    var hasBatchUpdate = false
     
     var differ: ListDiffer<SourceBase.Item>! { update?.diff ?? defaultUpdate?.diff }
     var diffable: Bool { differ?.isNone == false }
@@ -48,9 +49,11 @@ where SourceBase.SourceBase == SourceBase {
             switch whole.way {
             case .insert:
                 self.options.source.insert(.removeEmptySection)
+                count.source = 0
             case .remove:
                 self.options.target.insert(.removeEmptySection)
                 isRemove = true
+                count.target = 0
             default:
                 break
             }
@@ -92,15 +95,15 @@ where SourceBase.SourceBase == SourceBase {
                 return (sourceSectionCount, nil)
             }
             return (1, .init(section: .init(move: offset)))
+        case (.third, .remove(false)):
+            return (1, .init(section: .init(\.deletes, context?.offset ?? 0)))
         case (.second, _),
-            (.third, _) where !isEmptyUpdate(order, context, isSectioned: false):
+            (.third, _) where !notUpdate(order, context):
             guard case let (_, itemUpdate?) = generateSourceItemUpdate(
                 order: order,
                 context: toContext(context) { IndexPath(section: $0) }
             ) else { return (1, nil) }
             return (1, .init(item: itemUpdate))
-        case (.third, .remove(false)):
-            return (1, .init(section: .init(\.deletes, context?.offset ?? 0)))
         case (.third, _):
             return (targetSectionCount, nil)
         }
@@ -124,8 +127,10 @@ where SourceBase.SourceBase == SourceBase {
                 return (count(sourceSectionCount), nil, firstChange)
             }
             return (count(1), .init(section: .init(move: source, to: target)), firstChange)
+        case (.third, .remove(itemsOnly: false)):
+            return (count(0), nil, finalChange)
         case (.second, _),
-             (.third, _) where !isEmptyUpdate(order, context, isSectioned: false):
+             (.third, _) where !notUpdate(order, context):
             let isFake = changeType == .remove(itemsOnly: false)
             guard case let (_, itemUpdate?, change) = generateTargetItemUpdate(
                 order: order,
@@ -135,8 +140,6 @@ where SourceBase.SourceBase == SourceBase {
             ) else { return (count(1, isFake: isFake), nil, nil) }
             let changes = hasNext(order, context) ? change : (change + finalChange)
             return (count(1, isFake: isFake), .init(item: itemUpdate), changes)
-        case (.third, .remove(itemsOnly: false)):
-            return (count(0), nil, finalChange)
         case (.third, _):
             return (count(targetSectionCount), nil, finalChange)
         }
@@ -146,25 +149,25 @@ where SourceBase.SourceBase == SourceBase {
         order: Order,
         context: UpdateContext<IndexPath>? = nil
     ) -> UpdateSource<BatchUpdates.ItemSource> {
-        let diff = sourceCount - targetCount
-        guard isMoreUpdate, order == .second, diff > 0 else { return (sourceCount, nil) }
+        let diff = count.source - count.target
+        guard isMoreUpdate, order == .second, diff > 0 else { return (count.source, nil) }
         var start = context?.offset ?? .zero
-        if update?.way.isAppend == true { start = start.offseted(targetCount) }
-        return (sourceCount, .init(\.deletes, start, start.offseted(diff)))
+        if update?.way.isAppend == true { start = start.offseted(count.target) }
+        return (count.source, .init(\.deletes, start, start.offseted(diff)))
     }
     
     override func generateTargetItemUpdate(
         order: Order,
         context: UpdateContext<Offset<IndexPath>>? = nil
     ) -> UpdateTarget<BatchUpdates.ItemTarget> {
-        let diff = targetCount - sourceCount
+        let diff = count.target - count.source
         guard isMoreUpdate, order == .second, diff > 0 else {
-            return (toIndices(targetCount, context), nil, nil)
+            return (toIndices(count.target, context), nil, nil)
         }
         var start = context?.offset.offset.target ?? .zero
-        if update?.way.isAppend == true { start = start.offseted(sourceCount) }
+        if update?.way.isAppend == true { start = start.offseted(count.source) }
         let update = BatchUpdates.ItemTarget(\.inserts, start, start.offseted(diff))
-        return (toIndices(targetCount, context), update, finalChange)
+        return (toIndices(count.target, context), update, finalChange)
     }
 }
 
@@ -301,7 +304,7 @@ extension ListCoordinatorUpdate {
                 let targetPath = change.indexPath(context?.id)
                 update.move(sourcePath, to: targetPath)
                 guard isReload else { return }
-                itemMaxOrder[context?.id] = .third
+                maxOrder[context?.id] = .third
                 configExtraValue(change, Change(associated.value, change.index))
             }
         )

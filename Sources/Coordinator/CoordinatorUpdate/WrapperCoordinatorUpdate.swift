@@ -32,7 +32,7 @@ where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSo
         self.subupdate = subupdate
         self.subIsSectioned = subIsSectioned
         super.init(coordinator, update: update, sources: sources, options: options)
-        isItems = shouldHandle
+        isItems = subupdate?.isItems ?? !subIsSectioned
     }
     
     override func inferringMoves(context: CoordinatorUpdate.ContextAndID? = nil) {

@@ -196,7 +196,11 @@ where
         guard hasBatchUpdate, !subupdates.isEmpty else { return super.configCount() }
         var count = super.configCount()
         subupdates.values.forEach {
-            count.target += $0.count.target - $0.count.source
+            if isItems {
+                count.target += $0.count.target - $0.count.source
+            } else {
+                count.target += $0.targetSectionCount - $0.sourceSectionCount
+            }
         }
         return count
     }

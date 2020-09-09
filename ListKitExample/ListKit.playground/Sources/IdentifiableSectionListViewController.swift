@@ -75,16 +75,7 @@ extension Room: CustomStringConvertible {
         "Bernard", "Mai", "Melissa", "Kippa", "Jerry"
     ]
     
-    static var toggle = false
-    
     static var random: [Room] {
-//        toggle.toggle()
-//        if toggle {
-//            return [Room("River View", ["Kubrick", "Jack"]), Room("Interview A", ["July", "Frain"]), Room("Interview B", ["Raynor"])]
-//        } else {
-//            return [Room("River View", ["Melissa", "Raynor", "Frain"]), Room("Interview B", ["Dooze", "Charlie"]), Room("Interview A", ["July"])]
-//        }
-
         var shuffled = members.shuffled()
         var rooms = [
             ("Interview B", 2),
@@ -208,3 +199,16 @@ struct IdentifiableSectionList_Preview: UIViewControllerRepresentable, PreviewPr
 }
 
 #endif
+
+//extension IdentifiableSectionListViewController {
+//    static var toggle = false
+//
+//    public var source: [Room] {
+//        Self.toggle.toggle()
+//        if Self.toggle {
+//            return [Room("A", [1]), Room("B", [4, 5, 6])]
+//        } else {
+//            return [Room("B", [4, 5, 6]), Room("A", [1, 2, 3])]
+//        }
+//    }
+//}

@@ -65,8 +65,8 @@ class CoordinatorUpdate {
     var isItems = false
     var preferNoAnimation: Bool { false }
     
-    lazy var itemMaxOrder = configItemMaxOrder()
-    lazy var sectionMaxOrder = configSectionMaxOrder()
+    lazy var maxOrder = configMaxOrder()
+    lazy var count = configCount()
     
     lazy var listUpdates = generateListUpdates()
     lazy var changeType = configChangeType()
@@ -75,24 +75,19 @@ class CoordinatorUpdate {
         return (value, ObjectIdentifier(value))
     }()
     
-    var sourceCount: Int { 1 }
-    var targetCount: Int { 1 }
-    
-    var sourceSectionCount: Int { isSectioned && !isItems ? sourceCount : sourceHasSection ? 1 : 0 }
-    var targetSectionCount: Int { isSectioned && !isItems ? targetCount : targetHasSection ? 1 : 0 }
-    
     func inferringMoves(context: ContextAndID? = nil) { }
     
-    func configItemMaxOrder() -> Cache<Order> { Cache(value: Order.second) }
-    func configSectionMaxOrder() -> Cache<Order> {
-        switch changeType {
-        case .remove(itemsOnly: false): return .init(value: Order.third)
-        case .insert(itemsOnly: false): return .init(value: Order.second)
-        default: return .init(value: Order.first)
+    func configMaxOrder() -> Cache<Order> {
+        switch (isSectioned, changeType) {
+        case (false, _): return .init(value: Order.second)
+        case (true, .remove(itemsOnly: false)): return .init(value: Order.third)
+        case (true, .insert(itemsOnly: false)): return .init(value: Order.second)
+        case (true, _): return .init(value: isItems ? Order.second : Order.first)
         }
     }
     
     func prepareData() { }
+    func configCount() -> Mapping<Int> { notImplemented() }
     func configChangeType() -> ChangeType { .none }
     func generateListUpdates() -> BatchUpdates? {
         prepareData()
@@ -136,11 +131,14 @@ class CoordinatorUpdate {
 }
 
 extension CoordinatorUpdate {
-    var sourceIsEmpty: Bool { sourceCount == 0 }
-    var targetIsEmpty: Bool { targetCount == 0 }
+    var sourceIsEmpty: Bool { count.source == 0 }
+    var targetIsEmpty: Bool { count.target == 0 }
     
     var sourceHasSection: Bool { !sourceIsEmpty || hasSectionIfEmpty(isSource: true) }
     var targetHasSection: Bool { !targetIsEmpty || hasSectionIfEmpty(isSource: false) }
+    
+    var sourceSectionCount: Int { isSectioned && !isItems ? count.source : sourceHasSection ? 1 : 0 }
+    var targetSectionCount: Int { isSectioned && !isItems ? count.target : targetHasSection ? 1 : 0 }
     
     var firstChange: (() -> Void)? { { [unowned self] in self.updateData(true) } }
     var finalChange: (() -> Void)? { { [unowned self] in self.updateData(false) } }
@@ -150,12 +148,12 @@ extension CoordinatorUpdate {
         case .insert(false):
             return .init(target: BatchUpdates.SectionTarget(\.inserts, 0), finalChange)
         case .insert(true):
-            let indices = [IndexPath](IndexPath(item: 0), IndexPath(item: targetCount))
+            let indices = [IndexPath](IndexPath(item: 0), IndexPath(item: count.target))
             return .init(target: BatchUpdates.ItemTarget(\.inserts, indices), finalChange)
         case .remove(false):
             return .init(source: BatchUpdates.SectionSource(\.deletes, 0), finalChange)
         case .remove(true):
-            let indices = [IndexPath](IndexPath(item: 0), IndexPath(item: sourceCount))
+            let indices = [IndexPath](IndexPath(item: 0), IndexPath(item: count.source))
             return .init(source: BatchUpdates.ItemSource(\.deletes, indices), finalChange)
         case .batchUpdates:
             return listUpdatesForItems()
@@ -169,9 +167,11 @@ extension CoordinatorUpdate {
     func generateListUpdatesForSections() -> BatchUpdates? {
         switch changeType {
         case .insert:
-            return .init(target: BatchUpdates.SectionTarget(\.inserts, 0, targetCount), finalChange)
+            let update = BatchUpdates.SectionTarget(\.inserts, 0, count.target)
+            return .init(target: update, finalChange)
         case .remove:
-            return .init(source: BatchUpdates.SectionSource(\.deletes, 0, sourceCount), finalChange)
+            let update = BatchUpdates.SectionSource(\.deletes, 0, count.source)
+            return .init(source: update, finalChange)
         case .batchUpdates:
             return listUpdatesForSections()
         case .reload:
@@ -217,29 +217,20 @@ extension CoordinatorUpdate {
     }
     
     func notUpdate<O>(_ order: Order, _ context: UpdateContext<O>?) -> Bool {
-        isEmptyUpdate(order, context, isSectioned: isSectioned)
+        order > maxOrder(context)
     }
     
-    func isEmptyUpdate<O>(_ order: Order, _ context: UpdateContext<O>?, isSectioned: Bool) -> Bool {
-        guard isSectioned else { return order > maxOrder(context, false) }
-        return order > max(maxOrder(context, true), maxOrder(context, false))
-    }
-    
-    func maxOrder<O>(_ context: UpdateContext<O>?, _ isSectioned: Bool) -> Order {
-        isSectioned ? sectionMaxOrder[context?.id] : itemMaxOrder[context?.id]
-    }
-    
-    func hasNext<O>(_ order: Order, _ context: UpdateContext<O>?, _ isSectioned: Bool) -> Bool {
-        maxOrder(context, isSectioned) > order
+    func maxOrder<O>(_ context: UpdateContext<O>?) -> Order {
+        maxOrder[context?.id]
     }
     
     func hasNext<O>(_ order: Order, _ context: UpdateContext<O>?) -> Bool {
-        maxOrder(context, true) > order || maxOrder(context, false) > order
+        maxOrder(context) > order
     }
     
-    func updateMaxIfNeeded<O>(_ order: Order, _ context: UpdateContext<O>?, _ isSectioned: Bool) {
-        guard maxOrder(context, isSectioned) < order else { return }
-        isSectioned ? (sectionMaxOrder[context?.id] = order) : (itemMaxOrder[context?.id] = order)
+    func updateMaxIfNeeded<O>(_ order: Order, _ context: UpdateContext<O>?) {
+        guard maxOrder(context) < order else { return }
+        maxOrder[context?.id] = order
     }
     
     func updateMaxIfNeeded<O>(
@@ -247,8 +238,7 @@ extension CoordinatorUpdate {
         _ context: UpdateContext<O>?,
         _ subcontext: UpdateContext<O>?
     ) {
-        if isSectioned { updateMaxIfNeeded(subupdate.maxOrder(subcontext, true), context, true) }
-        updateMaxIfNeeded(subupdate.maxOrder(subcontext, false), context, false)
+        updateMaxIfNeeded(subupdate.maxOrder(subcontext), context)
     }
 }
 

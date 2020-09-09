@@ -56,12 +56,12 @@ where SourceBase.SourceBase == SourceBase {
         options: ListOptions? = nil
     ) -> CoordinatorUpdate {
         let sourcesAfterUpdate = update.source
-        let indicesAfterUpdate = toIndices(update.source)
+        let indicesAfterUpdate = update.source.map(toIndices)
         return NSCoordinatorUpdate(
             self,
             update: update,
-            sources: (source, sourcesAfterUpdate),
-            indices: (indices, indicesAfterUpdate),
+            sources: (source, sourcesAfterUpdate ?? source),
+            indices: (indices, indicesAfterUpdate ?? indices),
             options: (self.options, options ?? self.options)
         )
     }

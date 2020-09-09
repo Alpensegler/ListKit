@@ -44,9 +44,13 @@ where
         isItems = true
     }
     
+    // override from DiffableCoordinatgorUpdate
+    
     override func isEqual(lhs: Item, rhs: Item) -> Bool { differ.equal(lhs: lhs, rhs: rhs) }
     override func identifier(for value: Item) -> AnyHashable { differ.identifier!(value) }
     override func isDiffEqual(lhs: Item, rhs: Item) -> Bool { differ.diffEqual(lhs: lhs, rhs: rhs) }
+    
+    // override from CoordinatorUpdate
     
     override func toValue(_ element: Element) -> Item { element }
     
@@ -63,18 +67,20 @@ where
         coordinator?.items = isSource ? values.source : values.target
     }
     
+    // override from CoordinatorUpdate
+    
     override func generateSourceItemUpdate(
         order: Order,
         context: UpdateContext<IndexPath>? = nil
     ) -> UpdateSource<BatchUpdates.ItemSource> {
         if isMoreUpdate { return super.generateSourceItemUpdate(order: order, context: context) }
-        if notUpdate(order, context) { return (targetCount, nil) }
+        if notUpdate(order, context) { return (count.target, nil) }
         var update = BatchUpdates.ItemSource()
         if order == .third {
             extraChanges[context?.id].source.forEach {
                 update.add(\.reloads, $0.indexPath(context?.id))
             }
-            return (targetCount, update)
+            return (count.target, update)
         } else {
             for value in changes.source {
                 switch value {
@@ -86,7 +92,7 @@ where
                     update.move(offset.offseted(from.source), offset.offseted(to.source))
                 }
             }
-            return (sourceCount, update)
+            return (count.source, update)
         }
     }
     
@@ -95,11 +101,11 @@ where
         context: UpdateContext<Offset<IndexPath>>? = nil
     ) -> UpdateTarget<BatchUpdates.ItemTarget> {
         if isMoreUpdate { return super.generateTargetItemUpdate(order: order, context: context) }
-        if notUpdate(order, context) { return (toIndices(targetCount, context), nil, nil) }
+        if notUpdate(order, context) { return (toIndices(count.target, context), nil, nil) }
         var update = BatchUpdates.ItemTarget()
         if order == .third {
             extraChanges[context?.id].target.forEach {  update.reload($0.indexPath(context?.id)) }
-            return (toIndices(targetCount, context), update, finalChange)
+            return (toIndices(count.target, context), update, finalChange)
         } else {
             for value in changes.target {
                 switch value {
@@ -124,7 +130,7 @@ where
             }
             
             let change: (() -> Void)?
-            if hasNext(order, context, false) {
+            if hasNext(order, context) {
                 let values = extraValues[context?.id], source = toSource(values)
                 extraSources[context?.id] = source
                 change = { [unowned self] in
@@ -134,7 +140,7 @@ where
             } else {
                 change = finalChange
             }
-            return (toIndices(targetCount, context), update, change)
+            return (toIndices(count.target, context), update, change)
         }
     }
 }

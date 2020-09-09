@@ -60,13 +60,16 @@ where
     typealias Subsource = SourceElement<Source.Element>
     
     var subsourceType: SubsourceType
-    var subsourceHasSectioned = false
     
     lazy var indices = Self.toIndices(subsources)
-    lazy var subsources: ContiguousArray<Subsource> = {
-        guard case let .fromSourceBase(fromSource, _) = subsourceType else { fatalError() }
-        return toSubsources(fromSource(source))
-    }()
+    lazy var subsourcesAndSubsectioned = toSubsources(subsourceType.from!(source), sectioned: nil)
+    
+    var subsources: ContiguousArray<Subsource> {
+        get { subsourcesAndSubsectioned.subsources }
+        set { subsourcesAndSubsectioned.subsources = newValue }
+    }
+    
+    var notItems: Bool { subsourcesAndSubsectioned.sectioned }
     
     var subsourcesArray: ContiguousArray<Source.Element> {
         var sources = ContiguousArray<Source.Element>(capacity: subsources.count)
@@ -100,7 +103,7 @@ where
     ) {
         subsourceType = .values
         super.init(source: nil, update: update, options: .removeEmptySection)
-        subsources = elements
+        subsourcesAndSubsectioned = (elements, false)
         sectioned = true
     }
     
@@ -110,11 +113,16 @@ where
     }
     
     func sourceIndex<Index: ListIndex>(for listIndex: Index) -> Int {
-        indices[sectioned ? listIndex.section : listIndex.item].index
+        indices[notItems ? listIndex.section : listIndex.item].index
     }
     
-    func toSubsources(_ source: Source) -> ContiguousArray<Subsource> {
-        subsourceHasSectioned = false
+    func toSubsources(
+        _ source: Source,
+        sectioned: Bool? = nil
+    ) -> (subsources: ContiguousArray<Subsource>, sectioned: Bool) {
+        var sectioned = sectioned ?? (options.preferSection || listContexts.contains {
+            $0.context?.selfSelectorSets.hasIndex == true
+        })
         var (id, offset, itemOffset) = (0, 0, 0)
         var itemSources = ContiguousArray<Subsource>(capacity: source.count)
         var subsources = ContiguousArray<Subsource>(capacity: source.count)
@@ -148,7 +156,7 @@ where
                 let count = context.numbersOfSections()
                 let element = Subsource.Subelement.element(element)
                 subsources.append(.init(element: element, context: context, offset: offset, count: count))
-                subsourceHasSectioned = true
+                sectioned = true
                 offset += count
             } else {
                 let count = context.numbersOfItems(in: 0)
@@ -157,7 +165,7 @@ where
             }
         }
         
-        switch (subsourceHasSectioned, itemSources.isEmpty) {
+        switch (sectioned, itemSources.isEmpty) {
         case (true, false):
             addItemSources()
         case (false, false):
@@ -167,7 +175,7 @@ where
             break
         }
         
-        return settingIndex(subsources)
+        return (settingIndex(subsources), sectioned)
     }
     
     func addContext(to context: ListCoordinatorContext<Source.Element.SourceBase>) {
@@ -184,7 +192,7 @@ where
                 sources: (self.source, self.source),
                 indices: (self.indices, self.indices),
                 options: (self.options, self.options),
-                isItems: !self.subsourceHasSectioned
+                isItems: !self.subsourcesAndSubsectioned.sectioned
             )
             update.add(subupdate: subupdate, at: index)
             self.currentCoordinatorUpdate = update
@@ -193,23 +201,23 @@ where
         
         context.contextAtIndex = { [weak self] (index, offset, listView) in
             guard let self = self else { return nil }
-            let offset = offset.offseted(self.subsources[index].offset, isSection: self.sectioned)
+            let offset = offset.offseted(self.subsources[index].offset, isSection: self.notItems)
             return self.offsetAndRoot(offset: offset, list: listView)
         }
     }
     
     override func item(at indexPath: IndexPath) -> Item {
         let index = sourceIndex(for: indexPath), context = subsources[index]
-        let indexPath = indexPath.offseted(-context.offset, isSection: sectioned)
+        let indexPath = indexPath.offseted(-context.offset, isSection: notItems)
         return context.coordinator.item(at: indexPath)
     }
     
     override func numbersOfSections() -> Int {
-        sectioned ? indices.count : indices.isEmpty && options.removeEmptySection ? 0 : 1
+        notItems ? indices.count : indices.isEmpty && options.removeEmptySection ? 0 : 1
     }
     
     override func numbersOfItems(in section: Int) -> Int {
-        guard sectioned else { return indices.count }
+        guard notItems else { return indices.count }
         let index = indices[section]
         if index.isFake { return 0 }
         let context = subsources[index.index]
@@ -217,7 +225,7 @@ where
         return count
     }
     
-    override func isSectioned() -> Bool { subsourceHasSectioned || super.isSectioned() }
+    override func isSectioned() -> Bool { subsourcesAndSubsectioned.sectioned }
     
     // Setup
     override func context(
@@ -240,7 +248,7 @@ where
             sources: (coordinator.source, source),
             indices: (coordinator.indices, indices),
             options: (coordinator.options, options),
-            isItems: !subsourceHasSectioned
+            isItems: !subsourcesAndSubsectioned.sectioned
         )
     }
     
@@ -250,7 +258,7 @@ where
     ) -> CoordinatorUpdate {
         let sourcesAfterUpdate = update.source
         let subsourcesAfterUpdate = sourcesAfterUpdate.flatMap { value in
-            subsourceType.from.map { toSubsources($0(value)) }
+            subsourceType.from.map { toSubsources($0(value), sectioned: notItems).subsources }
         }
         let indicesAfterUpdate = subsourcesAfterUpdate.map(Self.toIndices)
         return SourcesCoordinatorUpdate(
@@ -260,7 +268,7 @@ where
             sources: (source, sourcesAfterUpdate ?? source),
             indices: (indices, indicesAfterUpdate ?? indices),
             options: (self.options, options ?? self.options),
-            isItems: !subsourceHasSectioned
+            isItems: !subsourcesAndSubsectioned.sectioned
         )
     }
 }

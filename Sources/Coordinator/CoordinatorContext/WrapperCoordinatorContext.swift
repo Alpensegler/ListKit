@@ -7,7 +7,7 @@
 
 import Foundation
 
-class WrapperCoordinatorContext<SourceBase, Other>: ListCoordinatorContext<SourceBase>
+final class WrapperCoordinatorContext<SourceBase, Other>: ListCoordinatorContext<SourceBase>
 where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSource {
     var coordinator: WrapperCoordinator<SourceBase, Other>
     

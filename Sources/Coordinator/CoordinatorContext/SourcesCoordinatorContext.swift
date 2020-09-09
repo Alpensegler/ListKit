@@ -7,8 +7,9 @@
 
 import Foundation
 
-class SourcesCoordinatorContext<SourceBase: DataSource, Source>: ListCoordinatorContext<SourceBase>
+final class SourcesCoordinatorContext<SourceBase, Source>: ListCoordinatorContext<SourceBase>
 where
+    SourceBase: DataSource,
     SourceBase.SourceBase == SourceBase,
     Source: RangeReplaceableCollection,
     Source.Element: DataSource,

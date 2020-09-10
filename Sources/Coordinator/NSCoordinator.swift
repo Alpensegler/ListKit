@@ -40,7 +40,7 @@ where SourceBase.SourceBase == SourceBase {
     override func update(
         from coordinator: ListCoordinator<SourceBase>,
         updateWay: ListUpdateWay<Item>?
-    ) -> CoordinatorUpdate {
+    ) -> ListCoordinatorUpdate<SourceBase> {
         let coordinator = coordinator as! NSCoordinator<SourceBase>
         return NSCoordinatorUpdate(
             self,
@@ -54,7 +54,7 @@ where SourceBase.SourceBase == SourceBase {
     override func update(
         update: ListUpdate<SourceBase>,
         options: ListOptions? = nil
-    ) -> CoordinatorUpdate {
+    ) -> ListCoordinatorUpdate<SourceBase> {
         let sourcesAfterUpdate = update.source
         let indicesAfterUpdate = update.source.map(toIndices)
         return NSCoordinatorUpdate(

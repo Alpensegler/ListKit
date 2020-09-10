@@ -31,7 +31,7 @@ where
     override func update(
         from coordinator: ListCoordinator<SourceBase>,
         updateWay: ListUpdateWay<Item>?
-    ) -> CoordinatorUpdate {
+    ) -> ListCoordinatorUpdate<SourceBase> {
         let coordinator = coordinator as! ItemsCoordinator<SourceBase>
         return updateType.init(
             coordinator: self,
@@ -45,7 +45,7 @@ where
     override func update(
         update: ListUpdate<SourceBase>,
         options: ListOptions? = nil
-    ) -> CoordinatorUpdate {
+    ) -> ListCoordinatorUpdate<SourceBase> {
         let sourcesAfterUpdate = update.source
         let itemsAfterUpdate = sourcesAfterUpdate.map(toItems)
         return updateType.init(

@@ -239,7 +239,7 @@ where
     override func update(
         from coordinator: ListCoordinator<SourceBase>,
         updateWay: ListUpdateWay<Item>?
-    ) -> CoordinatorUpdate {
+    ) -> ListCoordinatorUpdate<SourceBase> {
         let coordinator = coordinator as! SourcesCoordinator<SourceBase, Source>
         return SourcesCoordinatorUpdate(
             coordinator: self,
@@ -255,7 +255,7 @@ where
     override func update(
         update: ListUpdate<SourceBase>,
         options: ListOptions? = nil
-    ) -> CoordinatorUpdate {
+    ) -> ListCoordinatorUpdate<SourceBase> {
         let sourcesAfterUpdate = update.source
         let subsourcesAfterUpdate = sourcesAfterUpdate.flatMap { value in
             subsourceType.from.map { toSubsources($0(value), sectioned: notItems).subsources }

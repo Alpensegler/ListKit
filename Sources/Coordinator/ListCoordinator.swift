@@ -78,14 +78,14 @@ public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase
     func update(
         update: ListUpdate<SourceBase>,
         options: ListOptions? = nil
-    ) -> CoordinatorUpdate {
+    ) -> ListCoordinatorUpdate<SourceBase> {
         notImplemented()
     }
     
     func update(
         from coordinator: ListCoordinator<SourceBase>,
         updateWay: ListUpdateWay<Item>?
-    ) -> CoordinatorUpdate {
+    ) -> ListCoordinatorUpdate<SourceBase> {
         notImplemented()
     }
 }

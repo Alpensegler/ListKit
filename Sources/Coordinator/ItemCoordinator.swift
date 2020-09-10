@@ -17,7 +17,7 @@ where SourceBase.Item == SourceBase.Source, SourceBase.SourceBase == SourceBase 
     override func update(
         from coordinator: ListCoordinator<SourceBase>,
         updateWay: ListUpdateWay<Item>?
-    ) -> CoordinatorUpdate {
+    ) -> ListCoordinatorUpdate<SourceBase> {
         let coordinator = coordinator as! ItemCoordinator<SourceBase>
         return ItemCoordinatorUpdate(
             coordinator: self,
@@ -30,7 +30,7 @@ where SourceBase.Item == SourceBase.Source, SourceBase.SourceBase == SourceBase 
     override func update(
         update: ListUpdate<SourceBase>,
         options: ListOptions? = nil
-    ) -> CoordinatorUpdate {
+    ) -> ListCoordinatorUpdate<SourceBase> {
         let sourcesAfterUpdate = update.source
         return ItemCoordinatorUpdate(
             coordinator: self,

@@ -107,7 +107,7 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
     override func update(
         from coordinator: ListCoordinator<SourceBase>,
         updateWay: ListUpdateWay<Item>?
-    ) -> CoordinatorUpdate {
+    ) -> ListCoordinatorUpdate<SourceBase> {
         let coordinator = coordinator as! WrapperCoordinator<SourceBase, Other>
         return WrapperCoordinatorUpdate(
             coordinator: self,
@@ -123,7 +123,7 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
     override func update(
         update: ListUpdate<SourceBase>,
         options: ListOptions? = nil
-    ) -> CoordinatorUpdate {
+    ) -> ListCoordinatorUpdate<SourceBase> {
         guard case let .whole(whole) = update.updateType else { fatalError() }
         let subupdate: CoordinatorUpdate?, targetWrapped: Wrapped?, targetSource: SourceBase.Source!
         if let source = update.source {

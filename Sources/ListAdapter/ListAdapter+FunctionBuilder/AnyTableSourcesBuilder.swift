@@ -22,13 +22,19 @@ public struct AnyTableSourcesBuilder {
     public static func buildIf<S: TableListAdapter>(_ content: S?) -> S? {
         content
     }
-
-    public static func buildEither<TrueContent: TableListAdapter>(first: TrueContent) -> TrueContent {
-        first
+    
+    public static func buildEither<TrueContent, FalseContent>(
+        first: TrueContent
+    ) -> ConditionalSources<TrueContent, FalseContent>
+    where TrueContent: TableListAdapter, FalseContent: TableListAdapter {
+        .trueContent(first)
     }
-
-    public static func buildEither<FalseContent: TableListAdapter>(second: FalseContent) -> FalseContent {
-        second
+    
+    public static func buildEither<TrueContent, FalseContent>(
+        second: FalseContent
+    ) -> ConditionalSources<TrueContent, FalseContent>
+    where TrueContent: TableListAdapter, FalseContent: TableListAdapter {
+        .falseContent(second)
     }
 
     public static func buildBlock<S: TableListAdapter>(_ content: S) -> S {

@@ -16,13 +16,19 @@ public struct AnySourcesBuilder {
     public static func buildIf<S: DataSource>(_ content: S?) -> S? {
         content
     }
-
-    public static func buildEither<TrueContent: DataSource>(first: TrueContent) -> TrueContent {
-        first
+    
+    public static func buildEither<TrueContent, FalseContent>(
+        trueContent: TrueContent
+    ) -> ConditionalSources<TrueContent, FalseContent>
+    where TrueContent: TableListAdapter, FalseContent: TableListAdapter {
+        .trueContent(trueContent)
     }
-
-    public static func buildEither<FalseContent: DataSource>(second: FalseContent) -> FalseContent {
-        second
+    
+    public static func buildEither<TrueContent, FalseContent>(
+        falseContent: FalseContent
+    ) -> ConditionalSources<TrueContent, FalseContent>
+    where TrueContent: TableListAdapter, FalseContent: TableListAdapter {
+        .falseContent(falseContent)
     }
     
     public static func buildBlock<S: DataSource>(_ content: S) -> S {

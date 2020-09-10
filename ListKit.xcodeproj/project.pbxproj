@@ -47,6 +47,7 @@
 		F36550352451B6910038172F /* ListKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = "ListKit::ListKit::Product" /* ListKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F365503E2451B78B0038172F /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F365503D2451B78B0038172F /* Default-568h@2x.png */; };
 		F366F40C24ADF4B100F2E5C1 /* DiffableCoordinatgorUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F366F40B24ADF4B100F2E5C1 /* DiffableCoordinatgorUpdate.swift */; };
+		F36E6016250AC69700F2D441 /* ConditionalSources.swift in Sources */ = {isa = PBXBuildFile; fileRef = F36E6015250AC69700F2D441 /* ConditionalSources.swift */; };
 		F372F6E4248E51B3001B42D5 /* CoordinatorContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = F372F6E3248E51B3001B42D5 /* CoordinatorContext.swift */; };
 		F372F6E6248E52E9001B42D5 /* ListCoordinatorContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = F372F6E5248E52E9001B42D5 /* ListCoordinatorContext.swift */; };
 		F372F6E8248E79F6001B42D5 /* WrapperCoordinatorContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = F372F6E7248E79F6001B42D5 /* WrapperCoordinatorContext.swift */; };
@@ -178,6 +179,7 @@
 		F36550272451B4070038172F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F365503D2451B78B0038172F /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		F366F40B24ADF4B100F2E5C1 /* DiffableCoordinatgorUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiffableCoordinatgorUpdate.swift; sourceTree = "<group>"; };
+		F36E6015250AC69700F2D441 /* ConditionalSources.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConditionalSources.swift; sourceTree = "<group>"; };
 		F372F6E3248E51B3001B42D5 /* CoordinatorContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoordinatorContext.swift; sourceTree = "<group>"; };
 		F372F6E5248E52E9001B42D5 /* ListCoordinatorContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListCoordinatorContext.swift; sourceTree = "<group>"; };
 		F372F6E7248E79F6001B42D5 /* WrapperCoordinatorContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WrapperCoordinatorContext.swift; sourceTree = "<group>"; };
@@ -369,6 +371,7 @@
 				F33FBC42234F3A600054BA38 /* Sources.swift */,
 				F3C9537F23A0F7A10015049A /* AnySources.swift */,
 				F3C9537D23A0F1440015049A /* AnySourcesBuilder.swift */,
+				F36E6015250AC69700F2D441 /* ConditionalSources.swift */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -748,6 +751,7 @@
 				F354B6F624C38A0C00E9D19B /* BatchUpdate.swift in Sources */,
 				F3A4941023A8E68900809E7F /* DataSource+SourcesCoordinator.swift in Sources */,
 				F3AC673C23D057580070B991 /* Sources+Sections.swift in Sources */,
+				F36E6016250AC69700F2D441 /* ConditionalSources.swift in Sources */,
 				F398E1BF24008714000A5637 /* DiffInitializable.swift in Sources */,
 				F32E6CC724906D33008D6D97 /* NSCoordinatorUpdate.swift in Sources */,
 				F37DD4E323A190AE00689CAD /* TableListAdapter+Source.swift in Sources */,

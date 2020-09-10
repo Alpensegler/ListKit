@@ -222,6 +222,7 @@ where
     
     override func inferringMoves(context: ContextAndID? = nil) {
         super.inferringMoves(context: context)
+        if isItems || hasBatchUpdate { return }
         let context = context ?? defaultContext
         changes.source.forEach {
             switch $0 {
@@ -289,6 +290,11 @@ extension SourcesCoordinatorUpdate {
         operations.append { source.perform(update, animated: animated, completion: completion) }
     }
     
+    func shouldSimpleUpdate(isSource: Bool) -> Bool {
+        if isItems { return true }
+        return hasBatchUpdate && batchChanges[keyPath: path(!isSource)].isEmpty && !shouldConsiderUpdate
+    }
+    
     func sourceUpdate<Collection: UpdateIndexCollection, Result: BatchUpdate, O>(
         _ order: Order,
         in context: UpdateContext<O>?,
@@ -336,7 +342,7 @@ extension SourcesCoordinatorUpdate {
                     context.map { change.offsets[$0.id] = (offset.section, offset.item) }
                 },
                 deleteOrInsert: { change in
-                    if hasBatchUpdate, batchChanges.target.isEmpty, !shouldConsiderUpdate {
+                    if shouldSimpleUpdate(isSource: true) {
                         let upper = offset.offseted(change.value.count)
                         result[keyPath: keyPath].add(\.deletes, offset, upper)
                         count += change.value.count
@@ -377,7 +383,7 @@ extension SourcesCoordinatorUpdate {
             case let .change(.change(change, isSource: isSource)):
                 if isSource {
                     configChange(change)
-                } else if !hasBatchUpdate || !batchChanges.source.isEmpty || shouldConsiderUpdate {
+                } else if !shouldSimpleUpdate(isSource: false) {
                     add(value: change.value, change.update(false, context?.id), isMoved: false)
                 }
             case let .change(.update(_, value, update)):
@@ -462,7 +468,7 @@ extension SourcesCoordinatorUpdate {
                     change.offsets[id] = (target.section, target.item)
                 },
                 deleteOrInsert: { change in
-                    if hasBatchUpdate, batchChanges.source.isEmpty, !shouldConsiderUpdate {
+                    if shouldSimpleUpdate(isSource: false) {
                         let count = indices.count, upper = offset.offseted(change.value.count)
                         result[keyPath: keyPath].add(\.inserts, offset, upper)
                         indices.append(repeatElement: (index, false), count: change.value.count)
@@ -508,7 +514,7 @@ extension SourcesCoordinatorUpdate {
             case let .change(.change(change, isSource: isSource)):
                 if !isSource {
                     configChange(change)
-                } else if !hasBatchUpdate || !batchChanges.target.isEmpty || shouldConsiderUpdate {
+                } else if shouldSimpleUpdate(isSource: true) {
                     let update = change.update(false, context?.id)
                     add(value: change.value, update: update, isMoved: false)
                 }

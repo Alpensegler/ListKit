@@ -54,13 +54,10 @@ struct ChangeSets<Set: ChangeSet> {
     }
     
     func toTarget(offset: Mapping<Index>?) -> BatchUpdates.Target<Indices> {
-        var movesDict = [Index: Index]()
-        movesDict.reserveCapacity(dict.count)
         let moves: [Mapping<Index>] = move.elements(nil).compactMap {
             guard let index = dict[$0] else { return nil }
             let source = offset?.source.offseted(index, plus: true) ?? index
             let target = offset?.target.offseted($0, plus: true) ?? $0
-            movesDict[target] = source
             return (source, target)
         }
         return .init(

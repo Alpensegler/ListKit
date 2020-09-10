@@ -23,12 +23,18 @@ public struct AnyCollectionSourcesBuilder {
         content
     }
 
-    public static func buildEither<TrueContent: CollectionListAdapter>(first: TrueContent) -> TrueContent {
-        first
+    public static func buildEither<TrueContent, FalseContent>(
+        first: TrueContent
+    ) -> ConditionalSources<TrueContent, FalseContent>
+    where TrueContent: CollectionListAdapter, FalseContent: CollectionListAdapter {
+        .trueContent(first)
     }
-
-    public static func buildEither<FalseContent: CollectionListAdapter>(second: FalseContent) -> FalseContent {
-        second
+    
+    public static func buildEither<TrueContent, FalseContent>(
+        second: FalseContent
+    ) -> ConditionalSources<TrueContent, FalseContent>
+    where TrueContent: CollectionListAdapter, FalseContent: CollectionListAdapter {
+        .falseContent(second)
     }
 
     public static func buildBlock<S: CollectionListAdapter>(_ content: S) -> S {

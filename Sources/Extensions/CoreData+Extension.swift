@@ -9,6 +9,19 @@
 import CoreData
 import Foundation
 
+public struct SectionUpdates {
+    let insert: IndexSet
+    let remove: IndexSet
+    let reload: IndexSet
+}
+
+public struct ItemUpdates {
+    let insert: [IndexPath]
+    let remove: [IndexPath]
+    let reload: [IndexPath]
+    let moves: [(IndexPath, IndexPath)]
+}
+
 open class ListFetchedResultsController<Item>: NSObject, NSFetchedResultsControllerDelegate
 where Item: NSFetchRequestResult {
     public typealias SourceBase = ListFetchedResultsController<Item>
@@ -21,6 +34,7 @@ where Item: NSFetchRequestResult {
     public var willChangeContent: (() -> Void)?
     
     public var willStartUpdate: (() -> Void)?
+    public var customHandleUpdates: ((SectionUpdates?, ItemUpdates?) -> Void)?
     public var updateCompletion: ((ListView, Bool) -> Void)?
     
     public var insertSection: ((NSFetchedResultsSectionInfo, Int) -> Void)?
@@ -31,6 +45,7 @@ where Item: NSFetchRequestResult {
     public var removeItem: ((IndexPath) -> Void)?
     public var shouldReloadItem: ((Item, IndexPath, IndexPath) -> Bool)?
     public var shouldMoveItem: ((Item, IndexPath, IndexPath) -> Bool)?
+    
     
     var update: ListUpdate<SourceBase>!
     var _section: ChangeSets<IndexSet>?
@@ -102,7 +117,29 @@ where Item: NSFetchRequestResult {
         case (.some, nil): prepareUpdate(sets: &section)
         case (nil, nil): return
         }
-        perform(.init(section: _section, item: _item), completion: updateCompletion)
+        if let customHandleUpdate = customHandleUpdates {
+            let sectionUpdate = _section.map {
+                SectionUpdates(
+                    insert: $0.changes.target,
+                    remove: $0.changes.source,
+                    reload: $0.reload
+               )
+            }
+            let itemUpdates = _item.map { items in
+                ItemUpdates(
+                    insert: items.changes.target.elements(),
+                    remove: items.changes.source.elements(),
+                    reload: items.reload.elements(),
+                    moves: items.move.elements().compactMap {
+                        guard let index = items.dict[$0] else { return nil }
+                        return (index, $0)
+                    }
+                )
+            }
+            customHandleUpdate(sectionUpdate, itemUpdates)
+        } else {
+            perform(.init(section: _section, item: _item), completion: updateCompletion)
+        }
     }
     
     public func controller(
@@ -247,7 +284,7 @@ extension ListFetchedResultsController {
     
     func prepare(reload sets: inout ChangeSets<IndexPathSet>, from: IndexPath?, to: IndexPath) {
         guard let from = from, shouldReloadItem?(item(at: to), from, to) == false else { return }
-        sets.reload.remove(to)
+        sets.reload.remove(from)
         sets.all.source.remove(from)
         sets.all.target.remove(to)
         sets.dict[to] = nil

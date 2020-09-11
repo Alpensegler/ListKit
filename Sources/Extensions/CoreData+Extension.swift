@@ -34,22 +34,25 @@ where Item: NSFetchRequestResult {
     public var willChangeContent: (() -> Void)?
     
     public var willStartUpdate: (() -> Void)?
-    public var customHandleUpdates: ((SectionUpdates?, ItemUpdates?) -> Void)?
+    public var shouldUpdate: ((SourceBase) -> Bool)?
+    public var didUpdate: ((SourceBase) -> Void)?
     public var updateCompletion: ((ListView, Bool) -> Void)?
     
-    public var insertSection: ((NSFetchedResultsSectionInfo, Int) -> Void)?
-    public var removeSection: ((Int) -> Void)?
-    public var shouldReloadSection: ((NSFetchedResultsSectionInfo, Int) -> Bool)?
+    public var insertSection: ((SourceBase, NSFetchedResultsSectionInfo, Int) -> Void)?
+    public var removeSection: ((SourceBase, Int) -> Void)?
+    public var shouldReloadSection: ((SourceBase, NSFetchedResultsSectionInfo, Int) -> Bool)?
     
-    public var insertItem: ((Item, IndexPath) -> Void)?
-    public var removeItem: ((IndexPath) -> Void)?
-    public var shouldReloadItem: ((Item, IndexPath, IndexPath) -> Bool)?
-    public var shouldMoveItem: ((Item, IndexPath, IndexPath) -> Bool)?
-    
+    public var insertItem: ((SourceBase, Item, IndexPath) -> Void)?
+    public var removeItem: ((SourceBase, IndexPath) -> Void)?
+    public var shouldReloadItem: ((SourceBase, Item, IndexPath, IndexPath) -> Bool)?
+    public var shouldMoveItem: ((SourceBase, Item, IndexPath, IndexPath) -> Bool)?
     
     var update: ListUpdate<SourceBase>!
     var _section: ChangeSets<IndexSet>?
     var _item: ChangeSets<IndexPathSet>?
+    
+    var _sectionUpdates: SectionUpdates??
+    var _itemUpdates: ItemUpdates??
     
     var section: ChangeSets<IndexSet> {
         get { _section ?? .init() }
@@ -103,6 +106,7 @@ where Item: NSFetchRequestResult {
         _ controller: NSFetchedResultsController<NSFetchRequestResult>
     ) {
         (_section, _item) = (nil, nil)
+        (_sectionUpdates, _itemUpdates) = (nil, nil)
         willChangeContent?()
     }
     
@@ -117,29 +121,10 @@ where Item: NSFetchRequestResult {
         case (.some, nil): prepareUpdate(sets: &section)
         case (nil, nil): return
         }
-        if let customHandleUpdate = customHandleUpdates {
-            let sectionUpdate = _section.map {
-                SectionUpdates(
-                    insert: $0.changes.target,
-                    remove: $0.changes.source,
-                    reload: $0.reload
-               )
-            }
-            let itemUpdates = _item.map { items in
-                ItemUpdates(
-                    insert: items.changes.target.elements(),
-                    remove: items.changes.source.elements(),
-                    reload: items.reload.elements(),
-                    moves: items.move.elements().compactMap {
-                        guard let index = items.dict[$0] else { return nil }
-                        return (index, $0)
-                    }
-                )
-            }
-            customHandleUpdate(sectionUpdate, itemUpdates)
-        } else {
-            perform(.init(section: _section, item: _item), completion: updateCompletion)
-        }
+        
+        guard shouldUpdate?(self) != false else { return }
+        perform(.init(section: _section, item: _item), completion: updateCompletion)
+        didUpdate?(self)
     }
     
     public func controller(
@@ -191,6 +176,28 @@ extension ListFetchedResultsController: NSDataSource {
     }
 }
 
+public extension ListFetchedResultsController {
+    var itemUpdates: ItemUpdates? {
+        _itemUpdates.or(_item.map { items in
+            .init(
+                insert: items.changes.target.elements(),
+                remove: items.changes.source.elements(),
+                reload: items.reload.elements(),
+                moves: items.move.elements().compactMap {
+                    guard let index = items.dict[$0] else { return nil }
+                    return (index, $0)
+                }
+            )
+        })
+    }
+    
+    var sectionUpdates: SectionUpdates? {
+        _sectionUpdates.or(_section.map {
+            .init(insert: $0.changes.target, remove: $0.changes.source, reload: $0.reload)
+        })
+    }
+}
+
 extension ListFetchedResultsController {
     func prepareUpdate(section: inout ChangeSets<IndexSet>, item: inout ChangeSets<IndexPathSet>) {
         prepareUpdate(sets: &section)
@@ -224,7 +231,7 @@ extension ListFetchedResultsController {
         }
         item.changes.source.elements().forEach {
             guard section.all.source.contains($0.section) else {
-                removeItem?($0)
+                removeItem?(self, $0)
                 return
             }
             item.changes.source.remove($0)
@@ -232,7 +239,7 @@ extension ListFetchedResultsController {
         }
         item.changes.target.elements().forEach {
             guard section.all.target.contains($0.section) else {
-                insertItem?(self.item(at: $0), $0)
+                insertItem?(self, self.item(at: $0), $0)
                 return
             }
             item.changes.target.remove($0)
@@ -244,7 +251,7 @@ extension ListFetchedResultsController {
     func prepareUpdate(sets: inout ChangeSets<IndexSet>) {
         if let shuoldReload = shouldReloadSection {
             sets.reload.forEach {
-                if shuoldReload(fetchedResultController.sections![$0], $0) { return }
+                if shuoldReload(self, fetchedResultController.sections![$0], $0) { return }
                 section.reload.remove($0)
                 section.changes.source.insert($0)
                 section.changes.target.insert($0)
@@ -252,10 +259,10 @@ extension ListFetchedResultsController {
             }
         }
         if let remove = removeSection {
-            sets.changes.source.forEach(remove)
+            sets.changes.source.forEach { remove(self, $0) }
         }
         if let insert = insertSection {
-            sets.changes.target.forEach { insert(fetchedResultController.sections![$0], $0) }
+            sets.changes.target.forEach { insert(self, fetchedResultController.sections![$0], $0) }
         }
     }
     
@@ -267,15 +274,15 @@ extension ListFetchedResultsController {
             sets.reload.elements().forEach { prepare(reload: &sets, from: sets.dict[$0], to: $0) }
         }
         if let remove = removeItem {
-            sets.changes.source.elements().forEach(remove)
+            sets.changes.source.elements().forEach { remove(self, $0) }
         }
         if let insert = insertItem {
-            sets.changes.target.elements().forEach { insert(item(at: $0), $0) }
+            sets.changes.target.elements().forEach { insert(self, item(at: $0), $0) }
         }
     }
     
     func prepare(move sets: inout ChangeSets<IndexPathSet>, from: IndexPath?, to: IndexPath) {
-        guard let from = from, shouldMoveItem?(item(at: to), from, to) == false else { return }
+        guard let from = from, shouldMoveItem?(self, item(at: to), from, to) == false else { return }
         sets.move.remove(to)
         sets.changes.source.add(from)
         sets.changes.target.add(to)
@@ -283,7 +290,7 @@ extension ListFetchedResultsController {
     }
     
     func prepare(reload sets: inout ChangeSets<IndexPathSet>, from: IndexPath?, to: IndexPath) {
-        guard let from = from, shouldReloadItem?(item(at: to), from, to) == false else { return }
+        guard let from = from, shouldReloadItem?(self, item(at: to), from, to) == false else { return }
         sets.reload.remove(from)
         sets.all.source.remove(from)
         sets.all.target.remove(to)

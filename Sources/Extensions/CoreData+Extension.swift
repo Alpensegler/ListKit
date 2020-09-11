@@ -10,16 +10,16 @@ import CoreData
 import Foundation
 
 public struct SectionUpdates {
-    let insert: IndexSet
-    let remove: IndexSet
-    let reload: IndexSet
+    public let insert: IndexSet
+    public let remove: IndexSet
+    public let reload: IndexSet
 }
 
 public struct ItemUpdates {
-    let insert: [IndexPath]
-    let remove: [IndexPath]
-    let reload: [IndexPath]
-    let moves: [(IndexPath, IndexPath)]
+    public let insert: [IndexPath]
+    public let remove: [IndexPath]
+    public let reload: [IndexPath]
+    public let moves: [(IndexPath, IndexPath)]
 }
 
 open class ListFetchedResultsController<Item>: NSObject, NSFetchedResultsControllerDelegate

@@ -45,7 +45,7 @@ where SourceBase.SourceBase == SourceBase {
     }
     
     override func configMaxOrder() -> Cache<Order> {
-        _item != nil ? .init(value: .second) : super.maxOrder
+        _item != nil ? .init(value: isItems ? .first : .second) : super.maxOrder
     }
     
     override func updateData(_ isSource: Bool) {
@@ -59,13 +59,13 @@ where SourceBase.SourceBase == SourceBase {
     ) -> UpdateSource<BatchUpdates.ListSource> {
         guard isSectioned else { return super.generateSourceUpdate(order: order, context: context) }
         switch order {
-        case .first: return (count.source, nil)
+        case .second: return (count.target, nil)
         case .third: return (count.target, nil)
         default: break
         }
         let section = _section?.toSource(offset: context?.offset)
         let item = _item?.toSource(offset: (context?.offset).map { .init(section: $0) })
-        return (count.target, .init(item: item, section: section))
+        return (count.source, .init(item: item, section: section))
     }
     
     override func generateTargetUpdate(
@@ -74,7 +74,7 @@ where SourceBase.SourceBase == SourceBase {
     ) -> UpdateTarget<BatchUpdates.ListTarget> {
         guard isSectioned else { return super.generateTargetUpdate(order: order, context: context) }
         switch order {
-        case .first: return (toIndices(count.source, context), nil, nil)
+        case .second: return (toIndices(count.target, context), nil, nil)
         case .third: return (toIndices(count.target, context), nil, nil)
         default: break
         }

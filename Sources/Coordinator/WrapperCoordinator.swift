@@ -52,7 +52,7 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
             return self.contextAndUpdates(update: update)
         }
         context.contextAtIndex = { [weak self] (index, offset, listView) in
-            self?.offsetAndRoot(offset: offset, list: listView)
+            self?.offsetAndRoot(offset: offset, list: listView) ?? []
         }
         return .init(value: other, context: context)
     }

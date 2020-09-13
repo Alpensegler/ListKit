@@ -12,31 +12,15 @@ import ListKit
 public class CoreDataListViewController: UIViewController, UpdatableTableListAdapter {
     var fetchLimit = 3
     
-//    public var toggle = true
+    public var toggle = true
     lazy var todosList = configTodosList()
     lazy var recent = configRecentList()
     lazy var loadMore = configLoadMore()
     lazy var tableView = _tableView
     
-//    lazy var itemSource = AnyTableSources.capture(options: [.preferSection, .keepEmptySection]) { [unowned self] in
-//        if self.toggle {
-//            Sources(item: 1.0)
-//                .tableViewCellForRow()
-//                .tableViewDidSelectRow { (context, item) in
-//                    context.deselectItem(animated: false)
-//                    print(item)
-//                }
-//        }
-//    }
-    
     public typealias Item = Any
     public var source: AnyTableSources {
         AnyTableSources {
-//            itemSource
-//            if !toggle {
-//                Sources(item: 0, options: .preferSection)
-//                    .tableViewCellForRow()
-//            }
             todosList
                 .tableConfig()
                 .tableViewHeaderTitleForSection { [unowned self] (context) -> String? in
@@ -67,10 +51,9 @@ public class CoreDataListViewController: UIViewController, UpdatableTableListAda
             managedObjectContext: Self.managedObjectContext,
             sectionNameKeyPath: "done"
         )
-        controller.shouldMoveItem = { [unowned self] (todo, indexPath, _) in
-            if let context = self.todosList.indexContext(for: self.tableView, at: indexPath) {
-                context.cell?.configUI(with: todo)
-                return true
+        controller.shouldMoveItem = { [unowned tableView] (controller, todo, indexPath, _) in
+            controller.itemContext(for: tableView, at: indexPath).forEach {
+                $0.cell?.configUI(with: todo)
             }
             return true
         }
@@ -128,14 +111,9 @@ public class CoreDataListViewController: UIViewController, UpdatableTableListAda
 //            )
         ]
     }
-    
-//    @objc func refresh() {
-//        toggle.toggle()
-//        itemSource.performUpdate()
-//    }
 }
 
-class ToDo: NSManagedObject {
+public class ToDo: NSManagedObject {
     class var entityName: String { "ToDo" }
     
     @NSManaged var title: String
@@ -293,3 +271,59 @@ struct CoreDataList_Preview: UIViewControllerRepresentable, PreviewProvider {
 }
 
 #endif
+
+//extension CoreDataListViewController {
+//    struct ItemSource: UpdatableTableListAdapter {
+//        var coordinatorStorage = CoordinatorStorage<ItemSource>()
+//
+//        typealias Item = Any
+//
+//        var value = true
+//
+//        var listOptions: ListOptions { .preferSection }
+//
+//        var source: AnyTableSources {
+//            AnyTableSources {
+//                if value {
+//                    Sources(item: 1.0).tableViewCellForRow()
+//                }
+//            }
+//        }
+//    }
+//
+//    static var itemSource = ItemSource()
+//
+//    public typealias Item = Any
+//    public var source: AnyTableSources {
+//        AnyTableSources {
+//            Self.itemSource
+//            if toggle {
+//                Sources(item: 0)
+//                    .tableViewCellForRow()
+//            }
+//            todosList
+//                .tableConfig()
+//                .tableViewHeaderTitleForSection { [unowned self] (context) -> String? in
+//                    self.todosList.sectionInfo[context.section].name == "0" ? "TODO" : "Done"
+//                }
+//        }
+//    }
+//
+//    @objc func refresh() {
+//        Self.itemSource.value.toggle()
+//        Self.itemSource.performUpdate()
+//    }
+//}
+//
+//extension CoreDataListViewController {
+//    static var source = [TableList<ListFetchedResultsController<ToDo>>]()
+//
+//    public typealias Item = ToDo
+//    public var source: [TableList<ListFetchedResultsController<ToDo>>] { Self.source }
+//    public var listOptions: ListOptions { .preferSection }
+//
+//    @objc func refresh() {
+//        let list = todosList.tableConfig()
+//        perform(.append(list))
+//    }
+//}

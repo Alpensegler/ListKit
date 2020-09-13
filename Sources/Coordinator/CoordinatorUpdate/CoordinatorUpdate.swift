@@ -131,14 +131,14 @@ class CoordinatorUpdate {
 }
 
 extension CoordinatorUpdate {
-    var sourceIsEmpty: Bool { count.source == 0 }
-    var targetIsEmpty: Bool { count.target == 0 }
+    var sourceHasSection: Bool { count.source != 0 || hasSectionIfEmpty(isSource: true) }
+    var targetHasSection: Bool { count.target != 0 || hasSectionIfEmpty(isSource: false) }
     
-    var sourceHasSection: Bool { !sourceIsEmpty || hasSectionIfEmpty(isSource: true) }
-    var targetHasSection: Bool { !targetIsEmpty || hasSectionIfEmpty(isSource: false) }
+    var sourceCount: Int { isSectioned && isItems ? (sourceHasSection ? 1 : 0) : count.source }
+    var targetCount: Int { isSectioned && isItems ? (targetHasSection ? 1 : 0) : count.target }
     
-    var sourceSectionCount: Int { isSectioned && !isItems ? count.source : sourceHasSection ? 1 : 0 }
-    var targetSectionCount: Int { isSectioned && !isItems ? count.target : targetHasSection ? 1 : 0 }
+    var sourceIsEmpty: Bool { sourceCount == 0 }
+    var targetIsEmpty: Bool { targetCount == 0 }
     
     var firstChange: (() -> Void)? { { [unowned self] in self.updateData(true) } }
     var finalChange: (() -> Void)? { { [unowned self] in self.updateData(false) } }

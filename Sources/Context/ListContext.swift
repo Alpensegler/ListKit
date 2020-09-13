@@ -32,6 +32,11 @@ where SourceBase.SourceBase == SourceBase {
     let root: CoordinatorContext
 }
 
+public extension DataSource {
+    typealias ListSectionContext<List: ListView> = ListIndexContext<List, SourceBase, Int>
+    typealias ListItemContext<List: ListView> = ListIndexContext<List, SourceBase, IndexPath>
+}
+
 public extension Context {
     var source: SourceBase.Source { context.listCoordinator.source }
 

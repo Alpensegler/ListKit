@@ -4,28 +4,8 @@ import ListKit
 public class TestListViewController: UIViewController, UpdatableTableListAdapter {
     public var toggle = true
     
-    lazy var itemSource = AnyTableSources.capture { [unowned self] in
-        if self.toggle {
-            Sources(item: 1.0)
-                .tableViewCellForRow()
-                .tableViewDidSelectRow { (context, item) in
-                    context.deselectItem(animated: false)
-                    print(item)
-                }
-        } else {
-            Sources(item: 2.0)
-                .tableViewCellForRow()
-                .tableViewDidSelectRow { (context, item) in
-                    context.deselectItem(animated: false)
-                    print(item)
-                }
-        }
-    }
-    .tableViewHeaderTitleForSection { (context) -> String? in
-        "item"
-    }
-    
-    lazy var itemsSource = Sources(items: ["a", "b", "c"])
+    lazy var itemSource = ItemSource()
+    lazy var itemsSource = Sources(items: [1.0, 2.0, 3.0])
         .tableViewCellForRow()
         .tableViewDidSelectRow { [unowned self] (context, item) in
             self.batchRemove(at: context.item)
@@ -34,11 +14,43 @@ public class TestListViewController: UIViewController, UpdatableTableListAdapter
             "items"
         }
     
+    final class ItemSource: UpdatableTableListAdapter {
+        public typealias Item = Any
+        var toggle = true
+        
+        public var source: AnyTableSources {
+            AnyTableSources {
+                if toggle {
+                    Sources(item: true)
+                        .tableViewCellForRow()
+                        .tableViewDidSelectRow { [unowned self] (context, item) in
+                            context.deselectItem(animated: false)
+                            self.toggle.toggle()
+                            self.performUpdate()
+                        }
+                } else {
+                    Sources(items: [false, false, false])
+                        .tableViewCellForRow()
+                        .tableViewDidSelectRow { (context, item) in
+                            context.deselectItem(animated: false)
+                            self.toggle.toggle()
+                            self.performUpdate()
+                        }
+                }
+            }
+            .tableViewHeaderTitleForSection { (context) -> String? in
+                "item"
+            }
+        }
+    }
+    
     public typealias Item = Any
     public var source: AnyTableSources {
         AnyTableSources {
-            itemSource
-            itemsSource
+            if toggle {
+                itemSource
+                itemsSource
+            }
             Sources(sections: [[1, 2, 3], [1, 2, 3]])
                 .tableViewCellForRow()
                 .tableViewHeaderTitleForSection { (context) -> String? in
@@ -75,7 +87,7 @@ public class TestListViewController: UIViewController, UpdatableTableListAdapter
     
     @objc func refresh() {
         toggle.toggle()
-        itemSource.performUpdate()
+        performUpdate()
     }
     
     func batchRemove(at item: Int) {

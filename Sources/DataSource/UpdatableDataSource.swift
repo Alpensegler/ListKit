@@ -89,33 +89,6 @@ public extension UpdatableDataSource {
     func currentItem(at indexPath: IndexPath) -> Item {
         listCoordinator.item(at: indexPath)
     }
-
-    func indexContext<List: ListView>(
-        for listView: List,
-        at indexPath: IndexPath
-    ) -> ListIndexContext<List, SourceBase, IndexPath>? {
-        for context in listCoordinator.listContexts {
-            guard let context = context.context else { continue }
-            if context.listView === listView {
-                return .init(
-                    context: context,
-                    listView: listView,
-                    index: indexPath,
-                    offset: .zero,
-                    root: context
-                )
-            } else if let (offset, root) = context.contextAtIndex?(context.index, .zero, listView) {
-                return .init(
-                    context: context,
-                    listView: listView,
-                    index: indexPath.offseted(offset),
-                    offset: offset,
-                    root: root
-                )
-            }
-        }
-        return nil
-    }
 }
 
 extension UpdatableDataSource where SourceBase == Self {
@@ -128,6 +101,38 @@ extension UpdatableDataSource where SourceBase == Self {
             coordinator.storage = coordinatorStorage
             return coordinator
         }()
+    }
+}
+
+extension UpdatableDataSource {
+    func _itemContext<List: ListView>(
+        for listView: List,
+        at indexPath: IndexPath
+    ) -> [ListItemContext<List>] {
+        var results = [ListItemContext<List>]()
+        for context in listCoordinator.listContexts {
+            guard let context = context.context else { continue }
+            if context.listView === listView {
+                results.append(.init(
+                    context: context,
+                    listView: listView,
+                    index: indexPath,
+                    offset: .zero,
+                    root: context
+                ))
+            }
+            
+            for (offset, root) in context.contextAtIndex?(context.index, .zero, listView) ?? [] {
+                results.append(.init(
+                    context: context,
+                    listView: listView,
+                    index: indexPath.offseted(offset),
+                    offset: offset,
+                    root: root
+                ))
+            }
+        }
+        return results
     }
 }
 

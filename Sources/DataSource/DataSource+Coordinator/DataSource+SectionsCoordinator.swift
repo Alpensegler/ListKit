@@ -50,3 +50,18 @@ where
         sourceBase.coordinator(with: RangeReplacableSectionsCoordinator(sourceBase))
     }
 }
+
+public extension UpdatableDataSource
+where
+    SourceBase.Source: RangeReplaceableCollection,
+    SourceBase.Source.Element: RangeReplaceableCollection,
+    SourceBase.Source.Element.Element == Item
+{
+    func itemContext<List: ListView>(
+        for listView: List,
+        at section: Int,
+        item: Int
+    ) -> [ListItemContext<List>] {
+        _itemContext(for: listView, at: .init(section: section, item: item))
+    }
+}

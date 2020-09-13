@@ -200,7 +200,7 @@ where
         }
         
         context.contextAtIndex = { [weak self] (index, offset, listView) in
-            guard let self = self else { return nil }
+            guard let self = self else { return [] }
             let offset = offset.offseted(self.subsources[index].offset, isSection: self.notItems)
             return self.offsetAndRoot(offset: offset, list: listView)
         }

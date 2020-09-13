@@ -89,10 +89,10 @@ where SourceBase.SourceBase == SourceBase {
     ) -> UpdateSource<BatchUpdates.ListSource> {
         switch (order, changeType) {
         case (_, .none):
-            return (sourceSectionCount, nil)
+            return (sourceCount, nil)
         case (.first, _):
             guard let (offset, isMoved, _) = context, isMoved, sourceHasSection else {
-                return (sourceSectionCount, nil)
+                return (sourceCount, nil)
             }
             return (1, .init(section: .init(move: offset)))
         case (.third, .remove(false)):
@@ -105,7 +105,7 @@ where SourceBase.SourceBase == SourceBase {
             ) else { return (1, nil) }
             return (1, .init(item: itemUpdate))
         case (.third, _):
-            return (targetSectionCount, nil)
+            return (targetCount, nil)
         }
     }
     
@@ -118,13 +118,13 @@ where SourceBase.SourceBase == SourceBase {
         }
         switch (order, changeType) {
         case (_, .none):
-            return (count(sourceSectionCount), nil, nil)
+            return (count(sourceCount), nil, nil)
         case (.first, .insert(false)):
             let indices = count(1, isFake: true), section = context?.offset.offset.target ?? 0
             return (indices, .init(section: .init(\.inserts, section)), firstChange)
         case (.first, _):
             guard let ((_, (source, target)), moved, _) = context, moved, sourceHasSection else {
-                return (count(sourceSectionCount), nil, firstChange)
+                return (count(sourceCount), nil, firstChange)
             }
             return (count(1), .init(section: .init(move: source, to: target)), firstChange)
         case (.third, .remove(itemsOnly: false)):
@@ -141,7 +141,7 @@ where SourceBase.SourceBase == SourceBase {
             let changes = hasNext(order, context) ? change : (change + finalChange)
             return (count(1, isFake: isFake), .init(item: itemUpdate), changes)
         case (.third, _):
-            return (count(targetSectionCount), nil, finalChange)
+            return (count(targetCount), nil, finalChange)
         }
     }
     

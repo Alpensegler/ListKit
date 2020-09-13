@@ -16,3 +16,9 @@ public extension DataSource where SourceBase.Source == Item, SourceBase: Updatab
         sourceBase.coordinator(with: ItemCoordinator(sourceBase))
     }
 }
+
+public extension UpdatableDataSource where SourceBase.Source == Item {
+    func itemContext<List: ListView>(for listView: List) -> [ListItemContext<List>] {
+        _itemContext(for: listView, at: .init(item: 0))
+    }
+}

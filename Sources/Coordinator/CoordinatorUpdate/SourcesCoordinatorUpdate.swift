@@ -172,8 +172,7 @@ where
             values.append(change.value)
         case let .update(_, value, update):
             update.prepareData()
-            let count = isItems ? update.count.target : update.targetSectionCount
-            values.append(value.target.setting(offset: 0, count: count))
+            values.append(value.target.setting(offset: 0, count: update.targetCount))
         default: break
         }
     }
@@ -196,11 +195,7 @@ where
         guard hasBatchUpdate, !subupdates.isEmpty else { return super.configCount() }
         var count = super.configCount()
         subupdates.values.forEach {
-            if isItems {
-                count.target += $0.count.target - $0.count.source
-            } else {
-                count.target += $0.targetSectionCount - $0.sourceSectionCount
-            }
+            count.target += $0.targetCount - $0.sourceCount
         }
         return count
     }
@@ -514,7 +509,7 @@ extension SourcesCoordinatorUpdate {
             case let .change(.change(change, isSource: isSource)):
                 if !isSource {
                     configChange(change)
-                } else if shouldSimpleUpdate(isSource: true) {
+                } else if !shouldSimpleUpdate(isSource: true) {
                     let update = change.update(false, context?.id)
                     add(value: change.value, update: update, isMoved: false)
                 }

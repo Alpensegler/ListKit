@@ -42,6 +42,7 @@ where SourceBase.SourceBase == SourceBase {
         self.defaultUpdate = coordinator?.update
         self.options = options
         super.init()
+        coordinator?.currentCoordinatorUpdate = self
         self.sourceType = coordinator?.sourceType ?? .sectionItems
         switch update.updateType {
         case let .whole(whole):

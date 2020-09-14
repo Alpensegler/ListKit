@@ -194,7 +194,6 @@ where
                 options: (self.options, self.options)
             )
             update.add(subupdate: subupdate, at: index)
-            self.currentCoordinatorUpdate = update
             return self.contextAndUpdates(update: update)
         }
         

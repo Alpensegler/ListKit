@@ -42,7 +42,6 @@ public extension UpdatableDataSource {
         }
         isMainThread ? work() : DispatchQueue.main.sync(execute: work)
         let coordinatorUpdate = coordinator.update(update: update, options: options)
-        coordinator.currentCoordinatorUpdate = coordinatorUpdate
         let contextAndUpdates = coordinator.contextAndUpdates(update: coordinatorUpdate)
         let results = contextAndUpdates.compactMap { arg in
             arg.1.listUpdates.map { (arg.0, arg.1, $0) }

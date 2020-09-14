@@ -85,6 +85,7 @@ where
         self.coordinator = coordinator
         self.indices = indices
         super.init(coordinator, update: update, values: values, sources: sources, options: options)
+        operations.forEach { $0() }
     }
     
     // override from DiffableCoordinatgorUpdate

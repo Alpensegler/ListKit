@@ -175,12 +175,16 @@ struct TestList_Preview: UIViewControllerRepresentable, PreviewProvider {
 //
 //    @objc func add() {
 //        let source = AnyTableSources {
-//            itemSource
+//            itemsSource
 //        }
 //        perform(.append(source))
 //    }
 //
 //    @objc func refresh() {
+//        var update = ListUpdate<SourceBase>()
+//        update.add(.subsource(itemsSource, update: [.append(4.0), .update(0.0, at: 0)]))
+//        perform(update)
+//
 //        itemSource.toggle.toggle()
 //        itemSource.performUpdate()
 //    }

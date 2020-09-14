@@ -13,8 +13,7 @@ class CoordinatorUpdate {
     }
 
     enum ChangeType: Equatable {
-        case insert(itemsOnly: Bool = true), remove(itemsOnly: Bool = false)
-        case reload, batchUpdates, none
+        case insert, remove, reload, batchUpdates, none
         
         var shouldGetSubupdate: Bool { self != .reload && self != .none }
     }
@@ -61,8 +60,7 @@ class CoordinatorUpdate {
     typealias UpdateTarget<Update> = (indices: Indices, update: Update?, change: (() -> Void)?)
     
     var isRemove = false
-    var isSectioned = false
-    var isItems = false
+    var sourceType = SourceType.sectionItems
     var preferNoAnimation: Bool { false }
     
     lazy var maxOrder = configMaxOrder()
@@ -78,11 +76,11 @@ class CoordinatorUpdate {
     func inferringMoves(context: ContextAndID? = nil) { }
     
     func configMaxOrder() -> Cache<Order> {
-        switch (isSectioned, changeType) {
+        switch (sourceType.isSection, changeType) {
         case (false, _): return .init(value: Order.second)
-        case (true, .remove(itemsOnly: false)): return .init(value: Order.third)
-        case (true, .insert(itemsOnly: false)): return .init(value: Order.second)
-        case (true, _): return .init(value: isItems ? Order.second : Order.first)
+        case (true, .remove): return .init(value: Order.third)
+        case (true, .insert): return .init(value: Order.second)
+        case (true, _): return .init(value: sourceType.isItems ? Order.second : Order.first)
         }
     }
     
@@ -92,8 +90,7 @@ class CoordinatorUpdate {
     func generateListUpdates() -> BatchUpdates? {
         prepareData()
         inferringMoves()
-        if isItems { return generateListUpdatesForItems() }
-        return isSectioned ? generateListUpdatesForSections() : generateListUpdatesForItems()
+        return sourceType.isItems ? generateListUpdatesForItems() : generateListUpdatesForSections()
     }
     
     func add(subupdate: CoordinatorUpdate, at index: Int) { }
@@ -134,8 +131,8 @@ extension CoordinatorUpdate {
     var sourceHasSection: Bool { count.source != 0 || hasSectionIfEmpty(isSource: true) }
     var targetHasSection: Bool { count.target != 0 || hasSectionIfEmpty(isSource: false) }
     
-    var sourceCount: Int { isSectioned && isItems ? (sourceHasSection ? 1 : 0) : count.source }
-    var targetCount: Int { isSectioned && isItems ? (targetHasSection ? 1 : 0) : count.target }
+    var sourceCount: Int { sourceType == .sectionItems ? (sourceHasSection ? 1 : 0) : count.source }
+    var targetCount: Int { sourceType == .sectionItems ? (targetHasSection ? 1 : 0) : count.target }
     
     var sourceIsEmpty: Bool { sourceCount == 0 }
     var targetIsEmpty: Bool { targetCount == 0 }
@@ -144,22 +141,22 @@ extension CoordinatorUpdate {
     var finalChange: (() -> Void)? { { [unowned self] in self.updateData(false) } }
     
     func generateListUpdatesForItems() -> BatchUpdates? {
-        switch changeType {
-        case .insert(false):
-            return .init(target: BatchUpdates.SectionTarget(\.inserts, 0), finalChange)
-        case .insert(true):
+        switch (changeType, sourceType) {
+        case (.insert, .items):
             let indices = [IndexPath](IndexPath(item: 0), IndexPath(item: count.target))
             return .init(target: BatchUpdates.ItemTarget(\.inserts, indices), finalChange)
-        case .remove(false):
-            return .init(source: BatchUpdates.SectionSource(\.deletes, 0), finalChange)
-        case .remove(true):
+        case (.insert, _):
+            return .init(target: BatchUpdates.SectionTarget(\.inserts, 0), finalChange)
+        case (.remove, .items):
             let indices = [IndexPath](IndexPath(item: 0), IndexPath(item: count.source))
             return .init(source: BatchUpdates.ItemSource(\.deletes, indices), finalChange)
-        case .batchUpdates:
+        case (.remove, _):
+            return .init(source: BatchUpdates.SectionSource(\.deletes, 0), finalChange)
+        case (.batchUpdates, _):
             return listUpdatesForItems()
-        case .reload:
+        case (.reload, _):
             return .reload(change: finalChange)
-        case .none:
+        case (.none, _):
             return .none
         }
     }
@@ -209,11 +206,11 @@ extension CoordinatorUpdate {
 // Order
 extension CoordinatorUpdate {
     func isMain(_ order: Order) -> Bool {
-        isSectioned && order == .first || !isSectioned && order == .second
+        sourceType.isItems ? order == .second : order == .first
     }
     
     func isExtra(_ order: Order) -> Bool {
-        isSectioned && order == .second || !isSectioned && order == .third
+        sourceType.isItems ? order == .third : order == .second
     }
     
     func notUpdate<O>(_ order: Order, _ context: UpdateContext<O>?) -> Bool {

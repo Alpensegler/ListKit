@@ -104,7 +104,7 @@ where
         subsourceType = .values
         super.init(source: nil, update: update, options: .removeEmptySection)
         subsourcesAndSubsectioned = (elements, false)
-        sectioned = true
+        sourceType = .sectionItems
     }
     
     func settingIndex(_ values: ContiguousArray<Subsource>) -> ContiguousArray<Subsource> {
@@ -150,7 +150,7 @@ where
         for element in source {
             let coordinator = element.listCoordinator
             let context = coordinator.context(with: element.listContextSetups)
-            if coordinator.sectioned {
+            if coordinator.sourceType.isSection {
                 addContext(to: context)
                 if !itemSources.isEmpty { addItemSources() }
                 let count = context.numbersOfSections()
@@ -191,8 +191,7 @@ where
                 values: (self.subsources, self.subsources),
                 sources: (self.source, self.source),
                 indices: (self.indices, self.indices),
-                options: (self.options, self.options),
-                isItems: !self.subsourcesAndSubsectioned.sectioned
+                options: (self.options, self.options)
             )
             update.add(subupdate: subupdate, at: index)
             self.currentCoordinatorUpdate = update
@@ -225,7 +224,9 @@ where
         return count
     }
     
-    override func isSectioned() -> Bool { subsourcesAndSubsectioned.sectioned }
+    override func configSourceType() -> SourceType {
+        subsourcesAndSubsectioned.sectioned ? .section : .items
+    }
     
     // Setup
     override func context(
@@ -247,8 +248,7 @@ where
             values: (coordinator.subsources, subsources),
             sources: (coordinator.source, source),
             indices: (coordinator.indices, indices),
-            options: (coordinator.options, options),
-            isItems: !subsourcesAndSubsectioned.sectioned
+            options: (coordinator.options, options)
         )
     }
     
@@ -267,8 +267,7 @@ where
             values: (subsources, subsourcesAfterUpdate ?? subsources),
             sources: (source, sourcesAfterUpdate ?? source),
             indices: (indices, indicesAfterUpdate ?? indices),
-            options: (self.options, options ?? self.options),
-            isItems: !subsourcesAndSubsectioned.sectioned
+            options: (self.options, options ?? self.options)
         )
     }
 }

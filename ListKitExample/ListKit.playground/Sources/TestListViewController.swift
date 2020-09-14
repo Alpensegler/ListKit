@@ -5,7 +5,7 @@ public class TestListViewController: UIViewController, UpdatableTableListAdapter
     public var toggle = true
     
     lazy var itemSource = ItemSource()
-    lazy var itemsSource = Sources(items: [1.0, 2.0, 3.0])
+    lazy var itemsSource = Sources(items: [1.0, 2.0, 3.0], options: .removeEmptySection)
         .tableViewCellForRow()
         .tableViewDidSelectRow { [unowned self] (context, item) in
             self.batchRemove(at: context.item)
@@ -77,7 +77,10 @@ public class TestListViewController: UIViewController, UpdatableTableListAdapter
     
     public override func viewDidLoad() {
         apply(by: tableView)
-        
+        configActions()
+    }
+    
+    func configActions() {
         navigationItem.rightBarButtonItem = UIBarButtonItem(
             barButtonSystemItem: .refresh,
             target: self,
@@ -144,5 +147,41 @@ struct TestList_Preview: UIViewControllerRepresentable, PreviewProvider {
 //                    "sources"
 //                }
 //        }
+//    }
+//}
+//
+//public extension TestListViewController {
+//    static var source = [AnyTableSources]()
+//
+//    typealias Item = Any
+//    var source: [AnyTableSources] {
+//        []
+//    }
+//
+//    func configActions() {
+//        navigationItem.rightBarButtonItems = [
+//            UIBarButtonItem(
+//                barButtonSystemItem: .add,
+//                target: self,
+//                action: #selector(add)
+//            ),
+//            UIBarButtonItem(
+//                barButtonSystemItem: .refresh,
+//                target: self,
+//                action: #selector(refresh)
+//            )
+//        ]
+//    }
+//
+//    @objc func add() {
+//        let source = AnyTableSources {
+//            itemSource
+//        }
+//        perform(.append(source))
+//    }
+//
+//    @objc func refresh() {
+//        itemSource.toggle.toggle()
+//        itemSource.performUpdate()
 //    }
 //}

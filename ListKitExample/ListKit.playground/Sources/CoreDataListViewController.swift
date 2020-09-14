@@ -24,7 +24,7 @@ public class CoreDataListViewController: UIViewController, UpdatableTableListAda
             todosList
                 .tableConfig()
                 .tableViewHeaderTitleForSection { [unowned self] (context) -> String? in
-                    self.todosList.sectionInfo[context.section].name == "0" ? "TODO" : "Done"
+                    self.todosList.section(at: context.section).name == "0" ? "TODO" : "Done"
                 }
             AnyTableSources {
                 recent

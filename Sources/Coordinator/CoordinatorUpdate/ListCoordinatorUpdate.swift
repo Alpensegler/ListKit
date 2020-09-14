@@ -42,7 +42,7 @@ where SourceBase.SourceBase == SourceBase {
         self.defaultUpdate = coordinator?.update
         self.options = options
         super.init()
-        self.isSectioned = coordinator?.sectioned ?? true
+        self.sourceType = coordinator?.sourceType ?? .sectionItems
         switch update.updateType {
         case let .whole(whole):
             self.update = whole
@@ -75,10 +75,8 @@ where SourceBase.SourceBase == SourceBase {
         switch (update?.way, sourceIsEmpty, targetIsEmpty) {
         case (.reload, _, _): return .reload
         case (.insert, _, true), (.remove, true, _), (_, true, true): return .none
-        case (.remove, _, _): return .remove(itemsOnly: !isSectioned)
-        case (.insert, _, _): return .insert(itemsOnly: !isSectioned)
-        case (_, false, true): return .remove(itemsOnly: itemsOnly(true))
-        case (_, true, false): return .insert(itemsOnly: itemsOnly(false))
+        case (.remove, _, _), (_, false, true): return .remove
+        case (.insert, _, _), (_, true, false): return .insert
         default: return isMoreUpdate || hasBatchUpdate || diffable ? .batchUpdates : .reload
         }
     }
@@ -95,7 +93,7 @@ where SourceBase.SourceBase == SourceBase {
                 return (sourceCount, nil)
             }
             return (1, .init(section: .init(move: offset)))
-        case (.third, .remove(false)):
+        case (.third, .remove) where sourceType.isSection:
             return (1, .init(section: .init(\.deletes, context?.offset ?? 0)))
         case (.second, _),
             (.third, _) where !notUpdate(order, context):
@@ -119,7 +117,7 @@ where SourceBase.SourceBase == SourceBase {
         switch (order, changeType) {
         case (_, .none):
             return (count(sourceCount), nil, nil)
-        case (.first, .insert(false)):
+        case (.first, .insert) where sourceType.isSection:
             let indices = count(1, isFake: true), section = context?.offset.offset.target ?? 0
             return (indices, .init(section: .init(\.inserts, section)), firstChange)
         case (.first, _):
@@ -127,11 +125,11 @@ where SourceBase.SourceBase == SourceBase {
                 return (count(sourceCount), nil, firstChange)
             }
             return (count(1), .init(section: .init(move: source, to: target)), firstChange)
-        case (.third, .remove(itemsOnly: false)):
+        case (.third, .remove) where sourceType.isSection:
             return (count(0), nil, finalChange)
         case (.second, _),
              (.third, _) where !notUpdate(order, context):
-            let isFake = changeType == .remove(itemsOnly: false)
+            let isFake = changeType == .remove && sourceType.isSection
             guard case let (_, itemUpdate?, change) = generateTargetItemUpdate(
                 order: order,
                 context: toContext(context) {
@@ -172,11 +170,6 @@ where SourceBase.SourceBase == SourceBase {
 }
 
 extension ListCoordinatorUpdate {
-    func itemsOnly(_ isSource: Bool) -> Bool {
-        guard isSectioned else { return true }
-        return hasSectionIfEmpty(isSource: isSource)
-    }
-    
     func toContext<Offset, OtherOffset>(
         _ context: UpdateContext<Offset>?,
         _ isMoved: Bool = false,

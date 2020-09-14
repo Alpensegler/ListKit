@@ -36,16 +36,12 @@ where SourceBase.SourceBase == SourceBase {
         self.coordinator = coordinator
         self.indices = indices
         super.init(coordinator, update: update, sources: sources, options: options)
-        isItems = !coordinator.sectioned
     }
     
-    override func configCount() -> Mapping<Int> {
-        if isSectioned { return (indices.source.count, indices.target.count) }
-        return (sources.source?.first ?? 0, sources.target?.first ?? 0)
-    }
+    override func configCount() -> Mapping<Int> { (indices.source.count, indices.target.count) }
     
     override func configMaxOrder() -> Cache<Order> {
-        _item != nil ? .init(value: isItems ? .first : .second) : super.maxOrder
+        .init(value: _item != nil && sourceType.isItems ? .second : .first)
     }
     
     override func updateData(_ isSource: Bool) {
@@ -57,7 +53,6 @@ where SourceBase.SourceBase == SourceBase {
         order: Order,
         context: UpdateContext<Int>? = nil
     ) -> UpdateSource<BatchUpdates.ListSource> {
-        guard isSectioned else { return super.generateSourceUpdate(order: order, context: context) }
         switch order {
         case .second: return (count.target, nil)
         case .third: return (count.target, nil)
@@ -72,7 +67,6 @@ where SourceBase.SourceBase == SourceBase {
         order: Order,
         context: UpdateContext<Offset<Int>>? = nil
     ) -> UpdateTarget<BatchUpdates.ListTarget> {
-        guard isSectioned else { return super.generateTargetUpdate(order: order, context: context) }
         switch order {
         case .second: return (toIndices(count.target, context), nil, nil)
         case .third: return (toIndices(count.target, context), nil, nil)

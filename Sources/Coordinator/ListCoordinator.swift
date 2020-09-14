@@ -24,9 +24,12 @@ public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase
     weak var currentCoordinatorUpdate: CoordinatorUpdate?
     var listContexts = [WeakContext]()
     
-    lazy var sectioned = isSectioned()
+    lazy var sourceType = configSourceType()
     
     var sourceBaseType: Any.Type { SourceBase.self }
+    var isSectioned: Bool {
+        options.preferSection || listContexts.contains { $0.context?.selectorSets.hasIndex == true }
+    }
     
     init(
         source: SourceBase.Source!,
@@ -52,9 +55,7 @@ public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase
     
     func item(at indexPath: IndexPath) -> Item { notImplemented() }
     
-    func isSectioned() -> Bool {
-        options.preferSection || listContexts.contains { $0.context?.selectorSets.hasIndex == true }
-    }
+    func configSourceType() -> SourceType { notImplemented() }
     
     func context(
         with setups: [(ListCoordinatorContext<SourceBase>) -> Void] = []
@@ -67,8 +68,8 @@ public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase
     // Updates:
     func identifier(for sourceBase: SourceBase) -> AnyHashable {
         let id = ObjectIdentifier(sourceBaseType)
-        guard let identifier = differ.identifier else { return HashCombiner(id, sectioned) }
-        return HashCombiner(id, sectioned, identifier(sourceBase))
+        guard let identifier = differ.identifier else { return HashCombiner(id, sourceType) }
+        return HashCombiner(id, sourceType, identifier(sourceBase))
     }
     
     func equal(lhs: SourceBase, rhs: SourceBase) -> Bool {

@@ -48,7 +48,7 @@ where
         let delegate = self[keyPath: keyPath], path = input[keyPath: delegate.index]
         let index = coordinator.sourceIndex(for: path.offseted(offset, plus: false))
         let context = coordinator.subsources[index]
-        let offset = offset.offseted(context.offset, isSection: listCoordinator.sectioned)
+        let offset = offset.offseted(context.offset, isSection: listCoordinator.sourceType.isSection)
         guard context.context.selectorSets.contains(delegate.selector) else { return nil }
         return context.context.apply(keyPath, root: root, object: object, with: input, offset)
     }

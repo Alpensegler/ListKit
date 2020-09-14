@@ -14,16 +14,6 @@ where SourceBase.Item == SourceBase.Source, SourceBase.SourceBase == SourceBase 
     
     override var moveAndReloadable: Bool { true }
     
-    init(
-        coordinator: ItemCoordinator<SourceBase>,
-        update: ListUpdate<SourceBase>,
-        sources: ListCoordinatorUpdate<SourceBase>.Sources,
-        options: ListCoordinatorUpdate<SourceBase>.Options
-    ) {
-        super.init(coordinator, update: update, sources: sources, options: options)
-        isItems = true
-    }
-    
     override func configCount() -> Mapping<Int> { (1, 1) }
     
     func configChange() -> Mapping<Change<Item>?> {

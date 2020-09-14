@@ -133,8 +133,8 @@ extension SectionsCoordinatorUpdate {
             var (sourceOption, targetOption) = options
             let source = i < sourceCount ? values.source[i] : []
             let target = i < targetCount ? values.target[i] : []
-            if i >= targetCount { sourceOption.insert(.removeEmptySection) }
-            if i >= sourceCount { targetOption.insert(.removeEmptySection) }
+            if i >= targetCount { targetOption.insert(.removeEmptySection) }
+            if i >= sourceCount { sourceOption.insert(.removeEmptySection) }
             return updateType.init(
                 update: (update?.way).map { .init(.init(way: $0)) } ?? .init(),
                 values: (source, target),

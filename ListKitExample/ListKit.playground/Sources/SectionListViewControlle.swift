@@ -91,11 +91,11 @@ struct SectionList_Preview: UIViewControllerRepresentable, PreviewProvider {
 
 #endif
 
-//extension SectionListViewControlle {
+//public extension SectionListViewControlle {
 //    static var toggle = true
 //
-//    public typealias Item = Int
-//    public var source: [[Item]] {
+//    typealias Item = Int
+//    var source: [[Item]] {
 //        Self.toggle.toggle()
 //        if Self.toggle {
 //            return [[1,2,3]]

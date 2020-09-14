@@ -27,6 +27,7 @@ where
     override func numbersOfSections() -> Int { items.isEmpty && options.removeEmptySection ? 0 : 1 }
 
     override func item(at indexPath: IndexPath) -> Item { items[indexPath.item] }
+    override func configSourceType() -> SourceType { isSectioned ? .sectionItems : .items }
 
     override func update(
         from coordinator: ListCoordinator<SourceBase>,

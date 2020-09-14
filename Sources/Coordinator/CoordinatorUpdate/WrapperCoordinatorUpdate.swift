@@ -14,9 +14,8 @@ where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSo
     var wrappeds: Mapping<Wrapped?>
     var subupdate: CoordinatorUpdate?
     var coordinator: WrapperCoordinator<SourceBase, Other>
-    var subIsSectioned: Bool
     
-    var shouldHandle: Bool { isSectioned && !subIsSectioned }
+    var shouldHandle: Bool { sourceType == .sectionItems }
     
     init(
         coordinator: WrapperCoordinator<SourceBase, Other>,
@@ -24,15 +23,12 @@ where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSo
         wrappeds: Mapping<Wrapped?>,
         sources: Sources,
         subupdate: CoordinatorUpdate?,
-        options: Options,
-        subIsSectioned: Bool
+        options: Options
     ) {
         self.wrappeds = wrappeds
         self.coordinator = coordinator
         self.subupdate = subupdate
-        self.subIsSectioned = subIsSectioned
         super.init(coordinator, update: update, sources: sources, options: options)
-        isItems = subupdate?.isItems ?? !subIsSectioned
     }
     
     override func inferringMoves(context: CoordinatorUpdate.ContextAndID? = nil) {
@@ -53,10 +49,9 @@ where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSo
     override func configChangeType() -> ChangeType {
         guard shouldHandle else { return subupdate?.changeType ?? .none }
         switch (update?.way, sourceIsEmpty, targetIsEmpty) {
-        case (.remove, _, _): return .remove(itemsOnly: !isSectioned)
-        case (.insert, _, _): return .insert(itemsOnly: !isSectioned)
-        case (_, false, true): return .remove(itemsOnly: itemsOnly(true))
-        case (_, true, false): return .insert(itemsOnly: itemsOnly(false))
+        case (.insert, _, true), (.remove, true, _), (_, true, true): return .none
+        case (.remove, _, _), (_, false, true): return .remove
+        case (.insert, _, _), (_, true, false): return .insert
         default: return subupdate?.changeType ?? .none
         }
     }

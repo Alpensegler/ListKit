@@ -34,8 +34,6 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
         self.wrapped = toOther(source).map(toWrapped)
     }
     
-    lazy var subIsSectiond = wrapped?.coordinator.sectioned == true
-    
     func toWrapped(_ other: Other) -> Wrapped {
         let context = other.listCoordinator.context(with: other.listContextSetups)
         context.update = { [weak self] (_, update) in
@@ -46,8 +44,7 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
                 wrappeds: (self.wrapped, self.wrapped),
                 sources: (self.source, self.source),
                 subupdate: update,
-                options: (self.options, self.options),
-                subIsSectioned: self.subIsSectiond
+                options: (self.options, self.options)
             )
             return self.contextAndUpdates(update: update)
         }
@@ -76,7 +73,7 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
     }
     
     override func numbersOfSections() -> Int {
-        if !subIsSectiond, sectioned, wrapped?.coordinator.numbersOfItems(in: 0) == 0 {
+        if sourceType == .sectionItems, wrapped?.coordinator.numbersOfItems(in: 0) == 0 {
             return options.removeEmptySection ? 0 : 1
         }
         return wrapped?.coordinator.numbersOfSections() ?? 0
@@ -86,7 +83,10 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
         wrapped?.coordinator.numbersOfItems(in: section) ?? 0
     }
     
-    override func isSectioned() -> Bool { subIsSectiond || super.isSectioned() }
+    override func configSourceType() -> SourceType {
+        if wrapped?.coordinator.sourceType == .items, isSectioned { return .sectionItems }
+        return wrapped?.coordinator.sourceType ?? .items
+    }
     
     // Setup
     override func context(
@@ -100,8 +100,8 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
     // Updates:
     override func identifier(for sourceBase: SourceBase) -> AnyHashable {
         let id = ObjectIdentifier(sourceBaseType)
-        guard let identifier = differ.identifier else { return HashCombiner(id, sectioned) }
-        return HashCombiner(id, sectioned, identifier(sourceBase))
+        guard let identifier = differ.identifier else { return HashCombiner(id, sourceType) }
+        return HashCombiner(id, sourceType, identifier(sourceBase))
     }
     
     override func update(
@@ -115,8 +115,7 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
             wrappeds: (coordinator.wrapped, wrapped),
             sources: (coordinator.source, source),
             subupdate: update(from: coordinator.wrapped, to: wrapped, way: updateWay),
-            options: (options, options),
-            subIsSectioned: self.subIsSectiond
+            options: (options, options)
         )
     }
     
@@ -142,8 +141,7 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
             wrappeds: (wrapped, targetWrapped),
             sources: (source, targetSource),
             subupdate: subupdate,
-            options: (self.options, options ?? self.options),
-            subIsSectioned: subIsSectiond
+            options: (self.options, options ?? self.options)
         )
     }
 }

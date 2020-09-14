@@ -13,6 +13,7 @@ where SourceBase.Item == SourceBase.Source, SourceBase.SourceBase == SourceBase 
     override func numbersOfItems(in section: Int) -> Int { 1 }
     
     override func item(at indexPath: IndexPath) -> Item { source }
+    override func configSourceType() -> SourceType { isSectioned ? .sectionItems : .items }
     
     override func update(
         from coordinator: ListCoordinator<SourceBase>,
@@ -20,7 +21,7 @@ where SourceBase.Item == SourceBase.Source, SourceBase.SourceBase == SourceBase 
     ) -> ListCoordinatorUpdate<SourceBase> {
         let coordinator = coordinator as! ItemCoordinator<SourceBase>
         return ItemCoordinatorUpdate(
-            coordinator: self,
+            self,
             update: .init(updateWay, or: update),
             sources: (coordinator.source, source),
             options: (coordinator.options, options)
@@ -33,7 +34,7 @@ where SourceBase.Item == SourceBase.Source, SourceBase.SourceBase == SourceBase 
     ) -> ListCoordinatorUpdate<SourceBase> {
         let sourcesAfterUpdate = update.source
         return ItemCoordinatorUpdate(
-            coordinator: self,
+            self,
             update: update,
             sources: (source, sourcesAfterUpdate ?? source),
             options: (self.options, options ?? self.options)

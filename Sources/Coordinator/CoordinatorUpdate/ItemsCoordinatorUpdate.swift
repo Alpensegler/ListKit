@@ -41,7 +41,6 @@ where
     ) {
         self.coordinator = coordinator
         super.init(coordinator, update: update, values: values, sources: sources, options: options)
-        isItems = true
     }
     
     // override from DiffableCoordinatgorUpdate

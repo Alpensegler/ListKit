@@ -24,6 +24,14 @@ public struct ItemUpdates {
 
 open class ListFetchedResultsController<Item>: NSObject, NSFetchedResultsControllerDelegate
 where Item: NSFetchRequestResult {
+    public struct Section {
+        public let info: NSFetchedResultsSectionInfo
+        public var indexTitle: String? { info.indexTitle }
+        public var count: Int { info.numberOfObjects }
+        public var name: String { info.name }
+        public var items: [Item] { info.objects as? [Item] ?? [] }
+    }
+    
     public typealias SourceBase = ListFetchedResultsController<Item>
     public var fetchedResultController: NSFetchedResultsController<Item>
     public var listUpdate = ListUpdate<SourceBase>.Whole.reload
@@ -159,8 +167,12 @@ where Item: NSFetchRequestResult {
 }
 
 extension ListFetchedResultsController: NSDataSource {
+    public func section(at section: Int) -> Section {
+        .init(info: fetchedResultController.sections![section])
+    }
+    
     public func items(at section: Int) -> [Item] {
-        fetchedResultController.sections?[section].objects as? [Item] ?? []
+        self.section(at: section).items
     }
     
     public func item(at indexPath: IndexPath) -> Item {
@@ -172,7 +184,7 @@ extension ListFetchedResultsController: NSDataSource {
     }
     
     public func numbersOfItem(in section: Int) -> Int {
-        fetchedResultController.sections?[section].numberOfObjects ?? 0
+        self.section(at: section).count
     }
 }
 

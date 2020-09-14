@@ -79,14 +79,12 @@ where
         values: Values,
         sources: Sources,
         indices: Mapping<Indices>,
-        options: Options,
-        isItems: Bool
+        options: Options
     ) {
         self.subsourceType = coordinator.subsourceType
         self.coordinator = coordinator
         self.indices = indices
         super.init(coordinator, update: update, values: values, sources: sources, options: options)
-        self.isItems = isItems
     }
     
     // override from DiffableCoordinatgorUpdate
@@ -143,7 +141,7 @@ where
     override func toValue(_ element: Element) -> Subsource {
         let coordinator = element.listCoordinator
         let context = coordinator.context(with: element.listContextSetups)
-        let count = isItems ? context.numbersOfItems(in: 0) : context.numbersOfSections()
+        let count = sourceType.isItems ? context.numbersOfItems(in: 0) : context.numbersOfSections()
         self.coordinator.map { $0.addContext(to: context) }
         return .init(element: .element(element), context: context, offset: 0, count: count)
     }
@@ -217,7 +215,7 @@ where
     
     override func inferringMoves(context: ContextAndID? = nil) {
         super.inferringMoves(context: context)
-        if isItems || hasBatchUpdate { return }
+        if sourceType.isItems || hasBatchUpdate { return }
         let context = context ?? defaultContext
         changes.source.forEach {
             switch $0 {
@@ -248,7 +246,7 @@ where
         order: Order,
         context: UpdateContext<Int>? = nil
     ) -> UpdateSource<BatchUpdates.ListSource> {
-        if isItems { return super.generateSourceUpdate(order: order, context: context) }
+        if sourceType.isItems { return super.generateSourceUpdate(order: order, context: context) }
         return sourceUpdate(order, in: context, \.section, Subupdate.generateSourceUpdate)
     }
     
@@ -256,7 +254,7 @@ where
         order: Order,
         context: UpdateContext<Offset<Int>>? = nil
     ) -> UpdateTarget<BatchUpdates.ListTarget> {
-        if isItems { return super.generateTargetUpdate(order: order, context: context) }
+        if sourceType.isItems { return super.generateTargetUpdate(order: order, context: context) }
         return targetUpdate(order, in: context, \.section, Subupdate.generateTargetUpdate)
     }
     
@@ -286,7 +284,7 @@ extension SourcesCoordinatorUpdate {
     }
     
     func shouldSimpleUpdate(isSource: Bool) -> Bool {
-        if isItems { return true }
+        if sourceType.isItems { return true }
         return hasBatchUpdate && batchChanges[keyPath: path(!isSource)].isEmpty && !shouldConsiderUpdate
     }
     

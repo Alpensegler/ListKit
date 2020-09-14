@@ -13,7 +13,7 @@ where SourceBase.SourceBase == SourceBase {
     lazy var indices = toIndices(source)
     
     func toIndices(_ source: [Int]) -> Indices {
-        guard sectioned else {
+        if sourceType == .items {
             guard let index = source[safe: 0], index != 0 else { return [] }
             return (0..<index).mapContiguous { ($0, false) }
         }
@@ -30,7 +30,9 @@ where SourceBase.SourceBase == SourceBase {
     }
     
     override func item(at indexPath: IndexPath) -> Item { sourceBase.item(at: indexPath) }
-    override func isSectioned() -> Bool { super.isSectioned() || source.count > 1 }
+    override func configSourceType() -> SourceType {
+        isSectioned || source.count > 1 ? .section : .items
+    }
     
     override init(_ sourceBase: SourceBase) {
         self.sourceBase = sourceBase

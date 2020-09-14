@@ -45,7 +45,7 @@ where
         return sections[index.index].count
     }
     
-    override func isSectioned() -> Bool { true }
+    override func configSourceType() -> SourceType { .section }
     
     override func update(
         from coordinator: ListCoordinator<SourceBase>,

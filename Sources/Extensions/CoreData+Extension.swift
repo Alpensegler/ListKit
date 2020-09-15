@@ -13,6 +13,9 @@ public struct SectionUpdates {
     public let insert: IndexSet
     public let remove: IndexSet
     public let reload: IndexSet
+    
+    public let allSourceChange: IndexSet
+    public let allTargetChange: IndexSet
 }
 
 public struct ItemUpdates {
@@ -20,6 +23,9 @@ public struct ItemUpdates {
     public let remove: [IndexPath]
     public let reload: [IndexPath]
     public let moves: [(IndexPath, IndexPath)]
+    
+    public let allSourceChange: [IndexPath]
+    public let allTargetChange: [IndexPath]
 }
 
 open class ListFetchedResultsController<Item>: NSObject, NSFetchedResultsControllerDelegate
@@ -198,14 +204,22 @@ public extension ListFetchedResultsController {
                 moves: items.move.elements().compactMap {
                     guard let index = items.dict[$0] else { return nil }
                     return (index, $0)
-                }
+                },
+                allSourceChange: items.all.source.elements(),
+                allTargetChange: items.all.target.elements()
             )
         })
     }
     
     var sectionUpdates: SectionUpdates? {
         _sectionUpdates.or(_section.map {
-            .init(insert: $0.changes.target, remove: $0.changes.source, reload: $0.reload)
+            .init(
+                insert: $0.changes.target,
+                remove: $0.changes.source,
+                reload: $0.reload,
+                allSourceChange: $0.all.source,
+                allTargetChange: $0.all.target
+            )
         })
     }
 }

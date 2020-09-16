@@ -23,8 +23,9 @@ where SourceBase.SourceBase == SourceBase {
         return indices
     }
     
-    override func numbersOfSections() -> Int { indices.count }
+    override func numbersOfSections() -> Int { sourceType.isSection ? indices.count : 1 }
     override func numbersOfItems(in section: Int) -> Int {
+        if sourceType == .items { return indices.count }
         guard let index = indices[safe: section], !index.isFake else { return 0 }
         return source[index.index]
     }

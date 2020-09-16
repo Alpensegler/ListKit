@@ -73,7 +73,7 @@ where SourceBase.SourceBase == SourceBase {
     }
     
     override func configChangeType() -> ChangeType {
-        switch (update?.way, sourceIsEmpty, targetIsEmpty) {
+        switch (update?.way, count.source == 0, count.target == 0) {
         case (.reload, _, _): return .reload
         case (.insert, _, true), (.remove, true, _), (_, true, true): return .none
         case (.remove, _, _), (_, false, true): return .remove
@@ -94,7 +94,7 @@ where SourceBase.SourceBase == SourceBase {
                 return (sourceCount, nil)
             }
             return (1, .init(section: .init(move: offset)))
-        case (.third, .remove) where sourceType.isSection:
+        case (.third, .remove) where !targetHasSection:
             return (1, .init(section: .init(\.deletes, context?.offset ?? 0)))
         case (.second, _),
             (.third, _) where !notUpdate(order, context):
@@ -118,7 +118,7 @@ where SourceBase.SourceBase == SourceBase {
         switch (order, changeType) {
         case (_, .none):
             return (count(sourceCount), nil, nil)
-        case (.first, .insert) where sourceType.isSection:
+        case (.first, .insert) where !sourceHasSection:
             let indices = count(1, isFake: true), section = context?.offset.offset.target ?? 0
             return (indices, .init(section: .init(\.inserts, section)), firstChange)
         case (.first, _):
@@ -126,7 +126,7 @@ where SourceBase.SourceBase == SourceBase {
                 return (count(sourceCount), nil, firstChange)
             }
             return (count(1), .init(section: .init(move: source, to: target)), firstChange)
-        case (.third, .remove) where sourceType.isSection:
+        case (.third, .remove) where !targetHasSection:
             return (count(0), nil, finalChange)
         case (.second, _),
              (.third, _) where !notUpdate(order, context):

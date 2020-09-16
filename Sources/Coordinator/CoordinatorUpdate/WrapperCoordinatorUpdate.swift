@@ -48,7 +48,7 @@ where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSo
     
     override func configChangeType() -> ChangeType {
         guard shouldHandle else { return subupdate?.changeType ?? .none }
-        switch (update?.way, sourceIsEmpty, targetIsEmpty) {
+        switch (update?.way, count.source == 0, count.target == 0) {
         case (.insert, _, true), (.remove, true, _), (_, true, true): return .none
         case (.remove, _, _), (_, false, true): return .remove
         case (.insert, _, _), (_, true, false): return .insert

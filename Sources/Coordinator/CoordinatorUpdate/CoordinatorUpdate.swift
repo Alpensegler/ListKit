@@ -77,10 +77,10 @@ class CoordinatorUpdate {
     
     func configMaxOrder() -> Cache<Order> {
         switch (sourceType.isSection, changeType) {
-        case (false, _): return .init(value: Order.second)
-        case (true, .remove): return .init(value: Order.third)
-        case (true, .insert): return .init(value: Order.second)
-        case (true, _): return .init(value: sourceType.isItems ? Order.second : Order.first)
+        case (false, _): return .init(value: .second)
+        case (true, .remove): return .init(value: targetHasSection ? .second : .third)
+        case (true, .insert): return .init(value: .second)
+        case (true, _): return .init(value: sourceType.isItems ? .second : .first)
         }
     }
     
@@ -133,9 +133,6 @@ extension CoordinatorUpdate {
     
     var sourceCount: Int { sourceType == .sectionItems ? (sourceHasSection ? 1 : 0) : count.source }
     var targetCount: Int { sourceType == .sectionItems ? (targetHasSection ? 1 : 0) : count.target }
-    
-    var sourceIsEmpty: Bool { sourceCount == 0 }
-    var targetIsEmpty: Bool { targetCount == 0 }
     
     var firstChange: (() -> Void)? { { [unowned self] in self.updateData(true) } }
     var finalChange: (() -> Void)? { { [unowned self] in self.updateData(false) } }

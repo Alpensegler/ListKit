@@ -63,6 +63,7 @@ class CoordinatorUpdate {
     var sourceType = SourceType.sectionItems
     var preferNoAnimation: Bool { false }
     
+    lazy var suboperations = [() -> Void]()
     lazy var maxOrder = configMaxOrder()
     lazy var count = configCount()
     
@@ -93,10 +94,19 @@ class CoordinatorUpdate {
         return sourceType.isItems ? generateListUpdatesForItems() : generateListUpdatesForSections()
     }
     
-    func add(subupdate: CoordinatorUpdate, at index: Int) { }
-    
     func updateData(_ isSource: Bool) { }
     func hasSectionIfEmpty(isSource: Bool) -> Bool { true }
+    
+    // subsources update
+    func add(subupdate: CoordinatorUpdate, at index: Int) { }
+    func subsource<Subsource: UpdatableDataSource>(
+        _ source: Subsource,
+        update: ListUpdate<Subsource.SourceBase>,
+        animated: Bool? = nil,
+        completion: ((ListView, Bool) -> Void)? = nil
+    ) {
+        suboperations.append { source.perform(update, animated: animated, completion: completion) }
+    }
     
     func generateSourceUpdate(
         order: Order,

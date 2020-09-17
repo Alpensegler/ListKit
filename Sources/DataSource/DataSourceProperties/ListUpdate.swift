@@ -179,15 +179,15 @@ public extension ListUpdate where Value: Identifiable, Value: Hashable {
 }
 
 //Subupdate
-public extension ListUpdate.Whole where SourceBase.Source: DataSource {
-    static var subupdate: Self { .init(way: .subpdate) }
+public extension DiffInitializableUpdate where SourceBase.Source: DataSource {
+    static var subupdate: Self { .init(.init(way: .subpdate)) }
 }
 
-public extension ListUpdate.Whole
+public extension DiffInitializableUpdate
 where
     SourceBase.Source: RangeReplaceableCollection,
     SourceBase.Source.Element: DataSource,
     SourceBase.Source.Element.SourceBase.Item == SourceBase.Item
 {
-    static var subupdate: Self { .init(way: .subpdate) }
+    static var subupdate: Self { .init(.init(way: .subpdate)) }
 }

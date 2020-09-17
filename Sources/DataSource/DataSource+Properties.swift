@@ -78,7 +78,12 @@ public extension DataSource where SourceBase: AnyObject, SourceBase: Hashable {
 }
 
 //Subupdate
-public extension DataSource where SourceBase.Source: DataSource, SourceBase.Item == Any {
+public extension DataSource
+where
+    SourceBase.Source: DataSource,
+    SourceBase.Source.SourceBase == AnySources,
+    SourceBase.Item == Any
+{
     var listUpdate: ListUpdate<SourceBase>.Whole { .subupdate }
 }
 

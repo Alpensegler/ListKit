@@ -123,18 +123,24 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
         update: ListUpdate<SourceBase>,
         options: ListOptions? = nil
     ) -> ListCoordinatorUpdate<SourceBase> {
-        guard case let .whole(whole) = update.updateType else { fatalError() }
         let subupdate: CoordinatorUpdate?, targetWrapped: Wrapped?, targetSource: SourceBase.Source!
-        if let source = update.source {
-            targetSource = source
-            targetWrapped = toOther(source).map(toWrapped)
-            subupdate = self.update(from: wrapped, to: targetWrapped, way: whole.way)
+        if case let .whole(whole) = update.updateType {
+            if let source = update.source {
+                targetSource = source
+                targetWrapped = toOther(source).map(toWrapped)
+                subupdate = self.update(from: wrapped, to: targetWrapped, way: whole.way)
+            } else {
+                let way = ListUpdateWay(whole.way, cast: toItem)
+                targetSource = source
+                targetWrapped = wrapped
+                subupdate = wrapped?.coordinator.update(update: .init(way, or: .reload))
+            }
         } else {
-            let way = ListUpdateWay(whole.way, cast: toItem)
             targetSource = source
             targetWrapped = wrapped
-            subupdate = wrapped?.coordinator.update(update: .init(way, or: .reload))
+            subupdate = wrapped?.coordinator.update(update: .init(.init()))
         }
+        
         return WrapperCoordinatorUpdate(
             coordinator: self,
             update: update,

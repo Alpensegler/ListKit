@@ -61,6 +61,7 @@ where SourceBase.SourceBase == SourceBase {
         case let .batch(batch):
             batch.operations.forEach { $0(self) }
             hasBatchUpdate = true
+            suboperations.forEach { $0() }
         }
     }
     

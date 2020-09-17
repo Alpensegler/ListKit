@@ -206,3 +206,26 @@ public extension BatchInitializable where SourceBase: NSDataSource {
         .init { $0.item.move(indexPath, to: newIndexPath) }
     }
 }
+
+public extension BatchInitializable
+where
+    Source: DataSource,
+    Source.SourceBase == AnySources,
+    Item == Any
+{
+    static func subsource<Subsource: UpdatableDataSource>(
+        _ source: Subsource,
+        update: ListUpdate<Subsource.SourceBase>,
+        animatedForOtherContext: Bool? = nil,
+        completionForOtherContext: ((ListView, Bool) -> Void)? = nil
+    ) -> Self {
+        .init(CoordinatorUpdate.self) {
+            $0.subsource(
+                source,
+                update: update,
+                animated: animatedForOtherContext,
+                completion: completionForOtherContext
+            )
+        }
+    }
+}

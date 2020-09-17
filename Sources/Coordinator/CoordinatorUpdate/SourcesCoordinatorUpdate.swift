@@ -85,7 +85,6 @@ where
         self.coordinator = coordinator
         self.indices = indices
         super.init(coordinator, update: update, values: values, sources: sources, options: options)
-        operations.forEach { $0() }
     }
     
     // override from DiffableCoordinatgorUpdate
@@ -180,7 +179,8 @@ where
         if super.canConfigUpdateAt(index: index, last: last, into: &changes) { return true }
         guard let update = subupdates[index.source] else { return false }
         appendUnchanged(index: index, last: last, to: &changes)
-        let value: Mapping = (values.source[index.source], values.source[index.target])
+        let target = values.source[index.target].setting(offset: 0, count: update.targetCount)
+        let value: Mapping = (values.source[index.source], target)
         changes.source.append(.change(.update(index, value, update)))
         changes.target.append(.change(.update(index, value, update)))
         return true
@@ -275,15 +275,6 @@ where
 }
 
 extension SourcesCoordinatorUpdate {
-    func subsource<Subsource: UpdatableDataSource>(
-        _ source: Subsource,
-        update: ListUpdate<Subsource.SourceBase>,
-        animated: Bool? = nil,
-        completion: ((ListView, Bool) -> Void)? = nil
-    ) {
-        operations.append { source.perform(update, animated: animated, completion: completion) }
-    }
-    
     func shouldSimpleUpdate(isSource: Bool) -> Bool {
         if sourceType.isItems { return true }
         return hasBatchUpdate && batchChanges[keyPath: path(!isSource)].isEmpty && !shouldConsiderUpdate

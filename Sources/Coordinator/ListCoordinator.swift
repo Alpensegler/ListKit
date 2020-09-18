@@ -17,7 +17,7 @@ public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase
     
     let update: ListUpdate<SourceBase>.Whole
     let differ: ListDiffer<SourceBase>
-    let options: ListOptions
+    var options: ListOptions
     var source: SourceBase.Source!
     
     weak var storage: CoordinatorStorage<SourceBase>?

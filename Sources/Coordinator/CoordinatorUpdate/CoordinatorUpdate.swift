@@ -148,22 +148,22 @@ extension CoordinatorUpdate {
     var finalChange: (() -> Void)? { { [unowned self] in self.updateData(false) } }
     
     func generateListUpdatesForItems() -> BatchUpdates? {
-        switch (changeType, sourceType) {
-        case (.insert, .items):
+        switch changeType {
+        case _ where targetHasSection && !sourceHasSection:
+            return .init(target: BatchUpdates.SectionTarget(\.inserts, 0), finalChange)
+        case _ where !targetHasSection && sourceHasSection:
+            return .init(source: BatchUpdates.SectionSource(\.deletes, 0), finalChange)
+        case .insert:
             let indices = [IndexPath](IndexPath(item: 0), IndexPath(item: count.target))
             return .init(target: BatchUpdates.ItemTarget(\.inserts, indices), finalChange)
-        case (.insert, _):
-            return .init(target: BatchUpdates.SectionTarget(\.inserts, 0), finalChange)
-        case (.remove, .items):
+        case .remove:
             let indices = [IndexPath](IndexPath(item: 0), IndexPath(item: count.source))
             return .init(source: BatchUpdates.ItemSource(\.deletes, indices), finalChange)
-        case (.remove, _):
-            return .init(source: BatchUpdates.SectionSource(\.deletes, 0), finalChange)
-        case (.batchUpdates, _):
+        case .batchUpdates:
             return listUpdatesForItems()
-        case (.reload, _):
+        case .reload:
             return .reload(change: finalChange)
-        case (.none, _):
+        case .none:
             return .none
         }
     }

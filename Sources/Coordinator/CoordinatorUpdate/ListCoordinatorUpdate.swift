@@ -67,6 +67,7 @@ where SourceBase.SourceBase == SourceBase {
     
     override func updateData(_ isSource: Bool) {
         listCoordinator?.source = isSource ? sources.source : sources.target
+        listCoordinator?.options = isSource ? options.source : options.target
     }
     
     override func hasSectionIfEmpty(isSource: Bool) -> Bool {

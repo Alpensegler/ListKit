@@ -46,15 +46,13 @@ public extension UpdatableDataSource {
         let results = contextAndUpdates.compactMap { arg in
             arg.1.listUpdates.map { (arg.0, arg.1, $0) }
         }
-        if results.isEmpty { coordinatorUpdate.prepareData() }
         let afterWork = {
             if results.isEmpty {
-                coordinatorUpdate.finalChange?()
+                coordinatorUpdate.finalChange(true)()
                 return
             }
             for (context, coordinatorUpdate, update) in results {
-                let updateAnimated = animated ?? !coordinatorUpdate.preferNoAnimation
-                coordinatorUpdate.finalChange?()
+                let updateAnimated = animated ?? !coordinatorUpdate.options.target.preferNoAnimation
                 context.perform(updates: update, animated: updateAnimated, completion: completion)
             }
         }

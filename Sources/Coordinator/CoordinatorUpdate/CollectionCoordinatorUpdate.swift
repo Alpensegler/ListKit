@@ -16,126 +16,156 @@ where
     Change: CoordinatorUpdate.Change<Value>
 {
     typealias Element = Source.Element
-    typealias Values = Mapping<ContiguousArray<Value>>
+    typealias Values = ContiguousArray<Value>
     typealias Changes = Mapping<ContiguousArray<Change>>
+    typealias Difference = CoordinatorUpdate.Difference<DifferenceChange>
     typealias Differences = Mapping<ContiguousArray<Difference>>
     
-    enum Difference {
-        case change(DifferenceChange)
-        case unchanged(from: Mapping<Int>, to: Mapping<Int>)
-    }
+    let sourceValues: Values
     
-    var values: Values
+    lazy var targetValues = configTargetValues()
+    lazy var differences = configDifferences()
+    lazy var diffs = configDiffs()
+    lazy var changes = configChanges()
+    lazy var uniqueMapping = configUniqueMapping()
+    lazy var uniqueDict = configUniqueDict()
     
-    var changeIndices: Mapping<IndexSet> = (.init(), .init())
-    var changeDict: Mapping<[Int: Change]> = ([:], [:])
-    var updateDict = [Int: (change: Change, value: Value)]()
+    lazy var appendValues = Values()
+    lazy var changeIndices: Mapping<IndexSet> = (.init(), .init())
+    lazy var changeDict: Mapping<[Int: Change]> = ([:], [:])
+    lazy var updateDict = [Int: (change: Change, value: Value)]()
     
-    lazy var changes = hasBatchUpdate ? configChangesForBatchUpdates() : configChangesForDiff()
-    lazy var batchChanges = configBatchChanges()
-    
+    var equatable: Bool { false }
+    var identifiable: Bool { false }
     var shouldConsiderUpdate: Bool { !updateDict.isEmpty }
     
     init(
-        _ coordinator: ListCoordinator<SourceBase>? = nil,
-        update: ListUpdate<SourceBase>,
-        values: Values,
+        _ coordinator: ListCoordinator<SourceBase>,
+        update: ListUpdate<SourceBase>?,
+        values: Mapping<Values>,
         sources: Sources,
         options: Options
     ) {
-        self.values = values
+        self.sourceValues = values.source
         super.init(coordinator, update: update, sources: sources, options: options)
+        if !isBatchUpdate { self.targetValues = values.target }
     }
+    
+    func isEqual(lhs: Value, rhs: Value) -> Bool { notImplemented() }
+    func identifier(for value: Value) -> AnyHashable { notImplemented() }
+    func isDiffEqual(lhs: Value, rhs: Value) -> Bool { notImplemented() }
+    func associateChange(_ mapping: Mapping<Change>, ids: Mapping<[AnyHashable]>) { }
     
     func toValue(_ element: Element) -> Value { notImplemented() }
     func toCount(_ value: Value) -> Int { 1 }
+    func toChange(_ value: Value, _ index: Int) -> Change { notImplemented() }
     func toSource(_ values: ContiguousArray<Value>) -> SourceBase.Source? { notImplemented() }
-    func configChangesForDiff() -> Differences { notImplemented() }
-    func configUnchangedCount() -> Mapping<Int> { (values.source.count, values.target.count) }
     
-    func append(change: Change, isSource: Bool, to changes: inout Differences) { notImplemented() }
-    func append(change: DifferenceChange, into values: inout ContiguousArray<Value>) {
-        notImplemented()
-    }
+    func add(change: Change, isSource: Bool, to differences: inout Differences) { notImplemented() }
     
-    func canConfigUpdateAt(
-        index: Mapping<Int>,
-        last: Mapping<Int>,
-        into changes: inout Differences
-    ) -> Bool {
-        guard let (source, value) = updateDict[index.source] else { return false }
-        appendUnchanged(index: index, last: last, to: &changes)
-        let target = Change(value, index.target)
-        (source[nil], target[nil]) = (target, source)
+    func canConfig(at index: Mapping<Int>) -> Bool { updateDict[index.source] != nil }
+    func configUpdate(at index: Mapping<Int>, into differences: inout Differences) {
+        guard let (source, value) = updateDict[index.source] else { fatalError() }
+        let target = toChange(value, index.target)
+        (source[[]], target[[]]) = (.init(change: target), .init(change: source))
         (source.state, target.state) = (.reload, .reload)
         
-        append(change: source, isSource: true, to: &changes)
-        append(change: target, isSource: false, to: &changes)
-        return true
+        add(change: source, isSource: true, to: &differences)
+        add(change: target, isSource: false, to: &differences)
     }
     
-    override func configCount() -> Mapping<Int> {
-        var count = configUnchangedCount()
-        guard hasBatchUpdate else { return count }
-        batchChanges.source.forEach { count.target -= toCount($0.value) }
-        batchChanges.target.forEach { count.target += toCount($0.value) }
-        for (_, (change, value)) in updateDict {
-            count.target += toCount(value) - toCount(change.value)
-        }
-        return count
+    func configTargetValues() -> Values {
+        enumerateChangesForTarget(offset: { (from, to, source, target) in
+            target.append(contentsOf: source[from..<to])
+        }, append: { $1.append($0) })
     }
     
-    override func prepareData() {
-        _ = count
-        guard shouldPrepareData else { return }
-        var valuesAfter = ContiguousArray<Value>(capacity: values.source.count)
-        for update in changes.target {
-            switch update {
-            case let .change(differenceChange):
-                append(change: differenceChange, into: &valuesAfter)
-            case let .unchanged(from: from, to: to):
-                valuesAfter.append(contentsOf: values.source[from.source..<to.source])
+    func configChangesForDiffs() -> Changes {
+        func convert(values: Values) -> ContiguousArray<Change> {
+            var index = 0
+            return values.mapContiguous {
+                defer { index += 1 }
+                return toChange($0, index)
             }
         }
-        (sources.target, values.target) = (toSource(valuesAfter), valuesAfter)
+        
+        switch changeType {
+        case .none, .other(.reload): return (.init(), .init())
+        case .other(.remove): return (convert(values: sourceValues), .init())
+        case .other(.insert): return (.init(), convert(values: targetValues))
+        default: break
+        }
+        
+        let sourceChange = diffs.removals.mapContiguous { toChange($0._element, $0._offset) }
+        let targetChange = diffs.insertions.mapContiguous { toChange($0._element, $0._offset) }
+        return (sourceChange, targetChange)
+    }
+    
+    override func configTarget() -> SourceBase.Source? { toSource(targetValues) }
+    
+    override func customUpdateWay() -> UpdateWay? {
+        if isBatchUpdate { return .batch }
+        guard diffable else { return .other(.reload) }
+        return diffs.isEmpty ? nil : .batch
     }
 }
 
 extension CollectionCoordinatorUpdate {
-    var shouldPrepareData: Bool {
-        guard hasBatchUpdate else { return false }
-        return !changes.source.isEmpty || !changes.target.isEmpty || shouldConsiderUpdate
-    }
-    
     func append(from: Mapping<Int>, to: Mapping<Int>, to changes: inout Differences) {
+        guard to.source > from.source else { return }
         changes.source.append(.unchanged(from: from, to: to))
         changes.target.append(.unchanged(from: from, to: to))
     }
     
-    func appendUnchanged(index: Mapping<Int>, last: Mapping<Int>, to changes: inout Differences) {
-        if index.source > last.source { append(from: last, to: index, to: &changes) }
-    }
-    
-    func enumerateUnchanged(from: Mapping<Int>, to: Mapping<Int>, to changes: inout Differences) {
+    func enumerateUnchanged(from: Mapping<Int>, to: Mapping<Int>, to diffs: inout Differences) {
         var last = from
-        for index in zip(from.source..<to.source, from.target..<to.target) {
-            guard canConfigUpdateAt(index: index, last: last, into: &changes) else { continue }
-            (last.source, last.target) = (index.0 + 1, index.1 + 1)
+        for i in zip(from.source..<to.source, from.target..<to.target) where canConfig(at: i) {
+            append(from: last, to: i, to: &diffs)
+            configUpdate(at: i, into: &diffs)
+            (last.source, last.target) = (i.0 + 1, i.1 + 1)
         }
-        if last.source < to.source { append(from: last, to: to, to: &changes) }
+        append(from: last, to: to, to: &diffs)
     }
     
-    func configBatchChanges() -> Changes {
-        var changes: Changes = (.init(), .init())
+    func configChanges() -> Changes {
+        guard isBatchUpdate else { return configChangesForDiffs() }
+        let count: Mapping<Int> = (changeDict.source.count, changeDict.target.count)
+        var changes: Changes = (.init(capacity: count.source), .init(capacity: count.target))
         changeIndices.source.forEach { changeDict.source[$0].map { changes.source.append($0) } }
         changeIndices.target.forEach { changeDict.target[$0].map { changes.target.append($0) } }
+        var targetCount = sourceValues.count - changes.source.count + changes.target.count
+        for value in appendValues {
+            changes.target.append(toChange(value, targetCount))
+            targetCount += 1
+        }
         return changes
     }
     
-    func configChangesForBatchUpdates() -> Differences {
-        var result: Differences = (.init(), .init())
-        enumerateChangesWithOffset(changes: batchChanges, body: { (isSource, change) in
-            append(change: change, isSource: isSource, to: &result)
+    func configUniqueDict() -> Mapping<Uniques<Change>> {
+        let source = Uniques<Change>(minimumCapacity: changes.source.count)
+        let target = Uniques<Change>(minimumCapacity: changes.target.count)
+        var result: Mapping<Uniques<Change>> = (source, target)
+        changes.source.forEach { add($0, id: identifier(for: $0.value), to: &result.source) }
+        changes.target.forEach { add($0, id: identifier(for: $0.value), to: &result.target) }
+        if identifiable { apply(changes, dict: &result) { $0 } }
+        return result
+    }
+    
+    func configDiffs() -> CollectionDifference<Value> {
+        CollectionDifference(from: sourceValues, to: targetValues, by: isDiffEqual)
+    }
+    
+    func configUniqueMapping() -> Changes {
+        let source = uniqueDict.source.values.compactMapContiguous { $0?.change }
+        let target = uniqueDict.target.values.compactMapContiguous { $0?.change }
+        return (source, target)
+    }
+    
+    func configDifferences() -> Differences {
+        let capacity = sourceValues.count + targetValues.count
+        var result: Differences = (.init(capacity: capacity), .init(capacity: capacity))
+        enumerateChangesWithOffset(body: { (isSource, change) in
+            add(change: change, isSource: isSource, to: &result)
         }, offset: { (from, to) in
             if shouldConsiderUpdate {
                 enumerateUnchanged(from: from, to: to, to: &result)
@@ -144,6 +174,21 @@ extension CollectionCoordinatorUpdate {
             }
         })
         return result
+    }
+    
+    func apply<T, C: Collection>(
+        _ changes: Mapping<C>,
+        dict: inout Mapping<Uniques<T>>,
+        toChange: (T) -> Change?
+    ) where C.Element == Change {
+        func configAssociated(for change: Change) {
+            let key = identifier(for: change.value)
+            let euqal = equatable ? isEqual : nil
+            config(for: change, key, &dict, euqal, associateChange, toChange)
+        }
+        
+        changes.source.forEach { configAssociated(for: $0) }
+        changes.target.forEach { configAssociated(for: $0) }
     }
 }
 
@@ -178,30 +223,29 @@ extension CollectionCoordinatorUpdate {
     }
     
     func enumerateChangesWithOffset(
-        changes: Changes,
         body: (Bool, Change) -> Void,
         offset: (Mapping<Int>, Mapping<Int>) -> Void
     ) {
-        var enumerated: Mapping = (0, 0)
+        var enumeratedChanges: Mapping = (0, 0)
         var enumeratedOriginals: Mapping = (0, 0)
         var index: Mapping = (0, 0)
         
         enumerateChanges(changes: changes) { (isSource, change) in
             let current = enumerate(
                 change: change,
-                in: values[keyPath: path(isSource)],
+                in: isSource ? sourceValues : targetValues,
                 index: &index[keyPath: path(isSource)],
                 enumeratedOriginals: &enumeratedOriginals[keyPath: path(!isSource)]
             )
             let other = enumerate(
                 change: change,
-                in: values[keyPath: path(!isSource)],
+                in: isSource ? targetValues : sourceValues,
                 index: &index[keyPath: path(!isSource)],
                 enumeratedOriginals: &enumeratedOriginals[keyPath: path(isSource)],
-                enumeratedCurrent: enumerated[keyPath: path(isSource)],
-                enumeratedOther: enumerated[keyPath: path(!isSource)]
+                enumeratedCurrent: enumeratedChanges[keyPath: path(isSource)],
+                enumeratedOther: enumeratedChanges[keyPath: path(!isSource)]
             )
-            enumerated[keyPath: path(isSource)] += 1
+            enumeratedChanges[keyPath: path(isSource)] += 1
             if current.end != current.start {
                 let from = isSource ? (current.start, other.start) : (other.start, current.start)
                 let to = isSource ? (current.end, other.end) : (other.end, current.end)
@@ -210,9 +254,49 @@ extension CollectionCoordinatorUpdate {
             body(isSource, change)
         }
         
-        let remaining = values.source.count - index.source
+        if !isBatchUpdate, targetValues.count <= index.target { return }
+        
+        let remaining = sourceValues.count - index.source
         guard remaining > 0 else { return }
         offset(index, (index.source + remaining, index.target + remaining))
+    }
+    
+    func enumerateChangesForTarget(
+        offset: (Int, Int, Values, inout Values) -> Void,
+        append: (Value, inout Values) -> Void
+    ) -> Values {
+        var target = Values(capacity: sourceValues.count)
+        var enumeratedOriginals = 0, currentIndex = 0
+        var enumeratedChanges: Mapping = (0, 0)
+        enumerateChanges(changes: changes) { (isSource, change) in
+            if isSource {
+                let (from, to) = enumerate(
+                    change: change,
+                    in: sourceValues,
+                    index: &currentIndex,
+                    enumeratedOriginals: &enumeratedOriginals
+                )
+                if to > from { offset(from, to, sourceValues, &target) }
+                enumeratedChanges.source += 1
+            } else {
+                let (from, to) = enumerate(
+                    change: change,
+                    in: sourceValues,
+                    index: &currentIndex,
+                    enumeratedOriginals: &enumeratedOriginals,
+                    enumeratedCurrent: enumeratedChanges.target,
+                    enumeratedOther: enumeratedChanges.source
+                )
+                if to > from { offset(from, to, sourceValues, &target) }
+                append(change.value, &target)
+                enumeratedChanges.target += 1
+            }
+        }
+        if currentIndex < sourceValues.endIndex {
+            offset(currentIndex, sourceValues.endIndex, sourceValues, &target)
+        }
+        
+        return target
     }
     
     func enumerate<Collection: RangeReplaceableCollection>(
@@ -247,26 +331,17 @@ extension CollectionCoordinatorUpdate {
 
 extension CollectionCoordinatorUpdate {
     func append(_ element: Element) {
-        let value = toValue(element)
-        changeIndices.target.insert(values.target.count)
-        changeDict.target[values.target.count] = .init(value, values.target.count)
+        appendValues.append(toValue(element))
     }
     
     func append<S: Sequence>(contentsOf elements: S) where Element == S.Element {
-        var upper = values.target.count
-        for element in elements {
-            let value = toValue(element)
-            changeDict.target[upper] = .init(value, upper)
-            upper += 1
-        }
-        guard upper != values.target.count else { return }
-        changeIndices.target.insert(integersIn: values.target.count..<upper)
+        appendValues.append(contentsOf: elements.map(toValue))
     }
     
     func insert(_ element: Element, at index: Int) {
         let value = toValue(element)
         changeIndices.target.insert(index)
-        changeDict.target[index] = .init(value, index)
+        changeDict.target[index] = toChange(value, index)
     }
     
     func insert<C: Collection>(contentsOf elements: C, at index: Int) where Element == C.Element {
@@ -274,7 +349,7 @@ extension CollectionCoordinatorUpdate {
         var upper = index
         for element in elements {
             let value = toValue(element)
-            changeDict.target[upper] = .init(value, upper)
+            changeDict.target[upper] = toChange(value, upper)
             upper += 1
         }
         changeIndices.target.insert(integersIn: index..<upper)
@@ -282,20 +357,20 @@ extension CollectionCoordinatorUpdate {
     
     func remove(at index: Int) {
         changeIndices.source.insert(index)
-        changeDict.source[index] = .init(values.source[index], index)
+        changeDict.source[index] = toChange(sourceValues[index], index)
     }
     
     func update(_ element: Element, at index: Int) {
-        let sourceChange = Change(values.source[index], index)
+        let sourceChange = toChange(sourceValues[index], index)
         updateDict[index] = (sourceChange, toValue(element))
     }
     
     func move(at index: Int, to newIndex: Int) {
         changeIndices.source.insert(index)
         changeIndices.target.insert(newIndex)
-        let sourceChange = Change(values.source[index], index)
-        let targetChange = Change(values.source[index], newIndex)
-        (sourceChange[nil], targetChange[nil]) = (targetChange, sourceChange)
-        (changeDict.source[index], changeDict.target[newIndex]) = (sourceChange, targetChange)
+        let source = toChange(sourceValues[index], index)
+        let target = toChange(sourceValues[index], newIndex)
+        (source[[]], target[[]]) = (.init(change: target), .init(change: source))
+        (changeDict.source[index], changeDict.target[newIndex]) = (source, target)
     }
 }

@@ -21,7 +21,7 @@ public struct AnySources: DataSource {
         source = dataSource
         listDiffer = .init(dataSource.listDiffer) { (($0.source) as! Source).sourceBase }
         listOptions = dataSource.listOptions
-        listUpdate = dataSource.listUpdate.diff.map { .init(diff: .init($0)) } ?? .reload
+        listUpdate = .init(way: .subupdate)
         coordinatorMaker = { WrapperCoordinator($0, toItem: { $0 }, toOther: { $0 as? Source }) }
     }
 }

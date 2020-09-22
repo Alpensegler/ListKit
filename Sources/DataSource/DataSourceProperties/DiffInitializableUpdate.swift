@@ -12,7 +12,7 @@ public protocol DiffInitializableUpdate: DiffInitializable where Value == Source
 }
 
 public extension DiffInitializableUpdate {
-    static var reload: Self { .init(.init(way: .reload)) }
+    static var reload: Self { .init(.init(way: .other(.reload))) }
     
     static func diff(by areEquivalent: @escaping (Value, Value) -> Bool) -> Self {
         .init(.init(id: nil, by: areEquivalent))
@@ -31,11 +31,11 @@ public extension DiffInitializableUpdate {
 }
 
 public extension DiffInitializableUpdate where SourceBase.Source: Collection {
-    static var appendOrRemoveLast: Self { .init(.init(way: .appendOrRemoveLast)) }
-    static var prependOrRemoveFirst: Self { .init(.init(way: .prependOrRemoveFirst)) }
+    static var appendOrRemoveLast: Self { .init(.init(way: .other(.appendOrRemoveLast))) }
+    static var prependOrRemoveFirst: Self { .init(.init(way: .other(.prependOrRemoveFirst))) }
 }
 
 public extension DiffInitializableUpdate where SourceBase: NSDataSource {
-    static var appendOrRemoveLast: Self { .init(.init(way: .appendOrRemoveLast)) }
-    static var prependOrRemoveFirst: Self { .init(.init(way: .prependOrRemoveFirst)) }
+    static var appendOrRemoveLast: Self { .init(.init(way: .other(.appendOrRemoveLast))) }
+    static var prependOrRemoveFirst: Self { .init(.init(way: .other(.prependOrRemoveFirst))) }
 }

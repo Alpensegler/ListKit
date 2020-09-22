@@ -111,20 +111,20 @@ extension DoubleListViewController {
     }
     
     @objc func add() {
-        let alert = UIAlertController(title: "Add content", message: nil, preferredStyle: .alert)
-        alert.addTextField { (textField) in
-            textField.text = "Content"
-            textField.selectAll(nil)
-        }
-        
-        alert.addAction(UIAlertAction(title: "cancel", style: .cancel))
-        
-        let ok = UIAlertAction(title: "Done", style: .default) { [unowned self, unowned alert] _ in
-            guard let content = alert.textFields?.first?.text, !content.isEmpty else { return }
-            self.perform(.append(content))
-        }
-        alert.addAction(ok)
-        present(alert, animated: true)
+//        let alert = UIAlertController(title: "Add content", message: nil, preferredStyle: .alert)
+//        alert.addTextField { (textField) in
+//            textField.text = "Content"
+//            textField.selectAll(nil)
+//        }
+//
+//        alert.addAction(UIAlertAction(title: "cancel", style: .cancel))
+//
+//        let ok = UIAlertAction(title: "Done", style: .default) { [unowned self, unowned alert] _ in
+//            guard let content = alert.textFields?.first?.text, !content.isEmpty else { return }
+//            self.perform(.append(content))
+//        }
+//        alert.addAction(ok)
+//        present(alert, animated: true)
     }
 }
 
@@ -148,19 +148,18 @@ struct DoubleList_Preview: UIViewControllerRepresentable, PreviewProvider {
 #endif
 
 public extension DoubleListViewController {
-//    typealias Item = String
+//    static var toggle = true
+//
+//    typealias Item = (Int)
+//
+//    var listOptions: ListOptions { Self.toggle ? [] : .removeEmptySection }
 //
 //    var source: [Item] {
-//        [1, 2, 3].map { "\($0)" }
-//    }
-//
-//    typealias Item = (Int, Bool)
-//
-//    var source: [Item] {
-//        if toggle {
-//            return [(1, true), (2, true), (3, true)]
+//        defer { Self.toggle.toggle() }
+//        if Self.toggle {
+//            return []
 //        } else {
-//            return [(2, false), (3, false)]
+//            return [2, 3]//[(2, false), (3, false)]
 //        }
 //    }
 //

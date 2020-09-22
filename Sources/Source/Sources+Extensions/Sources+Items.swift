@@ -16,7 +16,7 @@ extension Sources where Source: Collection, Source.Element == Item {
 }
 
 extension Sources where Source: RangeReplaceableCollection, Source.Element == Item {
-    init(_ id: AnyHashable? = nil, items: Source, update: ListUpdate<SourceBase>.Whole, options: ListOptions) {
+    init(_ id: AnyHashable?, items: Source, update: ListUpdate<SourceBase>.Whole, options: ListOptions) {
         self.sourceValue = .value(items)
         self.listDiffer = .init(id: id)
         self.listUpdate = update

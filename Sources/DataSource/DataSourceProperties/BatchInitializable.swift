@@ -219,7 +219,7 @@ where
         animatedForOtherContext: Bool? = nil,
         completionForOtherContext: ((ListView, Bool) -> Void)? = nil
     ) -> Self {
-        .init(CoordinatorUpdate.self) {
+        .init(ListCoordinatorUpdate<SourceBase>.self) {
             $0.subsource(
                 source,
                 update: update,

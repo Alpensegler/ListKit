@@ -36,7 +36,7 @@ where
         let coordinator = coordinator as! ItemsCoordinator<SourceBase>
         return updateType.init(
             coordinator: self,
-            update: .init(updateWay, or: update),
+            update: ListUpdate(updateWay),
             values: (coordinator.items, items),
             sources: (coordinator.source, source),
             options: (coordinator.options, options)
@@ -47,13 +47,11 @@ where
         update: ListUpdate<SourceBase>,
         options: ListOptions? = nil
     ) -> ListCoordinatorUpdate<SourceBase> {
-        let sourcesAfterUpdate = update.source
-        let itemsAfterUpdate = sourcesAfterUpdate.map(toItems)
-        return updateType.init(
+        updateType.init(
             coordinator: self,
             update: update,
-            values: (items, itemsAfterUpdate ?? items),
-            sources: (source, sourcesAfterUpdate ?? source),
+            values: (items, update.source.map(toItems) ?? items),
+            sources: (source, update.source ?? source),
             options: (self.options, options ?? self.options)
         )
     }

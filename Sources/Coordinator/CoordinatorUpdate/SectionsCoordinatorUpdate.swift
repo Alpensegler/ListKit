@@ -8,12 +8,10 @@
 import Foundation
 
 class SectionsCoordinatorUpdate<SourceBase>:
-    CollectionCoordinatorUpdate<
+    ContainerCoordinatorUpdate<
         SourceBase,
-        SourceBase.Source,
-        ContiguousArray<SourceBase.Item>,
-        CoordinatorUpdate.Change<ContiguousArray<SourceBase.Item>>,
-        CoordinatorUpdate.Change<ContiguousArray<SourceBase.Item>>
+        ContiguousArray<Sources<SourceBase.Source.Element, SourceBase.Item>>,
+        Sources<SourceBase.Source.Element, SourceBase.Item>
     >
 where
     SourceBase: DataSource,
@@ -22,126 +20,89 @@ where
     SourceBase.Source.Element: Collection,
     SourceBase.Source.Element.Element == SourceBase.Item
 {
-    typealias Subsource = ListKit.Sources<Element, Item>
-    typealias ItemsUpdate = ItemsCoordinatorUpdate<Subsource>
-    typealias Source = SourceBase.Source
-    typealias Sections = ContiguousArray<ContiguousArray<Item>>
+    typealias Value = ListKit.Sources<SourceBase.Source.Element, SourceBase.Item>
+    typealias Sections = ContiguousArray<Value>
     
     weak var coordinator: SectionsCoordinator<SourceBase>?
-    lazy var itemsUpdates = configItemsUpdates()
-    var indices: Mapping<Indices>
     
-    var updateType: ItemsUpdate.Type { ItemsUpdate.self }
+    var updateType: ItemsCoordinatorUpdate<Value>.Type { ItemsCoordinatorUpdate<Value>.self }
+    
+    override var identifiable: Bool { false }
     
     required init(
         coordinator: SectionsCoordinator<SourceBase>,
-        update: ListUpdate<SourceBase>,
-        values: Values,
+        update: ListUpdate<SourceBase>?,
+        values: Mapping<Values>,
         sources: Sources,
         indices: Mapping<Indices>,
         options: Options
     ) {
         self.coordinator = coordinator
-        self.indices = indices
-        super.init(coordinator, update: update, values: values, sources: sources, options: options)
+        super.init(coordinator, update, values, sources, indices, options)
     }
     
-    func toSource(values: ContiguousArray<ItemsUpdate>, id: ObjectIdentifier?) -> Source {
-        fatalError()
+    override func toIdentifier(_ value: Value) -> ObjectIdentifier {
+        ObjectIdentifier(value.listCoordinator)
     }
     
-    override func configCount() -> Mapping<Int> { (indices.source.count, indices.target.count) }
-    
-    override func updateData(_ isSource: Bool) {
-        super.updateData(isSource)
-        coordinator?.sections = isSource ? values.source : values.target
-        coordinator?.indices = isSource ? indices.source : indices.target
+    override func toIndices(_ values: Values) -> Indices {
+        SectionsCoordinator<SourceBase>.toIndices(values, options.target)
     }
     
-    override func inferringMoves(context: ContextAndID? = nil) {
-        itemsUpdates.forEach { $0.inferringMoves(context: context ?? defaultContext) }
+    override func subupdate(from value: Mapping<Value>) -> Subupdate {
+        let (source, target) = (value.source.listCoordinator, value.target.listCoordinator)
+        return target.update(from: source, updateWay: updateWay)
+    }
+    
+    override func changeWhenHasNext(values: Values, source: SourceBase.Source?, indices: Indices) {
+        coordinator?.sections = values
+        coordinator?.indices = indices
+        coordinator?.source = source
+    }
+    
+    override func toValue(_ element: Element) -> Value { element }
+    override func toChange(_ value: Value, _ index: Int) -> Change {
+        let change = Change(value: value, index: index, value.listCoordinator, moveAndReloadable)
+        change.coordinatorUpdate = self
+        return change
+    }
+    
+    override func configChangesForDiffs() -> Changes {
+        let (sourceCount, targetCount) = (sourceValues.count, targetValues.count)
+        let diff = sourceCount - targetCount, minCount = min(sourceCount, targetCount)
+        if diff == 0 { return (.init(), .init()) }
+        let values = diff > 0 ? sourceValues : targetValues
+        let changes = (minCount..<minCount + abs(diff)).mapContiguous { toChange(values[$0], $0) }
+        return (diff > 0) ? (changes, .init()) : (.init(), changes)
+    }
+    
+    override func updateData(_ isSource: Bool, containsSubupdate: Bool) {
+        super.updateData(isSource, containsSubupdate: containsSubupdate)
+        coordinator?.sections = isSource ? sourceValues : targetValues
+        coordinator?.indices = isSource ? sourceIndices : targetIndices
+    }
+    
+    override func inferringMoves(context: Context? = nil, ids: [AnyHashable] = []) {
+        guard differ.identifier != nil else { return }
+        super.inferringMoves(context: context)
+    }
+    
+    override func customUpdateWay() -> UpdateWay? {
+        isBatchUpdate || differ != nil ? .batch : .other(.reload)
     }
     
     override func generateSourceUpdate(
         order: Order,
-        context: UpdateContext<Int>? = nil
+        context: UpdateContext<Int> = (nil, false, [])
     ) -> UpdateSource<BatchUpdates.ListSource> {
-        if notUpdate(order, context) { return (count.target, nil) }
-        var (count, update) = (0, BatchUpdates.ListSource())
-        for itemUpdate in itemsUpdates {
-            let (subsectionCount, subupdate) = itemUpdate.generateSourceUpdate(
-                order: order,
-                context: toContext(context, or: 0) { $0 + count }
-            )
-            count += subsectionCount
-            subupdate.map { update.add($0) }
-        }
-        return (count, update)
+        sourceUpdate(order, in: context, \.section, Subupdate.generateSourceUpdateForContianer)
     }
     
     override func generateTargetUpdate(
         order: Order,
-        context: UpdateContext<Offset<Int>>? = nil
+        context: UpdateContext<Offset<Int>> = (nil, false, [])
     ) -> UpdateTarget<BatchUpdates.ListTarget> {
-        if notUpdate(order, context) { return (toIndices(indices.target, context), nil, nil) }
-        var (indices, update) = (Indices(capacity: itemsUpdates.count), BatchUpdates.ListTarget())
-        for (i, itemUpdate) in itemsUpdates.enumerated() {
-            let subcontext = toContext(context, or: (0, (0, 0))) {
-                (i, ($0.offset.source + indices.count, $0.offset.target + indices.count))
-            }
-            let (subsectionCount, subupdate, _) = itemUpdate.generateTargetUpdate(
-                order: order,
-                context: subcontext
-            )
-            indices.append(contentsOf: subsectionCount)
-            subupdate.map { update.add($0) }
-            updateMaxIfNeeded(itemUpdate, context, subcontext)
-        }
-        let change: (() -> Void)?
-        switch order {
-        case .first:
-            change = { [unowned self] in
-                self.coordinator?.source = self.sources.source
-                self.coordinator?.sections = self.values.source
-                self.coordinator?.indices = indices
-            }
-        case .second where hasNext(order, context):
-            let source = toSource(values: itemsUpdates, id: context?.id)
-            let sections = itemsUpdates.mapContiguous {
-                $0.hasNext(.second, context) ? $0.extraValues[context?.id] : $0.values.target
-            }
-            change = { [unowned self] in
-                self.coordinator?.source = source
-                self.coordinator?.indices = indices
-                self.coordinator?.sections = sections
-            }
-        default:
-            change = finalChange
-        }
-        
-        return (toIndices(indices, context), update, change)
-    }
-}
-
-extension SectionsCoordinatorUpdate {
-    func configItemsUpdates() -> ContiguousArray<ItemsUpdate> {
-        let (sourceCount, targetCount) = (values.source.count, values.target.count)
-        let maxCount = max(sourceCount, targetCount)
-        if maxCount == 0 { return [] }
-        let elements = sources.target?.mapContiguous { $0 }
-        return (0..<maxCount).mapContiguous { i in
-            var (sourceOption, targetOption) = options
-            let source = i < sourceCount ? values.source[i] : []
-            let target = i < targetCount ? values.target[i] : []
-            if i >= targetCount { targetOption.insert(.removeEmptySection) }
-            if i >= sourceCount { sourceOption.insert(.removeEmptySection) }
-            return updateType.init(
-                update: (update?.way).map { .init(.init(way: $0)) } ?? .init(),
-                values: (source, target),
-                sources: (nil, elements?[safe: i]),
-                options: (sourceOption, targetOption)
-            )
-        }
+        targetUpdate(order, in: context, \.section, Subupdate.generateTargetUpdateForContianer)
     }
 }
 
@@ -154,13 +115,13 @@ where
     SourceBase.Source.Element: RangeReplaceableCollection,
     SourceBase.Source.Element.Element == SourceBase.Item
 {
-    override var moveAndReloadable: Bool { true }
+    override var moveAndReloadable: Bool { !notMoveAndReloadable }
     
-    override var updateType: ItemsUpdate.Type {
-        RangeReplacableItemsCoordinatorUpdate<ListKit.Sources<Element, Item>>.self
+    override var updateType: ItemsCoordinatorUpdate<Value>.Type {
+        RangeReplacableItemsCoordinatorUpdate<Value>.self
     }
     
-    override func toSource(values: ContiguousArray<ItemsUpdate>, id: ObjectIdentifier?) -> Source {
-        .init(values.compactMap { $0.extraSources[id] ?? $0.sources.target ?? .init() })
+    override func toSource(_ values: ContiguousArray<Value>) -> SourceBase.Source? {
+        .init(values.map { $0.source })
     }
 }

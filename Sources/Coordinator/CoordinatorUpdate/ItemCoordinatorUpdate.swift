@@ -9,55 +9,61 @@ import Foundation
 
 final class ItemCoordinatorUpdate<SourceBase: DataSource>: ListCoordinatorUpdate<SourceBase>
 where SourceBase.Item == SourceBase.Source, SourceBase.SourceBase == SourceBase {
-    lazy var change = configChange()
+    lazy var changes = configChanges()
     lazy var extraChange = Cache(value: (nil, nil) as Mapping<Change<Item>?>)
     
-    override var moveAndReloadable: Bool { true }
+    override var moveAndReloadable: Bool { !notMoveAndReloadable }
     
-    override func configCount() -> Mapping<Int> { (1, 1) }
+    override func configSourceCount() -> Int { 1 }
+    override func configTargetCount() -> Int { 1 }
     
-    func configChange() -> Mapping<Change<Item>?> {
-        guard let s = sources.source, let t = sources.target else { return (nil, nil) }
-        switch changeType {
-        case .insert: return (nil, Change(t, 0))
-        case .remove: return (Change(s, 0), nil)
+    func toChange(_ value: Item, _ index: Int) -> Change<Item> {
+        let change = Change(value: value, index: index, moveAndReloadable: true)
+        change.coordinatorUpdate = self
+        return change
+    }
+    
+    func configChanges() -> Mapping<Change<Item>?> {
+        guard let s = source, let t = target else { return (nil, nil) }
+        switch updateWay {
+        case .other(.insert): return (nil, toChange(t, 0))
+        case .other(.remove): return (toChange(s, 0), nil)
         default: break
         }
         guard diffable else { return (nil, nil) }
         let isEqual = differ.diffEqual(lhs: s, rhs: t)
-        return isEqual ? (nil, nil) : (Change(s, 0), Change(t, 0))
+        return isEqual ? (nil, nil) : (toChange(s, 0), toChange(t, 0))
     }
     
-    override func inferringMoves(context: ContextAndID? = nil) {
+    override func inferringMoves(context: Context? = nil, ids: [AnyHashable] = []) {
         guard diffable,
               let id = differ.identifier,
               let context = context,
-              let source = sources.source,
-              let target = sources.target,
-              let sourceChange = change.source,
-              let targetChange = change.target
+              let source = source,
+              let target = target,
+              let sourceChange = changes.source,
+              let targetChange = changes.target
         else { return }
         let key: Mapping = (id(source), id(target))
-        add(sourceChange, id: key.source, to: &context.context.dicts.source)
-        add(targetChange, id: key.target, to: &context.context.dicts.target)
-        config(for: sourceChange, key.source, context, &context.context.dicts, differ.areEquivalent)
-        config(for: targetChange, key.target, context, &context.context.dicts, differ.areEquivalent)
+        add(sourceChange, id: key.source, ids: ids, to: &context.dicts.source)
+        add(targetChange, id: key.target, ids: ids, to: &context.dicts.target)
+        config(for: sourceChange, key.source, &context.dicts, differ.areEquivalent)
+        config(for: targetChange, key.target, &context.dicts, differ.areEquivalent)
     }
     
     override func generateSourceItemUpdate(
         order: Order,
-        context: UpdateContext<IndexPath>? = nil
+        context: UpdateContext<IndexPath> = (nil, false, [])
     ) -> UpdateSource<BatchUpdates.ItemSource> {
-        if notUpdate(order, context) { return (1, nil) }
         var update = BatchUpdates.ItemSource()
         if order == .third {
-            extraChange[context?.id].source.map { update.add(\.reloads, $0.indexPath(context?.id)) }
+            extraChange[context].source.map { update.add(\.reloads, $0.indexPath(context.ids)) }
             return (1, update)
         } else {
-            if let change = change.source {
+            if let change = changes.source {
                 configCoordinatorChange(change, context: context, into: &update)
-            } else if context?.isMoved == true {
-                update.move(context?.offset ?? .zero)
+            } else if context.isMoved {
+                update.move(context.offset ?? .zero)
             }
             return (1, update)
         }
@@ -65,32 +71,31 @@ where SourceBase.Item == SourceBase.Source, SourceBase.SourceBase == SourceBase 
     
     override func generateTargetItemUpdate(
         order: Order,
-        context: UpdateContext<Offset<IndexPath>>? = nil
+        context: UpdateContext<Offset<IndexPath>> = (nil, false, [])
     ) -> UpdateTarget<BatchUpdates.ItemTarget> {
-        var indices: Indices { [(context?.offset.index ?? 0, false)] }
-        if notUpdate(order, context) { return (indices, nil, nil) }
+        var indices: Indices { targetCount == 0 ? [] : [(context.offset?.index ?? 0, false)] }
         var update = BatchUpdates.ItemTarget()
         if order == .third {
-            extraChange[context?.id].target.map { update.reload($0.indexPath(context?.id)) }
-            return (indices, update, finalChange)
+            extraChange[context].target.map { update.reload($0.indexPath(context.ids)) }
+            return (indices, update, finalChange())
         } else {
-            if let change = change.target {
+            if let change = changes.target {
                 configCoordinatorChange(change, context: context, into: &update) {
-                    extraChange[context?.id].target = $0
-                    extraChange[context?.id].source = $1
+                    extraChange[context].target = $0
+                    extraChange[context].source = $1
                 }
-            } else if context?.isMoved == true {
-                let source = context?.offset.offset.source ?? .zero
-                let target = context?.offset.offset.target ?? .zero
+            } else if context.isMoved {
+                let source = context.offset?.offset.source ?? .zero
+                let target = context.offset?.offset.target ?? .zero
                 update.move(source, to: target)
             }
             
             let change: (() -> Void)?
             if hasNext(order, context) {
-                let source = extraChange[context?.id].source?.value
+                let source = extraChange[context].source?.value
                 change = { [unowned self] in self.listCoordinator?.source = source }
             } else {
-                change = finalChange
+                change = finalChange()
             }
             return (indices, update, change)
         }

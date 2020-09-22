@@ -5,36 +5,29 @@
 //  Created by Frain on 2020/6/7.
 //
 
-enum ListUpdateWay<Item> {
-    case diff(ListDiffer<Item>)
-    case subpdate
+enum UpdateWay {
     case reload
     case remove
     case insert
     case appendOrRemoveLast
     case prependOrRemoveFirst
+}
+
+enum ListUpdateWay<Item> {
+    case diff(ListDiffer<Item>)
+    case other(UpdateWay)
+    case subupdate
+    
+    var differ: ListDiffer<Item>? {
+        guard case let .diff(differ) = self else { return nil }
+        return differ
+    }
     
     init<OtherItem>(_ way: ListUpdateWay<OtherItem>, cast: @escaping (Item) -> (OtherItem)) {
         switch way {
         case .diff(let differ): self = .diff(.init(differ, cast: cast))
-        case .subpdate: self = .subpdate
-        case .reload: self = .reload
-        case .remove: self = .remove
-        case .insert: self = .insert
-        case .appendOrRemoveLast: self = .appendOrRemoveLast
-        case .prependOrRemoveFirst: self = .prependOrRemoveFirst
-        }
-    }
-    
-    var isAppend: Bool {
-        guard case .appendOrRemoveLast = self else { return false }
-        return true
-    }
-    
-    var isMoreUpdate: Bool {
-        switch self {
-        case .appendOrRemoveLast, .prependOrRemoveFirst: return true
-        default: return false
+        case .other(let other): self = .other(other)
+        case .subupdate: self = .subupdate
         }
     }
 }
@@ -67,17 +60,14 @@ public struct ListUpdate<SourceBase: DataSource> where SourceBase.SourceBase == 
         case let .batch(batch):
             return batch.needSource
         case let .whole(whole):
-            if case .remove = whole.way { return false }
+            if case .other(.remove) = whole.way { return false }
             return true
         }
     }
 }
 
 extension ListUpdate.Whole: DiffInitializableUpdate {
-    var diff: ListDiffer<SourceBase.Item>? {
-        guard case let .diff(differ) = way else { return nil }
-        return differ
-    }
+    var diff: ListDiffer<SourceBase.Item>? { way.differ }
     
     init(id: ((Value) -> AnyHashable)? = nil, by areEquivalent: ((Value, Value) -> Bool)? = nil) {
         self.init(diff: ListDiffer(identifier: id, areEquivalent: areEquivalent))
@@ -104,22 +94,23 @@ public extension ListUpdate.Batch {
 }
 
 extension ListUpdate: BatchInitializable, DiffInitializableUpdate {
-    static var insert: Self { .init(.init(way: .insert)) }
+    static var insert: Self { .init(.init(way: .other(.insert))) }
     
     init(_ whole: ListUpdate<SourceBase>.Whole, _ source: Source) {
         self.updateType = .whole(whole)
         self.source = source
     }
-    init(_ way: ListUpdateWay<SourceBase.Item>?, or update: ListUpdate<SourceBase>.Whole) {
-        self.updateType = .whole(way.map { .init(way: $0) } ?? update)
+    init?(_ way: ListUpdateWay<SourceBase.Item>?) {
+        guard let way = way else { return nil }
+        self.updateType = .whole(.init(way: way))
     }
 }
 
 public extension ListUpdate {
     typealias Value = SourceBase.Item
     
-    static var remove: Self { .init(.init(way: .remove)) }
-    static func reload(to source: Source) -> Self { .init(.init(way: .reload), source) }
+    static var remove: Self { .init(.init(way: .other(.remove))) }
+    static func reload(to source: Source) -> Self { .init(.init(way: .other(.reload)), source) }
     
     var batch: Batch? {
         guard case let .batch(batch) = updateType else { return nil }
@@ -133,11 +124,11 @@ public extension ListUpdate {
 
 public extension ListUpdate where Source: Collection {
     static func appendOrRemoveLast(to source: Source) -> Self {
-        .init(.init(way: .appendOrRemoveLast), source)
+        .init(.init(way: .other(.appendOrRemoveLast)), source)
     }
     
     static func prependOrRemoveFirst(to source: Source) -> Self {
-        .init(.init(way: .prependOrRemoveFirst), source)
+        .init(.init(way: .other(.prependOrRemoveFirst)), source)
     }
 }
 
@@ -180,7 +171,7 @@ public extension ListUpdate where Value: Identifiable, Value: Hashable {
 
 //Subupdate
 public extension DiffInitializableUpdate where SourceBase.Source: DataSource {
-    static var subupdate: Self { .init(.init(way: .subpdate)) }
+    static var subupdate: Self { .init(.init(way: .subupdate)) }
 }
 
 public extension DiffInitializableUpdate
@@ -189,5 +180,5 @@ where
     SourceBase.Source.Element: DataSource,
     SourceBase.Source.Element.SourceBase.Item == SourceBase.Item
 {
-    static var subupdate: Self { .init(.init(way: .subpdate)) }
+    static var subupdate: Self { .init(.init(way: .subupdate)) }
 }

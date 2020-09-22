@@ -12,270 +12,162 @@ class CoordinatorUpdate {
         case first, second, third
     }
 
-    enum ChangeType: Equatable {
-        case insert, remove, reload, batchUpdates, none
-        
-        var shouldGetSubupdate: Bool { self != .reload && self != .none }
+    enum UpdateWay: Hashable {
+        case other(ListKit.UpdateWay)
+        case batch
+    }
+    
+    enum MoveType {
+        case move, moveAndReload
+    }
+    
+    enum Difference<DifferenceChange> {
+        case change(DifferenceChange)
+        case unchanged(from: Mapping<Int>, to: Mapping<Int>)
+    }
+    
+    enum DifferenceChange<Element: DataSource, Value> {
+        case update(Mapping<Int>, Mapping<Value>, ListCoordinatorUpdate<Element.SourceBase>)
+        case change(SourcesChange<Element, Value>, isSource: Bool)
     }
     
     struct Cache<Value> {
-        var dict = [ObjectIdentifier: Value]()
-        var value: Value
+        var dict = [[AnyHashable]: Value]()
     }
     
     class Change<Value> {
-        struct Unowned {
+        struct Associated {
             unowned let change: Change<Value>
+            var ids: [AnyHashable] = []
         }
         
         enum State: Equatable {
-            case change(moveAndRelod: Bool?)
+            case change(MoveType? = nil)
             case reload
         }
         
         let value: Value
         let index: Int
+        let moveAndReloadable: Bool
         var state: State
         
         var offsets = Cache(value: (section: 0, item: 0))
-        var associated = Cache(value: nil as Unowned?)
+        var associated = Cache(value: nil as Associated?)
+        weak var coordinatorUpdate: CoordinatorUpdate?
         
-        required init(_ value: Value, _ index: Int, moveAndReloadable: Bool = true) {
+        init(value: Value, index: Int, moveAndReloadable: Bool = true) {
             self.value = value
             self.index = index
-            self.state = .change(moveAndRelod: moveAndReloadable ? nil : false)
+            self.state = .change()
+            self.moveAndReloadable = moveAndReloadable
+        }
+    }
+    
+    final class SourcesChange<Element: DataSource, Value>: Change<Value> {
+        typealias Coordinator = ListCoordinator<Element.SourceBase>
+        typealias CoordinatorUpdate = ListCoordinatorUpdate<Element.SourceBase>
+        
+        lazy var update = Cache(value: nil as CoordinatorUpdate?)
+        let coordinator: Coordinator
+        
+        init(value: Value, index: Int, _ coordinator: Coordinator, _ moveAndReloadable: Bool) {
+            self.coordinator = coordinator
+            super.init(value: value, index: index, moveAndReloadable: moveAndReloadable)
+        }
+        
+        func update(_ isSource: Bool, _ ids: [AnyHashable]) -> CoordinatorUpdate {
+            self.update[ids] ?? {
+                let update = coordinator.update(update: isSource ? .remove : .insert)
+                self.update.value = update
+                return update
+            }()
+        }
+        
+        func update<O>(_ isSource: Bool, _ context: UpdateContext<O>) -> CoordinatorUpdate {
+            update(isSource, context.ids)
         }
     }
     
     final class Context {
-        var dicts: Mapping<[AnyHashable: Any?]> = ([:], [:])
+        var dicts: Mapping<Uniques<Any>> = ([:], [:])
+        var inferredContext = Set<ObjectIdentifier>()
     }
     
-    typealias ContextAndID = (context: Context, id: ObjectIdentifier)
+    typealias Uniques<T> = [AnyHashable: (ids: [AnyHashable], change: T)?]
+    typealias ContextAndID = (context: Context, id: [AnyHashable])
+    typealias Options = Mapping<ListOptions>
     
     typealias Indices = ContiguousArray<(index: Int, isFake: Bool)>
     typealias Offset<Offset> = (index: Int, offset: Mapping<Offset>)
-    typealias UpdateContext<Offset> = (offset: Offset, isMoved: Bool, id: ObjectIdentifier)
+    typealias UpdateContext<Offset> = (offset: Offset?, isMoved: Bool, ids: [AnyHashable])
     typealias UpdateSource<Update> = (count: Int, update: Update?)
     typealias UpdateTarget<Update> = (indices: Indices, update: Update?, change: (() -> Void)?)
     
-    var isRemove = false
-    var sourceType = SourceType.sectionItems
-    var preferNoAnimation: Bool { false }
+    var options: Options = (.init(), .init())
     
-    lazy var suboperations = [() -> Void]()
-    lazy var maxOrder = configMaxOrder()
-    lazy var count = configCount()
-    
+    lazy var moveType = Cache(value: nil as MoveType?)
     lazy var listUpdates = generateListUpdates()
-    lazy var changeType = configChangeType()
-    lazy var defaultContext: ContextAndID = {
-        let value = Context()
-        return (value, ObjectIdentifier(value))
-    }()
     
-    func inferringMoves(context: ContextAndID? = nil) { }
-    
-    func configMaxOrder() -> Cache<Order> {
-        switch (sourceType.isSection, changeType) {
-        case (false, _): return .init(value: .second)
-        case (true, .remove): return .init(value: targetHasSection ? .second : .third)
-        case (true, .insert): return .init(value: .second)
-        case (true, _): return .init(value: sourceType.isItems ? .second : .first)
-        }
-    }
-    
-    func prepareData() { }
-    func configCount() -> Mapping<Int> { notImplemented() }
-    func configChangeType() -> ChangeType { .none }
-    func generateListUpdates() -> BatchUpdates? {
-        prepareData()
-        inferringMoves()
-        return sourceType.isItems ? generateListUpdatesForItems() : generateListUpdatesForSections()
-    }
-    
-    func updateData(_ isSource: Bool) { }
-    func hasSectionIfEmpty(isSource: Bool) -> Bool { true }
-    
-    // subsources update
-    func add(subupdate: CoordinatorUpdate, at index: Int) { }
-    func subsource<Subsource: UpdatableDataSource>(
-        _ source: Subsource,
-        update: ListUpdate<Subsource.SourceBase>,
-        animated: Bool? = nil,
-        completion: ((ListView, Bool) -> Void)? = nil
-    ) {
-        suboperations.append { source.perform(update, animated: animated, completion: completion) }
-    }
-    
-    func generateSourceUpdate(
-        order: Order,
-        context: UpdateContext<Int>? = nil
-    ) -> UpdateSource<BatchUpdates.ListSource> {
-        (0, nil)
-    }
-    
-    func generateTargetUpdate(
-        order: Order,
-        context: UpdateContext<Offset<Int>>? = nil
-    ) -> UpdateTarget<BatchUpdates.ListTarget> {
-        ([], nil, nil)
-    }
-    
-    func generateSourceItemUpdate(
-        order: Order,
-        context: UpdateContext<IndexPath>? = nil
-    ) -> UpdateSource<BatchUpdates.ItemSource> {
-        (0, nil)
-    }
-    
-    func generateTargetItemUpdate(
-        order: Order,
-        context: UpdateContext<Offset<IndexPath>>? = nil
-    ) -> UpdateTarget<BatchUpdates.ItemTarget> {
-        ([], nil, nil)
-    }
+    func generateListUpdates() -> BatchUpdates? { notImplemented() }
+    func updateData(_ isSource: Bool, containsSubupdate: Bool) { }
 }
 
 extension CoordinatorUpdate {
-    var sourceHasSection: Bool { count.source != 0 || hasSectionIfEmpty(isSource: true) }
-    var targetHasSection: Bool { count.target != 0 || hasSectionIfEmpty(isSource: false) }
-    
-    var sourceCount: Int { sourceType == .sectionItems ? (sourceHasSection ? 1 : 0) : count.source }
-    var targetCount: Int { sourceType == .sectionItems ? (targetHasSection ? 1 : 0) : count.target }
-    
-    var firstChange: (() -> Void)? { { [unowned self] in self.updateData(true) } }
-    var finalChange: (() -> Void)? { { [unowned self] in self.updateData(false) } }
-    
-    func generateListUpdatesForItems() -> BatchUpdates? {
-        switch changeType {
-        case _ where targetHasSection && !sourceHasSection:
-            return .init(target: BatchUpdates.SectionTarget(\.inserts, 0), finalChange)
-        case _ where !targetHasSection && sourceHasSection:
-            return .init(source: BatchUpdates.SectionSource(\.deletes, 0), finalChange)
-        case .insert:
-            let indices = [IndexPath](IndexPath(item: 0), IndexPath(item: count.target))
-            return .init(target: BatchUpdates.ItemTarget(\.inserts, indices), finalChange)
-        case .remove:
-            let indices = [IndexPath](IndexPath(item: 0), IndexPath(item: count.source))
-            return .init(source: BatchUpdates.ItemSource(\.deletes, indices), finalChange)
-        case .batchUpdates:
-            return listUpdatesForItems()
-        case .reload:
-            return .reload(change: finalChange)
-        case .none:
-            return .none
-        }
+    func firstChange(_ containsSubupdate: Bool = false) -> () -> Void {
+        { [unowned self] in self.updateData(true, containsSubupdate: containsSubupdate) }
     }
     
-    func generateListUpdatesForSections() -> BatchUpdates? {
-        switch changeType {
-        case .insert:
-            let update = BatchUpdates.SectionTarget(\.inserts, 0, count.target)
-            return .init(target: update, finalChange)
-        case .remove:
-            let update = BatchUpdates.SectionSource(\.deletes, 0, count.source)
-            return .init(source: update, finalChange)
-        case .batchUpdates:
-            return listUpdatesForSections()
-        case .reload:
-            return .reload(change: finalChange)
-        case .none:
-            return .none
-        }
-    }
-    
-    func listUpdatesForSections() -> BatchUpdates {
-        .batch(Order.allCases.compactMapContiguous { order in
-            Log.log("---\(order)---")
-            Log.log("-source-")
-            let source = generateSourceUpdate(order: order)
-            Log.log("-target-")
-            let target = generateTargetUpdate(order: order)
-            guard !source.update.isEmpty || !target.update.isEmpty else { return nil }
-            return .init(update: (source.update, target.update), change: target.change)
-        })
-    }
-    
-    func listUpdatesForItems() -> BatchUpdates {
-        .batch([Order.second, Order.third].compactMapContiguous { order in
-            Log.log("---\(order)---")
-            Log.log("-source-")
-            let source = generateSourceItemUpdate(order: order)
-            Log.log("-target-")
-            let target = generateTargetItemUpdate(order: order)
-            guard !source.update.isEmpty || !target.update.isEmpty else { return nil }
-            return .init(update: (source.update, target.update), change: target.change)
-        })
-    }
-}
-
-// Order
-extension CoordinatorUpdate {
-    func isMain(_ order: Order) -> Bool {
-        sourceType.isItems ? order == .second : order == .first
-    }
-    
-    func isExtra(_ order: Order) -> Bool {
-        sourceType.isItems ? order == .third : order == .second
-    }
-    
-    func notUpdate<O>(_ order: Order, _ context: UpdateContext<O>?) -> Bool {
-        order > maxOrder(context)
-    }
-    
-    func maxOrder<O>(_ context: UpdateContext<O>?) -> Order {
-        maxOrder[context?.id]
-    }
-    
-    func hasNext<O>(_ order: Order, _ context: UpdateContext<O>?) -> Bool {
-        maxOrder(context) > order
-    }
-    
-    func updateMaxIfNeeded<O>(_ order: Order, _ context: UpdateContext<O>?) {
-        guard maxOrder(context) < order else { return }
-        maxOrder[context?.id] = order
-    }
-    
-    func updateMaxIfNeeded<O>(
-        _ subupdate: CoordinatorUpdate,
-        _ context: UpdateContext<O>?,
-        _ subcontext: UpdateContext<O>?
-    ) {
-        updateMaxIfNeeded(subupdate.maxOrder(subcontext), context)
+    func finalChange(_ containsSubupdate: Bool = false) -> () -> Void {
+        { [unowned self] in self.updateData(false, containsSubupdate: containsSubupdate) }
     }
 }
 
 extension CoordinatorUpdate.Cache {
-    subscript(id: ObjectIdentifier?) -> Value {
-        get { id.flatMap { dict[$0] } ?? value }
-        set { id.map { dict[$0] = newValue } ?? (value = newValue) }
+    var value: Value {
+        get { dict[[]]! }
+        set { dict[[]] = newValue }
+    }
+    
+    init(value: Value) {
+        dict = [[]: value]
+    }
+    
+    subscript(ids: [AnyHashable]) -> Value {
+        get { dict[ids] ?? value }
+        set { dict[ids] = newValue }
+    }
+    
+    subscript<O>(context: CoordinatorUpdate.UpdateContext<O>) -> Value {
+        get { self[context.ids] }
+        set { self[context.ids] = newValue }
     }
 }
 
-extension CoordinatorUpdate.Order: CaseIterable, Comparable {
-    var next: CoordinatorUpdate.Order? {
-        CoordinatorUpdate.Order(rawValue: rawValue + 1)
-    }
-    
-    static func < (lhs: CoordinatorUpdate.Order, rhs: CoordinatorUpdate.Order) -> Bool {
-        lhs.rawValue < rhs.rawValue
+extension CoordinatorUpdate.Order: CaseIterable {
+    var next: CoordinatorUpdate.Order? { CoordinatorUpdate.Order(rawValue: rawValue + 1) }
+}
+
+extension Optional where Wrapped == CoordinatorUpdate.Order {
+    static func > (lhs: CoordinatorUpdate.Order?, rhs: CoordinatorUpdate.Order?) -> Bool {
+        guard let lhs = lhs else { return false }
+        guard let rhs = rhs else { return true }
+        return lhs.rawValue > rhs.rawValue
     }
 }
 
 extension CoordinatorUpdate.Change: CustomStringConvertible, CustomDebugStringConvertible {
-    subscript(id: ObjectIdentifier?) -> CoordinatorUpdate.Change<Value>? {
-        get { associated.value?.change ?? associated[id]?.change }
-        set { associated[id] = newValue.map(Unowned.init(change:)) }
+    subscript(ids: [AnyHashable]) -> CoordinatorUpdate.Change<Value>.Associated? {
+        get { associated.value ?? associated[ids] }
+        set { associated[ids] = newValue }
     }
     
-    func indexPath(_ id: ObjectIdentifier?) -> IndexPath {
-        let (section, item) = offsets[id]
+    func indexPath(current: [AnyHashable]? = nil, _ ids: [AnyHashable]) -> IndexPath {
+        let (section, item) = current.flatMap { offsets.dict[$0] } ?? offsets[ids]
         return IndexPath(section: section, item: item + index)
     }
     
-    func index(_ id: ObjectIdentifier?) -> Int {
-        offsets[id].section + index
+    func index(_ ids: [AnyHashable]) -> Int {
+        offsets[ids].section + index
     }
     
     var description: String {

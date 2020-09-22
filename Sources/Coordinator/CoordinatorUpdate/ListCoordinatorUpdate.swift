@@ -14,294 +14,600 @@ where SourceBase.SourceBase == SourceBase {
     typealias Options = Mapping<ListOptions>
     
     weak var listCoordinator: ListCoordinator<SourceBase>?
-    var defaultUpdate: ListUpdate<SourceBase>.Whole?
-    var update: ListUpdate<SourceBase>.Whole?
-    var sources: Sources
-    var options: Options
+    let source: SourceBase.Source?
+    let sourceType: SourceType
+    var updateWay: ListUpdateWay<SourceBase.Item>
+    var differ: ListDiffer<SourceBase.Item>!
+    var isBatchUpdate = false
     
-    var hasBatchUpdate = false
+    lazy var target = configTarget()
+    lazy var suboperations = [() -> Void]()
+    lazy var sourceCount = configSourceCount()
+    lazy var targetCount = configTargetCount()
     
-    var differ: ListDiffer<SourceBase.Item>! { update?.diff ?? defaultUpdate?.diff }
+    lazy var changeType = configUpdateWay()
+    lazy var cachedMaxOrder = Cache(value: nil as Order??)
+    
     var diffable: Bool { differ?.isNone == false }
     var moveAndReloadable: Bool { false }
-    
-    var isMoreUpdate: Bool {
-        update?.way.isMoreUpdate == true
+    var isRemove: Bool {
+        guard case .other(.remove) = updateWay else { return false }
+        return true
     }
     
-    override var preferNoAnimation: Bool { options.target.preferNoAnimation }
+    var notMoveAndReloadable: Bool {
+        if isBatchUpdate { return false }
+        switch changeType {
+        case .other(.remove), .other(.insert): return false
+        default: return true
+        }
+    }
+    
+    var isInsert: Bool {
+        guard case .other(.insert) = updateWay else { return false }
+        return true
+    }
     
     init(
-        _ coordinator: ListCoordinator<SourceBase>?,
-        update: ListUpdate<SourceBase>,
+        _ coordinator: ListCoordinator<SourceBase>,
+        update: ListUpdate<SourceBase>?,
         sources: Sources,
         options: Options
     ) {
         self.listCoordinator = coordinator
-        self.sources = sources
-        self.defaultUpdate = coordinator?.update
-        self.options = options
+        self.source = sources.source
+        self.sourceType = coordinator.sourceType
+        self.updateWay = coordinator.update.way
+        self.differ = updateWay.differ
         super.init()
-        coordinator?.currentCoordinatorUpdate = self
-        self.sourceType = coordinator?.sourceType ?? .sectionItems
-        switch update.updateType {
-        case let .whole(whole):
-            self.update = whole
+        self.options = options
+        coordinator.currentCoordinatorUpdate = self
+        switch update?.updateType {
+        case .whole(let whole):
+            self.target = sources.target
+            self.updateWay = whole.way
             switch whole.way {
-            case .insert:
+            case .other(.insert):
                 self.options.source.insert(.removeEmptySection)
-                count.source = 0
-            case .remove:
+                sourceCount = 0
+            case .other(.remove):
                 self.options.target.insert(.removeEmptySection)
-                isRemove = true
-                count.target = 0
+                targetCount = 0
+            case .diff(let differ):
+                self.differ = differ
             default:
                 break
             }
-        case let .batch(batch):
+        case .batch(let batch):
+            self.isBatchUpdate = true
             batch.operations.forEach { $0(self) }
-            hasBatchUpdate = true
             suboperations.forEach { $0() }
+        default:
+            break
         }
     }
     
-    override func updateData(_ isSource: Bool) {
-        listCoordinator?.source = isSource ? sources.source : sources.target
-        listCoordinator?.options = isSource ? options.source : options.target
-    }
+    func configTarget() -> SourceBase.Source? { source }
+    func configSourceCount() -> Int { notImplemented() }
+    func configTargetCount() -> Int { notImplemented() }
+    func inferringMoves(context: Context? = nil, ids: [AnyHashable] = []) { }
     
-    override func hasSectionIfEmpty(isSource: Bool) -> Bool {
-        isSource ? !options.source.removeEmptySection : !options.target.removeEmptySection
-    }
-    
-    override func configChangeType() -> ChangeType {
-        switch (update?.way, count.source == 0, count.target == 0) {
-        case (.reload, _, _): return .reload
-        case (.insert, _, true), (.remove, true, _), (_, true, true): return .none
-        case (.remove, _, _), (_, false, true): return .remove
-        case (.insert, _, _), (_, true, false): return .insert
-        default: return isMoreUpdate || hasBatchUpdate || diffable ? .batchUpdates : .reload
+    func configMaxOrderForContext(_ ids: [AnyHashable]) -> Order? {
+        switch (sourceType, changeType) {
+        case (.sectionItems, _) where targetHasSection != sourceHasSection: break
+        case (_, .none): return nil
+        case (.section, .batch) where moveType(ids) == .moveAndReload: return .second
+        case (.section, _): return .first
+        case (_, .batch) where moveType(ids) == .moveAndReload: return .third
+        case (_, _): return .second
+        }
+        
+        switch (targetHasSection && !sourceHasSection, moveType(ids)) {
+        case (_, .none): return .first
+        case (true, .some): return .second
+        case (false, .some): return .third
         }
     }
     
-    override func generateSourceUpdate(
+    func customUpdateWay() -> UpdateWay? { diffable || isBatchUpdate ? .batch : .other(.reload) }
+    func configUpdateWay() -> UpdateWay? {
+        switch (updateWay, sourceCount == 0, targetCount == 0) {
+        case (.other(.reload), _, _): return .other(.reload)
+        case (.other(.appendOrRemoveLast), _, _) where sourceCount == targetCount: fallthrough
+        case (.other(.prependOrRemoveFirst), _, _) where sourceCount == targetCount: fallthrough
+        case (.other(.insert), _, true), (.other(.remove), true, _), (_, true, true): return .none
+        case (.other(.remove), _, _), (_, false, true): return .other(.remove)
+        case (.other(.insert), _, _), (_, true, false): return .other(.insert)
+        case let (.other(other), _, _): return .other(other)
+        default: return customUpdateWay()
+        }
+    }
+    
+    func generateSourceUpdate(
         order: Order,
-        context: UpdateContext<Int>? = nil
+        context: UpdateContext<Int> = (nil, false, [])
     ) -> UpdateSource<BatchUpdates.ListSource> {
-        switch (order, changeType) {
-        case (_, .none):
-            return (sourceCount, nil)
-        case (.first, _):
-            guard let (offset, isMoved, _) = context, isMoved, sourceHasSection else {
-                return (sourceCount, nil)
+        if order == .first {
+            guard context.isMoved, let offset = context.offset, sourceHasSection else {
+                return (sourceCountForContainer, nil)
             }
             return (1, .init(section: .init(move: offset)))
-        case (.third, .remove) where !targetHasSection:
-            return (1, .init(section: .init(\.deletes, context?.offset ?? 0)))
-        case (.second, _),
-            (.third, _) where !notUpdate(order, context):
+        } else {
             guard case let (_, itemUpdate?) = generateSourceItemUpdate(
                 order: order,
                 context: toContext(context) { IndexPath(section: $0) }
-            ) else { return (1, nil) }
-            return (1, .init(item: itemUpdate))
-        case (.third, _):
-            return (targetCount, nil)
+            ) else { return (sourceCountForContainer, nil) }
+            return (sourceCountForContainer, .init(item: itemUpdate))
         }
     }
     
-    override func generateTargetUpdate(
+    func generateTargetUpdate(
         order: Order,
-        context: UpdateContext<Offset<Int>>? = nil
+        context: UpdateContext<Offset<Int>> = (nil, false, [])
     ) -> UpdateTarget<BatchUpdates.ListTarget> {
-        func count(_ count: Int, isFake: Bool = false) -> Indices {
-            .init(repeatElement: (context?.offset.index ?? 0, isFake), count: count)
-        }
-        switch (order, changeType) {
-        case (_, .none):
-            return (count(sourceCount), nil, nil)
-        case (.first, .insert) where !sourceHasSection:
-            let indices = count(1, isFake: true), section = context?.offset.offset.target ?? 0
-            return (indices, .init(section: .init(\.inserts, section)), firstChange)
-        case (.first, _):
-            guard let ((_, (source, target)), moved, _) = context, moved, sourceHasSection else {
-                return (count(sourceCount), nil, firstChange)
+        if order == .first {
+            let indices = toIndices(sourceCountForContainer, context)
+            guard context.isMoved, let offset = context.offset, sourceHasSection else {
+                return (indices, nil, firstChange(true))
             }
-            return (count(1), .init(section: .init(move: source, to: target)), firstChange)
-        case (.third, .remove) where !targetHasSection:
-            return (count(0), nil, finalChange)
-        case (.second, _),
-             (.third, _) where !notUpdate(order, context):
-            let isFake = changeType == .remove && sourceType.isSection
+            let (source, target) = offset.offset
+            return (indices, .init(section: .init(move: source, to: target)), firstChange(true))
+        } else {
+            let indices = toIndices(targetCountForContainer, context)
             guard case let (_, itemUpdate?, change) = generateTargetItemUpdate(
                 order: order,
                 context: toContext(context) {
                     (0, (.init(section: $0.offset.source), .init(section: $0.offset.target)))
                 }
-            ) else { return (count(1, isFake: isFake), nil, nil) }
-            let changes = hasNext(order, context) ? change : (change + finalChange)
-            return (count(1, isFake: isFake), .init(item: itemUpdate), changes)
-        case (.third, _):
-            return (count(targetCount), nil, finalChange)
+            ) else { return (indices, nil, nil) }
+            return (indices, .init(item: itemUpdate), change)
         }
     }
     
-    override func generateSourceItemUpdate(
+    func generateSourceItemUpdate(
         order: Order,
-        context: UpdateContext<IndexPath>? = nil
+        context: UpdateContext<IndexPath> = (nil, false, [])
     ) -> UpdateSource<BatchUpdates.ItemSource> {
-        let diff = count.source - count.target
-        guard isMoreUpdate, order == .second, diff > 0 else { return (count.source, nil) }
-        var start = context?.offset ?? .zero
-        if update?.way.isAppend == true { start = start.offseted(count.target) }
-        return (count.source, .init(\.deletes, start, start.offseted(diff)))
+        (0, nil)
     }
     
-    override func generateTargetItemUpdate(
+    func generateTargetItemUpdate(
         order: Order,
-        context: UpdateContext<Offset<IndexPath>>? = nil
+        context: UpdateContext<Offset<IndexPath>> = (nil, false, [])
     ) -> UpdateTarget<BatchUpdates.ItemTarget> {
-        let diff = count.target - count.source
-        guard isMoreUpdate, order == .second, diff > 0 else {
-            return (toIndices(count.target, context), nil, nil)
-        }
-        var start = context?.offset.offset.target ?? .zero
-        if update?.way.isAppend == true { start = start.offseted(count.source) }
-        let update = BatchUpdates.ItemTarget(\.inserts, start, start.offseted(diff))
-        return (toIndices(count.target, context), update, finalChange)
+        ([], nil, nil)
+    }
+    
+    override func generateListUpdates() -> BatchUpdates? {
+        sourceType.isItems ? generateListUpdatesForItems() : generateListUpdatesForSections()
+    }
+    
+    override func updateData(_ isSource: Bool, containsSubupdate: Bool) {
+        listCoordinator?.source = isSource ? source : target
+        listCoordinator?.options = isSource ? options.source : options.target
     }
 }
 
 extension ListCoordinatorUpdate {
-    func toContext<Offset, OtherOffset>(
-        _ context: UpdateContext<Offset>?,
-        _ isMoved: Bool = false,
-        or offset: Offset? = nil,
-        add: (Offset) -> OtherOffset
-    ) -> UpdateContext<OtherOffset>? {
-        let isMoved = isMoved || context?.isMoved == true
-        if let context = context { return (add(context.offset), isMoved, context.id) }
-        return offset.map { (add($0), isMoved, defaultContext.id) }
+    func generateSourceUpdateForContianer(
+        order: Order,
+        context: UpdateContext<Int> = (nil, false, [])
+    ) -> UpdateSource<BatchUpdates.ListSource> {
+        let update: BatchUpdates.ListSource
+        if isSectionItems, targetHasSection != sourceHasSection {
+            switch (order, targetHasSection && !sourceHasSection) {
+            case (.first, false) where !hasNext(order, context):
+                update = .init(section: sourceUpdate(way: .remove, forContainer: true, context))
+                return (sourceCountForContainer, update)
+            case (.first, true) where !hasNext(order, context):
+                return (sourceCountForContainer, nil)
+            case (.third, false):
+                return (1, .init(section: .init(\.deletes, context.offset ?? 0)))
+            default:
+                break
+            }
+            
+            var subupdate = generateSourceUpdate(order: order, context: context)
+            if order == .second, targetHasSection && !sourceHasSection { subupdate.count = 1 }
+            return subupdate
+        }
+        
+        switch changeType {
+        case .none: return (sourceCountForContainer, nil)
+        case .other(.remove) where moveType(context) != nil: fallthrough
+        case .other where isSectionItems: fallthrough
+        case .batch: return generateSourceUpdate(order: order, context: context)
+        case .other(.insert): return (sourceCountForContainer, nil)
+        case .other(let way): update = .init(section: sourceUpdate(way: way, context))
+        }
+        return (sourceCountForContainer, update)
     }
     
-    func toIndices<O>(_ indices: Indices, _ context: UpdateContext<Offset<O>>?) -> Indices {
-        guard let index = context?.offset.index else { return indices }
+    func generateTargetUpdateForContianer(
+        order: Order,
+        context: UpdateContext<Offset<Int>> = (nil, false, [])
+    ) -> UpdateTarget<BatchUpdates.ListTarget> {
+        let update: BatchUpdates.ListTarget
+        if isSectionItems, targetHasSection != sourceHasSection {
+            func count(_ count: Int, isFake: Bool = false) -> Indices {
+                self.toIndices(count, context, isFake: isFake)
+            }
+            switch (order, targetHasSection && !sourceHasSection) {
+            case (.first, false) where !hasNext(order, context):
+                return (count(targetCountForContainer), nil, finalChange(true))
+            case (.first, true) where !hasNext(order, context):
+                update = .init(section: targetUpdate(way: .insert, forContainer: true, context))
+                return (count(targetCountForContainer), update, finalChange(true))
+            case (.first, true):
+                let indices = count(1, isFake: true), section = context.offset?.offset.target ?? 0
+                return (indices, .init(section: .init(\.inserts, section)), firstChange(true))
+            case (.third, _):
+                return (count(targetCountForContainer), nil, finalChange(true))
+            default:
+                break
+            }
+            
+            var subupdate = generateTargetUpdate(order: order, context: context)
+            switch order {
+            case .first:
+                subupdate.change = subupdate.change + firstChange(true)
+            case .second where !targetHasSection && sourceHasSection:
+                subupdate.indices = [(context.offset?.index ?? 0, true)]
+                subupdate.change = subupdate.change + finalChange(true)
+            default:
+                break
+            }
+            return subupdate
+        }
+        
+        var c: () -> Void { hasNext(order, context) ? firstChange(true) : finalChange(true) }
+        switch changeType {
+        case .none: return (toIndices(targetCountForContainer, context), nil, nil)
+        case .other(.insert) where moveType(context) != nil: fallthrough
+        case .other where isSectionItems: fallthrough
+        case .batch: return generateTargetUpdate(order: order, context: context)
+        case .other(.remove): return (toIndices(targetCountForContainer, context), nil, c)
+        case .other(let way): update = .init(section: targetUpdate(way: way, context))
+        }
+        return (toIndices(targetCountForContainer, context), update, finalChange(true))
+    }
+    
+    func generateSourceItemUpdateForContianer(
+        order: Order,
+        context: UpdateContext<IndexPath> = (nil, false, [])
+    ) -> UpdateSource<BatchUpdates.ItemSource> {
+        switch changeType {
+        case .none, .other(.insert): return (sourceCount, nil)
+        case .other(.remove) where moveType(context) != nil: fallthrough
+        case .batch: return generateSourceItemUpdate(order: order, context: context)
+        case .other(let way): return (sourceCount, sourceUpdate(way: way, context))
+        }
+    }
+    
+    func generateTargetItemUpdateForContianer(
+        order: Order,
+        context: UpdateContext<Offset<IndexPath>> = (nil, false, [])
+    ) -> UpdateTarget<BatchUpdates.ItemTarget> {
+        let update: BatchUpdates.ItemTarget
+        switch changeType {
+        case .none, .other(.remove): return (toIndices(targetCount, context), nil, nil)
+        case .other(.insert) where moveType(context) != nil: fallthrough
+        case .batch: return generateTargetItemUpdate(order: order, context: context)
+        case .other(let way): update = targetUpdate(way: way, context)
+        }
+        return (toIndices(targetCount, context), update, finalChange(true))
+    }
+}
+
+extension ListCoordinatorUpdate {
+    func sourceUpdate<C: UpdateIndexCollection>(
+        way: ListKit.UpdateWay,
+        forContainer: Bool = false,
+        _ offset: UpdateContext<C.Element> = (nil, false, [])
+    ) -> BatchUpdates.Source<C> {
+        let o = offset.offset ?? .zero
+        let source = forContainer ? sourceCountForContainer : sourceCount
+        let target = forContainer ? targetCountForContainer : targetCount
+        switch way {
+        case .insert:
+            fatalError()
+        case .remove:
+            return .init(\.deletes, o, o.offseted(source))
+        case .appendOrRemoveLast:
+            return .init(\.deletes, o.offseted(target), o.offseted(source))
+        case .prependOrRemoveFirst:
+            return .init(\.deletes, o, o.offseted(source - target))
+        case .reload:
+            var update = BatchUpdates.Source<C>()
+            let diff = source - target, minValue = min(source, target)
+            if minValue != 0 { update.add(\.reloads, o, o.offseted(minValue)) }
+            if diff > 0 { update.add(\.deletes, o.offseted(minValue), o.offseted(source)) }
+            return update
+        }
+    }
+    
+    func targetUpdate<C: UpdateIndexCollection>(
+        way: ListKit.UpdateWay,
+        forContainer: Bool = false,
+        _ context: UpdateContext<Offset<C.Element>> = (nil, false, [])
+    ) -> BatchUpdates.Target<C> {
+        let o = context.offset?.offset.target ?? .zero
+        let source = forContainer ? sourceCountForContainer : sourceCount
+        let target = forContainer ? targetCountForContainer : targetCount
+        switch way {
+        case .insert:
+            return .init(\.inserts, o, o.offseted(target))
+        case .remove:
+            fatalError()
+        case .appendOrRemoveLast:
+            return .init(\.inserts, o.offseted(source), o.offseted(target))
+        case .prependOrRemoveFirst:
+            return .init(\.inserts, o, o.offseted(target - source))
+        case .reload:
+            var update = BatchUpdates.Target<C>()
+            let diff = target - source, minValue = min(source, target)
+            if minValue != 0 { update.reload(o, o.offseted(minValue)) }
+            if diff > 0 { update.add(\.inserts, o.offseted(minValue), o.offseted(target)) }
+            return update
+        }
+    }
+    
+    func batchChangeFor<C: UpdateIndexCollection>(
+        way: ListKit.UpdateWay,
+        _ indexType: C.Type
+    ) -> BatchUpdates {
+        switch way {
+        case .appendOrRemoveLast where targetCount > sourceCount,
+             .prependOrRemoveFirst where targetCount > sourceCount,
+             .insert:
+            let update: BatchUpdates.Target<C> = targetUpdate(way: way)
+            return .init(target: update, finalChange(true))
+        case .appendOrRemoveLast where sourceCount > targetCount,
+             .prependOrRemoveFirst where sourceCount > targetCount,
+             .remove:
+            let update: BatchUpdates.Source<C> = sourceUpdate(way: way)
+            return .init(source: update, finalChange(true))
+        case .reload:
+            return .reload(change: finalChange(true))
+        default:
+            fatalError()
+        }
+    }
+}
+
+extension ListCoordinatorUpdate {
+    var isSectionItems: Bool { sourceType == .sectionItems }
+    
+    var sourceHasSection: Bool { sourceCount != 0 || !options.source.removeEmptySection }
+    var targetHasSection: Bool { targetCount != 0 || !options.target.removeEmptySection }
+    
+    var sourceCountForContainer: Int { isSectionItems ? (sourceHasSection ? 1 : 0) : sourceCount }
+    var targetCountForContainer: Int { isSectionItems ? (targetHasSection ? 1 : 0) : targetCount }
+    
+    func generateListUpdatesForItems() -> BatchUpdates? {
+        if targetHasSection && !sourceHasSection {
+            return .init(target: BatchUpdates.SectionTarget(\.inserts, 0), finalChange(true))
+        }
+        if !targetHasSection && sourceHasSection {
+            return .init(source: BatchUpdates.SectionSource(\.deletes, 0), finalChange(true))
+        }
+        switch changeType {
+        case .other(let way): return batchChangeFor(way: way, [IndexPath].self)
+        case .batch: return listUpdatesForItems()
+        case .none: return .none
+        }
+    }
+    
+    func generateListUpdatesForSections() -> BatchUpdates? {
+        switch changeType {
+        case .other(let way): return batchChangeFor(way: way, IndexSet.self)
+        case .batch: return listUpdatesForSections()
+        default: return .none
+        }
+    }
+    
+    func listUpdatesForSections() -> BatchUpdates {
+        inferringMoves()
+        return .batch(Order.allCases.compactMapContiguous { order in
+            if order > maxOrder() { return nil }
+            Log.log("---\(order)---")
+            Log.log("-source-")
+            let source = generateSourceUpdate(order: order)
+            Log.log("-target-")
+            let target = generateTargetUpdate(order: order)
+            guard !source.update.isEmpty || !target.update.isEmpty else { return nil }
+            return .init(update: (source.update, target.update), change: target.change)
+        })
+    }
+    
+    func listUpdatesForItems() -> BatchUpdates {
+        inferringMoves()
+        return .batch([Order.second, Order.third].compactMapContiguous { order in
+            if order > maxOrder() { return nil }
+            Log.log("---\(order)---")
+            Log.log("-source-")
+            let source = generateSourceItemUpdate(order: order)
+            Log.log("-target-")
+            let target = generateTargetItemUpdate(order: order)
+            guard !source.update.isEmpty || !target.update.isEmpty else { return nil }
+            return .init(update: (source.update, target.update), change: target.change)
+        })
+    }
+}
+
+// Order
+extension ListCoordinatorUpdate {
+    func toIndices<O>(_ indices: Indices, _ context: UpdateContext<Offset<O>>) -> Indices {
+        guard let index = context.offset?.index else { return indices }
         return indices.mapContiguous { (index, $0.isFake) }
     }
     
-    func toIndices<O>(_ count: Int, _ context: UpdateContext<Offset<O>>?) -> Indices {
-        .init(repeatElement: (context?.offset.index ?? 0, false), count: count)
+    func toIndices<O>(_ count: Int, _ context: UpdateContext<Offset<O>>, isFake: Bool = false) -> Indices {
+        .init(repeatElement: (context.offset?.index ?? 0, isFake), count: count)
+    }
+    
+    func toContext<Offset, OtherOffset>(
+        _ context: UpdateContext<Offset>,
+        add: (Offset) -> OtherOffset
+    ) -> UpdateContext<OtherOffset> {
+        return (context.offset.map(add), context.isMoved, context.ids)
+    }
+    
+    func notUpdate<O>(_ order: Order, _ context: UpdateContext<O>) -> Bool {
+        order > maxOrder(context.ids)
+    }
+    
+    func hasNext<O>(_ order: Order, _ context: UpdateContext<O>) -> Bool {
+        maxOrder(context.ids) > order
+    }
+    
+    func maxOrder(_ ids: [AnyHashable] = []) -> Order? {
+        cachedMaxOrder.value ?? cachedMaxOrder[ids] ?? {
+            let maxOrder = configMaxOrderForContext(ids)
+            cachedMaxOrder[ids] = maxOrder
+            return maxOrder
+        }()
+    }
+    
+    func moveType<O>(_ context: UpdateContext<O>) -> MoveType? {
+        moveType(context.ids)
+    }
+    
+    func moveType(_ ids: [AnyHashable]) -> MoveType? {
+        moveType.value ?? moveType[ids]
     }
 }
 
 extension ListCoordinatorUpdate {
-    func add<T>(_ change: T, id: AnyHashable, to dict: inout [AnyHashable: T?]) {
+    func subsource<Subsource: UpdatableDataSource>(
+        _ source: Subsource,
+        update: ListUpdate<Subsource.SourceBase>,
+        animated: Bool? = nil,
+        completion: ((ListView, Bool) -> Void)? = nil
+    ) {
+        suboperations.append { source.perform(update, animated: animated, completion: completion) }
+    }
+}
+
+extension ListCoordinatorUpdate {
+    func add<T>(
+        _ change: T,
+        id: AnyHashable,
+        ids: [AnyHashable] = [],
+        to dict: inout Uniques<T>
+    ) {
         if case .none = dict[id] {
-            dict[id] = .some(change)
+            dict[id] = .some((ids, change))
         } else {
             dict[id] = .some(.none)
         }
     }
     
-    @discardableResult
     func config<T, Value, Change: CoordinatorUpdate.Change<Value>>(
         for change: Change,
         _ key: AnyHashable,
-        _ context: ContextAndID?,
-        _ dict: inout Mapping<[AnyHashable: T?]>,
+        _ dict: inout Mapping<Uniques<T>>,
         _ isEqual: ((Value, Value) -> Bool)?,
+        _ associate: ((Mapping<Change>, Mapping<[AnyHashable]>) -> Void)? = nil,
         _ toChange: (T) -> Change? = { $0 as? Change }
-    ) -> Mapping<Change>? {
-        let sourceChange = dict.source[key]?.map(toChange)
-        let targetChange = dict.target[key]?.map(toChange)
-        guard case let (source??, target??) = (sourceChange, targetChange) else { return nil }
-        defer { (dict.source[key], dict.target[key]) = (nil, nil) }
-        switch (context, source.state, target.state) {
-        case let (_, .change, .change(moveAndRelod)):
-            if isEqual?(source.value, target.value) != false { break }
-            if moveAndRelod == false { return nil }
-            target.state = .change(moveAndRelod: true)
-            source.state = .change(moveAndRelod: true)
-        default:
-            return nil
+    ) {
+        func convert(_ change: (ids: [AnyHashable], change: T)??) ->  ([AnyHashable], Change)? {
+            change?.flatMap { change in toChange(change.change).map { (change.ids, $0) } }
         }
-        (source[context?.id], target[context?.id]) = (target, source)
-        return (source, target)
+        guard let (sourceID, source) = convert(dict.source[key]),
+              let (targetID, target) = convert(dict.target[key]) else { return }
+        defer { (dict.source[key], dict.target[key]) = (nil, nil) }
+        var moveType = MoveType.move
+        switch (source.state, target.state) {
+        case (.change, .change):
+            if isEqual?(source.value, target.value) != false { break }
+            if !target.moveAndReloadable { return }
+            moveType = .moveAndReload
+        default:
+            return
+        }
+        source[sourceID] = .init(change: target, ids: targetID)
+        target[targetID] = .init(change: source, ids: sourceID)
+        (target.state, source.state) = (.change(moveType), .change(moveType))
+        source.coordinatorUpdate?.moveType[sourceID] = moveType
+        target.coordinatorUpdate?.moveType[targetID] = moveType
+        if moveType != .moveAndReload {
+            associate?((source, target), (sourceID, targetID))
+        }
     }
     
     func configCoordinatorChange<Offset, Value, Change: CoordinatorUpdate.Change<Value>>(
         _ change: Change,
-        context: UpdateContext<Offset>? = nil,
+        context: UpdateContext<Offset>,
         enumrateChange: (Change) -> Void,
         deleteOrInsert: (Change) -> Void,
-        reload: (Change, CoordinatorUpdate.Change<Value>) -> Void,
-        move: (Change, CoordinatorUpdate.Change<Value>, Bool) -> Void
+        reload: (Change, CoordinatorUpdate.Change<Value>.Associated) -> Void,
+        move: (Change, CoordinatorUpdate.Change<Value>.Associated, Bool) -> Void
     ) {
         enumrateChange(change)
-        switch (change.state, change[context?.id]) {
+        switch (change.state, change[context.ids]) {
         case let (.reload, associaed?):
-            switch (context?.isMoved, moveAndReloadable) {
+            switch (context.isMoved, moveAndReloadable) {
             case (true, false):
                 deleteOrInsert(change)
             case (true, true):
                 move(change, associaed, true)
-            default:
+            case (false, _):
                 reload(change, associaed)
             }
-        case let (.change(moveAndRelod), associaed?):
-            move(change, associaed, moveAndRelod == true)
+        case let (.change(moveType), associaed?):
+            move(change, associaed, moveType == .moveAndReload)
         default:
             deleteOrInsert(change)
         }
     }
     
-    func configCoordinatorChange<Offset: ListIndex, Value, Change: CoordinatorUpdate.Change<Value>>(
-        _ change: Change,
-        context: UpdateContext<Offset>? = nil,
+    func configCoordinatorChange<Offset: ListIndex, Value>(
+        _ change: Change<Value>,
+        context: UpdateContext<Offset>,
         into update: inout BatchUpdates.ItemSource
     ) {
         configCoordinatorChange(
             change,
             context: context,
             enumrateChange: { change in
-                guard let (offset, _, id) = context else { return }
-                change.offsets[id] = (offset.section, offset.item)
+                guard let offset = context.offset else { return }
+                change.offsets[context.ids] = (offset.section, offset.item)
             },
             deleteOrInsert: { change in
-                update.add(\.deletes, change.indexPath(context?.id))
+                update.add(\.deletes, change.indexPath(context.ids))
             },
             reload: { change, _ in
-                update.add(\.reloads, change.indexPath(context?.id))
+                update.add(\.reloads, change.indexPath(context.ids))
             },
             move: { change, associated, isReload in
-                update.move(change.indexPath(context?.id))
+                update.move(change.indexPath(context.ids))
             }
         )
     }
     
-    func configCoordinatorChange<O: ListIndex, Value, Change: CoordinatorUpdate.Change<Value>>(
-        _ change: Change,
-        context: UpdateContext<Offset<O>>? = nil,
+    func configCoordinatorChange<O: ListIndex, Value>(
+        _ change: Change<Value>,
+        context: UpdateContext<Offset<O>>,
         into update: inout BatchUpdates.ItemTarget,
-        configExtraValue: (Change, Change) -> Void
+        configExtraValue: (Change<Value>, Change<Value>) -> Void
     ) {
         configCoordinatorChange(
             change,
             context: context,
             enumrateChange: { change in
-                guard let ((_, offset), _, id) = context else { return }
-                change.offsets[id] = (offset.target.section, offset.target.item)
+                guard let offset = context.offset?.offset else { return }
+                change.offsets[context.ids] = (offset.target.section, offset.target.item)
             }, deleteOrInsert: { change in
-                update.add(\.inserts, change.indexPath(context?.id))
+                update.add(\.inserts, change.indexPath(context.ids))
             }, reload: { change, _  in
-                update.reload(change.indexPath(context?.id))
+                update.reload(change.indexPath(context.ids))
             }, move: { change, associated, isReload in
-                let sourcePath = associated.indexPath(context?.id)
-                let targetPath = change.indexPath(context?.id)
+                let sourcePath = associated.change.indexPath(current: context.ids, associated.ids)
+                let targetPath = change.indexPath(context.ids)
                 update.move(sourcePath, to: targetPath)
                 guard isReload else { return }
-                maxOrder[context?.id] = .third
-                configExtraValue(change, Change(associated.value, change.index))
+                configExtraValue(change, .init(value: associated.change.value, index: change.index))
             }
         )
     }

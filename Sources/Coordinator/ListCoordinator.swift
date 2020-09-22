@@ -21,7 +21,7 @@ public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase
     var source: SourceBase.Source!
     
     weak var storage: CoordinatorStorage<SourceBase>?
-    weak var currentCoordinatorUpdate: CoordinatorUpdate?
+    weak var currentCoordinatorUpdate: ListCoordinatorUpdate<SourceBase>?
     var listContexts = [WeakContext]()
     
     lazy var sourceType = configSourceType()
@@ -66,10 +66,10 @@ public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase
     }
     
     // Updates:
-    func identifier(for sourceBase: SourceBase) -> AnyHashable {
+    func identifier(for sourceBase: SourceBase) -> [AnyHashable] {
         let id = ObjectIdentifier(sourceBaseType)
-        guard let identifier = differ.identifier else { return HashCombiner(id, sourceType) }
-        return HashCombiner(id, sourceType, identifier(sourceBase))
+        guard let identifier = differ.identifier else { return [id, sourceType] }
+        return [id, sourceType, identifier(sourceBase)]
     }
     
     func equal(lhs: SourceBase, rhs: SourceBase) -> Bool {

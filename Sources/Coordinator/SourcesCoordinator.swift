@@ -60,6 +60,7 @@ where
     typealias Subsource = SourceElement<Source.Element>
     
     var subsourceType: SubsourceType
+    var id = 0
     
     lazy var indices = Self.toIndices(subsources)
     lazy var subsourcesAndSubsectioned = toSubsources(subsourceType.from!(source), sectioned: nil)
@@ -143,6 +144,7 @@ where
             subsources.append(.init(element: item, context: context, offset: offset, count: count))
             itemSources.removeAll()
             id += 1
+            self.id = id + 1
             itemOffset = 0
             offset += count
         }
@@ -181,7 +183,8 @@ where
     func addContext(to context: ListCoordinatorContext<Source.Element.SourceBase>) {
         context.update = { [weak self] (index, subupdate) in
             guard let self = self else { return [] }
-            if let update = self.currentCoordinatorUpdate {
+            let subupdate = subupdate as! ListCoordinatorUpdate<Source.Element.SourceBase>
+            if let update = self.currentCoordinatorUpdate as? SourcesCoordinatorUpdate<SourceBase, Source> {
                 update.add(subupdate: subupdate, at: index)
                 return []
             }
@@ -243,7 +246,7 @@ where
         let coordinator = coordinator as! SourcesCoordinator<SourceBase, Source>
         return SourcesCoordinatorUpdate(
             coordinator: self,
-            update: ListUpdate(updateWay, or: update),
+            update: ListUpdate(updateWay),
             values: (coordinator.subsources, subsources),
             sources: (coordinator.source, source),
             indices: (coordinator.indices, indices),
@@ -255,17 +258,15 @@ where
         update: ListUpdate<SourceBase>,
         options: ListOptions? = nil
     ) -> ListCoordinatorUpdate<SourceBase> {
-        let sourcesAfterUpdate = update.source
-        let subsourcesAfterUpdate = sourcesAfterUpdate.flatMap { value in
+        let subsourcesAfter = update.source.flatMap { value in
             subsourceType.from.map { toSubsources($0(value), sectioned: notItems).subsources }
         }
-        let indicesAfterUpdate = subsourcesAfterUpdate.map(Self.toIndices)
         return SourcesCoordinatorUpdate(
             coordinator: self,
             update: update,
-            values: (subsources, subsourcesAfterUpdate ?? subsources),
-            sources: (source, sourcesAfterUpdate ?? source),
-            indices: (indices, indicesAfterUpdate ?? indices),
+            values: (subsources, subsourcesAfter ?? subsources),
+            sources: (source, update.source ?? source),
+            indices: (indices, subsourcesAfter.map(Self.toIndices) ?? indices),
             options: (self.options, options ?? self.options)
         )
     }

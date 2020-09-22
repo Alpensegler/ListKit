@@ -26,7 +26,8 @@ where SourceBase.SourceBase == SourceBase {
     override func numbersOfSections() -> Int { sourceType.isSection ? indices.count : 1 }
     override func numbersOfItems(in section: Int) -> Int {
         if sourceType == .items { return indices.count }
-        guard let index = indices[safe: section], !index.isFake else { return 0 }
+        let index = indices[section]
+        if index.isFake { return 0 }
         return source[index.index]
     }
     
@@ -46,8 +47,8 @@ where SourceBase.SourceBase == SourceBase {
     ) -> ListCoordinatorUpdate<SourceBase> {
         let coordinator = coordinator as! NSCoordinator<SourceBase>
         return NSCoordinatorUpdate(
-            self,
-            update: .init(updateWay, or: update),
+            coordinator: self,
+            update: ListUpdate(updateWay),
             sources: (coordinator.source, source),
             indices: (coordinator.indices, indices),
             options: (coordinator.options, options)
@@ -58,13 +59,11 @@ where SourceBase.SourceBase == SourceBase {
         update: ListUpdate<SourceBase>,
         options: ListOptions? = nil
     ) -> ListCoordinatorUpdate<SourceBase> {
-        let sourcesAfterUpdate = update.source
-        let indicesAfterUpdate = update.source.map(toIndices)
-        return NSCoordinatorUpdate(
-            self,
+        NSCoordinatorUpdate(
+            coordinator: self,
             update: update,
-            sources: (source, sourcesAfterUpdate ?? source),
-            indices: (indices, indicesAfterUpdate ?? indices),
+            sources: (source, update.source ?? source),
+            indices: (indices, update.source.map(toIndices) ?? indices),
             options: (self.options, options ?? self.options)
         )
     }

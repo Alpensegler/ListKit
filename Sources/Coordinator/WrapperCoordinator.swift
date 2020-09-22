@@ -9,6 +9,7 @@ import Foundation
 
 final class WrapperCoordinator<SourceBase: DataSource, Other>: ListCoordinator<SourceBase>
 where SourceBase.SourceBase == SourceBase, Other: DataSource {
+    typealias Subupdate = ListCoordinatorUpdate<Other.SourceBase>
     struct Wrapped {
         var value: Other
         var context: ListCoordinatorContext<Other.SourceBase>
@@ -36,14 +37,15 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
     
     func toWrapped(_ other: Other) -> Wrapped {
         let context = other.listCoordinator.context(with: other.listContextSetups)
-        context.update = { [weak self] (_, update) in
+        context.update = { [weak self] (_, subupdate) in
             guard let self = self else { return [] }
+            let subupdate = subupdate as! Subupdate
             let update = WrapperCoordinatorUpdate(
                 coordinator: self,
-                update: .init(update.isRemove ? .remove : nil, or: self.update),
+                update: ListUpdate(subupdate.isRemove ? .other(.remove) : .subupdate),
                 wrappeds: (self.wrapped, self.wrapped),
                 sources: (self.source, self.source),
-                subupdate: update,
+                subupdate: subupdate,
                 options: (self.options, self.options)
             )
             return self.contextAndUpdates(update: update)
@@ -54,7 +56,7 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
         return .init(value: other, context: context)
     }
     
-    func update(from: Wrapped?, to: Wrapped?, way: ListUpdateWay<Item>?) -> CoordinatorUpdate? {
+    func update(from: Wrapped?, to: Wrapped?, way: ListUpdateWay<Item>?) -> Subupdate? {
         switch (from, to) {
         case (nil, nil):
             return nil
@@ -98,10 +100,10 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
     }
     
     // Updates:
-    override func identifier(for sourceBase: SourceBase) -> AnyHashable {
+    override func identifier(for sourceBase: SourceBase) -> [AnyHashable] {
         let id = ObjectIdentifier(sourceBaseType)
-        guard let identifier = differ.identifier else { return HashCombiner(id, sourceType) }
-        return HashCombiner(id, sourceType, identifier(sourceBase))
+        guard let identifier = differ.identifier else { return [id, sourceType] }
+        return [id, sourceType, identifier(sourceBase)]
     }
     
     override func update(
@@ -111,7 +113,7 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
         let coordinator = coordinator as! WrapperCoordinator<SourceBase, Other>
         return WrapperCoordinatorUpdate(
             coordinator: self,
-            update: .init(updateWay, or: update),
+            update: ListUpdate(updateWay),
             wrappeds: (coordinator.wrapped, wrapped),
             sources: (coordinator.source, source),
             subupdate: update(from: coordinator.wrapped, to: wrapped, way: updateWay),
@@ -123,7 +125,7 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
         update: ListUpdate<SourceBase>,
         options: ListOptions? = nil
     ) -> ListCoordinatorUpdate<SourceBase> {
-        let subupdate: CoordinatorUpdate?, targetWrapped: Wrapped?, targetSource: SourceBase.Source!
+        let subupdate: Subupdate?, targetWrapped: Wrapped?, targetSource: SourceBase.Source!
         if case let .whole(whole) = update.updateType {
             if let source = update.source {
                 targetSource = source
@@ -133,7 +135,7 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
                 let way = ListUpdateWay(whole.way, cast: toItem)
                 targetSource = source
                 targetWrapped = wrapped
-                subupdate = wrapped?.coordinator.update(update: .init(way, or: .reload))
+                subupdate = wrapped?.coordinator.update(update: ListUpdate(way) ?? .reload)
             }
         } else {
             targetSource = source

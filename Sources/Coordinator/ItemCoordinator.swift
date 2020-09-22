@@ -22,7 +22,7 @@ where SourceBase.Item == SourceBase.Source, SourceBase.SourceBase == SourceBase 
         let coordinator = coordinator as! ItemCoordinator<SourceBase>
         return ItemCoordinatorUpdate(
             self,
-            update: .init(updateWay, or: update),
+            update: ListUpdate(updateWay),
             sources: (coordinator.source, source),
             options: (coordinator.options, options)
         )
@@ -32,11 +32,10 @@ where SourceBase.Item == SourceBase.Source, SourceBase.SourceBase == SourceBase 
         update: ListUpdate<SourceBase>,
         options: ListOptions? = nil
     ) -> ListCoordinatorUpdate<SourceBase> {
-        let sourcesAfterUpdate = update.source
         return ItemCoordinatorUpdate(
             self,
             update: update,
-            sources: (source, sourcesAfterUpdate ?? source),
+            sources: (source, update.source ?? source),
             options: (self.options, options ?? self.options)
         )
     }

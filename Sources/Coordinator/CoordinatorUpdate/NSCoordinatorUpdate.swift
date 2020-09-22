@@ -27,8 +27,8 @@ where SourceBase.SourceBase == SourceBase {
     }
     
     init(
-        _ coordinator: NSCoordinator<SourceBase>,
-        update: ListUpdate<SourceBase>,
+        coordinator: NSCoordinator<SourceBase>,
+        update: ListUpdate<SourceBase>?,
         sources: Sources,
         indices: Mapping<Indices>,
         options: Options
@@ -36,73 +36,77 @@ where SourceBase.SourceBase == SourceBase {
         self.coordinator = coordinator
         self.indices = indices
         super.init(coordinator, update: update, sources: sources, options: options)
+        if isBatchUpdate { target = sources.target }
     }
     
-    override func configCount() -> Mapping<Int> { (indices.source.count, indices.target.count) }
+    override func configSourceCount() -> Int { indices.source.count }
+    override func configTargetCount() -> Int { indices.target.count }
     
-    override func configMaxOrder() -> Cache<Order> {
-        .init(value: _item != nil && sourceType.isItems ? .second : .first)
+    override func configUpdateWay() -> UpdateWay? {
+        _item != nil || _section != nil ? .batch : super.configUpdateWay()
     }
     
-    override func updateData(_ isSource: Bool) {
-        super.updateData(isSource)
+    override func configMaxOrderForContext(_ ids: [AnyHashable]) -> Order {
+        _item != nil && sourceType.isItems ? .second : .first
+    }
+    
+    override func updateData(_ isSource: Bool, containsSubupdate: Bool) {
+        super.updateData(isSource, containsSubupdate: containsSubupdate)
         coordinator?.indices = indices.target
     }
     
     override func generateSourceUpdate(
         order: Order,
-        context: UpdateContext<Int>? = nil
+        context: UpdateContext<Int> = (nil, false, [])
     ) -> UpdateSource<BatchUpdates.ListSource> {
         switch order {
-        case .second: return (count.target, nil)
-        case .third: return (count.target, nil)
+        case .second: return (targetCount, nil)
+        case .third: return (targetCount, nil)
         default: break
         }
-        let section = _section?.toSource(offset: context?.offset)
-        let item = _item?.toSource(offset: (context?.offset).map { .init(section: $0) })
-        return (count.source, .init(item: item, section: section))
+        let section = _section?.toSource(offset: context.offset)
+        let item = _item?.toSource(offset: (context.offset).map { .init(section: $0) })
+        return (sourceCount, .init(item: item, section: section))
     }
     
     override func generateTargetUpdate(
         order: Order,
-        context: UpdateContext<Offset<Int>>? = nil
+        context: UpdateContext<Offset<Int>> = (nil, false, [])
     ) -> UpdateTarget<BatchUpdates.ListTarget> {
         switch order {
-        case .second: return (toIndices(count.target, context), nil, nil)
-        case .third: return (toIndices(count.target, context), nil, nil)
+        case .second: return (toIndices(targetCount, context), nil, nil)
+        case .third: return (toIndices(targetCount, context), nil, nil)
         default: break
         }
-        let offset: Mapping<IndexPath>? = (context?.offset.offset).map {
+        let offset: Mapping<IndexPath>? = (context.offset?.offset).map {
             (IndexPath(section: $0.source), IndexPath(section: $0.target))
         }
-        let section = _section?.toTarget(offset: context?.offset.offset)
+        let section = _section?.toTarget(offset: context.offset?.offset)
         let item = _item?.toTarget(offset: offset)
-        return (toIndices(count.target, context), .init(item: item, section: section), finalChange)
+        return (toIndices(targetCount, context), .init(item: item, section: section), finalChange())
     }
     
     override func generateSourceItemUpdate(
         order: Order,
-        context: UpdateContext<IndexPath>? = nil
+        context: UpdateContext<IndexPath> = (nil, false, [])
     ) -> UpdateSource<BatchUpdates.ItemSource> {
-        if isMoreUpdate { return super.generateSourceItemUpdate(order: order, context: context) }
         switch order {
-        case .first: return (count.source, nil)
-        case .second: return (count.source, _item?.toSource(offset: context?.offset))
-        case .third: return (count.target, nil)
+        case .first: return (sourceCount, nil)
+        case .second: return (sourceCount, _item?.toSource(offset: context.offset))
+        case .third: return (targetCount, nil)
         }
     }
     
     override func generateTargetItemUpdate(
         order: Order,
-        context: UpdateContext<Offset<IndexPath>>? = nil
+        context: UpdateContext<Offset<IndexPath>> = (nil, false, [])
     ) -> UpdateTarget<BatchUpdates.ItemTarget> {
-        if isMoreUpdate { return super.generateTargetItemUpdate(order: order, context: context) }
         switch order {
-        case .first: return (toIndices(count.source, context), nil, nil)
-        case .third: return (toIndices(count.target, context), nil, nil)
+        case .first: return (toIndices(sourceCount, context), nil, nil)
+        case .third: return (toIndices(targetCount, context), nil, nil)
         default: break
         }
-        let update = _item?.toTarget(offset: context?.offset.offset)
-        return (toIndices(count.target, context), update, finalChange)
+        let update = _item?.toTarget(offset: context.offset?.offset)
+        return (toIndices(targetCount, context), update, finalChange())
     }
 }

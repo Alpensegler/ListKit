@@ -14,28 +14,28 @@ where
     SourceBase.Source.Element: Collection,
     SourceBase.Source.Element.Element == SourceBase.Item
 {
+    typealias Section = Sources<SourceBase.Source.Element, SourceBase.Item>
+    
     lazy var sections = toSections(source)
-    lazy var indices = toIndices(sections)
+    lazy var indices = Self.toIndices(sections, options)
     
     var updateType: SectionsCoordinatorUpdate<SourceBase>.Type {
         SectionsCoordinatorUpdate<SourceBase>.self
     }
     
-    func toSections(_ source: SourceBase.Source) -> ContiguousArray<ContiguousArray<Item>> {
-        source.mapContiguous { $0.mapContiguous { $0 } }
-    }
-    
-    func toIndices(_ sections: ContiguousArray<ContiguousArray<Item>>) -> Indices {
-        if !options.removeEmptySection { return sections.indices.mapContiguous { ($0, false) } }
-        var indices = Indices(capacity: sections.count)
-        for (i, section) in sections.enumerated() where !section.isEmpty {
-            indices.append((i, false))
+    func toSections(_ source: SourceBase.Source) -> ContiguousArray<Section> {
+        source.mapContiguous {
+            .init(
+                items: $0,
+                update: .init(way: update.way),
+                options: options.union(.preferSection)
+            )
         }
-        return indices
     }
     
     override func item(at indexPath: IndexPath) -> Item {
-        sections[indices[indexPath.section].index][indexPath.item]
+        let section = sections[indices[indexPath.section].index]
+        return section.listCoordinator.item(at: .init(item: indexPath.item))
     }
     
     override func numbersOfSections() -> Int { indices.count }
@@ -54,7 +54,7 @@ where
         let coordinator = coordinator as! SectionsCoordinator<SourceBase>
         return updateType.init(
             coordinator: self,
-            update: ListUpdate(updateWay, or: update),
+            update: ListUpdate(updateWay),
             values: (coordinator.sections, sections),
             sources: (coordinator.source, source),
             indices: (coordinator.indices, indices),
@@ -66,15 +66,14 @@ where
         update: ListUpdate<SourceBase>,
         options: ListOptions? = nil
     ) -> ListCoordinatorUpdate<SourceBase> {
-        let sourcesAfterUpdate = update.source
-        let sectionsAfterUpdate = sourcesAfterUpdate.map(toSections)
-        let indicesAfterUpdate =  sectionsAfterUpdate.map(toIndices)
+        let sectionsAfter = update.source.map(toSections)
+        let indicesAfter = sectionsAfter.map { Self.toIndices($0, options ?? self.options) }
         return updateType.init(
             coordinator: self,
             update: update,
-            values: (sections, sectionsAfterUpdate ?? sections),
-            sources: (source, sourcesAfterUpdate ?? source),
-            indices: (indices, indicesAfterUpdate ?? indices),
+            values: (sections, sectionsAfter ?? sections),
+            sources: (source, update.source ?? source),
+            indices: (indices, indicesAfter ?? indices),
             options: (self.options, options ?? self.options)
         )
     }
@@ -91,5 +90,26 @@ where
 {
     override var updateType: SectionsCoordinatorUpdate<SourceBase>.Type {
         RangeReplacableSectionsCoordinatorUpdate<SourceBase>.self
+    }
+    
+    override func toSections(_ source: SourceBase.Source) -> ContiguousArray<Section> {
+        source.mapContiguous {
+            .init(
+                items: $0,
+                update: .init(way: update.way),
+                options: options.union(.preferSection)
+            )
+        }
+    }
+}
+
+extension SectionsCoordinator {
+    static func toIndices(_ sections: ContiguousArray<Section>, _ options: ListOptions) -> Indices {
+        if !options.removeEmptySection { return sections.indices.mapContiguous { ($0, false) } }
+        var indices = Indices(capacity: sections.count)
+        for (i, section) in sections.enumerated() where !section.isEmpty {
+            indices.append((i, false))
+        }
+        return indices
     }
 }

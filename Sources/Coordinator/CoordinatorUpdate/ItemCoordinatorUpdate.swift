@@ -12,10 +12,14 @@ where SourceBase.Item == SourceBase.Source, SourceBase.SourceBase == SourceBase 
     lazy var changes = configChanges()
     lazy var extraChange = Cache(value: (nil, nil) as Mapping<Change<Item>?>)
     
-    override var moveAndReloadable: Bool { !notMoveAndReloadable }
+    override var moveAndReloadable: Bool { !noneDiffUpdate }
     
     override func configSourceCount() -> Int { 1 }
     override func configTargetCount() -> Int { 1 }
+    
+    override func customUpdateWay() -> UpdateWay? {
+        diffable && (changes.source != nil || changes.target != nil) ? .batch : nil
+    }
     
     func toChange(_ value: Item, _ index: Int) -> Change<Item> {
         let change = Change(value: value, index: index, moveAndReloadable: true)

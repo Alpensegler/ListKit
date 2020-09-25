@@ -24,7 +24,7 @@ where
     override var diffable: Bool { true }
     override var equatable: Bool { true }
     override var identifiable: Bool { true }
-    override var moveAndReloadable: Bool { !notMoveAndReloadable }
+    override var moveAndReloadable: Bool { !noneDiffUpdate }
     
     init(
         coordinator: SourcesCoordinator<SourceBase, Source>,

@@ -152,6 +152,6 @@ where
     SourceBase.Source: RangeReplaceableCollection,
     SourceBase.Item == SourceBase.Source.Element
 {
-    override var moveAndReloadable: Bool { !notMoveAndReloadable }
+    override var moveAndReloadable: Bool { !noneDiffUpdate }
     override func toSource(_ items: ContiguousArray<Item>) -> SourceBase.Source? { .init(items) }
 }

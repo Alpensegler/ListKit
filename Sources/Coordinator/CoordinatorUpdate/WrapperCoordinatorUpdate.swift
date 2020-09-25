@@ -36,7 +36,9 @@ where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSo
     }
     
     override func configMaxOrderForContext(_ ids: [AnyHashable]) -> Order? {
-        isSectionItems ? super.configMaxOrderForContext(ids) : subupdate?.maxOrder(ids)
+        isSectionItems && targetHasSection != sourceHasSection
+            ? super.configMaxOrderForContext(ids)
+            : subupdate?.maxOrder(ids)
     }
     
     override func configSourceCount() -> Int { subupdate?.sourceCount ?? 0 }

@@ -89,6 +89,9 @@ where
             }
         }
         
+        if isRemove { return (convert(values: sourceValues), .init()) }
+        if isInsert { return (.init(), convert(values: targetValues)) }
+        
         switch changeType {
         case .none, .other(.reload): return (.init(), .init())
         case .other(.remove): return (convert(values: sourceValues), .init())
@@ -254,10 +257,8 @@ extension CollectionCoordinatorUpdate {
             body(isSource, change)
         }
         
-        if !isBatchUpdate, targetValues.count <= index.target { return }
-        
         let remaining = sourceValues.count - index.source
-        guard remaining > 0 else { return }
+        guard remaining > 0, targetValues.count > index.target else { return }
         offset(index, (index.source + remaining, index.target + remaining))
     }
     

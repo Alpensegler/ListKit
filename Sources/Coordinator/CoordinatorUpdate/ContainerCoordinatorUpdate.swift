@@ -97,7 +97,7 @@ where
     }
     
     override func configMaxOrderForContext(_ ids: [AnyHashable]) -> Order? {
-        var order = super.configMaxOrderForContext(ids)
+        var order: Order?
         enumerateDifferences(ids: ids) { (update, ids) in
             let suborder = update.maxOrder(ids)
             if suborder > order { order = suborder }

@@ -35,7 +35,7 @@ where SourceBase.SourceBase == SourceBase {
         return true
     }
     
-    var notMoveAndReloadable: Bool {
+    var noneDiffUpdate: Bool {
         if isBatchUpdate { return false }
         switch changeType {
         case .other(.remove), .other(.insert): return false
@@ -109,7 +109,7 @@ where SourceBase.SourceBase == SourceBase {
         }
     }
     
-    func customUpdateWay() -> UpdateWay? { diffable || isBatchUpdate ? .batch : .other(.reload) }
+    func customUpdateWay() -> UpdateWay? { notImplemented() }
     func configUpdateWay() -> UpdateWay? {
         switch (updateWay, sourceCount == 0, targetCount == 0) {
         case (.other(.reload), _, _): return .other(.reload)

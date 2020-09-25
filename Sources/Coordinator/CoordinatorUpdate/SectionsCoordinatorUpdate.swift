@@ -88,7 +88,9 @@ where
     }
     
     override func customUpdateWay() -> UpdateWay? {
-        isBatchUpdate || differ != nil ? .batch : .other(.reload)
+        if isBatchUpdate { return .batch }
+        guard differ?.isNone == false else { return .other(.reload) }
+        return .batch
     }
     
     override func generateSourceUpdate(
@@ -115,7 +117,7 @@ where
     SourceBase.Source.Element: RangeReplaceableCollection,
     SourceBase.Source.Element.Element == SourceBase.Item
 {
-    override var moveAndReloadable: Bool { !notMoveAndReloadable }
+    override var moveAndReloadable: Bool { !noneDiffUpdate }
     
     override var updateType: ItemsCoordinatorUpdate<Value>.Type {
         RangeReplacableItemsCoordinatorUpdate<Value>.self

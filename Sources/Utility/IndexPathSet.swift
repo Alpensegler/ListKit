@@ -23,8 +23,11 @@ struct IndexPathSet {
     }
     
     mutating func remove(_ indexPath: IndexPath) {
-        sections.remove(indexPath.section)
         self[indexPath.section].remove(indexPath.item)
+        if self[indexPath.section].isEmpty {
+            sections.remove(indexPath.section)
+            items[indexPath.section] = nil
+        }
     }
     
     subscript(key: Int) -> IndexSet {

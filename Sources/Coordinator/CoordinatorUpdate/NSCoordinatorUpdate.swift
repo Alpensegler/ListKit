@@ -55,6 +55,11 @@ where SourceBase.SourceBase == SourceBase {
         coordinator?.indices = indices.target
     }
     
+    override func customUpdateWay() -> UpdateWay? {
+        if isBatchUpdate { return .batch }
+        return .other(.reload)
+    }
+    
     override func generateSourceUpdate(
         order: Order,
         context: UpdateContext<Int> = (nil, false, [])

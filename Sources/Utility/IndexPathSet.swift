@@ -37,8 +37,7 @@ struct IndexPathSet {
     
     func elements(_ offset: IndexPath? = nil) -> [IndexPath] {
         sections.flatMap { section -> [IndexPath] in
-            guard let indexSet = items[section] else { return [] }
-            return indexSet.map { IndexPath(offset, section: section, item: $0) }
+            items[section]!.map { IndexPath(offset, section: section, item: $0) }
         }
     }
 }

@@ -42,7 +42,8 @@ struct ChangeSets<Set: ChangeSet> {
     var changes: Mapping<Set> = (.init(), .init())
     var reload = Set()
     var move = Set()
-    var dict = [Index: Index]()
+    var reloadDict = [Index: Index]()
+    var moveDict = [Index: Index]()
     
     func toSource(offset: Index?) -> BatchUpdates.Source<Indices> {
         .init(
@@ -54,17 +55,16 @@ struct ChangeSets<Set: ChangeSet> {
     }
     
     func toTarget(offset: Mapping<Index>?) -> BatchUpdates.Target<Indices> {
-        let moves: [Mapping<Index>] = move.elements(nil).compactMap {
-            guard let index = dict[$0] else { return nil }
-            let source = offset?.source.offseted(index, plus: true) ?? index
-            let target = offset?.target.offseted($0, plus: true) ?? $0
-            return (source, target)
-        }
-        return .init(
+        .init(
             all: all.target.elements(offset?.target),
             inserts: changes.target.elements(offset?.target),
-            moves: moves,
-            moveDict: dict,
+            moves: move.elements(nil).map {
+                guard let index = moveDict[$0] else { fatalError() }
+                let source = offset?.source.offseted(index, plus: true) ?? index
+                let target = offset?.target.offseted($0, plus: true) ?? $0
+                return (source, target)
+            },
+            moveDict: moveDict,
             isEmpty: all.target.isEmpty
         )
     }
@@ -93,21 +93,21 @@ extension ChangeSets {
     
     mutating func reload(_ index: Index, newIndex: Index) {
         reload.add(index)
-        dict[newIndex] = index
+        reloadDict[index] = newIndex
         all.source.add(index)
         all.target.add(newIndex)
     }
     
     mutating func reload(_ indices: Indices, newIndices: Indices) {
         reload.add(indices)
-        zip(indices, newIndices).forEach { dict[$0.1] = $0.0 }
+        zip(indices, newIndices).forEach { reloadDict[$0.0] = $0.1 }
         all.source.add(indices)
         all.target.add(newIndices)
     }
     
     mutating func move(_ index: Index, to newIndex: Index) {
         move.add(newIndex)
-        dict[newIndex] = index
+        moveDict[newIndex] = index
         all.source.add(index)
         all.target.add(newIndex)
     }

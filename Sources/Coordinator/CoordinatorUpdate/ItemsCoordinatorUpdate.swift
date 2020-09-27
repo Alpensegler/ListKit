@@ -67,12 +67,19 @@ where
     }
     
     override func inferringMoves(context: Context? = nil, ids: [AnyHashable] = []) {
+        guard identifiable else { return }
         _ = uniqueDict
-        guard let context = context, identifiable else { return }
+        guard let context = context else { return }
         let (source, target) = uniqueMapping
         source.forEach { add($0, id: identifier(for: $0.value), ids: ids, to: &context.dicts.source) }
         target.forEach { add($0, id: identifier(for: $0.value), ids: ids, to: &context.dicts.target) }
         apply(uniqueMapping, dict: &context.dicts) { $0 as? Change }
+    }
+    
+    override func customUpdateWay() -> UpdateWay? {
+        if isBatchUpdate { return .batch }
+        guard diffable else { return .other(.reload) }
+        return diffs.isEmpty ? nil : .batch
     }
     
     override func generateSourceItemUpdate(

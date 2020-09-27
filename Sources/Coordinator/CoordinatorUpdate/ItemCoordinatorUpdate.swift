@@ -45,14 +45,13 @@ where SourceBase.Item == SourceBase.Source, SourceBase.SourceBase == SourceBase 
               let context = context,
               let source = source,
               let target = target,
-              let sourceChange = changes.source,
-              let targetChange = changes.target
+              changes.source != nil || changes.target != nil
         else { return }
         let key: Mapping = (id(source), id(target))
-        add(sourceChange, id: key.source, ids: ids, to: &context.dicts.source)
-        add(targetChange, id: key.target, ids: ids, to: &context.dicts.target)
-        config(for: sourceChange, key.source, &context.dicts, differ.areEquivalent)
-        config(for: targetChange, key.target, &context.dicts, differ.areEquivalent)
+        changes.source.map { add($0, id: key.source, ids: ids, to: &context.dicts.source) }
+        changes.target.map { add($0, id: key.target, ids: ids, to: &context.dicts.target) }
+        changes.source.map { config(for: $0, key.source, &context.dicts, differ.areEquivalent) }
+        changes.target.map { config(for: $0, key.target, &context.dicts, differ.areEquivalent) }
     }
     
     override func generateSourceItemUpdate(

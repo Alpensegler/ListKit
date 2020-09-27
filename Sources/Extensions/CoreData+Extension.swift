@@ -201,10 +201,7 @@ public extension ListFetchedResultsController {
                 insert: items.changes.target.elements(),
                 remove: items.changes.source.elements(),
                 reload: items.reload.elements(),
-                moves: items.move.elements().compactMap {
-                    guard let index = items.dict[$0] else { return nil }
-                    return (index, $0)
-                },
+                moves: items.move.elements().map { (items.moveDict[$0]!, $0) },
                 allSourceChange: items.all.source.elements(),
                 allTargetChange: items.all.target.elements()
             )
@@ -228,7 +225,7 @@ extension ListFetchedResultsController {
     func prepareUpdate(section: inout ChangeSets<IndexSet>, item: inout ChangeSets<IndexPathSet>) {
         prepareUpdate(sets: &section)
         item.move.elements().forEach {
-            guard let indexPath = item.dict[$0] else { return }
+            guard let indexPath = item.moveDict[$0] else { fatalError() }
             let sourceShouldIgnore = section.all.source.contains(indexPath.section)
             let targetShouldIgnore = section.all.target.contains($0.section)
             switch (sourceShouldIgnore, targetShouldIgnore) {
@@ -242,17 +239,17 @@ extension ListFetchedResultsController {
                 prepare(move: &item, from: indexPath, to: $0)
                 return
             }
-            item.dict[$0] = nil
+            item.moveDict[$0] = nil
         }
         item.reload.elements().forEach {
-            guard let indexPath = item.dict[$0] else { return }
-            if section.all.target.contains($0.section) {
+            guard let newIndexPath = item.reloadDict[$0] else { fatalError() }
+            if section.all.source.contains($0.section) {
                 item.reload.remove($0)
-                item.all.source.remove(indexPath)
-                item.all.target.remove($0)
-                item.dict[$0] = nil
+                item.all.source.remove($0)
+                item.all.target.remove(newIndexPath)
+                item.reloadDict[$0] = nil
             } else {
-                prepare(reload: &item, from: indexPath, to: $0)
+                prepare(reload: &item, from: newIndexPath, to: $0)
             }
         }
         item.changes.source.elements().forEach {
@@ -281,7 +278,7 @@ extension ListFetchedResultsController {
                 section.reload.remove($0)
                 section.changes.source.insert($0)
                 section.changes.target.insert($0)
-                section.dict[$0] = nil
+                section.reloadDict[$0] = nil
             }
         }
         if let remove = removeSection {
@@ -294,10 +291,12 @@ extension ListFetchedResultsController {
     
     func prepareUpdate(sets: inout ChangeSets<IndexPathSet>) {
         if shouldMoveItem != nil {
-            sets.move.elements().forEach { prepare(move: &sets, from: sets.dict[$0], to: $0) }
+            sets.move.elements().forEach { prepare(move: &sets, from: sets.moveDict[$0], to: $0) }
         }
         if shouldReloadItem != nil {
-            sets.reload.elements().forEach { prepare(reload: &sets, from: sets.dict[$0], to: $0) }
+            sets.reload.elements().forEach {
+                prepare(reload: &sets, from: $0, to: sets.reloadDict[$0])
+            }
         }
         if let remove = removeItem {
             sets.changes.source.elements().forEach { remove(self, $0) }
@@ -307,20 +306,20 @@ extension ListFetchedResultsController {
         }
     }
     
-    func prepare(move sets: inout ChangeSets<IndexPathSet>, from: IndexPath?, to: IndexPath) {
-        guard let from = from, shouldMoveItem?(self, item(at: to), from, to) == false else { return }
+    func prepare(move sets: inout ChangeSets<IndexPathSet>, from: IndexPath!, to: IndexPath) {
+        guard shouldMoveItem?(self, item(at: to), from, to) == false else { return }
         sets.move.remove(to)
         sets.changes.source.add(from)
         sets.changes.target.add(to)
-        sets.dict[to] = nil
+        sets.moveDict[to] = nil
     }
     
-    func prepare(reload sets: inout ChangeSets<IndexPathSet>, from: IndexPath?, to: IndexPath) {
-        guard let from = from, shouldReloadItem?(self, item(at: to), from, to) == false else { return }
+    func prepare(reload sets: inout ChangeSets<IndexPathSet>, from: IndexPath, to: IndexPath!) {
+        guard shouldReloadItem?(self, item(at: to), from, to) == false else { return }
         sets.reload.remove(from)
         sets.all.source.remove(from)
         sets.all.target.remove(to)
-        sets.dict[to] = nil
+        sets.reloadDict[from] = nil
     }
 }
 

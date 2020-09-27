@@ -97,14 +97,14 @@ where
         order: Order,
         context: UpdateContext<Int> = (nil, false, [])
     ) -> UpdateSource<BatchUpdates.ListSource> {
-        sourceUpdate(order, in: context, \.section, Subupdate.generateSourceUpdateForContianer)
+        sourceUpdate(order, in: context, \.section, Subupdate.generateContianerSourceUpdate)
     }
     
     override func generateTargetUpdate(
         order: Order,
         context: UpdateContext<Offset<Int>> = (nil, false, [])
     ) -> UpdateTarget<BatchUpdates.ListTarget> {
-        targetUpdate(order, in: context, \.section, Subupdate.generateTargetUpdateForContianer)
+        targetUpdate(order, in: context, \.section, Subupdate.generateContianerTargetUpdate)
     }
 }
 

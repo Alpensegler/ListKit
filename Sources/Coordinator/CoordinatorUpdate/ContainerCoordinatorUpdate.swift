@@ -97,6 +97,7 @@ where
     }
     
     override func configMaxOrderForContext(_ ids: [AnyHashable]) -> Order? {
+        guard changeType == .batch else { return super.configMaxOrderForContext(ids) }
         var order: Order?
         enumerateDifferences(ids: ids) { (update, ids) in
             let suborder = update.maxOrder(ids)
@@ -113,14 +114,16 @@ where
         order: Order,
         context: UpdateContext<Int> = (nil, false, [])
     ) -> UpdateSource<BatchUpdates.ListSource> {
-        sourceUpdate(order, in: context, \.section, Subupdate.generateSourceUpdateForContianer)
+        if sourceType.isItems { return super.generateSourceUpdate(order: order, context: context) }
+        return sourceUpdate(order, in: context, \.section, Subupdate.generateContianerSourceUpdate)
     }
     
     override func generateTargetUpdate(
         order: Order,
         context: UpdateContext<Offset<Int>> = (nil, false, [])
     ) -> UpdateTarget<BatchUpdates.ListTarget> {
-        targetUpdate(order, in: context, \.section, Subupdate.generateTargetUpdateForContianer)
+        if sourceType.isItems { return super.generateTargetUpdate(order: order, context: context) }
+        return targetUpdate(order, in: context, \.section, Subupdate.generateContianerTargetUpdate)
     }
     
     override func generateSourceItemUpdate(

@@ -30,15 +30,20 @@ where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSo
         if isBatchUpdate { self.target = source }
     }
     
-    
     override func inferringMoves(context: Context? = nil, ids: [AnyHashable] = []) {
         subupdate?.inferringMoves(context: context, ids: ids)
     }
     
     override func configMaxOrderForContext(_ ids: [AnyHashable]) -> Order? {
-        isSectionItems && targetHasSection != sourceHasSection
-            ? super.configMaxOrderForContext(ids)
-            : subupdate?.maxOrder(ids)
+        guard isSectionItems && targetHasSection != sourceHasSection else {
+            return subupdate?.maxOrder(ids)
+        }
+        
+        switch (targetHasSection && !sourceHasSection, subupdate?.moveType(ids)) {
+        case (_, .none): return .first
+        case (true, .some): return .second
+        case (false, .some): return .third
+        }
     }
     
     override func configSourceCount() -> Int { subupdate?.sourceCount ?? 0 }
@@ -66,7 +71,7 @@ where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSo
         guard let subupdate = subupdate else { return ([], nil, nil) }
         var update = subupdate.generateTargetUpdate(order: order, context: context)
         if subupdate.hasNext(order, context) {
-            update.change = update.change + { [weak self] in self?.coordinator.resetDelegates() }
+            update.change = update.change + firstChange()
         } else {
             update.change = update.change + finalChange()
         }
@@ -88,7 +93,7 @@ where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSo
         guard let subupdate = subupdate else { return ([], nil, nil) }
         var update = subupdate.generateTargetItemUpdate(order: order, context: context)
         if subupdate.hasNext(order, context) {
-            update.change = update.change + { [weak self] in self?.coordinator.resetDelegates() }
+            update.change = update.change + firstChange()
         } else {
             update.change = update.change + finalChange()
         }
@@ -99,6 +104,6 @@ where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSo
         if containsSubupdate { subupdate?.updateData(isSource, containsSubupdate: true) }
         super.updateData(isSource, containsSubupdate: containsSubupdate)
         coordinator.wrapped = wrappeds.target
-        if !isSource { coordinator.resetDelegates() }
+        coordinator.resetDelegates()
     }
 }

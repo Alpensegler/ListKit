@@ -105,12 +105,6 @@ where
     }
     
     override func configTarget() -> SourceBase.Source? { toSource(targetValues) }
-    
-    override func customUpdateWay() -> UpdateWay? {
-        if isBatchUpdate { return .batch }
-        guard diffable else { return .other(.reload) }
-        return diffs.isEmpty ? nil : .batch
-    }
 }
 
 extension CollectionCoordinatorUpdate {

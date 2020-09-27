@@ -168,14 +168,14 @@ where SourceBase.SourceBase == SourceBase {
         order: Order,
         context: UpdateContext<IndexPath> = (nil, false, [])
     ) -> UpdateSource<BatchUpdates.ItemSource> {
-        (0, nil)
+        notImplemented()
     }
     
     func generateTargetItemUpdate(
         order: Order,
         context: UpdateContext<Offset<IndexPath>> = (nil, false, [])
     ) -> UpdateTarget<BatchUpdates.ItemTarget> {
-        ([], nil, nil)
+        notImplemented()
     }
     
     override func generateListUpdates() -> BatchUpdates? {
@@ -189,7 +189,7 @@ where SourceBase.SourceBase == SourceBase {
 }
 
 extension ListCoordinatorUpdate {
-    func generateSourceUpdateForContianer(
+    func generateContianerSourceUpdate(
         order: Order,
         context: UpdateContext<Int> = (nil, false, [])
     ) -> UpdateSource<BatchUpdates.ListSource> {
@@ -223,7 +223,7 @@ extension ListCoordinatorUpdate {
         return (sourceCountForContainer, update)
     }
     
-    func generateTargetUpdateForContianer(
+    func generateContianerTargetUpdate(
         order: Order,
         context: UpdateContext<Offset<Int>> = (nil, false, [])
     ) -> UpdateTarget<BatchUpdates.ListTarget> {
@@ -469,13 +469,8 @@ extension ListCoordinatorUpdate {
         }()
     }
     
-    func moveType<O>(_ context: UpdateContext<O>) -> MoveType? {
-        moveType(context.ids)
-    }
-    
-    func moveType(_ ids: [AnyHashable]) -> MoveType? {
-        moveType.value ?? moveType[ids]
-    }
+    func moveType<O>(_ context: UpdateContext<O>) -> MoveType? { moveType(context.ids) }
+    func moveType(_ ids: [AnyHashable]) -> MoveType? { moveType.value ?? moveType[ids] }
 }
 
 extension ListCoordinatorUpdate {

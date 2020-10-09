@@ -52,21 +52,13 @@ where Item: NSFetchRequestResult {
     public var didUpdate: ((SourceBase) -> Void)?
     public var updateCompletion: ((ListView, Bool) -> Void)?
     
-    public var insertSection: ((SourceBase, NSFetchedResultsSectionInfo, Int) -> Void)?
-    public var removeSection: ((SourceBase, Int) -> Void)?
     public var shouldReloadSection: ((SourceBase, NSFetchedResultsSectionInfo, Int) -> Bool)?
-    
-    public var insertItem: ((SourceBase, Item, IndexPath) -> Void)?
-    public var removeItem: ((SourceBase, IndexPath) -> Void)?
     public var shouldReloadItem: ((SourceBase, Item, IndexPath, IndexPath) -> Bool)?
     public var shouldMoveItem: ((SourceBase, Item, IndexPath, IndexPath) -> Bool)?
     
     var update: ListUpdate<SourceBase>!
     var _section: ChangeSets<IndexSet>?
     var _item: ChangeSets<IndexPathSet>?
-    
-    var _sectionUpdates: SectionUpdates??
-    var _itemUpdates: ItemUpdates??
     
     var section: ChangeSets<IndexSet> {
         get { _section ?? .init() }
@@ -120,7 +112,6 @@ where Item: NSFetchRequestResult {
         _ controller: NSFetchedResultsController<NSFetchRequestResult>
     ) {
         (_section, _item) = (nil, nil)
-        (_sectionUpdates, _itemUpdates) = (nil, nil)
         willChangeContent?()
     }
     
@@ -196,7 +187,7 @@ extension ListFetchedResultsController: NSDataSource {
 
 public extension ListFetchedResultsController {
     var itemUpdates: ItemUpdates? {
-        _itemUpdates.or(_item.map { items in
+        _item.map { items in
             .init(
                 insert: items.changes.target.elements(),
                 remove: items.changes.source.elements(),
@@ -205,11 +196,11 @@ public extension ListFetchedResultsController {
                 allSourceChange: items.all.source.elements(),
                 allTargetChange: items.all.target.elements()
             )
-        })
+        }
     }
     
     var sectionUpdates: SectionUpdates? {
-        _sectionUpdates.or(_section.map {
+        _section.map {
             .init(
                 insert: $0.changes.target,
                 remove: $0.changes.source,
@@ -217,7 +208,7 @@ public extension ListFetchedResultsController {
                 allSourceChange: $0.all.source,
                 allTargetChange: $0.all.target
             )
-        })
+        }
     }
 }
 
@@ -230,41 +221,38 @@ extension ListFetchedResultsController {
             let targetShouldIgnore = section.all.target.contains($0.section)
             switch (sourceShouldIgnore, targetShouldIgnore) {
             case (true, true):
-                break
+                item.all.source.remove(indexPath)
+                item.all.target.remove($0)
             case (true, false):
+                item.all.source.remove(indexPath)
                 item.changes.target.add($0)
             case (false, true):
                 item.changes.source.add(indexPath)
+                item.all.target.remove($0)
             case (false, false):
-                prepare(move: &item, from: indexPath, to: $0)
-                return
+                return prepare(move: &item, from: indexPath, to: $0)
             }
+            item.move.remove($0)
             item.moveDict[$0] = nil
         }
         item.reload.elements().forEach {
             guard let newIndexPath = item.reloadDict[$0] else { fatalError() }
             if section.all.source.contains($0.section) {
-                item.reload.remove($0)
                 item.all.source.remove($0)
                 item.all.target.remove(newIndexPath)
+                item.reload.remove($0)
                 item.reloadDict[$0] = nil
             } else {
                 prepare(reload: &item, from: newIndexPath, to: $0)
             }
         }
         item.changes.source.elements().forEach {
-            guard section.all.source.contains($0.section) else {
-                removeItem?(self, $0)
-                return
-            }
+            guard section.all.source.contains($0.section) else { return }
             item.changes.source.remove($0)
             item.all.source.remove($0)
         }
         item.changes.target.elements().forEach {
-            guard section.all.target.contains($0.section) else {
-                insertItem?(self, self.item(at: $0), $0)
-                return
-            }
+            guard section.all.target.contains($0.section) else { return }
             item.changes.target.remove($0)
             item.all.target.remove($0)
         }
@@ -272,20 +260,13 @@ extension ListFetchedResultsController {
     }
     
     func prepareUpdate(sets: inout ChangeSets<IndexSet>) {
-        if let shuoldReload = shouldReloadSection {
-            sets.reload.forEach {
-                if shuoldReload(self, fetchedResultController.sections![$0], $0) { return }
-                section.reload.remove($0)
-                section.changes.source.insert($0)
-                section.changes.target.insert($0)
-                section.reloadDict[$0] = nil
-            }
-        }
-        if let remove = removeSection {
-            sets.changes.source.forEach { remove(self, $0) }
-        }
-        if let insert = insertSection {
-            sets.changes.target.forEach { insert(self, fetchedResultController.sections![$0], $0) }
+        guard let shuoldReload = shouldReloadSection else { return }
+        sets.reload.forEach {
+            if shuoldReload(self, fetchedResultController.sections![$0], $0) { return }
+            section.reload.remove($0)
+            section.changes.source.insert($0)
+            section.changes.target.insert($0)
+            section.reloadDict[$0] = nil
         }
     }
     
@@ -297,12 +278,6 @@ extension ListFetchedResultsController {
             sets.reload.elements().forEach {
                 prepare(reload: &sets, from: $0, to: sets.reloadDict[$0])
             }
-        }
-        if let remove = removeItem {
-            sets.changes.source.elements().forEach { remove(self, $0) }
-        }
-        if let insert = insertItem {
-            sets.changes.target.elements().forEach { insert(self, item(at: $0), $0) }
         }
     }
     

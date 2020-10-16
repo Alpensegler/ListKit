@@ -62,6 +62,8 @@ extension Sources: CustomStringConvertible, CustomDebugStringConvertible {
     public var debugDescription: String { "Sources(\(source))" }
 }
 
+extension Sources: ScrollListAdapter { }
+
 public typealias ItemSources<Item> = Sources<Item, Item>
 public typealias ItemsSources<Item> = Sources<[Item], Item>
 public typealias SectionsSources<Item> = Sources<[[Item]], Item>

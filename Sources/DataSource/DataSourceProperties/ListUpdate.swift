@@ -18,6 +18,11 @@ enum ListUpdateWay<Item> {
     case other(UpdateWay)
     case subupdate
     
+    var other: UpdateWay? {
+        guard case let .other(way) = self else { return nil }
+        return way
+    }
+    
     var differ: ListDiffer<Item>? {
         guard case let .diff(differ) = self else { return nil }
         return differ

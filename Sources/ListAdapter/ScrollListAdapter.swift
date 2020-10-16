@@ -22,7 +22,7 @@ where Source.SourceBase == Source {
     public typealias SourceBase = Source
     
     let storage: ListAdapterStorage<Source>
-    let erasedGetter: (Self) -> ScrollList<AnySources>
+    let erasedGetter: (Self, ListOptions) -> ScrollList<AnySources>
     
     public var sourceBase: Source { source }
     public var source: Source {
@@ -63,7 +63,7 @@ where Source.SourceBase == Source {
     init(
         listContextSetups: [(ListCoordinatorContext<SourceBase>) -> Void] = [],
         source: Source,
-        erasedGetter: @escaping (Self) -> ScrollList<AnySources> = Self.defaultErasedGetter
+        erasedGetter: @escaping (Self, ListOptions) -> ScrollList<AnySources> = Self.defaultErasedGetter
     ) {
         self.listContextSetups = listContextSetups
         self.erasedGetter = erasedGetter
@@ -73,9 +73,7 @@ where Source.SourceBase == Source {
 }
 
 extension ScrollList: ListAdapter {
-    static var defaultErasedGetter: (Self) -> ScrollList<AnySources> {
-        { .init(AnySources($0)) { $0 } }
-    }
+    typealias Erased = ScrollList<AnySources>
 }
 
 #if os(iOS) || os(tvOS)

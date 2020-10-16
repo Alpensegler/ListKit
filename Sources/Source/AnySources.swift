@@ -17,10 +17,10 @@ public struct AnySources: DataSource {
     
     public var listCoordinator: ListCoordinator<Self> { coordinatorMaker(self) }
     
-    public init<Source: DataSource>(_ dataSource: Source) {
+    public init<Source: DataSource>(_ dataSource: Source, options: ListOptions = .init()) {
         source = dataSource
         listDiffer = .init(dataSource.listDiffer) { (($0.source) as! Source).sourceBase }
-        listOptions = dataSource.listOptions
+        listOptions = dataSource.listOptions.union(options)
         listUpdate = .init(way: .subupdate)
         coordinatorMaker = { WrapperCoordinator($0, toItem: { $0 }, toOther: { $0 as? Source }) }
     }
@@ -29,4 +29,14 @@ public struct AnySources: DataSource {
 extension AnySources: CustomStringConvertible, CustomDebugStringConvertible {
     public var description: String { "AnySources(\(source))" }
     public var debugDescription: String { "AnySources(\(source))" }
+}
+
+extension AnySources {
+    init(anySources: AnySources, options: ListOptions) {
+        self.source = anySources.source
+        self.listDiffer = anySources.listDiffer
+        self.listOptions = anySources.listOptions.union(options)
+        self.listUpdate = anySources.listUpdate
+        self.coordinatorMaker = anySources.coordinatorMaker
+    }
 }

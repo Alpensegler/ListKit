@@ -288,7 +288,7 @@ extension ListCoordinatorUpdate {
         order: Order,
         context: UpdateContext<Offset<IndexPath>> = (nil, false, [])
     ) -> UpdateTarget<BatchUpdates.ItemTarget> {
-        let update: BatchUpdates.ItemTarget
+        let update: BatchUpdates.ItemTarget?
         switch changeType {
         case .none, .other(.remove): return (toIndices(targetCount, context), nil, nil)
         case .other(.insert) where moveType(context) != nil: fallthrough
@@ -304,18 +304,16 @@ extension ListCoordinatorUpdate {
         way: ListKit.UpdateWay,
         forContainer: Bool = false,
         _ offset: UpdateContext<C.Element> = (nil, false, [])
-    ) -> BatchUpdates.Source<C> {
+    ) -> BatchUpdates.Source<C>? {
         let o = offset.offset ?? .zero
         let source = forContainer ? sourceCountForContainer : sourceCount
         let target = forContainer ? targetCountForContainer : targetCount
         switch way {
-        case .insert:
-            fatalError()
         case .remove:
             return .init(\.deletes, o, o.offseted(source))
-        case .appendOrRemoveLast:
+        case .appendOrRemoveLast where sourceCount > targetCount:
             return .init(\.deletes, o.offseted(target), o.offseted(source))
-        case .prependOrRemoveFirst:
+        case .prependOrRemoveFirst where sourceCount > targetCount:
             return .init(\.deletes, o, o.offseted(source - target))
         case .reload:
             var update = BatchUpdates.Source<C>()
@@ -323,6 +321,8 @@ extension ListCoordinatorUpdate {
             if minValue != 0 { update.add(\.reloads, o, o.offseted(minValue)) }
             if diff > 0 { update.add(\.deletes, o.offseted(minValue), o.offseted(source)) }
             return update
+        case .appendOrRemoveLast, .prependOrRemoveFirst, .insert:
+            return nil
         }
     }
     
@@ -330,18 +330,16 @@ extension ListCoordinatorUpdate {
         way: ListKit.UpdateWay,
         forContainer: Bool = false,
         _ context: UpdateContext<Offset<C.Element>> = (nil, false, [])
-    ) -> BatchUpdates.Target<C> {
+    ) -> BatchUpdates.Target<C>? {
         let o = context.offset?.offset.target ?? .zero
         let source = forContainer ? sourceCountForContainer : sourceCount
         let target = forContainer ? targetCountForContainer : targetCount
         switch way {
         case .insert:
             return .init(\.inserts, o, o.offseted(target))
-        case .remove:
-            fatalError()
-        case .appendOrRemoveLast:
+        case .appendOrRemoveLast where targetCount > sourceCount:
             return .init(\.inserts, o.offseted(source), o.offseted(target))
-        case .prependOrRemoveFirst:
+        case .prependOrRemoveFirst where targetCount > sourceCount:
             return .init(\.inserts, o, o.offseted(target - source))
         case .reload:
             var update = BatchUpdates.Target<C>()
@@ -349,6 +347,8 @@ extension ListCoordinatorUpdate {
             if minValue != 0 { update.reload(o, o.offseted(minValue)) }
             if diff > 0 { update.add(\.inserts, o.offseted(minValue), o.offseted(target)) }
             return update
+        case .appendOrRemoveLast, .prependOrRemoveFirst, .remove:
+            return nil
         }
     }
     
@@ -357,20 +357,12 @@ extension ListCoordinatorUpdate {
         _ indexType: C.Type
     ) -> BatchUpdates {
         switch way {
-        case .appendOrRemoveLast where targetCount > sourceCount,
-             .prependOrRemoveFirst where targetCount > sourceCount,
-             .insert:
-            let update: BatchUpdates.Target<C> = targetUpdate(way: way)
-            return .init(target: update, finalChange(true))
-        case .appendOrRemoveLast where sourceCount > targetCount,
-             .prependOrRemoveFirst where sourceCount > targetCount,
-             .remove:
-            let update: BatchUpdates.Source<C> = sourceUpdate(way: way)
-            return .init(source: update, finalChange(true))
         case .reload:
             return .reload(change: finalChange(true))
-        default:
-            fatalError()
+        case .appendOrRemoveLast, .prependOrRemoveFirst, .remove, .insert:
+            let source: BatchUpdates.Source<C>? = sourceUpdate(way: way)
+            let target: BatchUpdates.Target<C>? = targetUpdate(way: way)
+            return .init(source: source, target: target, finalChange(true))
         }
     }
 }

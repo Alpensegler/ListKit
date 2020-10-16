@@ -52,7 +52,12 @@ where Item: NSFetchRequestResult {
     public var didUpdate: ((SourceBase) -> Void)?
     public var updateCompletion: ((ListView, Bool) -> Void)?
     
+    public var insertSection: ((SourceBase, NSFetchedResultsSectionInfo, Int) -> Void)?
+    public var removeSection: ((SourceBase, Int) -> Void)?
     public var shouldReloadSection: ((SourceBase, NSFetchedResultsSectionInfo, Int) -> Bool)?
+    
+    public var insertItem: ((SourceBase, Item, IndexPath) -> Void)?
+    public var removeItem: ((SourceBase, IndexPath) -> Void)?
     public var shouldReloadItem: ((SourceBase, Item, IndexPath, IndexPath) -> Bool)?
     public var shouldMoveItem: ((SourceBase, Item, IndexPath, IndexPath) -> Bool)?
     
@@ -247,12 +252,18 @@ extension ListFetchedResultsController {
             }
         }
         item.changes.source.elements().forEach {
-            guard section.all.source.contains($0.section) else { return }
+            guard section.all.source.contains($0.section) else {
+                removeItem?(self, $0)
+                return
+            }
             item.changes.source.remove($0)
             item.all.source.remove($0)
         }
         item.changes.target.elements().forEach {
-            guard section.all.target.contains($0.section) else { return }
+            guard section.all.target.contains($0.section) else {
+                insertItem?(self, self.item(at: $0), $0)
+                return
+            }
             item.changes.target.remove($0)
             item.all.target.remove($0)
         }
@@ -260,13 +271,20 @@ extension ListFetchedResultsController {
     }
     
     func prepareUpdate(sets: inout ChangeSets<IndexSet>) {
-        guard let shuoldReload = shouldReloadSection else { return }
-        sets.reload.forEach {
-            if shuoldReload(self, fetchedResultController.sections![$0], $0) { return }
-            section.reload.remove($0)
-            section.changes.source.insert($0)
-            section.changes.target.insert($0)
-            section.reloadDict[$0] = nil
+        if let shuoldReload = shouldReloadSection {
+            sets.reload.forEach {
+                if shuoldReload(self, fetchedResultController.sections![$0], $0) { return }
+                section.reload.remove($0)
+                section.changes.source.insert($0)
+                section.changes.target.insert($0)
+                section.reloadDict[$0] = nil
+            }
+        }
+        if let remove = removeSection {
+            sets.changes.source.forEach { remove(self, $0) }
+        }
+        if let insert = insertSection {
+            sets.changes.target.forEach { insert(self, fetchedResultController.sections![$0], $0) }
         }
     }
     
@@ -278,6 +296,12 @@ extension ListFetchedResultsController {
             sets.reload.elements().forEach {
                 prepare(reload: &sets, from: $0, to: sets.reloadDict[$0])
             }
+        }
+        if let remove = removeItem {
+            sets.changes.source.elements().forEach { remove(self, $0) }
+        }
+        if let insert = insertItem {
+            sets.changes.target.elements().forEach { insert(self, item(at: $0), $0) }
         }
     }
     

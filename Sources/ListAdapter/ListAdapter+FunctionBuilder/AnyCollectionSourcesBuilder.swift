@@ -8,12 +8,15 @@
 public typealias AnyCollectionSources = CollectionList<AnySources>
 
 public extension CollectionList where SourceBase == AnySources {
-    init<Source: CollectionListAdapter>(_ dataSource: Source) {
-        self.init(erase: dataSource.collectionList)
+    init<Source: CollectionListAdapter>(_ dataSource: Source, options: ListOptions = .init()) {
+        self.init(erase: dataSource.collectionList, options: options)
     }
     
-    init<Source: CollectionListAdapter>(@AnyCollectionSourcesBuilder content: () -> Source) {
-        self.init(content())
+    init<Source: CollectionListAdapter>(
+        options: ListOptions = .init(),
+        @AnyCollectionSourcesBuilder content: () -> Source
+    ) {
+        self.init(content(), options: options)
     }
 }
 

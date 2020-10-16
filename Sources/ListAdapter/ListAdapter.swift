@@ -10,16 +10,18 @@ import Foundation
 protocol ListAdapter: UpdatableDataSource where Source == SourceBase {
     associatedtype View: AnyObject
     associatedtype ViewDelegates: AnyObject
-    associatedtype ErasedType
+    associatedtype Erased
     
-    var erasedGetter: (Self) -> ErasedType { get }
-    static var defaultErasedGetter: (Self) -> ErasedType { get }
+    var source: Source { get nonmutating set}
+    var storage: ListAdapterStorage<Source> { get }
+    var erasedGetter: (Self, ListOptions) -> Erased { get }
+    static var defaultErasedGetter: (Self, ListOptions) -> Erased { get }
     static var rootKeyPath: ReferenceWritableKeyPath<CoordinatorContext, ViewDelegates> { get }
     
     init(
         listContextSetups: [(ListCoordinatorContext<SourceBase>) -> Void],
         source: Source,
-        erasedGetter: @escaping (Self) -> ErasedType
+        erasedGetter: @escaping (Self, ListOptions) -> Erased
     )
 }
 
@@ -35,10 +37,22 @@ final class ListAdapterStorage<Source: DataSource> where Source.SourceBase == So
     }
 }
 
+extension ListAdapter
+where Erased: ListAdapter, Erased.Source == AnySources, Erased.Erased == Erased {
+    static var defaultErasedGetter: (Self, ListOptions) -> Erased {
+        {
+            .init(AnySources($0, options: $1)) { source, options in
+                source.source = AnySources(anySources: source.source, options: options)
+                return source
+            }
+        }
+    }
+}
+
 extension ListAdapter {
     init<OtherSource: DataSource>(
         _ dataSource: OtherSource,
-        erasedGetter: @escaping (Self) -> ErasedType = Self.defaultErasedGetter
+        erasedGetter: @escaping (Self, ListOptions) -> Erased = Self.defaultErasedGetter
     ) where OtherSource.SourceBase == Source {
         self.init(listContextSetups: [], source: dataSource.sourceBase, erasedGetter: erasedGetter)
     }
@@ -54,12 +68,11 @@ extension ListAdapter {
     }
 
     init<OtherSource: ListAdapter>(
-        erase dataSource: OtherSource
-    ) where Self == OtherSource.ErasedType {
-        self = dataSource.erased
+        erase dataSource: OtherSource,
+        options: ListOptions
+    ) where Self == OtherSource.Erased {
+        self = dataSource.erasedGetter(dataSource, options)
     }
-    
-    var erased: ErasedType { erasedGetter(self) }
 
     func set<Input, Output>(
         _ keyPath: ReferenceWritableKeyPath<ViewDelegates, Delegate<View, Input, Output>>,

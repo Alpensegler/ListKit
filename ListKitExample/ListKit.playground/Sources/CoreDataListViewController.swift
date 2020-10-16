@@ -26,7 +26,7 @@ public class CoreDataListViewController: UIViewController, UpdatableTableListAda
                 .tableViewHeaderTitleForSection { [unowned self] (context) -> String? in
                     self.todosList.section(at: context.section).name == "0" ? "TODO" : "Done"
                 }
-            AnyTableSources {
+            AnyTableSources(options: .removeEmptySection) {
                 recent
                     .tableConfig()
                 if todosList.fetchedObjects.count > fetchLimit {
@@ -73,24 +73,22 @@ public class CoreDataListViewController: UIViewController, UpdatableTableListAda
         return controller
     }
     
-    func configLoadMore() -> AnyTableSources {
-        AnyTableSources {
-            Sources(item: "loadmore")
-                .tableViewCellForRow(UITableViewCell.self) { (cell, context, _) in
-                    cell.textLabel?.text = "loadmore"
-                    cell.textLabel?.textAlignment = .center
+    func configLoadMore() -> TableList<ItemSources<String>> {
+        Sources(item: "loadmore")
+            .tableViewCellForRow(UITableViewCell.self) { (cell, context, item) in
+                cell.textLabel?.text = item
+                cell.textLabel?.textAlignment = .center
+            }
+            .tableViewDidSelectRow { [unowned self] (context, _) in
+                context.deselectItem(animated: true)
+                self.fetchLimit += 3
+                self.recent.fetchedResultController.fetchRequest.fetchLimit = self.fetchLimit
+                try? self.recent.performFetch()
+                self.recent.perform(.appendOrRemoveLast)
+                if self.recent.fetchedObjects.count <= self.fetchLimit {
+                    self.loadMore.perform(.remove)
                 }
-                .tableViewDidSelectRow { [unowned self] (context, _) in
-                    context.deselectItem(animated: true)
-                    self.fetchLimit += 3
-                    self.recent.fetchedResultController.fetchRequest.fetchLimit = self.fetchLimit
-                    try? self.recent.performFetch()
-                    self.recent.perform(.appendOrRemoveLast)
-                    if self.recent.fetchedObjects.count <= self.fetchLimit {
-                        self.loadMore.perform(.remove)
-                    }
-                }
-        }
+            }
     }
     
     public override func viewDidLoad() {

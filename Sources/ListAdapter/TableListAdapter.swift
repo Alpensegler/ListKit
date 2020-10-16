@@ -16,7 +16,7 @@ where Source.SourceBase == Source {
     public typealias Item = Source.Item
     public typealias SourceBase = Source
     let storage: ListAdapterStorage<Source>
-    let erasedGetter: (Self) -> TableList<AnySources>
+    let erasedGetter: (Self, ListOptions) -> TableList<AnySources>
     
     public var sourceBase: Source { source }
     public var source: Source {
@@ -57,7 +57,7 @@ where Source.SourceBase == Source {
     init(
         listContextSetups: [(ListCoordinatorContext<SourceBase>) -> Void],
         source: Source,
-        erasedGetter: @escaping (Self) -> TableList<AnySources> = Self.defaultErasedGetter
+        erasedGetter: @escaping (Self, ListOptions) -> TableList<AnySources> = Self.defaultErasedGetter
     ) {
         self.listContextSetups = listContextSetups
         self.erasedGetter = erasedGetter
@@ -102,10 +102,7 @@ extension TableList: CustomStringConvertible, CustomDebugStringConvertible {
 
 extension TableList: ListAdapter {
     typealias View = TableView
-    
-    static var defaultErasedGetter: (Self) -> TableList<AnySources> {
-        { .init(AnySources($0)) { $0 } }
-    }
+    typealias Erased = TableList<AnySources>
 }
 
 #if os(iOS) || os(tvOS)

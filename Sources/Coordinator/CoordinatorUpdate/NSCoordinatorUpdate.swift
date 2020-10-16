@@ -46,8 +46,10 @@ where SourceBase.SourceBase == SourceBase {
         _item != nil || _section != nil ? .batch : super.configUpdateWay()
     }
     
-    override func configMaxOrderForContext(_ ids: [AnyHashable]) -> Order {
-        _item != nil && sourceType.isItems ? .second : .first
+    override func configMaxOrderForContext(_ ids: [AnyHashable]) -> Order? {
+        if _item != nil && sourceType.isItems { return .second }
+        if _section != nil { return .first }
+        return super.configMaxOrderForContext(ids)
     }
     
     override func updateData(_ isSource: Bool, containsSubupdate: Bool) {

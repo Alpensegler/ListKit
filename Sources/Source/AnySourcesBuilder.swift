@@ -6,8 +6,11 @@
 //
 
 public extension AnySources {
-    init<Source: DataSource>(@AnySourcesBuilder content: () -> Source) {
-        self.init(content())
+    init<Source: DataSource>(
+        options: ListOptions = .init(),
+        @AnySourcesBuilder content: () -> Source
+    ) {
+        self.init(content(), options: options)
     }
 }
 

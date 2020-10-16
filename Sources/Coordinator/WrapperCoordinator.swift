@@ -19,6 +19,7 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
     let toItem: (Other.Item) -> SourceBase.Item
     let toOther: (SourceBase.Source) -> Other?
     
+    var rawOptions = ListOptions()
     var wrapped: Wrapped?
     
     override var sourceBaseType: Any.Type { Other.SourceBase.self }
@@ -32,7 +33,9 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
         self.toOther = toOther
         
         super.init(sourceBase)
+        self.rawOptions = options
         self.wrapped = toOther(source).map(toWrapped)
+        self.wrapped.map { options.formUnion($0.coordinator.options) }
     }
     
     func toWrapped(_ other: Other) -> Wrapped {
@@ -42,7 +45,7 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
             let subupdate = subupdate as! Subupdate
             let update = WrapperCoordinatorUpdate(
                 coordinator: self,
-                update: ListUpdate(subupdate.isRemove ? .other(.remove) : .subupdate),
+                update: ListUpdate(subupdate.updateWay.other.map { .other($0) } ?? .subupdate),
                 wrappeds: (self.wrapped, self.wrapped),
                 sources: (self.source, self.source),
                 subupdate: subupdate,

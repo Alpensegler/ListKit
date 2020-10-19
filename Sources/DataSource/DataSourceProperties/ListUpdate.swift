@@ -55,11 +55,6 @@ public struct ListUpdate<SourceBase: DataSource> where SourceBase.SourceBase == 
     var updateType: UpdateType
     var source: SourceBase.Source!
     
-    var isEmpty: Bool {
-        guard case let .batch(batch) = updateType else { return false }
-        return batch.operations.isEmpty
-    }
-    
     var needSource: Bool {
         switch updateType {
         case let .batch(batch):
@@ -120,6 +115,11 @@ public extension ListUpdate {
     var batch: Batch? {
         guard case let .batch(batch) = updateType else { return nil }
         return batch
+    }
+    
+    var isEmpty: Bool {
+        guard case let .batch(batch) = updateType else { return false }
+        return batch.operations.isEmpty
     }
     
     init(_ whole: ListUpdate<SourceBase>.Whole) { updateType = .whole(whole) }

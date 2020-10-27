@@ -384,7 +384,7 @@ extension ListCoordinatorUpdate {
             return .init(source: BatchUpdates.SectionSource(\.deletes, 0), finalChange(true))
         }
         switch changeType {
-        case .other(let way): return batchChangeFor(way: way, [IndexPath].self)
+        case .other(let way): return batchChangeFor(way: way, IndexPathSet.self)
         case .batch: return listUpdatesForItems()
         case .none: return .none
         }

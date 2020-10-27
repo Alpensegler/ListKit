@@ -36,6 +36,10 @@ protocol ListIndex: Hashable {
     )
 }
 
+extension ListIndex {
+    func offseted(_ index: Self) -> Self { offseted(index, plus: true) }
+}
+
 extension IndexPath: ListIndex {
     static var zero: IndexPath { IndexPath(section: 0, item: 0) }
     static var isSection: Bool { false }

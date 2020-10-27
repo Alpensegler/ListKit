@@ -22,7 +22,7 @@ public struct ItemUpdates {
     public let insert: [IndexPath]
     public let remove: [IndexPath]
     public let reload: [IndexPath]
-    public let moves: [(IndexPath, IndexPath)]
+    public let moves: [(from: IndexPath, to: IndexPath)]
     
     public let allSourceChange: [IndexPath]
     public let allTargetChange: [IndexPath]
@@ -194,12 +194,12 @@ public extension ListFetchedResultsController {
     var itemUpdates: ItemUpdates? {
         _item.map { items in
             .init(
-                insert: items.changes.target.elements(),
-                remove: items.changes.source.elements(),
-                reload: items.reload.elements(),
-                moves: items.move.elements().map { (items.moveDict[$0]!, $0) },
-                allSourceChange: items.all.source.elements(),
-                allTargetChange: items.all.target.elements()
+                insert: items.target.inserts.elements(),
+                remove: items.source.deletes.elements(),
+                reload: items.source.reloads.elements(),
+                moves: items.target.moves.elements().map { (items.target.moveDict[$0]!, $0) },
+                allSourceChange: items.source.all.elements(),
+                allTargetChange: items.target.all.elements()
             )
         }
     }
@@ -207,11 +207,11 @@ public extension ListFetchedResultsController {
     var sectionUpdates: SectionUpdates? {
         _section.map {
             .init(
-                insert: $0.changes.target,
-                remove: $0.changes.source,
-                reload: $0.reload,
-                allSourceChange: $0.all.source,
-                allTargetChange: $0.all.target
+                insert: $0.target.inserts,
+                remove: $0.source.deletes,
+                reload: $0.source.reloads,
+                allSourceChange: $0.source.all,
+                allTargetChange: $0.target.all
             )
         }
     }
@@ -220,104 +220,95 @@ public extension ListFetchedResultsController {
 extension ListFetchedResultsController {
     func prepareUpdate(section: inout ChangeSets<IndexSet>, item: inout ChangeSets<IndexPathSet>) {
         prepareUpdate(sets: &section)
-        item.move.elements().forEach {
-            guard let indexPath = item.moveDict[$0] else { fatalError() }
-            let sourceShouldIgnore = section.all.source.contains(indexPath.section)
-            let targetShouldIgnore = section.all.target.contains($0.section)
+        let sectionAll: Mapping<IndexSet> = (section.source.all, section.target.all)
+        item.target.moves.elements().forEach {
+            guard let indexPath = item.target.moveDict[$0] else { fatalError() }
+            let sourceShouldIgnore = sectionAll.source.contains(indexPath.section)
+            let targetShouldIgnore = sectionAll.target.contains($0.section)
             switch (sourceShouldIgnore, targetShouldIgnore) {
-            case (true, true):
-                item.all.source.remove(indexPath)
-                item.all.target.remove($0)
-            case (true, false):
-                item.all.source.remove(indexPath)
-                item.changes.target.add($0)
-            case (false, true):
-                item.changes.source.add(indexPath)
-                item.all.target.remove($0)
-            case (false, false):
-                return prepare(move: &item, from: indexPath, to: $0)
+            case (true, true): break
+            case (true, false): item.target.add(\.inserts, $0)
+            case (false, true): item.source.add(\.deletes, indexPath)
+            case (false, false): return prepare(move: &item, from: indexPath, to: $0)
             }
-            item.move.remove($0)
-            item.moveDict[$0] = nil
+            item.source.moves.remove(indexPath)
+            item.target.moves.remove($0)
+            item.target.moveDict[$0] = nil
         }
-        item.reload.elements().forEach {
+        item.source.reloads.elements().forEach {
             guard let newIndexPath = item.reloadDict[$0] else { fatalError() }
-            if section.all.source.contains($0.section) {
-                item.all.source.remove($0)
-                item.all.target.remove(newIndexPath)
-                item.reload.remove($0)
+            if sectionAll.source.contains($0.section) {
+                item.source.reloads.remove($0)
+                item.target.reloads.remove(newIndexPath)
                 item.reloadDict[$0] = nil
             } else {
                 prepare(reload: &item, from: newIndexPath, to: $0)
             }
         }
-        item.changes.source.elements().forEach {
-            guard section.all.source.contains($0.section) else {
+        item.source.deletes.elements().forEach {
+            if sectionAll.source.contains($0.section) {
+                item.source.deletes.remove($0)
+            } else {
                 removeItem?(self, $0)
-                return
             }
-            item.changes.source.remove($0)
-            item.all.source.remove($0)
         }
-        item.changes.target.elements().forEach {
-            guard section.all.target.contains($0.section) else {
+        item.target.inserts.elements().forEach {
+            if sectionAll.target.contains($0.section) {
+                item.target.inserts.remove($0)
+            } else {
                 insertItem?(self, self.item(at: $0), $0)
-                return
             }
-            item.changes.target.remove($0)
-            item.all.target.remove($0)
         }
         update = .init(section: section, item: item)
     }
     
     func prepareUpdate(sets: inout ChangeSets<IndexSet>) {
         if let shuoldReload = shouldReloadSection {
-            sets.reload.forEach {
+            sets.source.reloads.forEach {
                 if shuoldReload(self, fetchedResultController.sections![$0], $0) { return }
-                section.reload.remove($0)
-                section.changes.source.insert($0)
-                section.changes.target.insert($0)
+                section.source.reloads.remove($0)
+                section.target.reloads.remove(section.reloadDict[$0]!)
                 section.reloadDict[$0] = nil
             }
         }
         if let remove = removeSection {
-            sets.changes.source.forEach { remove(self, $0) }
+            sets.source.deletes.forEach { remove(self, $0) }
         }
         if let insert = insertSection {
-            sets.changes.target.forEach { insert(self, fetchedResultController.sections![$0], $0) }
+            sets.target.inserts.forEach { insert(self, fetchedResultController.sections![$0], $0) }
         }
     }
     
     func prepareUpdate(sets: inout ChangeSets<IndexPathSet>) {
         if shouldMoveItem != nil {
-            sets.move.elements().forEach { prepare(move: &sets, from: sets.moveDict[$0], to: $0) }
+            sets.target.moves.elements().forEach {
+                prepare(move: &sets, from: sets.target.moveDict[$0], to: $0)
+            }
         }
         if shouldReloadItem != nil {
-            sets.reload.elements().forEach {
+            sets.source.reloads.elements().forEach {
                 prepare(reload: &sets, from: $0, to: sets.reloadDict[$0])
             }
         }
         if let remove = removeItem {
-            sets.changes.source.elements().forEach { remove(self, $0) }
+            sets.source.deletes.elements().forEach { remove(self, $0) }
         }
         if let insert = insertItem {
-            sets.changes.target.elements().forEach { insert(self, item(at: $0), $0) }
+            sets.target.inserts.elements().forEach { insert(self, item(at: $0), $0) }
         }
     }
     
     func prepare(move sets: inout ChangeSets<IndexPathSet>, from: IndexPath!, to: IndexPath) {
         guard shouldMoveItem?(self, item(at: to), from, to) == false else { return }
-        sets.move.remove(to)
-        sets.changes.source.add(from)
-        sets.changes.target.add(to)
-        sets.moveDict[to] = nil
+        sets.target.moves.remove(to)
+        sets.source.moves.remove(from)
+        sets.target.moveDict[to] = nil
     }
     
     func prepare(reload sets: inout ChangeSets<IndexPathSet>, from: IndexPath, to: IndexPath!) {
         guard shouldReloadItem?(self, item(at: to), from, to) == false else { return }
-        sets.reload.remove(from)
-        sets.all.source.remove(from)
-        sets.all.target.remove(to)
+        sets.source.reloads.remove(from)
+        sets.target.reloads.remove(to)
         sets.reloadDict[from] = nil
     }
 }

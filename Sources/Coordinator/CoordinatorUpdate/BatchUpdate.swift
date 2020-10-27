@@ -15,6 +15,7 @@ protocol UpdateCollection {
 protocol ListViewApplyable: CustomStringConvertible, CustomDebugStringConvertible {
     var isEmpty: Bool { get }
     var listDebugDescriptions: [String] { get }
+    
     func apply(by listView: ListView)
     func apply<Cache>(
         by caches: inout ContiguousArray<ContiguousArray<Cache?>>,
@@ -37,17 +38,33 @@ extension ListViewApplyable {
     func applyData() { }
 }
 
-protocol UpdateIndexCollection: UpdateCollection, BidirectionalCollection where Element: ListIndex {
-    static func insert(_ value: Self, by listView: ListView)
-    static func delete(_ value: Self, by listView: ListView)
-    static func reload(_ value: Self, by listView: ListView)
-    static func move(_ element: Mapping<Element>, by listView: ListView)
+protocol UpdateIndexCollection: UpdateCollection {
+    associatedtype Element: ListIndex
+    associatedtype Elements where Elements: BidirectionalCollection, Elements.Element == Element
     
+    static func insert(_ elements: Elements, by list: ListView)
+    static func delete(_ elements: Elements, by list: ListView)
+    static func reload(_ elements: Elements, by list: ListView)
+    static func move(_ element: Mapping<Element>, by list: ListView)
+    
+    var isEmpty: Bool { get }
+    
+    init()
     init(_ element: Element)
+    init(_ elements: Elements)
     init(_ lower: Element, _ upper: Element)
     
     mutating func add(_ element: Element)
+    mutating func add(_ elements: Elements)
     mutating func add(_ lower: Element, _ upper: Element)
+    
+    func elements(_ offset: Element?) -> Elements
+}
+
+extension UpdateIndexCollection {
+    func descriptions(with offset: Element?) -> String {
+        elements(offset).map { "\($0)" }.joined(separator: " ")
+    }
 }
 
 protocol BatchUpdate: UpdateCollection, ListViewApplyable { }
@@ -55,35 +72,42 @@ protocol IndexBatchUpdate: BatchUpdate {
     typealias Element = Collection.Element
     associatedtype Collection: UpdateIndexCollection
     
-    var all: Collection { get set }
     var isEmpty: Bool { get set }
 }
 
 enum BatchUpdates {
     struct Source<Collection: UpdateIndexCollection>: IndexBatchUpdate {
-        var all = Collection()
+        var offset: Collection.Element?
+        var moves = Collection()
         var deletes = Collection()
         var reloads = Collection()
         var isEmpty = true
+        var all: Collection {
+            var all = Collection()
+            if !moves.isEmpty { all.add(moves) }
+            if !deletes.isEmpty { all.add(deletes) }
+            if !reloads.isEmpty { all.add(reloads) }
+            return all
+        }
         
         mutating func add(_ other: Self) {
-            if !other.deletes.isEmpty { deletes.add(other.deletes) }
-            if !other.reloads.isEmpty { reloads.add(other.reloads) }
-            if !other.all.isEmpty { all.add(other.all) }
+            if !other.moves.isEmpty { moves.add(other.moves.elements(offset)) }
+            if !other.deletes.isEmpty { deletes.add(other.deletes.elements(offset)) }
+            if !other.reloads.isEmpty { reloads.add(other.reloads.elements(offset)) }
             isEmpty = isEmpty && other.isEmpty
         }
         
         mutating func move(_ index: Element) {
-            all.isEmpty ? all = .init(index) : all.add(index)
+            moves.isEmpty ? moves = .init(index) : moves.add(index)
         }
         
         mutating func move(_ lower: Element, _ upper: Element) {
-            all.isEmpty ? all = .init(lower, upper) : all.add(lower, upper)
+            moves.isEmpty ? moves = .init(lower, upper) : moves.add(lower, upper)
         }
         
         func apply(by listView: ListView) {
-            if !deletes.isEmpty { Collection.delete(deletes, by: listView) }
-            if !reloads.isEmpty { Collection.reload(reloads, by: listView) }
+            if !deletes.isEmpty { Collection.delete(deletes.elements(offset), by: listView) }
+            if !reloads.isEmpty { Collection.reload(reloads.elements(offset), by: listView) }
         }
         
         func add<Cache>(
@@ -100,69 +124,85 @@ enum BatchUpdates {
             _ sectionMoves: [Int: ContiguousArray<Cache?>],
             countIn: (Int) -> Int
         ) {
-            all.reversed().forEach { $0.remove(from: &caches) }
+            all.elements(offset).reversed().forEach { $0.remove(from: &caches) }
+        }
+        
+        func offseted(by offset: Collection.Element?) -> Self {
+            var source = self
+            source.offset = offset
+            return source
         }
         
         var listDebugDescriptions: [String] {
             var descriptions = [String]()
-            if !deletes.isEmpty {
-                descriptions.append("D \(deletes.map { "\($0)" }.joined(separator: " "))")                
-            }
-            if !reloads.isEmpty {
-                descriptions.append("U \(reloads.map { "\($0)" }.joined(separator: " "))")
-            }
+            if !deletes.isEmpty { descriptions.append("D \(deletes.descriptions(with: offset))") }
+            if !reloads.isEmpty { descriptions.append("U \(reloads.descriptions(with: offset))") }
             return descriptions
         }
     }
     
     struct Target<Collection: UpdateIndexCollection>: IndexBatchUpdate {
-        var all = Collection()
+        var offset: Mapping<Collection.Element>?
+        var moves = Collection()
+        var reloads = Collection()
         var inserts = Collection()
-        var moves = [Mapping<Element>]()
         var moveDict = [Element: Element]()
         var isEmpty = true
+        var all: Collection {
+            var all = Collection()
+            if !moves.isEmpty { all.add(moves) }
+            if !inserts.isEmpty { all.add(inserts) }
+            if !reloads.isEmpty { all.add(reloads) }
+            return all
+        }
         
         mutating func move(_ index: Element, to newIndex: Element) {
-            all.isEmpty ? all = .init(newIndex) : all.add(newIndex)
-            moves.isEmpty ? moves = [(index, newIndex)] : moves.append((index, newIndex))
+            moves.isEmpty ? moves = .init(newIndex) : moves.add(newIndex)
             moveDict[newIndex] = index
             guard index != newIndex else { return }
             isEmpty = false
         }
         
         mutating func move(_ lower: Mapping<Element>, _ upper: Mapping<Element>) {
-            all.isEmpty
-                ? all = .init(lower.target, upper.target)
-                : all.add(lower.target, upper.target)
-            let from = Collection(lower.source, upper.source)
-            let to = Collection(lower.target, upper.target)
-            let movesZips: [Mapping<Element>] = zip(from, to).map { $0 }
-            moves.isEmpty ? moves = movesZips : moves.append(contentsOf: movesZips)
-            movesZips.forEach { moveDict[$0.target] = $0.source }
+            moves.isEmpty
+                ? moves = .init(lower.target, upper.target)
+                : moves.add(lower.target, upper.target)
+            let from = Collection(lower.source, upper.source).elements(nil)
+            let to = Collection(lower.target, upper.target).elements(nil)
+            zip(from, to).forEach { moveDict[$0.1] = $0.0 }
             guard lower != upper else { return }
             isEmpty = false
         }
         
         mutating func reload(_ newIndex: Element) {
-            all.isEmpty ? all = .init(newIndex) : all.add(newIndex)
+            reloads.isEmpty ? reloads = .init(newIndex) : reloads.add(newIndex)
             isEmpty = false
         }
         
         mutating func reload(_ lower: Element, _ upper: Element) {
-            all.isEmpty ? all = .init(lower, upper) : all.add(lower, upper)
+            reloads.isEmpty ? reloads = .init(lower, upper) : reloads.add(lower, upper)
             isEmpty = false
         }
         
         mutating func add(_ other: Self) {
-            if !other.all.isEmpty { all.add(other.all) }
-            if !other.inserts.isEmpty { inserts.add(other.inserts) }
-            if !other.moves.isEmpty { moves += other.moves }
+            if !other.reloads.isEmpty { reloads.add(other.reloads.elements(offset?.target)) }
+            if !other.inserts.isEmpty { inserts.add(other.inserts.elements(offset?.target)) }
+            if !other.moves.isEmpty { moves.add(other.moves.elements(offset?.target)) }
+            if !other.moveDict.isEmpty { other.enumerateMoves { moveDict[$0.target] = $0.source } }
             isEmpty = isEmpty && other.isEmpty
         }
         
+        func enumerateMoves(_ closure: (Mapping<Element>) -> Void) {
+            moves.elements(nil).forEach { rawTo in
+                let rawFrom = moveDict[rawTo]!
+                let move = offset.map { (rawFrom.offseted($0.source), rawTo.offseted($0.target)) }
+                closure(move ?? (rawFrom, rawTo))
+            }
+        }
+        
         func apply(by listView: ListView) {
-            if !inserts.isEmpty { Collection.insert(inserts, by: listView) }
-            if !moves.isEmpty { moves.forEach { Collection.move($0, by: listView)} }
+            if !inserts.isEmpty { Collection.insert(inserts.elements(offset?.target), by: listView) }
+            if !moves.isEmpty { enumerateMoves { Collection.move($0, by: listView) } }
         }
         
         func add<Cache>(
@@ -170,7 +210,8 @@ enum BatchUpdates {
             _ itemMoves: inout [IndexPath: Cache?],
             _ sectionMoves: inout [Int: ContiguousArray<Cache?>]
         ) {
-            moves.forEach { $0.target.add($0.source, from: &caches, &itemMoves, &sectionMoves) }
+            if moves.isEmpty { return }
+            enumerateMoves { $0.target.add($0.source, from: &caches, &itemMoves, &sectionMoves) }
         }
         
         func apply<Cache>(
@@ -179,16 +220,31 @@ enum BatchUpdates {
             _ sectionMoves: [Int: ContiguousArray<Cache?>],
             countIn: (Int) -> Int
         ) {
-            all.forEach { $0.insert(to: &caches, itemMoves, sectionMoves, countIn: countIn) }
+            all.elements(offset?.target).forEach {
+                $0.insert(to: &caches, itemMoves, sectionMoves, countIn: countIn)
+            }
+        }
+        
+        func offseted(by offset: Mapping<Collection.Element>?) -> Self {
+            guard let offset = offset else { return self }
+            var source = Self()
+            if !moves.isEmpty { source.add(\.moves, moves.elements(offset.target)) }
+            if !inserts.isEmpty { source.add(\.inserts, inserts.elements(offset.target)) }
+            if !reloads.isEmpty { source.add(\.reloads, reloads.elements(offset.target)) }
+            source.moveDict.reserveCapacity(moveDict.count)
+            moveDict.forEach {
+                source.moveDict[$0.key.offseted(offset.target)] = $0.value.offseted(offset.source)
+            }
+            return source
         }
         
         var listDebugDescriptions: [String] {
             var descriptions = [String]()
-            if !inserts.isEmpty {
-                descriptions.append("I \(inserts.map { "\($0)" }.joined(separator: " "))")
-            }
+            if !inserts.isEmpty { descriptions.append("I \(inserts.descriptions(with: offset?.target))") }
             if !moves.isEmpty {
-                descriptions.append("M \(moves.map { "(\($0.source), \($0.target))" }.joined(separator: " "))")
+                var descs = [String]()
+                enumerateMoves { descs.append("(\($0.source), \($0.target))") }
+                descriptions.append("M \(descs.joined(separator: " "))")
             }
             return descriptions
         }
@@ -315,8 +371,8 @@ enum BatchUpdates {
         }
     }
 
-    typealias ItemSource = Source<[IndexPath]>
-    typealias ItemTarget = Target<[IndexPath]>
+    typealias ItemSource = Source<IndexPathSet>
+    typealias ItemTarget = Target<IndexPathSet>
     typealias SectionSource = Source<IndexSet>
     typealias SectionTarget = Target<IndexSet>
     typealias ListSource = List<SectionSource, ItemSource>
@@ -347,14 +403,13 @@ extension Optional where Wrapped: UpdateCollection {
 
 extension BatchUpdates.Source {
     init(move index: Element) {
-        all = .init(index)
+        moves = .init(index)
     }
 }
 
 extension BatchUpdates.Target {
     init(move index: Element, to newIndex: Element) {
-        all = .init(newIndex)
-        moves = [(index, newIndex)]
+        moves = .init(newIndex)
         moveDict[newIndex] = index
         guard index != newIndex else { return }
         isEmpty = false
@@ -363,7 +418,6 @@ extension BatchUpdates.Target {
 
 extension IndexBatchUpdate {
     mutating func add(_ path: WritableKeyPath<Self, Collection>, _ index: Element) {
-        all.isEmpty ? all = .init(index) : all.add(index)
         self[keyPath: path].isEmpty
             ? self[keyPath: path] = .init(index)
             : self[keyPath: path].add(index)
@@ -371,15 +425,20 @@ extension IndexBatchUpdate {
     }
     
     mutating func add(_ path: WritableKeyPath<Self, Collection>, _ indices: Collection) {
-        all.isEmpty ? all = indices : all.add(indices)
         self[keyPath: path].isEmpty
             ? self[keyPath: path] = indices
             : self[keyPath: path].add(indices)
         isEmpty = false
     }
     
+    mutating func add(_ path: WritableKeyPath<Self, Collection>, _ elements: Collection.Elements) {
+        self[keyPath: path].isEmpty
+            ? self[keyPath: path] = .init(elements)
+            : self[keyPath: path].add(elements)
+        isEmpty = false
+    }
+    
     mutating func add(_ path: WritableKeyPath<Self, Collection>, _ lower: Element, _ upper: Element) {
-        all.isEmpty ? all = .init(lower, upper) : all.add(lower, upper)
         self[keyPath: path].isEmpty
             ? self[keyPath: path] = .init(lower, upper)
             : self[keyPath: path].add(lower, upper)
@@ -400,41 +459,4 @@ extension IndexBatchUpdate {
         self.init()
         add(path, lower, upper)
     }
-}
-
-extension IndexSet: UpdateIndexCollection {
-    static func insert(_ value: Self, by listView: ListView) { listView.insertSections(value) }
-    static func delete(_ value: Self, by listView: ListView) { listView.deleteSections(value) }
-    static func reload(_ value: Self, by listView: ListView) { listView.reloadSections(value) }
-    static func move(_ element: Mapping<Int>, by listView: ListView) {
-        listView.moveSection(element.source, toSection: element.target)
-    }
-    
-    init(_ element: Int) { self.init(integer: element) }
-    init(_ from: Int, _ to: Int) { self.init(integersIn: from..<to) }
-    
-    mutating func add(_ other: IndexSet) { formUnion(other) }
-    mutating func add(_ element: Int) { insert(element) }
-    mutating func add(_ from: Int, _ to: Int) { insert(integersIn: from..<to) }
-}
-
-extension Array: UpdateCollection where Element == IndexPath {
-    mutating func add(_ other: Self) { self += other }
-}
-
-extension Array: UpdateIndexCollection where Element == IndexPath {
-    static func insert(_ value: Self, by listView: ListView) { listView.insertItems(at: value) }
-    static func delete(_ value: Self, by listView: ListView) { listView.deleteItems(at: value) }
-    static func reload(_ value: Self, by listView: ListView) { listView.reloadItems(at: value) }
-    static func move(_ element: Mapping<IndexPath>, by listView: ListView) {
-        listView.moveItem(at: element.source, to: element.target)
-    }
-    
-    init(_ element: IndexPath) { self = [element] }
-    init(_ from: IndexPath, _ to: IndexPath) {
-        self = (from.item..<to.item).map { IndexPath(section: from.section, item: $0) }
-    }
-    
-    mutating func add(_ element: IndexPath) { append(element) }
-    mutating func add(_ from: IndexPath, _ to: IndexPath) { add(.init(from, to)) }
 }

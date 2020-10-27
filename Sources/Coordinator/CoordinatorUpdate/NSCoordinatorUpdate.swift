@@ -71,8 +71,8 @@ where SourceBase.SourceBase == SourceBase {
         case .third: return (targetCount, nil)
         default: break
         }
-        let section = _section?.toSource(offset: context.offset)
-        let item = _item?.toSource(offset: (context.offset).map { .init(section: $0) })
+        let section = _section?.source.offseted(by: context.offset)
+        let item = _item?.source.offseted(by: (context.offset).map { IndexPath(section: $0) })
         return (sourceCount, .init(item: item, section: section))
     }
     
@@ -88,8 +88,8 @@ where SourceBase.SourceBase == SourceBase {
         let offset: Mapping<IndexPath>? = (context.offset?.offset).map {
             (IndexPath(section: $0.source), IndexPath(section: $0.target))
         }
-        let section = _section?.toTarget(offset: context.offset?.offset)
-        let item = _item?.toTarget(offset: offset)
+        let section = _section?.target.offseted(by: context.offset?.offset)
+        let item = _item?.target.offseted(by: offset)
         return (toIndices(targetCount, context), .init(item: item, section: section), finalChange())
     }
     
@@ -99,7 +99,7 @@ where SourceBase.SourceBase == SourceBase {
     ) -> UpdateSource<BatchUpdates.ItemSource> {
         switch order {
         case .first: return (sourceCount, nil)
-        case .second: return (sourceCount, _item?.toSource(offset: context.offset))
+        case .second: return (sourceCount, _item?.source.offseted(by: context.offset))
         case .third: return (targetCount, nil)
         }
     }
@@ -113,7 +113,7 @@ where SourceBase.SourceBase == SourceBase {
         case .third: return (toIndices(targetCount, context), nil, nil)
         default: break
         }
-        let update = _item?.toTarget(offset: context.offset?.offset)
+        let update = _item?.target.offseted(by: context.offset?.offset)
         return (toIndices(targetCount, context), update, finalChange())
     }
 }

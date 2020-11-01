@@ -302,7 +302,7 @@ extension ContainerCoordinatorUpdate {
             let id = toIdentifier(value)
             guard let o = offsets[id] else { return }
             let subcontext = toContext(context, isMoved, id: id, or: (0, (.zero, .zero))) {
-                (index, ($0.offset.source.offseted(o), $0.offset.source.offseted(indices.count)))
+                (index, ($0.offset.source.offseted(o), $0.offset.target.offseted(indices.count)))
             }
             if update.notUpdate(order, subcontext) {
                 if isMoved, isMain(order) { move(value: value) }

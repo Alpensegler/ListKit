@@ -91,9 +91,9 @@ enum BatchUpdates {
         }
         
         mutating func add(_ other: Self) {
-            if !other.moves.isEmpty { moves.add(other.moves.elements(offset)) }
-            if !other.deletes.isEmpty { deletes.add(other.deletes.elements(offset)) }
-            if !other.reloads.isEmpty { reloads.add(other.reloads.elements(offset)) }
+            if !other.moves.isEmpty { moves.add(other.moves.elements(other.offset)) }
+            if !other.deletes.isEmpty { deletes.add(other.deletes.elements(other.offset)) }
+            if !other.reloads.isEmpty { reloads.add(other.reloads.elements(other.offset)) }
             isEmpty = isEmpty && other.isEmpty
         }
         
@@ -185,9 +185,9 @@ enum BatchUpdates {
         }
         
         mutating func add(_ other: Self) {
-            if !other.reloads.isEmpty { reloads.add(other.reloads.elements(offset?.target)) }
-            if !other.inserts.isEmpty { inserts.add(other.inserts.elements(offset?.target)) }
-            if !other.moves.isEmpty { moves.add(other.moves.elements(offset?.target)) }
+            if !other.reloads.isEmpty { reloads.add(other.reloads.elements(other.offset?.target)) }
+            if !other.inserts.isEmpty { inserts.add(other.inserts.elements(other.offset?.target)) }
+            if !other.moves.isEmpty { moves.add(other.moves.elements(other.offset?.target)) }
             if !other.moveDict.isEmpty { other.enumerateMoves { moveDict[$0.target] = $0.source } }
             isEmpty = isEmpty && other.isEmpty
         }

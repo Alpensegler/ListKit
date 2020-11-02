@@ -35,11 +35,13 @@ extension ChangeSets {
     
     mutating func reload(_ index: Index, newIndex: Index) {
         source.add(\.reloads, index)
+        target.add(\.reloads, newIndex)
         reloadDict[index] = newIndex
     }
     
     mutating func reload(_ indices: Indices, newIndices: Indices) {
         source.add(\.reloads, indices)
+        target.add(\.reloads, newIndices)
         zip(indices, newIndices).forEach { reloadDict[$0.0] = $0.1 }
     }
     

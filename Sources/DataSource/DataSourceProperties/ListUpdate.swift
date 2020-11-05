@@ -110,6 +110,7 @@ public extension ListUpdate {
     typealias Value = SourceBase.Item
     
     static var remove: Self { .init(.init(way: .other(.remove))) }
+    static func remove(to source: Source) -> Self { .init(.init(way: .other(.remove)), source) }
     static func reload(to source: Source) -> Self { .init(.init(way: .other(.reload)), source) }
     
     var batch: Batch? {

@@ -290,7 +290,8 @@ extension ListCoordinatorUpdate {
     ) -> UpdateTarget<BatchUpdates.ItemTarget> {
         let update: BatchUpdates.ItemTarget?
         switch changeType {
-        case .none, .other(.remove): return (toIndices(targetCount, context), nil, nil)
+        case .none: return (toIndices(targetCount, context), nil, nil)
+        case .other(.remove): return (toIndices(targetCount, context), nil, finalChange(true))
         case .other(.insert) where moveType(context) != nil: fallthrough
         case .batch: return generateTargetItemUpdate(order: order, context: context)
         case .other(let way): update = targetUpdate(way: way, context)

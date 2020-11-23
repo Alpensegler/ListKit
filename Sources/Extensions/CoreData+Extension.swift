@@ -113,14 +113,14 @@ where Item: NSFetchRequestResult {
         try fetchedResultController.performFetch()
     }
     
-    public func controllerWillChangeContent(
+    open func controllerWillChangeContent(
         _ controller: NSFetchedResultsController<NSFetchRequestResult>
     ) {
         (_section, _item) = (nil, nil)
         willChangeContent?()
     }
     
-    public func controllerDidChangeContent(
+    open func controllerDidChangeContent(
         _ controller: NSFetchedResultsController<NSFetchRequestResult>
     ) {
         willStartUpdate?()
@@ -137,7 +137,7 @@ where Item: NSFetchRequestResult {
         didUpdate?(self)
     }
     
-    public func controller(
+    open func controller(
         _ controller: NSFetchedResultsController<NSFetchRequestResult>,
         didChange sectionInfo: NSFetchedResultsSectionInfo,
         atSectionIndex sectionIndex: Int,
@@ -151,7 +151,7 @@ where Item: NSFetchRequestResult {
         }
     }
     
-    public func controller(
+    open func controller(
         _ controller: NSFetchedResultsController<NSFetchRequestResult>,
         didChange anObject: Any,
         at indexPath: IndexPath?,

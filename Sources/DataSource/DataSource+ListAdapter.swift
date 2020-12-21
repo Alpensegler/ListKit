@@ -6,19 +6,134 @@
 //
 
 public extension DataSource where Self: TableListAdapter {
-    var listContextSetups: [(ListCoordinatorContext<SourceBase>) -> Void] {
-        scrollList.listContextSetups + tableList.listContextSetups
+    var listCoordinatorContext: ListCoordinatorContext<SourceBase> {
+        listCoordinator
+            .context(with: scrollList.listDelegate)
+            .context(with: tableList.listDelegate)
     }
 }
 
 public extension DataSource where Self: CollectionListAdapter {
-    var listContextSetups: [(ListCoordinatorContext<SourceBase>) -> Void] {
-        scrollList.listContextSetups + collectionList.listContextSetups
+    var listCoordinatorContext: ListCoordinatorContext<SourceBase> {
+        listCoordinator
+            .context(with: scrollList.listDelegate)
+            .context(with: collectionList.listDelegate)
     }
 }
 
 public extension DataSource where Self: TableListAdapter, Self: CollectionListAdapter {
-    var listContextSetups: [(ListCoordinatorContext<SourceBase>) -> Void] {
-        scrollList.listContextSetups + collectionList.listContextSetups + tableList.listContextSetups
+    var listCoordinatorContext: ListCoordinatorContext<SourceBase> {
+        listCoordinator
+            .context(with: scrollList.listDelegate)
+            .context(with: tableList.listDelegate)
+            .context(with: collectionList.listDelegate)
     }
+}
+
+public extension DataSource where Self: ItemCachedDataSource {
+    var listCoordinatorContext: ListCoordinatorContext<SourceBase> {
+        listCoordinator
+            .context(with: listDelegate)
+            .context(with: itemCached.cacheForItem)
+    }
+}
+
+public extension DataSource where Self: TableListAdapter, Self: ItemCachedDataSource {
+    var listCoordinatorContext: ListCoordinatorContext<SourceBase> {
+        listCoordinator
+            .context(with: scrollList.listDelegate)
+            .context(with: tableList.listDelegate)
+            .context(with: itemCached.cacheForItem)
+    }
+}
+
+public extension DataSource where Self: CollectionListAdapter, Self: ItemCachedDataSource {
+    var listCoordinatorContext: ListCoordinatorContext<SourceBase> {
+        listCoordinator
+            .context(with: scrollList.listDelegate)
+            .context(with: collectionList.listDelegate)
+            .context(with: itemCached.cacheForItem)
+    }
+}
+
+public extension DataSource
+where Self: TableListAdapter, Self: CollectionListAdapter, Self: ItemCachedDataSource {
+    var listCoordinatorContext: ListCoordinatorContext<SourceBase> {
+        listCoordinator
+            .context(with: scrollList.listDelegate)
+            .context(with: tableList.listDelegate)
+            .context(with: collectionList.listDelegate)
+            .context(with: itemCached.cacheForItem)
+    }
+}
+
+// MARK: - DataSource + nested Table Adapter
+public extension DataSource
+where
+    SourceBase.Source: TableListAdapter,
+    SourceBase.Source.SourceBase.Item == Item
+{
+    func tableListBySubsource() -> TableList<AdapterBase> { .init(adapterBase) }
+}
+
+public extension TableListAdapter
+where
+    SourceBase.Source: TableListAdapter,
+    SourceBase.Source.SourceBase.Item == Item
+{
+    var tableList: TableList<AdapterBase> { tableListBySubsource() }
+}
+
+public extension DataSource
+where
+    SourceBase.Source: RangeReplaceableCollection,
+    SourceBase.Source.Element: TableListAdapter,
+    SourceBase.Source.Element.SourceBase.Item == Item
+{
+    func tableListBySubsource() -> TableList<AdapterBase> { .init(adapterBase) }
+}
+
+public extension TableListAdapter
+where
+    SourceBase.Source: RangeReplaceableCollection,
+    SourceBase.Source.Element: TableListAdapter,
+    SourceBase.Source.Element.SourceBase.Item == Item
+{
+    var tableList: TableList<AdapterBase> { tableListBySubsource() }
+}
+
+// MARK: - DataSource + nested Collection Adapter
+
+public extension DataSource
+where
+    SourceBase.Source: CollectionListAdapter,
+    SourceBase.Source.SourceBase.Item == Item
+{
+    func collectionListBySubsource() -> CollectionList<AdapterBase> { .init(adapterBase) }
+}
+
+public extension CollectionListAdapter
+where
+    SourceBase.Source: CollectionListAdapter,
+    SourceBase.Source.SourceBase.Item == Item
+{
+    var collectionList: CollectionList<AdapterBase> { collectionListBySubsource() }
+}
+
+public extension DataSource
+where
+    SourceBase.Source: RangeReplaceableCollection,
+    SourceBase.Source.Element: CollectionListAdapter,
+    SourceBase.Source.Element.SourceBase.Item == Item
+{
+    func collectionListBySubsource() -> CollectionList<AdapterBase> { .init(adapterBase) }
+}
+
+public extension CollectionListAdapter
+where
+    SourceBase.Source: RangeReplaceableCollection,
+    SourceBase.Source.Element: CollectionListAdapter,
+    SourceBase.Source.Element.SourceBase.Item == Item
+{
+    var collectionList: CollectionList<AdapterBase> { collectionListBySubsource() }
 }

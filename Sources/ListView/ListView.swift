@@ -22,19 +22,19 @@ public protocol ListView: NSObject {
 }
 
 protocol SetuptableListView: ListView {
-    func setup(with listDelegate: ListDelegate)
-    func isDelegate(_ listDelegate: ListDelegate) -> Bool
+    func setup(with listDelegate: Delegate)
+    func isDelegate(_ listDelegate: Delegate) -> Bool
 }
 
 private var listDelegateKey: Void?
 
 extension SetuptableListView {
-    var listDelegate: ListDelegate {
+    var listDelegate: Delegate {
         Associator.getValue(key: &listDelegateKey, from: self, initialValue: .init(self))
     }
     
     func isCoordinator(_ coordinator: AnyObject) -> Bool {
-        if let delegate: ListDelegate = Associator.getValue(key: &listDelegateKey, from: self) {
+        if let delegate: Delegate = Associator.getValue(key: &listDelegateKey, from: self) {
             return isDelegate(delegate) && delegate.context?.isCoordinator(coordinator) ?? false
         }
         return false

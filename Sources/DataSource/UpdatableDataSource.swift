@@ -74,14 +74,16 @@ public extension UpdatableDataSource {
 }
 
 public extension UpdatableDataSource {
-    func getCache<List: ListView>(for listView: List, at indexPath: IndexPath) -> Any? {
-        let c = listCoordinator.listContexts.first { $0.context?.listView == listView }?.context
-        guard let context = c, context._itemCaches != nil else { return nil }
-        return context.itemCaches[indexPath.section][indexPath.item]
-    }
-    
     func currentItem(at indexPath: IndexPath) -> Item {
         listCoordinator.item(at: indexPath)
+    }
+    
+    func currentNumbersOfSections() -> Int {
+        listCoordinator.numbersOfSections()
+    }
+    
+    func currentNumbersOfItem(in section: Int) -> Int {
+        listCoordinator.numbersOfItems(in: section)
     }
 }
 
@@ -108,20 +110,20 @@ extension UpdatableDataSource {
             guard let context = context.context else { continue }
             if context.listView === listView {
                 results.append(.init(
-                    context: context,
                     listView: listView,
                     index: indexPath,
                     offset: .zero,
+                    context: context,
                     root: context
                 ))
             }
             
             for (offset, root) in context.contextAtIndex?(context.index, .zero, listView) ?? [] {
                 results.append(.init(
-                    context: context,
                     listView: listView,
                     index: indexPath.offseted(offset),
                     offset: offset,
+                    context: context,
                     root: root
                 ))
             }

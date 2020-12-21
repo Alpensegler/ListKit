@@ -101,8 +101,7 @@ where
     }
 
     override func toValue(_ element: Element) -> Value {
-        let coordinator = element.listCoordinator
-        let context = coordinator.context(with: element.listContextSetups)
+        let context = element.listCoordinatorContext, coordinator = element.listCoordinator
         if coordinator.sourceType == .items, sourceType == .section {
             let c = context.numbersOfItems(in: 0)
             let source = Value(element: .element(element), context: context, offset: 0, count: c)
@@ -110,7 +109,7 @@ where
                 elements: [source],
                 update: .init(way: updateWay)
             )
-            let context = coordinator.context()
+            let context = coordinator.context(with: .init())
             source.context.isSectioned = false
             coordinator.addContext(to: source.context)
             self.coordinator.map { $0.addContext(to: context) }

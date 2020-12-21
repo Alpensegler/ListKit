@@ -1,10 +1,12 @@
 import UIKit
 import ListKit
 
-public class DoubleListViewController: UIViewController, TableListAdapter, CollectionListAdapter, UpdatableDataSource {
+public class DoubleListViewController: UIViewController, TableListAdapter, CollectionListAdapter, UpdatableDataSource, ItemCachedDataSource {
     private let _models = ["Roy", "Pinlin", "Zhiyi", "Frain", "Jack", "Cookie", "Kubrick", "Jeremy", "Juhao", "Herry"]
     
     public typealias Item = String
+    public typealias ItemCache = CGSize
+    
     var toggle = false
     
     public var source: [String] {
@@ -14,10 +16,16 @@ public class DoubleListViewController: UIViewController, TableListAdapter, Colle
         return shuffledModels.shuffled()
     }
     
+    public var itemCached: ItemCached<DoubleListViewController, CGSize> {
+        withItemCached { (value) -> ItemCache in
+            print("fake calculating size for \(value)")
+            return CGSize(width: 75, height: 75)
+        }
+    }
+    
     public var scrollList: ScrollList<DoubleListViewController> {
-        defaultScrollList
-        .scrollViewDidScroll { (context) in
-            print("didScroll")
+        scrollViewDidEndDragging { _, _ in
+            print("didEndDragging")
         }
         .scrollViewWillBeginDragging { (context) in
             print("didDrag")
@@ -27,20 +35,18 @@ public class DoubleListViewController: UIViewController, TableListAdapter, Colle
     public var tableList: TableList<DoubleListViewController> {
         tableViewCellForRow()
         .tableViewDidSelectRow { [unowned self] (context, item) in
-            self.perform(.remove(at: context.item))
+            perform(.remove(at: context.item))
         }
     }
     
     public var collectionList: CollectionList<DoubleListViewController> {
-        collectionListWithCacheSize(forItem: { context, item in
-            print("fake calculating size for \(item)")
-            return CGSize(width: 75, height: 75)
-        }, CenterLabelCell.self, closure: { (cell, _, _, item) in
+        collectionViewCellForItem(CenterLabelCell.self) { (cell, _, item) in
             cell.text = "\(item)"
-        })
-        .collectionViewLayoutInsetForSection { (_, _) in
-            UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
         }
+        .collectionViewLayoutSizeForItem { (context, layout, item, cache) -> CGSize in
+            cache
+        }
+        .collectionViewLayoutInsetForSection(UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10))
     }
     
     public override func viewDidLoad() {

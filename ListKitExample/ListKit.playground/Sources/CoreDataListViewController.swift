@@ -168,7 +168,7 @@ extension NSManagedObject {
 #endif
 
 extension DataSource where Item == ToDo {
-    func tableConfig() -> TableList<SourceBase> {
+    func tableConfig() -> TableList<AdapterBase> {
         tableViewCellForRow(UITableViewCell.self) { (cell, context, todo) in
             cell.configUI(with: todo)
         }
@@ -176,9 +176,7 @@ extension DataSource where Item == ToDo {
             context.deselectItem(animated: true)
             todo.toggle()
         }
-        .tableViewCanEditRow { (context, todo) -> Bool in
-            true
-        }
+        .tableViewCanEditRow(true)
         .tableViewCommitEdittingStyleForRow { (context, style, todo) in
             guard style == .delete else { return }
             todo.delete()

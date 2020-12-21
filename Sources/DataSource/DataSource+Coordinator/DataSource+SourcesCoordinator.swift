@@ -5,6 +5,8 @@
 //  Created by Frain on 2019/12/17.
 //
 
+import Foundation
+
 public extension DataSource
 where
     SourceBase.Source: RangeReplaceableCollection,
@@ -25,5 +27,17 @@ where
 {
     var listCoordinator: ListCoordinator<SourceBase> {
         sourceBase.coordinator(with: SourcesCoordinator(sources: sourceBase))
+    }
+}
+
+public extension UpdatableDataSource
+where
+    SourceBase: UpdatableDataSource,
+    SourceBase.Source: RangeReplaceableCollection,
+    SourceBase.Source.Element: DataSource,
+    SourceBase.Source.Element.SourceBase.Item == Item
+{
+    func itemContext<List: ListView>(for listView: List, at index: IndexPath) -> [ListItemContext<List>] {
+        _itemContext(for: listView, at: index)
     }
 }

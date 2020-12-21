@@ -12,24 +12,28 @@ public protocol Context {
     associatedtype SourceBase: DataSource where SourceBase.SourceBase == SourceBase
     associatedtype List
     
-    var context: ListCoordinatorContext<SourceBase> { get }
+    var source: SourceBase.Source { get }
     var listView: List { get }
 }
 
 public struct ListContext<List, SourceBase: DataSource>: Context
 where SourceBase.SourceBase == SourceBase {
-    public let context: ListCoordinatorContext<SourceBase>
     public let listView: List
+    let context: ListCoordinatorContext<SourceBase>
     let root: CoordinatorContext
+    
+    public var source: SourceBase.Source { context.listCoordinator.source }
 }
 
 public struct ListIndexContext<List, SourceBase: DataSource, Index>: Context
 where SourceBase.SourceBase == SourceBase {
-    public let context: ListCoordinatorContext<SourceBase>
     public let listView: List
     public let index: Index
     public let offset: Index
+    let context: ListCoordinatorContext<SourceBase>
     let root: CoordinatorContext
+    
+    public var source: SourceBase.Source { context.listCoordinator.source }
 }
 
 public extension DataSource {
@@ -38,8 +42,6 @@ public extension DataSource {
 }
 
 public extension Context {
-    var source: SourceBase.Source { context.listCoordinator.source }
-
     subscript<Value>(dynamicMember keyPath: KeyPath<SourceBase.Source, Value>) -> Value {
         source[keyPath: keyPath]
     }
@@ -52,22 +54,22 @@ public extension ListIndexContext where Index == Int {
 public extension ListIndexContext where Index == IndexPath {
     var section: Int { index.section - offset.section }
     var item: Int { index.item - offset.item }
-}
-
-extension ListIndexContext where Index == IndexPath {
+    
     var itemValue: SourceBase.Item {
         context.listCoordinator.item(at: index.offseted(offset, plus: false))
     }
-    
+}
+
+public extension ListIndexContext where SourceBase: ItemCachedDataSource, Index == IndexPath {
+    var itemCache: SourceBase.ItemCache { cache() }
+}
+
+extension ListIndexContext where Index == IndexPath {
     func setNestedCache(update: @escaping (Any) -> Void) {
         root.itemNestedCache[index.section][index.item] = update
     }
     
-    func itemCache<Cache>(or getter: (Self, SourceBase.Item) -> Cache) -> Cache {
-        root.itemCaches[index.section][index.item] as? Cache ?? {
-            let cache = getter(self, itemValue)
-            root.itemCaches[index.section][index.item] = cache
-            return cache
-        }()
+    func cache<Cache>() -> Cache {
+        context.cache(for: &root.itemCaches[index.section][index.item], at: index)
     }
 }

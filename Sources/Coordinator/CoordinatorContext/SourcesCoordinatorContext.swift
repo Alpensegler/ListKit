@@ -15,82 +15,71 @@ where
     Source.Element: DataSource,
     Source.Element.SourceBase.Item == SourceBase.Item
 {
-    lazy var finalSelectorSets = configSelectedSet()
+    lazy var extraSelectorWithSubContext = configSelectedSet()
     let coordinator: SourcesCoordinator<SourceBase, Source>
     
-    override var selectorSets: SelectorSets { finalSelectorSets }
+    override var extraSelectors: Set<Selector> { extraSelectorWithSubContext }
     
-    init(
-        _ coordinator: SourcesCoordinator<SourceBase, Source>,
-        setups: [(ListCoordinatorContext<SourceBase>) -> Void]
-    ) {
+    init(_ coordinator: SourcesCoordinator<SourceBase, Source>) {
         self.coordinator = coordinator
-        super.init(coordinator, setups: setups)
+        super.init(coordinator)
     }
     
-    func configSelectedSet() -> SelectorSets {
-        var selectors = selfSelectorSets
+    func configSelectedSet() -> Set<Selector> {
+        var selectors = listDelegate.extraSelectors
         for subsource in coordinator.subsources {
-            selectors.void.formUnion(subsource.context.selectorSets.void)
-            selectors.withIndex.formUnion(subsource.context.selectorSets.withIndex)
-            selectors.withIndexPath.formUnion(subsource.context.selectorSets.withIndexPath)
+            subsource.context.listDelegate.functions.keys.forEach { selectors.insert($0) }
+            selectors.formUnion(subsource.context.extraSelectors)
         }
         return selectors
     }
     
-    func subcoordinatorApply<Object: AnyObject, Input, Output, Index>(
-        _ keyPath: KeyPath<CoordinatorContext, IndexDelegate<Object, Input, Output, Index>>,
-        root: CoordinatorContext,
-        object: Object,
-        with input: Input,
-        _ offset: Index
-    ) -> Output? {
-        let delegate = self[keyPath: keyPath], path = input[keyPath: delegate.index]
-        let index = coordinator.sourceIndex(for: path.offseted(offset, plus: false))
-        let context = coordinator.subsources[index]
-        let offset = offset.offseted(context.offset, isSection: listCoordinator.sourceType.isSection)
-        guard context.context.selectorSets.contains(delegate.selector) else { return nil }
-        return context.context.apply(keyPath, root: root, object: object, with: input, offset)
-    }
-    
     override func reconfig() {
-        finalSelectorSets = configSelectedSet()
+        extraSelectorWithSubContext = configSelectedSet()
         resetDelegates?()
     }
     
-    override func apply<Object: AnyObject, Input>(
-        _ keyPath: KeyPath<CoordinatorContext, Delegate<Object, Input, Void>>,
+    override func cache<ItemCache>(for cached: inout Any?, at indexPath: IndexPath) -> ItemCache {
+        guard getCache == nil else { return super.cache(for: &cached, at: indexPath) }
+        let (context, indexPath) = coordinator.subContextIndex(at: indexPath)
+        return context.context.cache(for: &cached, at: indexPath)
+    }
+    
+    override func apply<Object: AnyObject, Target, Input, Output, Closure>(
+        _ function: ListDelegate.Function<Object, Delegate, Target, Input, Output, Closure>,
         root: CoordinatorContext,
         object: Object,
         with input: Input
-    ) {
-        let delegate = self[keyPath: keyPath]
-        coordinator.subsources.forEach { (element) in
-            guard element.context.selectorSets.contains(delegate.selector) else { return }
-            element.context.apply(keyPath, root: root, object: object, with: input)
+    ) -> Output? {
+        if function.noOutput {
+            let output = coordinator.subsources.compactMap { (element) in
+                element.context.apply(function, root: root, object: object, with: input)
+            }.first
+            return super.apply(function, root: root, object: object, with: input) ?? output
+        } else {
+            let output = coordinator.subsources.lazy.compactMap { (element) in
+                element.context.apply(function, root: root, object: object, with: input)
+            }.first
+            return output ?? super.apply(function, root: root, object: object, with: input)
         }
-        super.apply(keyPath, root: root, object: object, with: input)
     }
     
-    override func apply<Object: AnyObject, Input, Output, Index>(
-        _ keyPath: KeyPath<CoordinatorContext, IndexDelegate<Object, Input, Output, Index>>,
+    override func apply<Object: AnyObject, Target, Input, Output, Closure, Index: ListIndex>(
+        _ function: ListDelegate.IndexFunction<Object, Delegate, Target, Input, Output, Closure, Index>,
         root: CoordinatorContext,
         object: Object,
         with input: Input,
         _ offset: Index
     ) -> Output? {
-        subcoordinatorApply(keyPath, root: root, object: object, with: input, offset)
-            ?? super.apply(keyPath, root: root, object: object, with: input, offset)
-    }
-    
-    override func apply<Object: AnyObject, Input, Index>(
-        _ keyPath: KeyPath<CoordinatorContext, IndexDelegate<Object, Input, Void, Index>>,
-        root: CoordinatorContext,
-        object: Object,
-        with input: Input,
-        _ offset: Index
-    ) {
-        subcoordinatorApply(keyPath, root: root, object: object, with: input, offset)
-        super.apply(keyPath, root: root, object: object, with: input, offset)
+        let path = function.indexForInput(input)
+        let index = coordinator.sourceIndex(for: path.offseted(offset, plus: false))
+        let context = coordinator.subsources[index]
+        let offset = offset.offseted(context.offset, isSection: listCoordinator.sourceType.isSection)
+        let output = context.context.apply(function, root: root, object: object, with: input, offset)
+        if function.noOutput {
+            return super.apply(function, root: root, object: object, with: input, offset) ?? output
+        } else {
+            return output ?? super.apply(function, root: root, object: object, with: input, offset)
+        }
     }
 }

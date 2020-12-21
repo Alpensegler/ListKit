@@ -15,12 +15,8 @@ public class SectionListViewControlle: UIViewController, UpdatableCollectionList
         collectionViewCellForItem(CenterLabelCell.self) { (cell, _, item) in
             cell.text = "\(item)"
         }
-        .collectionViewLayoutSizeForItem { (_, _, _) in
-            CGSize(width: 30, height: 30)
-        }
-        .collectionViewLayoutInsetForSection { (_, _) in
-            UIEdgeInsets(top: 20, left: 10, bottom: 20, right: 10)
-        }
+        .collectionViewLayoutSizeForItem(CGSize(width: 30, height: 30))
+        .collectionViewLayoutInsetForSection(UIEdgeInsets(top: 20, left: 10, bottom: 20, right: 10))
     }
     
     public override func viewDidLoad() {

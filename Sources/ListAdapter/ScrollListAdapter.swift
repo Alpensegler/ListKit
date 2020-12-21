@@ -6,49 +6,45 @@
 //
 
 public protocol ScrollListAdapter: DataSource {
-    var scrollList: ScrollList<SourceBase> { get }
+    var scrollList: ScrollList<AdapterBase> { get }
 }
 
 public extension ScrollListAdapter {
-    var scrollList: ScrollList<SourceBase> { defaultScrollList }
-    var defaultScrollList: ScrollList<SourceBase> { ScrollList(source: sourceBase) }
+    var scrollList: ScrollList<AdapterBase> { ScrollList(adapterBase) }
 }
 
 @propertyWrapper
 @dynamicMemberLookup
-public struct ScrollList<Source: DataSource>: ScrollListAdapter, UpdatableDataSource
-where Source.SourceBase == Source {
+public class ScrollList<Source: DataSource>: ScrollListAdapter, UpdatableDataSource
+where Source.AdapterBase == Source {
     public typealias Item = Source.Item
-    public typealias SourceBase = Source
+    public typealias SourceBase = Source.SourceBase
+    public typealias AdapterBase = Source
     
-    let storage: ListAdapterStorage<Source>
-    let erasedGetter: (Self, ListOptions) -> ScrollList<AnySources>
-    
-    public var sourceBase: Source { source }
-    public var source: Source {
-        get { storage.source }
-        nonmutating set { storage.source = newValue }
-    }
+    public var source: Source
+    public var sourceBase: SourceBase { source.sourceBase }
+    public var adapterBase: Source { source }
     
     public var listUpdate: ListUpdate<SourceBase>.Whole { source.listUpdate }
-    public var listDiffer: ListDiffer<Source> { source.listDiffer }
+    public var listDiffer: ListDiffer<SourceBase> { source.listDiffer }
     public var listOptions: ListOptions { source.listOptions }
     
-    public var listCoordinator: ListCoordinator<Source> { storage.listCoordinator }
-    public let listContextSetups: [(ListCoordinatorContext<SourceBase>) -> Void]
-    
-    public var coordinatorStorage: CoordinatorStorage<Source> { storage.coordinatorStorage }
-    
-    public var scrollList: ScrollList<SourceBase> { self }
-    
-    public var wrappedValue: Source {
-        get { source }
-        nonmutating set { source = newValue }
+    public var listDelegate: ListDelegate
+    public var listCoordinatorContext: ListCoordinatorContext<SourceBase> {
+        source.listCoordinatorContext.context(with: listDelegate)
     }
     
-    public var projectedValue: ScrollList<Source> {
-        get { self }
-        set { self = newValue }
+    public lazy var listCoordinator = source.listCoordinator
+    public lazy var coordinatorStorage = listCoordinator.storage.or({
+        let storage = CoordinatorStorage<SourceBase>()
+        listCoordinator.storage = storage
+        return storage
+    }())
+    
+    public var scrollList: ScrollList<Source> { self }
+    public var wrappedValue: Source {
+        get { source }
+        set { source = newValue }
     }
     
     public subscript<Value>(dynamicMember path: KeyPath<Source, Value>) -> Value {
@@ -60,31 +56,27 @@ where Source.SourceBase == Source {
         set { source[keyPath: path] = newValue }
     }
     
-    init(
-        listContextSetups: [(ListCoordinatorContext<SourceBase>) -> Void] = [],
-        source: Source,
-        erasedGetter: @escaping (Self, ListOptions) -> ScrollList<AnySources> = Self.defaultErasedGetter
-    ) {
-        self.listContextSetups = listContextSetups
-        self.erasedGetter = erasedGetter
-        self.storage = .init(source: source)
-        storage.makeListCoordinator = { source.listCoordinator }
+    required init<OtherSource: DataSource>(
+        _ source: OtherSource,
+        options: ListOptions = .init()
+    ) where Source == AnySources {
+        self.source = AnySources(source, options: options)
+        self.listDelegate = .init()
     }
-}
-
-extension ScrollList: ListAdapter {
-    typealias Erased = ScrollList<AnySources>
-}
-
-#if os(iOS) || os(tvOS)
-import UIKit
-
-extension ScrollList {
-    typealias View = UIScrollView
     
-    static var rootKeyPath: ReferenceWritableKeyPath<CoordinatorContext, UIScrollListDelegate> {
-        \.scrollListDelegate
+    required init(_ source: Source) {
+        self.source = source
+        self.listDelegate = source.listDelegate
+    }
+    
+    required init(_ source: Source, listDelegate: ListDelegate) {
+        self.source = source
+        self.listDelegate = listDelegate
     }
 }
 
-#endif
+extension ScrollList: ItemCachedDataSource where Source: ItemCachedDataSource {
+    public typealias ItemCache = Source.ItemCache
+    
+    public var itemCached: ItemCached<Source.SourceBase, Source.ItemCache> { source.itemCached }
+}

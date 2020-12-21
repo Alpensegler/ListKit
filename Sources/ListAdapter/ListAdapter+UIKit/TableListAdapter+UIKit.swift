@@ -13,458 +13,265 @@ public extension DataSource {
     typealias TableItemContext = ListIndexContext<UITableView, SourceBase, IndexPath>
     typealias TableSectionContext = ListIndexContext<UITableView, SourceBase, Int>
     
-    func tableViewCellForRow(
-        _ closure: @escaping (TableItemContext, Item) -> UITableViewCell = { (context, item) in
-            let cell = context.dequeueReusableCell(UITableViewCell.self)
-            cell.textLabel?.text = "\(item)"
-            return cell
-        }
-    ) -> TableList<SourceBase> {
-        TableList(self).set(\.cellForRowAt) {
-            closure($0.0, $0.0.itemValue)
-        }
-    }
-    
-    func tableViewCellForRow<Cell: UITableViewCell>(
-        _ cellClass: Cell.Type,
-        identifier: String = "",
-        _ closure: @escaping (Cell, TableItemContext, Item) -> Void = { _, _, _ in }
-    ) -> TableList<SourceBase> {
-        tableViewCellForRow { (context, item) in
-            let cell = context.dequeueReusableCell(cellClass, identifier: identifier)
-            closure(cell, context, item)
-            return cell
-        }
-    }
-    
-    func tableViewCellForRow<Cell: UITableViewCell>(
-        _ cellClass: Cell.Type,
-        storyBoardIdentifier: String,
-        _ closure: @escaping (Cell, TableItemContext, Item) -> Void = { _, _, _ in }
-    ) -> TableList<SourceBase> {
-        tableViewCellForRow { (context, item) in
-            let cell = context.dequeueReusableCell(cellClass, storyBoardIdentifier: storyBoardIdentifier)
-            closure(cell, context, item)
-            return cell
-        }
-    }
+    typealias TableFunction<Input, Output, Closure> = ListDelegate.Function<UITableView, Self, TableList<AdapterBase>, Input, Output, Closure>
+    typealias TableItemFunction<Input, Output, Closure> = ListDelegate.IndexFunction<UITableView, Self, TableList<AdapterBase>, Input, Output, Closure, IndexPath>
+    typealias TableSectionFunction<Input, Output, Closure> = ListDelegate.IndexFunction<UITableView, Self, TableList<AdapterBase>, Input, Output, Closure, Int>
 }
 
 //TableView DataSource
-public extension TableListAdapter {
+public extension DataSource {
     //Providing Cells, Headers, and Footers
-    @discardableResult
-    func tableViewHeaderTitleForSection(
-        _ closure: @escaping (TableSectionContext) -> String?
-    ) -> TableList<SourceBase> {
-        tableList.set(\.titleForHeaderInSection) { closure($0.0) }
+    var tableViewCellForRow: TableItemFunction<IndexPath, UITableViewCell, (TableItemContext, Item) -> UITableViewCell> {
+        toFunction(#selector(UITableViewDataSource.tableView(_:cellForRowAt:)), toClosure())
     }
     
-    @discardableResult
-    func tableViewFooterTitleForSection(
-        _ closure: @escaping (TableSectionContext) -> String?
-    ) -> TableList<SourceBase> {
-        tableList.set(\.titleForFooterInSection) { closure($0.0) }
+    var tableViewHeaderTitleForSection: TableSectionFunction<Int, String?, (TableSectionContext) -> String?> {
+        toFunction(#selector(UITableViewDataSource.tableView(_:titleForHeaderInSection:)), toClosure())
+    }
+    
+    var tableViewFooterTitleForSection: TableSectionFunction<Int, String?, (TableSectionContext) -> String?> {
+        toFunction(#selector(UITableViewDataSource.tableView(_:titleForFooterInSection:)), toClosure())
     }
     
     //Inserting or Deleting Table Rows
-    @discardableResult
-    func tableViewCommitEdittingStyleForRow(
-        _ closure: @escaping (TableItemContext, UITableViewCell.EditingStyle, Item) -> Void
-    ) -> TableList<SourceBase> {
-        tableList.set(\.commitForRowAt) { closure($0.0, $0.1.0, $0.0.itemValue) }
+    var tableViewCommitEdittingStyleForRow: TableItemFunction<(IndexPath, UITableViewCell.EditingStyle), Void, (TableItemContext, UITableViewCell.EditingStyle, Item) -> Void> {
+        toFunction(#selector(UITableViewDataSource.tableView(_:commit:forRowAt:)), \.0, toClosure())
     }
     
-    @discardableResult
-    func tableViewCanEditRow(
-        _ closure: @escaping (TableItemContext, Item) -> Bool
-    ) -> TableList<SourceBase> {
-        tableList.set(\.canEditRowAt) { closure($0.0, $0.0.itemValue) }
+    var tableViewCanEditRow: TableItemFunction<IndexPath, Bool, (TableItemContext, Item) -> Bool> {
+        toFunction(#selector(UITableViewDataSource.tableView(_:canEditRowAt:)), toClosure())
     }
     
     //Reordering Table Rows
-    @discardableResult
-    func tableViewCanMoveRow(
-        _ closure: @escaping (TableItemContext, Item) -> Bool
-    ) -> TableList<SourceBase> {
-        tableList.set(\.canMoveRowAt) { closure($0.0, $0.0.itemValue) }
+    var tableViewCanMoveRow: TableItemFunction<IndexPath, Bool, (TableItemContext, Item) -> Bool> {
+        toFunction(#selector(UITableViewDataSource.tableView(_:canMoveRowAt:)), toClosure())
     }
     
-    @discardableResult
-    func tableViewMoveRow(
-        _ closure: @escaping (TableContext, IndexPath, IndexPath) -> Void
-    ) -> TableList<SourceBase> {
-        tableList.set(\.moveRowAtTo) { closure($0.0, $0.1.0, $0.1.1) }
+    var tableViewMoveRow: TableFunction<(IndexPath, IndexPath), Void, (TableContext, IndexPath, IndexPath) -> Void> {
+        toFunction(#selector(UITableViewDataSource.tableView(_:moveRowAt:to:)), toClosure())
     }
     
     //Configuring an Index
-    @discardableResult
-    func tableViewSectionIndexTitles(
-        _ closure: @escaping (TableContext) -> [String]?
-    ) -> TableList<SourceBase> {
-        tableList.set(\.sectionIndexTitles) { closure($0.0) }
+    var tableViewSectionIndexTitles: TableFunction<Void, [String]?, (TableContext) -> [String]?> {
+        toFunction(#selector(UITableViewDataSource.sectionIndexTitles(for:)), toClosure())
     }
     
-    @discardableResult
-    func tableViewsectionForSectionIndexTitle(
-        _ closure: @escaping (TableContext, String, Int) -> Int
-    ) -> TableList<SourceBase> {
-        tableList.set(\.sectionForSectionIndexTitleAt) { closure($0.0, $0.1.0, $0.1.1) }
+    var tableViewSectionForSectionIndexTitle: TableFunction<(String, Int), Int, (TableContext, String, Int) -> Int> {
+        toFunction(#selector(UITableViewDataSource.tableView(_:sectionForSectionIndexTitle:at:)), toClosure())
     }
 }
 
 //TableView Delegate
-public extension TableListAdapter {
+public extension DataSource {
     //Configuring Rows for the Table View
-    @discardableResult
-    func tableViewWillDisplayRow(
-        _ closure: @escaping (TableItemContext, UITableViewCell, Item) -> Void
-    ) -> TableList<SourceBase> {
-        tableList.set(\.willDisplayForRowAt) { closure($0.0, $0.1.0, $0.0.itemValue) }
+    var tableViewWillDisplayRow: TableItemFunction<(IndexPath, UITableViewCell), Void, (TableItemContext, UITableViewCell, Item) -> Void> {
+        toFunction(#selector(UITableViewDelegate.tableView(_:willDisplay:forRowAt:)), \.0, toClosure())
     }
     
-    @discardableResult
-    func tableViewIndentationLevelForRow(
-        _ closure: @escaping (TableItemContext, Item) -> Int
-    ) -> TableList<SourceBase> {
-        tableList.set(\.indentationLevelForRowAt) { closure($0.0, $0.0.itemValue) }
+    var tableViewIndentationLevelForRow: TableItemFunction<IndexPath, Int, (TableItemContext, Item) -> Int> {
+        toFunction(#selector(UITableViewDelegate.tableView(_:indentationLevelForRowAt:)), toClosure())
     }
     
     @available(iOS 11.0, *)
-    @discardableResult
-    func tableViewShouldSpringLoadRow(
-        _ closure: @escaping (TableItemContext, UISpringLoadedInteractionContext, Item) -> Bool
-    ) -> TableList<SourceBase> {
-        tableList.set(\.springLoadRowAtWith) { closure($0.0, $0.1.1, $0.0.itemValue) }
+    var tableViewShouldSpringLoadRow: TableItemFunction<(IndexPath, UISpringLoadedInteractionContext), Bool, (TableItemContext, UISpringLoadedInteractionContext, Item) -> Bool> {
+        toFunction(#selector(UITableViewDelegate.tableView(_:shouldSpringLoadRowAt:with:)), \.0, toClosure())
     }
     
     //Responding to Row Selections
-    @discardableResult
-    func tableViewWillSelectRow(
-        _ closure: @escaping (TableItemContext, Item) -> IndexPath?
-    ) -> TableList<SourceBase> {
-        tableList.set(\.willSelectRowAt) { closure($0.0, $0.0.itemValue) }
+    var tableViewWillSelectRow: TableItemFunction<IndexPath, IndexPath?, (TableItemContext, Item) -> IndexPath?> {
+        toFunction(#selector(UITableViewDelegate.tableView(_:willSelectRowAt:)), toClosure())
     }
     
-    @discardableResult
-    func tableViewDidSelectRow(
-        _ closure: @escaping (TableItemContext, Item) -> Void
-    ) -> TableList<SourceBase> {
-        tableList.set(\.didSelectRowAt) { closure($0.0, $0.0.itemValue) }
+    var tableViewDidSelectRow: TableItemFunction<IndexPath, Void, (TableItemContext, Item) -> Void> {
+        toFunction(#selector(UITableViewDelegate.tableView(_:didSelectRowAt:)), toClosure())
     }
     
-    @discardableResult
-    func tableViewWillDeselectRow(
-        _ closure: @escaping (TableItemContext, Item) -> IndexPath?
-    ) -> TableList<SourceBase> {
-        tableList.set(\.willDeselectRowAt) { closure($0.0, $0.0.itemValue) }
+    var tableViewWillDeselectRow: TableItemFunction<IndexPath, IndexPath?, (TableItemContext, Item) -> IndexPath?> {
+        toFunction(#selector(UITableViewDelegate.tableView(_:willDeselectRowAt:)), toClosure())
     }
     
-    @discardableResult
-    func tableViewDidDeselectRow(
-        _ closure: @escaping (TableItemContext, Item) -> Void
-    ) -> TableList<SourceBase> {
-        tableList.set(\.didDeselectRowAt) { closure($0.0, $0.0.itemValue) }
+    var tableViewDidDeselectRow: TableItemFunction<IndexPath, Void, (TableItemContext, Item) -> Void> {
+        toFunction(#selector(UITableViewDelegate.tableView(_:didDeselectRowAt:)), toClosure())
     }
     
     @available(iOS 13.0, *)
-    @discardableResult
-    func tableViewShouldBeginMultipleSelectionInteraction(
-        _ closure: @escaping (TableItemContext, Item) -> Bool
-    ) -> TableList<SourceBase> {
-        tableList.set(\.shouldBeginMultipleSelectionInteractionAt) { closure($0.0, $0.0.itemValue) }
+    var tableViewShouldBeginMultipleSelectionInteraction: TableItemFunction<IndexPath, Bool, (TableItemContext, Item) -> Bool> {
+        toFunction(#selector(UITableViewDelegate.tableView(_:shouldBeginMultipleSelectionInteractionAt:)), toClosure())
     }
     
     @available(iOS 13.0, *)
-    @discardableResult
-    func tableViewDidBeginMultipleSelectionInteraction(
-        _ closure: @escaping (TableItemContext, Item) -> Void
-    ) -> TableList<SourceBase> {
-        tableList.set(\.didBeginMultipleSelectionInteractionAt) { closure($0.0, $0.0.itemValue) }
+    var tableViewDidBeginMultipleSelectionInteraction: TableItemFunction<IndexPath, Void, (TableItemContext, Item) -> Void> {
+        toFunction(#selector(UITableViewDelegate.tableViewDidEndMultipleSelectionInteraction(_:)), toClosure())
     }
     
     @available(iOS 13.0, *)
-    @discardableResult
-    func tableViewDidEndMultipleSelectionInteraction(
-        _ closure: @escaping (TableContext) -> Void
-    ) -> TableList<SourceBase> {
-        tableList.set(\.didEndMultipleSelectionInteraction) { closure($0.0) }
+    var tableViewDidEndMultipleSelectionInteraction: TableFunction<Void, Void, (TableContext) -> Void> {
+        toFunction(#selector(UITableViewDelegate.tableView(_:didBeginMultipleSelectionInteractionAt:)), toClosure())
     }
     
     //Providing Custom Header and Footer Views
-    @discardableResult
-    func tableViewViewHeaderForSection(
-        _ closure: @escaping (TableSectionContext) -> UIView?
-    ) -> TableList<SourceBase> {
-        tableList.set(\.viewForHeaderInSection) { closure($0.0) }
+    var tableViewViewHeaderForSection: TableSectionFunction<Int, UIView?, (TableSectionContext) -> UIView?> {
+        toFunction(#selector(UITableViewDelegate.tableView(_:viewForHeaderInSection:)), toClosure())
     }
     
-    @discardableResult
-    func tableViewViewFooterForSection(
-        _ closure: @escaping (TableSectionContext) -> UIView?
-    ) -> TableList<SourceBase> {
-        tableList.set(\.viewForFooterInSection) { closure($0.0) }
+    var tableViewViewFooterForSection: TableSectionFunction<Int, UIView?, (TableSectionContext) -> UIView?> {
+        toFunction(#selector(UITableViewDelegate.tableView(_:viewForFooterInSection:)), toClosure())
     }
     
-    @discardableResult
-    func tableViewWillDisplayHeaderView(
-        _ closure: @escaping (TableSectionContext, UIView) -> Void
-    ) -> TableList<SourceBase> {
-        tableList.set(\.willDisplayHeaderViewForSection) { closure($0.0, $0.1.0) }
+    var tableViewWillDisplayHeaderView: TableSectionFunction<(Int, UIView), Void, (TableSectionContext, UIView) -> Void> {
+        toFunction(#selector(UITableViewDelegate.tableView(_:willDisplayHeaderView:forSection:)), \.0, toClosure())
     }
     
-    @discardableResult
-    func tableViewWillDisplayFooterView(
-        _ closure: @escaping (TableSectionContext, UIView) -> Void
-    ) -> TableList<SourceBase> {
-        tableList.set(\.willDisplayFooterViewForSection) { closure($0.0, $0.1.0) }
+    var tableViewWillDisplayFooterView: TableSectionFunction<(Int, UIView), Void, (TableSectionContext, UIView) -> Void> {
+        toFunction(#selector(UITableViewDelegate.tableView(_:willDisplayFooterView:forSection:)), \.0, toClosure())
     }
     
     //Providing Header, Footer, and Row Heights
-    @discardableResult
-    func tableViewHeightForRow(
-        _ closure: @escaping (TableItemContext, Item) -> CGFloat
-    ) -> TableList<SourceBase> {
-        tableList.set(\.heightForRowAt) { closure($0.0, $0.0.itemValue) }
+    var tableViewHeightForRow: TableItemFunction<IndexPath, CGFloat, (TableItemContext, Item) -> CGFloat> {
+        toFunction(#selector(UITableViewDelegate.tableView(_:heightForRowAt:)), toClosure())
     }
     
-    @discardableResult
-    func tableViewHeightForHeader(
-        _ closure: @escaping (TableSectionContext) -> CGFloat
-    ) -> TableList<SourceBase> {
-        tableList.set(\.heightForHeaderInSection) { closure($0.0) }
+    var tableViewHeightForHeader: TableSectionFunction<Int, CGFloat, (TableSectionContext) -> CGFloat> {
+        toFunction(#selector(UITableViewDelegate.tableView(_:heightForHeaderInSection:)), toClosure())
     }
     
-    @discardableResult
-    func tableViewHeightForFooter(
-        _ closure: @escaping (TableSectionContext) -> CGFloat
-    ) -> TableList<SourceBase> {
-        tableList.set(\.heightForFooterInSection) { closure($0.0) }
+    var tableViewHeightForFooter: TableSectionFunction<Int, CGFloat, (TableSectionContext) -> CGFloat> {
+        toFunction(#selector(UITableViewDelegate.tableView(_:heightForFooterInSection:)), toClosure())
     }
     
     //Estimating Heights for the Table's Content
-    @discardableResult
-    func tableViewEstimatedHeightForRow(
-        _ closure: @escaping (TableItemContext, Item) -> CGFloat
-    ) -> TableList<SourceBase> {
-        tableList.set(\.estimatedHeightForRowAt) { closure($0.0, $0.0.itemValue) }
+    var tableViewEstimatedHeightForRow: TableItemFunction<IndexPath, CGFloat, (TableItemContext, Item) -> CGFloat> {
+        toFunction(#selector(UITableViewDelegate.tableView(_:estimatedHeightForRowAt:)), toClosure())
     }
     
-    @discardableResult
-    func tableViewEstimatedHeightForHeader(
-        _ closure: @escaping (TableSectionContext) -> CGFloat
-    ) -> TableList<SourceBase> {
-        tableList.set(\.estimatedHeightForHeaderInSection) { closure($0.0) }
+    var tableViewEstimatedHeightForHeader: TableSectionFunction<Int, CGFloat, (TableSectionContext) -> CGFloat> {
+        toFunction(#selector(UITableViewDelegate.tableView(_:estimatedHeightForHeaderInSection:)), toClosure())
     }
     
-    @discardableResult
-    func tableViewEstimatedHeightForFooter(
-        _ closure: @escaping (TableSectionContext) -> CGFloat
-    ) -> TableList<SourceBase> {
-        tableList.set(\.estimatedHeightForFooterInSection) { closure($0.0) }
+    var tableViewEstimatedHeightForFooter: TableSectionFunction<Int, CGFloat, (TableSectionContext) -> CGFloat> {
+        toFunction(#selector(UITableViewDelegate.tableView(_:estimatedHeightForFooterInSection:)), toClosure())
     }
     
     //Managing Accessory Views
-    @discardableResult
-    func tableViewAccessoryButtonTapped(
-        _ closure: @escaping (TableItemContext, Item) -> Void
-    ) -> TableList<SourceBase> {
-        tableList.set(\.accessoryButtonTappedForRowWith) { closure($0.0, $0.0.itemValue) }
+    var tableViewAccessoryButtonTapped: TableItemFunction<IndexPath, Void, (TableItemContext, Item) -> Void> {
+        toFunction(#selector(UITableViewDelegate.tableView(_:accessoryButtonTappedForRowWith:)), toClosure())
     }
     
     //Responding to Row Actions
     @available(iOS 11.0, *)
-    @discardableResult
-    func tableViewLeadingSwipeActionsConfiguration(
-        _ closure: @escaping (TableItemContext, Item) -> UISwipeActionsConfiguration
-    ) -> TableList<SourceBase> {
-        tableList.set(\.leadingSwipeActionsConfigurationForRowAt) { closure($0.0, $0.0.itemValue) }
+    var tableViewLeadingSwipeActionsConfiguration: TableItemFunction<IndexPath, UISwipeActionsConfiguration?, (TableItemContext, Item) -> UISwipeActionsConfiguration> {
+        toFunction(#selector(UITableViewDelegate.tableView(_:leadingSwipeActionsConfigurationForRowAt:)), toClosure())
     }
     
     @available(iOS 11.0, *)
-    @discardableResult
-    func tableViewTrailingSwipeActionsConfiguration(
-        _ closure: @escaping (TableItemContext, Item) -> UISwipeActionsConfiguration
-    ) -> TableList<SourceBase> {
-        tableList.set(\.trailingSwipeActionsConfigurationForRowAt) { closure($0.0, $0.0.itemValue) }
+    var tableViewTrailingSwipeActionsConfiguration: TableItemFunction<IndexPath, UISwipeActionsConfiguration?, (TableItemContext, Item) -> UISwipeActionsConfiguration> {
+        toFunction(#selector(UITableViewDelegate.tableView(_:trailingSwipeActionsConfigurationForRowAt:)), toClosure())
     }
     
-    @discardableResult
-    func tableViewShouldShowMenuForRow(
-        _ closure: @escaping (TableItemContext, Item) -> Bool
-    ) -> TableList<SourceBase> {
-        tableList.set(\.shouldShowMenuForRowAt) { closure($0.0, $0.0.itemValue) }
+    var tableViewShouldShowMenuForRow: TableItemFunction<IndexPath, Bool, (TableItemContext, Item) -> Bool> {
+        toFunction(#selector(UITableViewDelegate.tableView(_:shouldShowMenuForRowAt:)), toClosure())
     }
     
-    @discardableResult
-    func tableViewCanPerformActionWithSender(
-        _ closure: @escaping (TableItemContext, Selector, Any?, Item) -> Bool
-    ) -> TableList<SourceBase> {
-        tableList.set(\.canPerformActionForRowAtWithSender) { closure($0.0, $0.1.0, $0.1.2, $0.0.itemValue) }
+    var tableViewCanPerformActionWithSender: TableItemFunction<(IndexPath, Selector, Any?), Bool, (TableItemContext, Selector, Any?, Item) -> Bool> {
+        toFunction(#selector(UITableViewDelegate.tableView(_:canPerformAction:forRowAt:withSender:)), \.0, toClosure())
     }
     
-    @discardableResult
-    func tableViewPerformActionWithSender(
-        _ closure: @escaping (TableItemContext, Selector, Any?, Item) -> Void
-    ) -> TableList<SourceBase> {
-        tableList.set(\.performActionForRowAtWithSender) { closure($0.0, $0.1.0, $0.1.2, $0.0.itemValue) }
+    var tableViewPerformActionWithSender: TableItemFunction<(IndexPath, Selector, Any?), Void, (TableItemContext, Selector, Any?, Item) -> Void> {
+        toFunction(#selector(UITableViewDelegate.tableView(_:performAction:forRowAt:withSender:)), \.0, toClosure())
     }
     
-    @discardableResult
-    func tableViewEditActionsForRow(
-        _ closure: @escaping (TableItemContext, Item) -> [UITableViewRowAction]?
-    ) -> TableList<SourceBase> {
-        tableList.set(\.editActionsForRowAt) { closure($0.0, $0.0.itemValue) }
+    var tableViewEditActionsForRow: TableItemFunction<IndexPath, [UITableViewRowAction]?, (TableItemContext, Item) -> [UITableViewRowAction]?> {
+        toFunction(#selector(UITableViewDelegate.tableView(_:editActionsForRowAt:)), toClosure())
     }
     
     //Managing Table View Highlights
-    @discardableResult
-    func tableViewShouldHighlight(
-        _ closure: @escaping (TableItemContext, Item) -> Bool
-    ) -> TableList<SourceBase> {
-        tableList.set(\.shouldHighlightRowAt) { closure($0.0, $0.0.itemValue) }
+    var tableViewShouldHighlight: TableItemFunction<IndexPath, Bool, (TableItemContext, Item) -> Bool> {
+        toFunction(#selector(UITableViewDelegate.tableView(_:shouldHighlightRowAt:)), toClosure())
     }
     
-    @discardableResult
-    func tableViewDidHighlight(
-        _ closure: @escaping (TableItemContext, Item) -> Void
-    ) -> TableList<SourceBase> {
-        tableList.set(\.didHighlightRowAt) { closure($0.0, $0.0.itemValue) }
+    var tableViewDidHighlight: TableItemFunction<IndexPath, Void, (TableItemContext, Item) -> Void> {
+        toFunction(#selector(UITableViewDelegate.tableView(_:didHighlightRowAt:)), toClosure())
     }
     
-    @discardableResult
-    func tableViewDidUnhighlight(
-        _ closure: @escaping (TableItemContext, Item) -> Void
-    ) -> TableList<SourceBase> {
-        tableList.set(\.didUnhighlightRowAt) { closure($0.0, $0.0.itemValue) }
+    var tableViewDidUnhighlight: TableItemFunction<IndexPath, Void, (TableItemContext, Item) -> Void> {
+        toFunction(#selector(UITableViewDelegate.tableView(_:didUnhighlightRowAt:)), toClosure())
     }
     
     //Editing Table Rows
-    @discardableResult
-    func tableViewWillBeginEditing(
-        _ closure: @escaping (TableItemContext, Item) -> Void
-    ) -> TableList<SourceBase> {
-        tableList.set(\.willBeginEditingRowAt) { closure($0.0, $0.0.itemValue) }
+    var tableViewWillBeginEditing: TableItemFunction<IndexPath, Void, (TableItemContext, Item) -> Void> {
+        toFunction(#selector(UITableViewDelegate.tableView(_:willBeginEditingRowAt:)), toClosure())
     }
     
-    @discardableResult
-    func tableViewDidEndEditing(
-        _ closure: @escaping (TableContext, IndexPath?) -> Void
-    ) -> TableList<SourceBase> {
-        tableList.set(\.didEndEditingRowAt) { closure($0.0, $0.1) }
+    var tableViewDidEndEditing: TableFunction<IndexPath?, Void, (TableContext, IndexPath?) -> Void> {
+        toFunction(#selector(UITableViewDelegate.tableView(_:didEndEditingRowAt:)), toClosure())
     }
     
-    @discardableResult
-    func tableViewEditingStyle(
-        _ closure: @escaping (TableItemContext, Item) -> UITableViewCell.EditingStyle
-    ) -> TableList<SourceBase> {
-        tableList.set(\.editingStyleForRowAt) { closure($0.0, $0.0.itemValue) }
+    var tableViewEditingStyle: TableItemFunction<IndexPath, UITableViewCell.EditingStyle, (TableItemContext, Item) -> UITableViewCell.EditingStyle> {
+        toFunction(#selector(UITableViewDelegate.tableView(_:editingStyleForRowAt:)), toClosure())
     }
     
-    @discardableResult
-    func tableViewTitleForDeleteConfirmationButton(
-        _ closure: @escaping (TableItemContext, Item) -> String?
-    ) -> TableList<SourceBase> {
-        tableList.set(\.titleForDeleteConfirmationButtonForRowAt) { closure($0.0, $0.0.itemValue) }
+    var tableViewTitleForDeleteConfirmationButton: TableItemFunction<IndexPath, String?, (TableItemContext, Item) -> String?> {
+        toFunction(#selector(UITableViewDelegate.tableView(_:titleForDeleteConfirmationButtonForRowAt:)), toClosure())
     }
     
-    @discardableResult
-    func tableViewShouldIndentWhileEditing(
-        _ closure: @escaping (TableItemContext, Item) -> Bool
-    ) -> TableList<SourceBase> {
-        tableList.set(\.shouldIndentWhileEditingRowAt) { closure($0.0, $0.0.itemValue) }
+    var tableViewShouldIndentWhileEditing: TableItemFunction<IndexPath, Bool, (TableItemContext, Item) -> Bool> {
+        toFunction(#selector(UITableViewDelegate.tableView(_:shouldIndentWhileEditingRowAt:)), toClosure())
     }
     
     //Reordering Table Rows
-    @discardableResult
-    func tableViewTargetIndexPathForMoveFromRowAtToProposedIndexPath(
-        _ closure: @escaping (TableContext, IndexPath, IndexPath) -> IndexPath
-    ) -> TableList<SourceBase> {
-        tableList.set(\.targetIndexPathForMoveFromRowAtToProposedIndexPath) { closure($0.0, $0.1.0, $0.1.1) }
+    var tableViewTargetIndexPathForMoveFromRowAtToProposedIndexPath: TableFunction<(IndexPath, IndexPath), IndexPath, (TableContext, IndexPath, IndexPath) -> IndexPath> {
+        toFunction(#selector(UITableViewDelegate.tableView(_:targetIndexPathForMoveFromRowAt:toProposedIndexPath:)), toClosure())
     }
             
     //Tracking the Removal of Views
-    @discardableResult
-    func tableViewdidEndDisplayingForRowAt(
-        _ closure: @escaping (TableContext, UITableViewCell, IndexPath) -> Void
-    ) -> TableList<SourceBase> {
-        tableList.set(\.didEndDisplayingForRowAt) { closure($0.0, $0.1.0, $0.1.1) }
+    var tableViewdidEndDisplayingForRowAt: TableFunction<(UITableViewCell, IndexPath), Void, (TableContext, UITableViewCell, IndexPath) -> Void> {
+        toFunction(#selector(UITableViewDelegate.tableView(_:didEndDisplaying:forRowAt:)), toClosure())
     }
     
-    @discardableResult
-    func tableViewDidEndDisplayingHeaderView(
-        _ closure: @escaping (TableContext, UIView, Int) -> Void
-    ) -> TableList<SourceBase> {
-        tableList.set(\.didEndDisplayingHeaderViewForSection) { closure($0.0, $0.1.0, $0.1.1) }
+    var tableViewDidEndDisplayingHeaderView: TableFunction<(UIView, Int), Void, (TableContext, UIView, Int) -> Void> {
+        toFunction(#selector(UITableViewDelegate.tableView(_:didEndDisplayingHeaderView:forSection:)), toClosure())
     }
     
-    @discardableResult
-    func tableViewDidEndDisplayingFooterView(
-        _ closure: @escaping (TableContext, UIView, Int) -> Void
-    ) -> TableList<SourceBase> {
-        tableList.set(\.didEndDisplayingFooterViewForSection) { closure($0.0, $0.1.0, $0.1.1) }
+    var tableViewDidEndDisplayingFooterView: TableFunction<(UIView, Int), Void, (TableContext, UIView, Int) -> Void> {
+        toFunction(#selector(UITableViewDelegate.tableView(_:didEndDisplayingFooterView:forSection:)), toClosure())
     }
     
     //Managing Table View Focus
-    @discardableResult
-    func tableViewCanFocusRow(
-        _ closure: @escaping (TableItemContext, Item) -> Bool
-    ) -> TableList<SourceBase> {
-        tableList.set(\.canFocusRowAt) { closure($0.0, $0.0.itemValue) }
+    var tableViewCanFocusRow: TableItemFunction<IndexPath, Bool, (TableItemContext, Item) -> Bool> {
+        toFunction(#selector(UITableViewDelegate.tableView(_:canFocusRowAt:)), toClosure())
     }
     
-    @discardableResult
-    func tableViewShouldUpdateFocusIn(
-        _ closure: @escaping (TableContext, UITableViewFocusUpdateContext) -> Bool
-    ) -> TableList<SourceBase> {
-        tableList.set(\.shouldUpdateFocusIn) { closure($0.0, $0.1) }
+    var tableViewShouldUpdateFocusIn: TableFunction<UITableViewFocusUpdateContext, Bool, (TableContext, UITableViewFocusUpdateContext) -> Bool> {
+        toFunction(#selector(UITableViewDelegate.tableView(_:shouldUpdateFocusIn:)), toClosure())
     }
     
-    @discardableResult
-    func tableViewdidUpdateFocusInWith(
-        _ closure: @escaping (TableContext, UITableViewFocusUpdateContext, UIFocusAnimationCoordinator) -> Void
-    ) -> TableList<SourceBase> {
-        tableList.set(\.didUpdateFocusInWith) { closure($0.0, $0.1.0, $0.1.1) }
+    var tableViewDidUpdateFocusInWith: TableFunction<(UITableViewFocusUpdateContext, UIFocusAnimationCoordinator), Void, (TableContext, UITableViewFocusUpdateContext, UIFocusAnimationCoordinator) -> Void> {
+        toFunction(#selector(UITableViewDelegate.tableView(_:didUpdateFocusIn:with:)), toClosure())
     }
     
-    @discardableResult
-    func tableViewIndexPathForPreferredFocusedView(
-        _ closure: @escaping (TableContext) -> IndexPath?
-    ) -> TableList<SourceBase> {
-        tableList.set(\.indexPathForPreferredFocusedView) { closure($0.0) }
+    var tableViewIndexPathForPreferredFocusedView: TableFunction<Void, IndexPath?, (TableContext) -> IndexPath?> {
+        toFunction(#selector(UITableViewDelegate.indexPathForPreferredFocusedView(in:)), toClosure())
     }
     
     //Instance Methods
     @available(iOS 13.0, *)
-    @discardableResult
-    func tableViewContextMenuConfigurationForRow(
-        _ closure: @escaping (TableItemContext, CGPoint, Item) -> UIContextMenuConfiguration
-    ) -> TableList<SourceBase> {
-        tableList.set(\.contextMenuConfigurationForRowAtPoint) { closure($0.0, $0.1.1, $0.0.itemValue) }
+    var tableViewContextMenuConfigurationForRow: TableItemFunction<(IndexPath, CGPoint), UIContextMenuConfiguration, (TableItemContext, CGPoint, Item) -> UIContextMenuConfiguration> {
+        toFunction(#selector(UITableViewDelegate.tableView(_:contextMenuConfigurationForRowAt:point:)), \.0, toClosure())
     }
     
     @available(iOS 13.0, *)
-    @discardableResult
-    func tableViewPreviewForDismissingContextMenuWithConfiguration(
-        _ closure: @escaping (TableContext, UIContextMenuConfiguration) -> UITargetedPreview
-    ) -> TableList<SourceBase> {
-        tableList.set(\.previewForDismissingContextMenuWithConfiguration) { closure($0.0, $0.1) }
+    var tableViewPreviewForDismissingContextMenuWithConfiguration: TableFunction<UIContextMenuConfiguration, UITargetedPreview, (TableContext, UIContextMenuConfiguration) -> UITargetedPreview> {
+        toFunction(#selector(UITableViewDelegate.tableView(_:previewForDismissingContextMenuWithConfiguration:)), toClosure())
     }
     
     @available(iOS 13.0, *)
-    @discardableResult
-    func tableViewPreviewForHighlightingContextMenuWithConfiguration(
-        _ closure: @escaping (TableContext, UIContextMenuConfiguration) -> UITargetedPreview
-    ) -> TableList<SourceBase> {
-        tableList.set(\.previewForHighlightingContextMenuWithConfiguration) { closure($0.0, $0.1) }
+    var tableViewPreviewForHighlightingContextMenuWithConfiguration: TableFunction<UIContextMenuConfiguration, UITargetedPreview, (TableContext, UIContextMenuConfiguration) -> UITargetedPreview> {
+        toFunction(#selector(UITableViewDelegate.tableView(_:previewForHighlightingContextMenuWithConfiguration:)), toClosure())
     }
 
     @available(iOS 13.0, *)
-    @discardableResult
-    func tableViewWillPerformPreviewActionForMenuWithAnimator(
-        _ closure: @escaping (TableContext, UIContextMenuConfiguration, UIContextMenuInteractionCommitAnimating) -> Void
-    ) -> TableList<SourceBase> {
-        tableList.set(\.willPerformPreviewActionForMenuWithAnimator) { closure($0.0, $0.1.0, $0.1.1) }
+    var tableViewWillPerformPreviewActionForMenuWithAnimator: TableFunction<(UIContextMenuConfiguration, UIContextMenuInteractionCommitAnimating), Void, (TableContext, UIContextMenuConfiguration, UIContextMenuInteractionCommitAnimating) -> Void> {
+        toFunction(#selector(UITableViewDelegate.tableView(_:willPerformPreviewActionForMenuWith:animator:)), toClosure())
     }
 }
 

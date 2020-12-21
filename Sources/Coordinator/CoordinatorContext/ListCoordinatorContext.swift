@@ -38,7 +38,7 @@ where SourceBase.SourceBase == SourceBase {
     var isSectioned = true
     var listViewGetter: (() -> ListView?)?
     var resetDelegates: (() -> Void)?
-    var update: ((Int, CoordinatorUpdate) -> [(CoordinatorContext, CoordinatorUpdate)])?
+    var update: ((Int, CoordinatorUpdate) -> [(CoordinatorContext, CoordinatorUpdate)]?)?
     var contextAtIndex: ((Int, IndexPath, ListView) -> [(IndexPath, CoordinatorContext)])?
     
     var listView: ListView? { listViewGetter?() }

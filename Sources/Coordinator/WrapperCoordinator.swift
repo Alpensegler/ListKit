@@ -41,7 +41,7 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
     func toWrapped(_ other: Other) -> Wrapped {
         let context = other.listCoordinator.context(with: other.listContextSetups)
         context.update = { [weak self] (_, subupdate) in
-            guard let self = self else { return [] }
+            guard let self = self else { return nil }
             let subupdate = subupdate as! Subupdate
             let update = WrapperCoordinatorUpdate(
                 coordinator: self,

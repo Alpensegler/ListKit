@@ -182,7 +182,7 @@ where
     
     func addContext(to context: ListCoordinatorContext<Source.Element.SourceBase>) {
         context.update = { [weak self] (index, subupdate) in
-            guard let self = self else { return [] }
+            guard let self = self else { return nil }
             let subupdate = subupdate as! ListCoordinatorUpdate<Source.Element.SourceBase>
             if let update = self.currentCoordinatorUpdate as? SourcesCoordinatorUpdate<SourceBase, Source> {
                 update.add(subupdate: subupdate, at: index)

@@ -92,14 +92,14 @@ public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase
 }
 
 extension ListCoordinator {
-    func contextAndUpdates(update: CoordinatorUpdate) -> [(CoordinatorContext, CoordinatorUpdate)] {
-        var results = [(CoordinatorContext, CoordinatorUpdate)]()
+    func contextAndUpdates(update: CoordinatorUpdate) -> [(CoordinatorContext, CoordinatorUpdate)]? {
+        var results: [(CoordinatorContext, CoordinatorUpdate)]?
         for context in listContexts {
             guard let context = context.context else { continue }
             if context.listView != nil {
-                results.append((context, update))
-            } else if let parentUpdate = context.update {
-                results += parentUpdate(context.index, update)
+                results = results.map { $0 + [(context, update)] } ?? [(context, update)]
+            } else if let parentUpdate = context.update?(context.index, update) {
+                results = results.map { $0 + parentUpdate } ?? parentUpdate
             }
         }
         return results

@@ -14,7 +14,7 @@ public extension ListIndexContext where Index == IndexPath {
         applyBy collectionView: CollectionView,
         animated: Bool = true,
         completion: ((Bool) -> Void)? = nil
-    ) -> CollectionList<Adapter.SourceBase> {
+    ) -> CollectionList<Adapter.AdapterBase> {
         let adapter = itemValue[keyPath: keyPath]
         let list = adapter.apply(
             by: collectionView,
@@ -41,7 +41,7 @@ public extension ListIndexContext where Index == IndexPath {
         applyBy tableView: TableView,
         animated: Bool = true,
         completion: ((Bool) -> Void)? = nil
-    ) -> TableList<Adapter.SourceBase> {
+    ) -> TableList<Adapter.AdapterBase> {
         let adapter = itemValue[keyPath: keyPath]
         let list = adapter.apply(
             by: tableView,
@@ -65,14 +65,14 @@ public extension ListIndexContext where Index == IndexPath {
 
 public extension ListIndexContext where Index == IndexPath, SourceBase.Item: CollectionListAdapter {
     @discardableResult
-    func nestedAdapter(applyBy collectionView: CollectionView) -> CollectionList<SourceBase.Item.SourceBase> {
+    func nestedAdapter(applyBy collectionView: CollectionView) -> CollectionList<SourceBase.Item.AdapterBase> {
         nestedAdapter(\.self, applyBy: collectionView)
     }
 }
 
 public extension ListIndexContext where Index == IndexPath, SourceBase.Item: TableListAdapter {
     @discardableResult
-    func nestedAdapter(applyBy tableView: TableView) -> TableList<SourceBase.Item.SourceBase> {
+    func nestedAdapter(applyBy tableView: TableView) -> TableList<SourceBase.Item.AdapterBase> {
         nestedAdapter(\.self, applyBy: tableView)
     }
 }

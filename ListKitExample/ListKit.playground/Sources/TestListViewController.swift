@@ -10,9 +10,7 @@ public class TestListViewController: UIViewController, UpdatableTableListAdapter
         .tableViewDidSelectRow { [unowned self] (context, item) in
             self.batchRemove(at: context.item)
         }
-        .tableViewHeaderTitleForSection { (context) -> String? in
-            "items"
-        }
+        .tableViewHeaderTitleForSection("items")
     
     final class ItemSource: UpdatableTableListAdapter {
         public typealias Item = Any
@@ -38,9 +36,7 @@ public class TestListViewController: UIViewController, UpdatableTableListAdapter
                         }
                 }
             }
-            .tableViewHeaderTitleForSection { (context) -> String? in
-                "item"
-            }
+            .tableViewHeaderTitleForSection("item")
         }
     }
     
@@ -53,9 +49,7 @@ public class TestListViewController: UIViewController, UpdatableTableListAdapter
             }
             Sources(sections: [[1, 2, 3], [1, 2, 3]])
                 .tableViewCellForRow()
-                .tableViewHeaderTitleForSection { (context) -> String? in
-                    "sections"
-                }
+                .tableViewHeaderTitleForSection("sections")
             AnyTableSources {
                 Sources(item: 2)
                     .tableViewCellForRow()
@@ -69,9 +63,7 @@ public class TestListViewController: UIViewController, UpdatableTableListAdapter
                         context.deselectItem(animated: false)
                         print(item)
                     }
-            }.tableViewHeaderTitleForSection { (context) -> String? in
-                "sources"
-            }
+            }.tableViewHeaderTitleForSection("sources")
         }
     }
     

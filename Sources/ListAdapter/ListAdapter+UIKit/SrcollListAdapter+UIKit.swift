@@ -10,78 +10,63 @@ import UIKit
 
 public extension DataSource {
     typealias ScrollContext = ListContext<UIScrollView, SourceBase>
-}
-
-public extension ScrollListAdapter {
-    @discardableResult
-    func scrollViewDidScroll(_ closure: @escaping (ScrollContext) -> Void) -> ScrollList<SourceBase> {
-        scrollList.set(\.didScroll) { closure($0.0) }
+    typealias ScrollFunction<Input, Output, Closure> = ListDelegate.Function<UIScrollView, Self, ScrollList<AdapterBase>, Input, Output, Closure>
+    
+    var scrollViewDidScroll: ScrollFunction<Void, Void, (ScrollContext) -> Void> {
+        toFunction(#selector(UIScrollViewDelegate.scrollViewDidScroll), toClosure())
     }
     
-    @discardableResult
-    func scrollViewDidZoom(_ closure: @escaping (ScrollContext) -> Void) -> ScrollList<SourceBase> {
-        scrollList.set(\.didZoom) { closure($0.0) }
+    var scrollViewDidZoom: ScrollFunction<Void, Void, (ScrollContext) -> Void> {
+        toFunction(#selector(UIScrollViewDelegate.scrollViewDidZoom), toClosure())
     }
     
-    @discardableResult
-    func scrollViewWillBeginDragging(_ closure: @escaping (ScrollContext) -> Void) -> ScrollList<SourceBase> {
-        scrollList.set(\.willBeginDragging) { closure($0.0) }
+    var scrollViewWillBeginDragging: ScrollFunction<Void, Void, (ScrollContext) -> Void> {
+        toFunction(#selector(UIScrollViewDelegate.scrollViewWillBeginDragging), toClosure())
     }
     
-    @discardableResult
-    func scrollViewWillEndDragging(_ closure: @escaping (ScrollContext, CGPoint, UnsafeMutablePointer<CGPoint>) -> Void) -> ScrollList<SourceBase> {
-        scrollList.set(\.willEndDragging) { closure($0.0, $0.1.0, $0.1.1) }
+    var scrollViewWillEndDragging: ScrollFunction<(CGPoint, UnsafeMutablePointer<CGPoint>), Void, (ScrollContext, CGPoint, UnsafeMutablePointer<CGPoint>) -> Void> {
+        toFunction(#selector(UIScrollViewDelegate.scrollViewWillEndDragging), toClosure())
     }
     
-    @discardableResult
-    func scrollViewDidEndDragging(_ closure: @escaping (ScrollContext, Bool) -> Void) -> ScrollList<SourceBase> {
-        scrollList.set(\.didEndDragging) { closure($0.0, $0.1) }
+    var scrollViewDidEndDragging: ScrollFunction<Bool, Void, (ScrollContext, Bool) -> Void> {
+        toFunction(#selector(UIScrollViewDelegate.scrollViewDidEndDragging), toClosure())
     }
     
-    @discardableResult
-    func scrollViewWillBeginDecelerating(_ closure: @escaping (ScrollContext) -> Void) -> ScrollList<SourceBase> {
-        scrollList.set(\.willBeginDecelerating) { closure($0.0) }
+    var scrollViewWillBeginDecelerating: ScrollFunction<Void, Void, (ScrollContext) -> Void> {
+        toFunction(#selector(UIScrollViewDelegate.scrollViewWillBeginDecelerating), toClosure())
     }
     
-    @discardableResult
-    func scrollViewDidEndDecelerating(_ closure: @escaping (ScrollContext) -> Void) -> ScrollList<SourceBase> {
-        scrollList.set(\.didEndDecelerating) { closure($0.0) }
+    var scrollViewDidEndDecelerating: ScrollFunction<Void, Void, (ScrollContext) -> Void> {
+        toFunction(#selector(UIScrollViewDelegate.scrollViewDidEndDecelerating), toClosure())
     }
     
-    @discardableResult
-    func scrollViewDidEndScrollingAnimation(_ closure: @escaping (ScrollContext) -> Void) -> ScrollList<SourceBase> {
-        scrollList.set(\.didEndScrollingAnimation) { closure($0.0) }
+    var scrollViewDidEndScrollingAnimation: ScrollFunction<Void, Void, (ScrollContext) -> Void> {
+        toFunction(#selector(UIScrollViewDelegate.scrollViewDidEndScrollingAnimation), toClosure())
     }
     
-    @discardableResult
-    func viewForZooming(_ closure: @escaping (ScrollContext) -> UIView?) -> ScrollList<SourceBase> {
-        scrollList.set(\.viewForZooming) { closure($0.0) }
+    var viewForZooming: ScrollFunction<Void, UIView?, (ScrollContext) -> UIView?> {
+        toFunction(#selector(UIScrollViewDelegate.viewForZooming), toClosure())
     }
     
-    @discardableResult
-    func scrollViewWillBeginZooming(_ closure: @escaping (ScrollContext, UIView?) -> Void) -> ScrollList<SourceBase> {
-        scrollList.set(\.willBeginZooming) { closure($0.0, $0.1) }
+    var scrollViewWillBeginZooming: ScrollFunction<UIView?, Void, (ScrollContext, UIView?) -> Void> {
+        toFunction(#selector(UIScrollViewDelegate.scrollViewWillBeginZooming), toClosure())
     }
     
-    @discardableResult
-    func scrollViewDidEndZooming(_ closure: @escaping (ScrollContext, UIView?, CGFloat) -> Void) -> ScrollList<SourceBase> {
-        scrollList.set(\.didEndZooming) { closure($0.0, $0.1.0, $0.1.1) }
+    var scrollViewDidEndZooming: ScrollFunction<(UIView?, CGFloat), Void, (ScrollContext, UIView?, CGFloat) -> Void> {
+        toFunction(#selector(UIScrollViewDelegate.scrollViewDidEndZooming), toClosure())
     }
     
-    @discardableResult
-    func scrollViewShouldScrollToTop(_ closure: @escaping (ScrollContext) -> Bool) -> ScrollList<SourceBase> {
-        scrollList.set(\.shouldScrollToTop) { closure($0.0) }
+    var scrollViewShouldScrollToTop: ScrollFunction<Void, Bool, (ScrollContext) -> Bool> {
+        toFunction(#selector(UIScrollViewDelegate.scrollViewShouldScrollToTop), toClosure())
     }
     
-    @discardableResult
-    func scrollViewDidScrollToTop(_ closure: @escaping (ScrollContext) -> Void) -> ScrollList<SourceBase> {
-        scrollList.set(\.didScrollToTop) { closure($0.0) }
+    var scrollViewDidScrollToTop: ScrollFunction<Void, Void, (ScrollContext) -> Void> {
+        toFunction(#selector(UIScrollViewDelegate.scrollViewDidScrollToTop), toClosure())
     }
     
     @available(iOS 11.0, *)
-    @discardableResult
-    func scrollViewDidChangeAdjustedContentInset(_ closure: @escaping (ScrollContext) -> Void) -> ScrollList<SourceBase> {
-        scrollList.set(\.didChangeAdjustedContentInset) { closure($0.0) }
+    var scrollViewDidChangeAdjustedContentInset: ScrollFunction<Void, Void, (ScrollContext) -> Void> {
+        toFunction(#selector(UIScrollViewDelegate.scrollViewDidChangeAdjustedContentInset), toClosure())
     }
 }
 

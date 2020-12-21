@@ -7,12 +7,8 @@
 
 public typealias AnyTableSources = TableList<AnySources>
 
-public extension TableList where SourceBase == AnySources {
-    init<Source: TableListAdapter>(_ dataSource: Source, options: ListOptions = .init()) {
-        self.init(erase: dataSource.tableList, options: options)
-    }
-    
-    init<Source: TableListAdapter>(
+public extension TableList where Source == AnySources {
+    convenience init<Source: TableListAdapter>(
         options: ListOptions = .init(),
         @AnyTableSourcesBuilder content: () -> Source
     ) {

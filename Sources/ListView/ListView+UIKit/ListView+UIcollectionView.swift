@@ -14,12 +14,12 @@ extension UICollectionView: UIListView, SetuptableListView {
     public typealias Cell = UICollectionViewCell
     public typealias Animation = Bool
     
-    func setup(with listDelegate: ListDelegate) {
+    func setup(with listDelegate: Delegate) {
         dataSource = listDelegate
         delegate = listDelegate
     }
     
-    func isDelegate(_ listDelegate: ListDelegate) -> Bool {
+    func isDelegate(_ listDelegate: Delegate) -> Bool {
         dataSource === listDelegate && delegate === listDelegate
     }
 }

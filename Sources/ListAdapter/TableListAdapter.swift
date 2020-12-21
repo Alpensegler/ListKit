@@ -6,63 +6,17 @@
 //
 
 public protocol TableListAdapter: ScrollListAdapter {
-    var tableList: TableList<SourceBase> { get }
+    var tableList: TableList<AdapterBase> { get }
 }
 
 @propertyWrapper
-@dynamicMemberLookup
-public struct TableList<Source: DataSource>: TableListAdapter, UpdatableDataSource
-where Source.SourceBase == Source {
-    public typealias Item = Source.Item
-    public typealias SourceBase = Source
-    let storage: ListAdapterStorage<Source>
-    let erasedGetter: (Self, ListOptions) -> TableList<AnySources>
-    
-    public var sourceBase: Source { source }
-    public var source: Source {
-        get { storage.source }
-        nonmutating set { storage.source = newValue }
-    }
-    
-    public var listUpdate: ListUpdate<SourceBase>.Whole { source.listUpdate }
-    public var listDiffer: ListDiffer<Source> { source.listDiffer }
-    public var listOptions: ListOptions { source.listOptions }
-    
-    public var listCoordinator: ListCoordinator<Source> { storage.listCoordinator }
-    public let listContextSetups: [(ListCoordinatorContext<SourceBase>) -> Void]
-    
-    public var coordinatorStorage: CoordinatorStorage<Source> { storage.coordinatorStorage }
-    
+public final class TableList<Source: DataSource>: ScrollList<Source>, TableListAdapter
+where Source.AdapterBase == Source {
     public var tableList: TableList<Source> { self }
-    
-    public var wrappedValue: Source {
+    public var projectedValue: TableList<Source> { self }
+    public override var wrappedValue: Source {
         get { source }
-        nonmutating set { source = newValue }
-    }
-    
-    public var projectedValue: TableList<Source> {
-        get { self }
-        set { self = newValue }
-    }
-    
-    public subscript<Value>(dynamicMember path: KeyPath<Source, Value>) -> Value {
-        source[keyPath: path]
-    }
-    
-    public subscript<Value>(dynamicMember path: WritableKeyPath<Source, Value>) -> Value {
-        get { source[keyPath: path] }
-        set { source[keyPath: path] = newValue }
-    }
-    
-    init(
-        listContextSetups: [(ListCoordinatorContext<SourceBase>) -> Void],
-        source: Source,
-        erasedGetter: @escaping (Self, ListOptions) -> TableList<AnySources> = Self.defaultErasedGetter
-    ) {
-        self.listContextSetups = listContextSetups
-        self.erasedGetter = erasedGetter
-        self.storage = .init(source: source)
-        storage.makeListCoordinator = { source.listCoordinator }
+        set { source = newValue }
     }
 }
 
@@ -73,11 +27,10 @@ public extension TableListAdapter {
         update: ListUpdate<SourceBase>.Whole?,
         animated: Bool = true,
         completion: ((Bool) -> Void)? = nil
-    ) -> TableList<SourceBase> {
+    ) -> TableList<AdapterBase> {
         let tableList = self.tableList
         tableView.listDelegate.setCoordinator(
-            coordinator: tableList.storage.listCoordinator,
-            setups: listContextSetups,
+            context: listCoordinatorContext,
             update: update,
             animated: animated,
             completion: completion
@@ -90,7 +43,7 @@ public extension TableListAdapter {
         by tableView: TableView,
         animated: Bool = true,
         completion: ((Bool) -> Void)? = nil
-    ) -> TableList<SourceBase> {
+    ) -> TableList<AdapterBase> {
         apply(by: tableView, update: listUpdate, animated: animated, completion: completion)
     }
 }
@@ -99,20 +52,3 @@ extension TableList: CustomStringConvertible, CustomDebugStringConvertible {
     public var description: String { "TableList(\(source))" }
     public var debugDescription: String { "TableList(\(source))" }
 }
-
-extension TableList: ListAdapter {
-    typealias View = TableView
-    typealias Erased = TableList<AnySources>
-}
-
-#if os(iOS) || os(tvOS)
-
-import UIKit
-
-extension TableList {
-    static var rootKeyPath: ReferenceWritableKeyPath<CoordinatorContext, UITableListDelegate> {
-        \.tableListDelegate
-    }
-}
-
-#endif

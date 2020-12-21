@@ -121,9 +121,7 @@ where
         _ source: Source,
         sectioned: Bool? = nil
     ) -> (subsources: ContiguousArray<Subsource>, sectioned: Bool) {
-        var sectioned = sectioned ?? (options.preferSection || listContexts.contains {
-            $0.context?.selfSelectorSets.hasIndex == true
-        })
+        var sectioned = sectioned ?? super.isSectioned
         var (id, offset, itemOffset) = (0, 0, 0)
         var itemSources = ContiguousArray<Subsource>(capacity: source.count)
         var subsources = ContiguousArray<Subsource>(capacity: source.count)
@@ -133,7 +131,7 @@ where
                 elements: settingIndex(itemSources),
                 update: .init(way: update.way)
             )
-            let context = coordinator.context()
+            let context = coordinator.context(with: .init())
             itemSources.forEach {
                 $0.context.isSectioned = false
                 coordinator.addContext(to: $0.context)
@@ -150,8 +148,7 @@ where
         }
         
         for element in source {
-            let coordinator = element.listCoordinator
-            let context = coordinator.context(with: element.listContextSetups)
+            let context = element.listCoordinatorContext, coordinator = context.listCoordinator
             if coordinator.sourceType.isSection {
                 addContext(to: context)
                 if !itemSources.isEmpty { addItemSources() }
@@ -207,9 +204,13 @@ where
         }
     }
     
-    override func item(at indexPath: IndexPath) -> Item {
+    func subContextIndex(at indexPath: IndexPath) -> (SourceElement<Source.Element>, IndexPath) {
         let index = sourceIndex(for: indexPath), context = subsources[index]
-        let indexPath = indexPath.offseted(-context.offset, isSection: notItems)
+        return (context, indexPath.offseted(-context.offset, isSection: notItems))
+    }
+    
+    override func item(at indexPath: IndexPath) -> Item {
+        let (context, indexPath) = subContextIndex(at: indexPath)
         return context.coordinator.item(at: indexPath)
     }
     
@@ -231,10 +232,8 @@ where
     }
     
     // Setup
-    override func context(
-        with setups: [(ListCoordinatorContext<SourceBase>) -> Void] = []
-    ) -> ListCoordinatorContext<SourceBase> {
-        let context = SourcesCoordinatorContext(self, setups: setups)
+    override func context(with delegates: ListDelegate) -> ListCoordinatorContext<SourceBase> {
+        let context = SourcesCoordinatorContext(self).context(with: delegates)
         listContexts.append(.init(context: context))
         return context
     }

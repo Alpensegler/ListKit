@@ -28,7 +28,9 @@ public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase
     
     var sourceBaseType: Any.Type { SourceBase.self }
     var isSectioned: Bool {
-        options.preferSection || listContexts.contains { $0.context?.selectorSets.hasIndex == true }
+        options.preferSection || listContexts.contains {
+            $0.context?.listDelegate.hasSectionIndex == true
+        }
     }
     
     init(
@@ -57,10 +59,8 @@ public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase
     
     func configSourceType() -> SourceType { notImplemented() }
     
-    func context(
-        with setups: [(ListCoordinatorContext<SourceBase>) -> Void] = []
-    ) -> ListCoordinatorContext<SourceBase> {
-        let context = ListCoordinatorContext(self, setups: setups)
+    func context(with delegates: ListDelegate) -> ListCoordinatorContext<SourceBase> {
+        let context = ListCoordinatorContext(self).context(with: delegates)
         listContexts.append(.init(context: context))
         return context
     }

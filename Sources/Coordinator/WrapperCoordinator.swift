@@ -39,7 +39,7 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
     }
     
     func toWrapped(_ other: Other) -> Wrapped {
-        let context = other.listCoordinator.context(with: other.listContextSetups)
+        let context = other.listCoordinatorContext
         context.update = { [weak self] (_, subupdate) in
             guard let self = self else { return nil }
             let subupdate = subupdate as! Subupdate
@@ -94,10 +94,8 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
     }
     
     // Setup
-    override func context(
-        with setups: [(ListCoordinatorContext<SourceBase>) -> Void] = []
-    ) -> ListCoordinatorContext<SourceBase> {
-        let context = WrapperCoordinatorContext(self, setups: setups)
+    override func context(with delegates: ListDelegate) -> ListCoordinatorContext<SourceBase> {
+        let context = WrapperCoordinatorContext(self).context(with: delegates)
         listContexts.append(.init(context: context))
         return context
     }

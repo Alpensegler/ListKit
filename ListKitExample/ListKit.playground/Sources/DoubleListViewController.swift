@@ -1,7 +1,7 @@
 import UIKit
 import ListKit
 
-public class DoubleListViewController: UIViewController, TableListAdapter, CollectionListAdapter, UpdatableDataSource, ItemCachedDataSource {
+public class DoubleListViewController: UIViewController, TableListAdapter, CollectionListAdapter, UpdatableDataSource {
     private let _models = ["Roy", "Pinlin", "Zhiyi", "Frain", "Jack", "Cookie", "Kubrick", "Jeremy", "Juhao", "Herry"]
     
     public typealias Item = String
@@ -14,13 +14,6 @@ public class DoubleListViewController: UIViewController, TableListAdapter, Colle
         shuffledModels.removeFirst()
         shuffledModels.removeLast()
         return shuffledModels.shuffled()
-    }
-    
-    public var itemCached: ItemCached<DoubleListViewController, CGSize> {
-        withItemCached { (value) -> ItemCache in
-            print("fake calculating size for \(value)")
-            return CGSize(width: 75, height: 75)
-        }
     }
     
     public var scrollList: ScrollList<DoubleListViewController> {
@@ -43,8 +36,9 @@ public class DoubleListViewController: UIViewController, TableListAdapter, Colle
         collectionViewCellForItem(CenterLabelCell.self) { (cell, _, item) in
             cell.text = "\(item)"
         }
-        .collectionViewLayoutSizeForItem { (context, layout, item, cache) -> CGSize in
-            cache
+        .collectionViewLayoutSizeForItem { (item) -> CGSize in
+            print("fake calculating size for \(item)")
+            return CGSize(width: 75, height: 75)
         }
         .collectionViewLayoutInsetForSection(UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10))
     }

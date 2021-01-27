@@ -31,7 +31,6 @@ where SourceBase.SourceBase == SourceBase {
     
     var index = 0
     var isSectioned = true
-    var getCache: ((SourceBase.Item) -> Any)?
     var listViewGetter: (() -> ListView?)?
     var resetDelegates: (() -> Void)?
     var update: ((Int, CoordinatorUpdate) -> [(CoordinatorContext, CoordinatorUpdate)]?)?
@@ -49,11 +48,6 @@ where SourceBase.SourceBase == SourceBase {
         return self
     }
     
-    func context<ItemCache>(with cached: ((Item) -> ItemCache)?) -> Self {
-        if let cached = cached { getCache = { cached($0) } }
-        return self
-    }
-    
     func isCoordinator(_ coordinator: AnyObject) -> Bool { self.listCoordinator === coordinator }
     
     func reconfig() { }
@@ -61,9 +55,10 @@ where SourceBase.SourceBase == SourceBase {
     func numbersOfItems(in section: Int) -> Int { listCoordinator.numbersOfItems(in: section) }
     func cache<ItemCache>(for cached: inout Any?, at indexPath: IndexPath) -> ItemCache {
         cached as? ItemCache ?? {
-            guard let cache = getCache?(listCoordinator.item(at: indexPath)) as? ItemCache else {
+            guard let getCache = listDelegate.getCache as? (Item) -> ItemCache else {
                 fatalError("\(SourceBase.self) no cache with \(ItemCache.self)")
             }
+            let cache = getCache(listCoordinator.item(at: indexPath))
             cached = cache
             return cache
         }()

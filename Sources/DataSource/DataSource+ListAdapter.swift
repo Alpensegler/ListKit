@@ -32,9 +32,7 @@ public extension DataSource where Self: TableListAdapter, Self: CollectionListAd
 
 public extension DataSource where Self: ItemCachedDataSource {
     var listCoordinatorContext: ListCoordinatorContext<SourceBase> {
-        listCoordinator
-            .context(with: listDelegate)
-            .context(with: itemCached.cacheForItem)
+        listCoordinator.context(with: itemCached.listDelegate)
     }
 }
 
@@ -43,7 +41,7 @@ public extension DataSource where Self: TableListAdapter, Self: ItemCachedDataSo
         listCoordinator
             .context(with: scrollList.listDelegate)
             .context(with: tableList.listDelegate)
-            .context(with: itemCached.cacheForItem)
+            .context(with: itemCached.listDelegate)
     }
 }
 
@@ -52,7 +50,7 @@ public extension DataSource where Self: CollectionListAdapter, Self: ItemCachedD
         listCoordinator
             .context(with: scrollList.listDelegate)
             .context(with: collectionList.listDelegate)
-            .context(with: itemCached.cacheForItem)
+            .context(with: itemCached.listDelegate)
     }
 }
 
@@ -63,7 +61,7 @@ where Self: TableListAdapter, Self: CollectionListAdapter, Self: ItemCachedDataS
             .context(with: scrollList.listDelegate)
             .context(with: tableList.listDelegate)
             .context(with: collectionList.listDelegate)
-            .context(with: itemCached.cacheForItem)
+            .context(with: itemCached.listDelegate)
     }
 }
 

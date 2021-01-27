@@ -9,7 +9,7 @@ public extension DataSource where SourceBase == Self {
     func withItemCached<ItemCache>(
         cacheForItem: @escaping (Item) -> ItemCache
     ) -> ItemCached<SourceBase, ItemCache> {
-        .init(sourceBase: sourceBase, cacheForItem: cacheForItem)
+        .init(sourceBase, cacheForItem: cacheForItem)
     }
 }
 
@@ -27,12 +27,18 @@ where Base.SourceBase == Base {
     
     public var source: Source { sourceBase.source }
     public var sourceBase: Base
-    var cacheForItem: ((Item) -> ItemCache)?
+    public var listDelegate: ListDelegate
     
     public var itemCached: ItemCached<Base, ItemCache> { self }
-    public var listDelegate: ListDelegate { sourceBase.listDelegate }
     public var listCoordinatorContext: ListCoordinatorContext<Base> {
         sourceBase.listCoordinatorContext
+    }
+    
+    init(_ sourceBase: Base, cacheForItem: Any? = nil) {
+        var delegate = sourceBase.listDelegate
+        delegate.getCache = cacheForItem
+        self.listDelegate = delegate
+        self.sourceBase = sourceBase
     }
 }
 
@@ -42,7 +48,7 @@ where
     SourceBase.Source.SourceBase == AnySources,
     SourceBase.Item == Any
 {
-    var itemCached: ItemCached<SourceBase, ItemCache> { .init(sourceBase: sourceBase) }
+    var itemCached: ItemCached<SourceBase, ItemCache> { .init(sourceBase) }
 }
 
 public extension ItemCachedDataSource
@@ -52,5 +58,11 @@ where
     SourceBase.Source.Element.SourceBase.Item == SourceBase.Item,
     SourceBase.Source.Element.ItemCache == ItemCache
 {
-    var itemCached: ItemCached<SourceBase, ItemCache> { .init(sourceBase: sourceBase) }
+    var itemCached: ItemCached<SourceBase, ItemCache> { .init(sourceBase) }
 }
+
+#if canImport(CoreGraphics)
+import CoreGraphics
+public typealias ItemHeightCached<Base: DataSource> = ItemCached<Base, CGFloat> where Base.SourceBase == Base
+public typealias ItemSizeCached<Base: DataSource> = ItemCached<Base, CGSize> where Base.SourceBase == Base
+#endif

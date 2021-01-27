@@ -7,6 +7,12 @@
 
 import Foundation
 
+public extension ListDelegate.IndexFunction where Index == IndexPath, Output: FunctionOutput {
+    func callAsFunction(outputWithItemCached: @escaping (Source.Item) -> Output) -> Target {
+        toTarget(getCache: outputWithItemCached) { context, _ in context.cache() }
+    }
+}
+
 #if canImport(UIKit)
 import UIKit
 
@@ -14,7 +20,7 @@ import UIKit
 public extension ListDelegate.IndexFunction where Object: UICollectionView, Index == IndexPath {
     func callAsFunction(
         toCell: @escaping (ListIndexContext<Object, Source.SourceBase, Index>, Source.Item) -> UICollectionViewCell
-    ) -> Target where Output == UICollectionViewCell, Index == IndexPath {
+    ) -> Target where Output == UICollectionViewCell {
         toTarget { context, input in toCell(context, context.itemValue) }
     }
     
@@ -22,7 +28,7 @@ public extension ListDelegate.IndexFunction where Object: UICollectionView, Inde
         _ cellClass: Cell.Type,
         identifier: String = "",
         configCell: @escaping (Cell, ListIndexContext<Object, Source.SourceBase, Index>, Source.Item) -> Void = { _, _, _ in }
-    ) -> Target where Output == UICollectionViewCell, Index == IndexPath {
+    ) -> Target where Output == UICollectionViewCell {
         callAsFunction { (context, item) in
             let cell = context.dequeueReusableCell(cellClass, identifier: identifier)
             configCell(cell, context, item)
@@ -34,7 +40,7 @@ public extension ListDelegate.IndexFunction where Object: UICollectionView, Inde
         _ cellClass: Cell.Type,
         storyBoardIdentifier: String,
         configCell: @escaping (Cell, ListIndexContext<Object, Source.SourceBase, Index>, Source.Item) -> Void = { _, _, _ in }
-    ) -> Target where Output == UICollectionViewCell, Index == IndexPath {
+    ) -> Target where Output == UICollectionViewCell {
         callAsFunction { (context, item) in
             let cell = context.dequeueReusableCell(cellClass, storyBoardIdentifier: storyBoardIdentifier)
             configCell(cell, context, item)
@@ -46,7 +52,7 @@ public extension ListDelegate.IndexFunction where Object: UICollectionView, Inde
 public extension ListDelegate.IndexFunction where Object: UICollectionView, Index == IndexPath, Source: ItemCachedDataSource {
     func callAsFunction(
         toCellWithCache: @escaping (ListIndexContext<Object, Source.SourceBase, Index>, Source.Item, Source.ItemCache) -> UICollectionViewCell
-    ) -> Target where Output == UICollectionViewCell, Index == IndexPath {
+    ) -> Target where Output == UICollectionViewCell {
         toTarget { context, input in toCellWithCache(context, context.itemValue, context.cache()) }
     }
     
@@ -54,7 +60,7 @@ public extension ListDelegate.IndexFunction where Object: UICollectionView, Inde
         _ cellClass: Cell.Type,
         identifier: String = "",
         configCellWithCache: @escaping (Cell, ListIndexContext<Object, Source.SourceBase, Index>, Source.Item, Source.ItemCache) -> Void
-    ) -> Target where Output == UICollectionViewCell, Index == IndexPath {
+    ) -> Target where Output == UICollectionViewCell {
         callAsFunction { (context, item) in
             let cell = context.dequeueReusableCell(cellClass, identifier: identifier)
             configCellWithCache(cell, context, item, context.cache())
@@ -66,7 +72,7 @@ public extension ListDelegate.IndexFunction where Object: UICollectionView, Inde
         _ cellClass: Cell.Type,
         storyBoardIdentifier: String,
         configCellWithCache: @escaping (Cell, ListIndexContext<Object, Source.SourceBase, Index>, Source.Item, Source.ItemCache) -> Void
-    ) -> Target where Output == UICollectionViewCell, Index == IndexPath {
+    ) -> Target where Output == UICollectionViewCell {
         callAsFunction { (context, item) in
             let cell = context.dequeueReusableCell(cellClass, storyBoardIdentifier: storyBoardIdentifier)
             configCellWithCache(cell, context, item, context.cache())

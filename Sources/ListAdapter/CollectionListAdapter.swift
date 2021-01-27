@@ -53,9 +53,8 @@ extension CollectionList: CustomStringConvertible, CustomDebugStringConvertible 
     public var debugDescription: String { "CollectionList(\(source)" }
 }
 
-public extension CollectionList
-where Source: ItemCachedDataSource, Source.SourceBase.AdapterBase == Source.SourceBase {
-    var base: CollectionList<Source.SourceBase> {
-        .init(source.sourceBase, listDelegate: listDelegate)
+public extension CollectionList where Source: ItemCachedDataSource {
+    var base: CollectionList<Source.SourceBase.AdapterBase> {
+        .init(source.sourceBase.adapterBase, listDelegate: listDelegate)
     }
 }

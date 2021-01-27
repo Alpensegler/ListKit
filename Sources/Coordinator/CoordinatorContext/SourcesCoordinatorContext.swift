@@ -40,7 +40,7 @@ where
     }
     
     override func cache<ItemCache>(for cached: inout Any?, at indexPath: IndexPath) -> ItemCache {
-        guard getCache == nil else { return super.cache(for: &cached, at: indexPath) }
+        guard listDelegate.getCache == nil else { return super.cache(for: &cached, at: indexPath) }
         let (context, indexPath) = coordinator.subContextIndex(at: indexPath)
         return context.context.cache(for: &cached, at: indexPath)
     }

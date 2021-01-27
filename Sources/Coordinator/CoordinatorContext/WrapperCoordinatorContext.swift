@@ -36,7 +36,7 @@ where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSo
     }
     
     override func cache<ItemCache>(for cached: inout Any?, at indexPath: IndexPath) -> ItemCache {
-        guard getCache == nil, let wrapped = wrapped else {
+        guard listDelegate.getCache == nil, let wrapped = wrapped else {
             return super.cache(for: &cached, at: indexPath)
         }
         return wrapped.cache(for: &cached, at: indexPath)

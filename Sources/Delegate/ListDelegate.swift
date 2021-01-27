@@ -62,9 +62,11 @@ public struct ListDelegate: ExpressibleByArrayLiteral {
         }
         
         func toTarget(
+            getCache: Any? = nil,
             closure: @escaping (ListIndexContext<Object, Source.SourceBase, Index>, Input) -> Output
         ) -> Target {
             var delegate = sourceBase.listDelegate
+            delegate.getCache = getCache ?? delegate.getCache
             delegate.functions[selector] = closure
             return .init(sourceBase.adapterBase, listDelegate: delegate)
         }
@@ -72,6 +74,7 @@ public struct ListDelegate: ExpressibleByArrayLiteral {
     
     var extraSelectors = Set<Selector>()
     var functions = [Selector: Any]()
+    var getCache: Any?
     var hasSectionIndex = false
     
     public init(arrayLiteral elements: ListFunction...) {
@@ -87,6 +90,7 @@ public struct ListDelegate: ExpressibleByArrayLiteral {
         extraSelectors.formUnion(delegate.extraSelectors)
         functions.merge(delegate.functions) { _, new in new }
         hasSectionIndex = hasSectionIndex || delegate.hasSectionIndex
+        getCache = delegate.getCache ?? self.getCache
     }
 }
 

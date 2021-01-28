@@ -68,6 +68,7 @@ public struct ListDelegate: ExpressibleByArrayLiteral {
             var delegate = sourceBase.listDelegate
             delegate.getCache = getCache ?? delegate.getCache
             delegate.functions[selector] = closure
+            delegate.hasSectionIndex = delegate.hasSectionIndex || hasSectionIndex
             return .init(sourceBase.adapterBase, listDelegate: delegate)
         }
     }

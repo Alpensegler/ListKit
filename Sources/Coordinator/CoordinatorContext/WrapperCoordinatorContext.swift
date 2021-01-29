@@ -49,6 +49,9 @@ where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSo
         object: Object,
         with input: Input
     ) -> Output? {
+        guard extraSelectors.contains(function.selector) else {
+            return super.apply(function, root: root, object: object, with: input)
+        }
         let output = wrapped?.apply(function, root: root, object: object, with: input)
         if function.noOutput {
             return super.apply(function, root: root, object: object, with: input) ?? output
@@ -64,6 +67,9 @@ where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSo
         with input: Input,
         _ offset: Index
     ) -> Output? {
+        guard extraSelectors.contains(function.selector) else {
+            return super.apply(function, root: root, object: object, with: input, offset)
+        }
         let output = wrapped?.apply(function, root: root, object: object, with: input, offset)
         if function.noOutput {
             return super.apply(function, root: root, object: object, with: input, offset) ?? output

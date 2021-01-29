@@ -51,6 +51,9 @@ where
         object: Object,
         with input: Input
     ) -> Output? {
+        guard extraSelectors.contains(function.selector) else {
+            return super.apply(function, root: root, object: object, with: input)
+        }
         if function.noOutput {
             let output = coordinator.subsources.compactMap { (element) in
                 element.context.apply(function, root: root, object: object, with: input)
@@ -71,6 +74,9 @@ where
         with input: Input,
         _ offset: Index
     ) -> Output? {
+        guard extraSelectors.contains(function.selector) else {
+            return super.apply(function, root: root, object: object, with: input, offset)
+        }
         let path = function.indexForInput(input)
         let index = coordinator.sourceIndex(for: path.offseted(offset, plus: false))
         let context = coordinator.subsources[index]

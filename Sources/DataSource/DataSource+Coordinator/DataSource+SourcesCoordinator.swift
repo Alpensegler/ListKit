@@ -14,7 +14,7 @@ where
     SourceBase.Source.Element.SourceBase.Item == Item
 {
     var listCoordinator: ListCoordinator<SourceBase> {
-        SourcesCoordinator(sources: sourceBase)
+        DataSourcesCoordinator(sources: sourceBase)
     }
 }
 
@@ -26,7 +26,7 @@ where
     SourceBase.Source.Element.SourceBase.Item == Item
 {
     var listCoordinator: ListCoordinator<SourceBase> {
-        sourceBase.coordinator(with: SourcesCoordinator(sources: sourceBase))
+        sourceBase.coordinator(with: DataSourcesCoordinator(sources: sourceBase))
     }
 }
 

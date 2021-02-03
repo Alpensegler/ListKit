@@ -161,4 +161,44 @@ where
 {
     override var moveAndReloadable: Bool { !noneDiffUpdate }
     override func toSource(_ items: ContiguousArray<Item>) -> SourceBase.Source? { .init(items) }
+    
+    override func insert(_ element: SourceBase.Source.Element, at index: Int)
+    where SourceBase.Source: RangeReplaceableCollection {
+        insertElement(element, at: index)
+    }
+        
+    override func insert<C: Collection>(contentsOf elements: C, at index: Int)
+    where SourceBase.Source: RangeReplaceableCollection, C.Element == SourceBase.Source.Element {
+        insertElements(contentsOf: elements, at: index)
+    }
+        
+    override func append(_ element: SourceBase.Source.Element)
+    where SourceBase.Source: RangeReplaceableCollection {
+        appendElement(element)
+    }
+        
+    override func append<S: Sequence>(contentsOf elements: S)
+    where SourceBase.Source: RangeReplaceableCollection, S.Element == SourceBase.Source.Element {
+        appendElements(contentsOf: elements)
+    }
+        
+    override func remove(at index: Int)
+    where SourceBase.Source: RangeReplaceableCollection {
+        removeElement(at: index)
+    }
+    
+    override func remove(at indexSet: IndexSet)
+    where SourceBase.Source: RangeReplaceableCollection {
+        removeElements(at: indexSet)
+    }
+        
+    override func update(_ element: SourceBase.Source.Element, at index: Int)
+    where SourceBase.Source: RangeReplaceableCollection {
+        updateElement(element, at: index)
+    }
+        
+    override func move(at index: Int, to newIndex: Int)
+    where SourceBase.Source: RangeReplaceableCollection {
+        moveElement(at: index, to: newIndex)
+    }
 }

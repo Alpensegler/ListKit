@@ -14,8 +14,15 @@ public protocol UpdatableDataSource: DataSource {
 public final class CoordinatorStorage<SourceBase: DataSource>
 where SourceBase.SourceBase == SourceBase {
     var coordinator: ListCoordinator<SourceBase>?
+    var isObjectAssciated = false
+    weak var object: AnyObject?
     
     public init() { }
+    
+    init(_ object: AnyObject) {
+        self.object = object
+        self.isObjectAssciated = true
+    }
     
     deinit {
         coordinator?.listContexts.forEach {
@@ -141,12 +148,12 @@ extension UpdatableDataSource {
 #if canImport(ObjectiveC)
 import ObjectiveC.runtime
 
-private var coordinatorStorageKey: Void?
+private var storageKey: Void?
 
 public extension UpdatableDataSource where Self: AnyObject {
     var coordinatorStorage: CoordinatorStorage<SourceBase> {
-        get { Associator.getValue(key: &coordinatorStorageKey, from: self, initialValue: .init()) }
-        set { Associator.set(value: newValue, key: &coordinatorStorageKey, to: self) }
+        get { Associator.getValue(key: &storageKey, from: self, initialValue: .init(self)) }
+        set { Associator.set(value: newValue, key: &storageKey, to: self) }
     }
 }
 

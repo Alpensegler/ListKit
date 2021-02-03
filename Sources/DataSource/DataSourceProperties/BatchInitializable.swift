@@ -39,7 +39,7 @@ extension BatchInitializable {
     }
     
     init(section: ChangeSets<IndexSet>?, item: ChangeSets<IndexPathSet>?) {
-        self.init { update in
+        self.init(needSource: true) { update in
             section.map { update.section = $0 }
             item.map { update.item = $0 }
         }
@@ -49,36 +49,36 @@ extension BatchInitializable {
 public extension BatchInitializable
 where Source: RangeReplaceableCollection, Source.Element == SourceBase.Item {
     static func insert(_ item: Item, at index: Int) -> Self {
-        .init { $0.insert(item, at: index) }
+        .init(needSource: true) { $0.insert(item, at: index) }
     }
     
     static func insert<C: Collection>(contentsOf elements: C, at index: Int) -> Self
     where C.Element == Item {
-        .init { $0.insert(contentsOf: elements, at: index) }
+        .init(needSource: true) { $0.insert(contentsOf: elements, at: index) }
     }
     
     static func append(_ element: Item) -> Self {
-        .init { $0.append(element) }
+        .init(needSource: true) { $0.append(element) }
     }
     
     static func append<S: Sequence>(contentsOf items: S) -> Self where S.Element == Item {
-        .init { $0.append(contentsOf: items) }
+        .init(needSource: true) { $0.append(contentsOf: items) }
     }
     
     static func remove(at index: Int) -> Self {
-        .init { $0.remove(at: index) }
+        .init(needSource: true) { $0.remove(at: index) }
     }
     
     static func remove(at indexSet: IndexSet) -> Self {
-        .init { $0.remove(at: indexSet) }
+        .init(needSource: true) { $0.remove(at: indexSet) }
     }
     
     static func update(_ item: Item, at index: Int) -> Self {
-        .init { $0.update(item, at: index) }
+        .init(needSource: true) { $0.update(item, at: index) }
     }
     
     static func move(at index: Int, to newIndex: Int) -> Self {
-        .init { $0.move(at: index, to: newIndex) }
+        .init(needSource: true) { $0.move(at: index, to: newIndex) }
     }
 }
 

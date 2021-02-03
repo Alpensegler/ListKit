@@ -38,7 +38,7 @@ extension SourceElement: CustomStringConvertible, CustomDebugStringConvertible {
     var debugDescription: String { description }
 }
 
-final class SourcesCoordinator<SourceBase: DataSource, Source>: ListCoordinator<SourceBase>
+class SourcesCoordinator<SourceBase: DataSource, Source>: ListCoordinator<SourceBase>
 where
     SourceBase.SourceBase == SourceBase,
     Source: RangeReplaceableCollection,
@@ -81,6 +81,10 @@ where
             }
         }
         return sources
+    }
+    
+    var updateType: SourcesCoordinatorUpdate<SourceBase, Source>.Type {
+        SourcesCoordinatorUpdate<SourceBase, Source>.self
     }
     
     init(
@@ -185,7 +189,7 @@ where
                 update.add(subupdate: subupdate, at: index)
                 return []
             }
-            let update = SourcesCoordinatorUpdate<SourceBase, Source>(
+            let update = self.updateType.init(
                 coordinator: self,
                 update: .init(updateType: .batch(.init())),
                 values: (self.subsources, self.subsources),
@@ -243,7 +247,7 @@ where
         updateWay: ListUpdateWay<Item>?
     ) -> ListCoordinatorUpdate<SourceBase> {
         let coordinator = coordinator as! SourcesCoordinator<SourceBase, Source>
-        return SourcesCoordinatorUpdate(
+        return updateType.init(
             coordinator: self,
             update: ListUpdate(updateWay),
             values: (coordinator.subsources, subsources),
@@ -260,7 +264,7 @@ where
         let subsourcesAfter = update.source.flatMap { value in
             subsourceType.from.map { toSubsources($0(value), sectioned: notItems).subsources }
         }
-        return SourcesCoordinatorUpdate(
+        return updateType.init(
             coordinator: self,
             update: update,
             values: (subsources, subsourcesAfter ?? subsources),
@@ -268,6 +272,23 @@ where
             indices: (indices, subsourcesAfter.map(Self.toIndices) ?? indices),
             options: (self.options, options ?? self.options)
         )
+    }
+}
+
+final class DataSourcesCoordinator<SourceBase: DataSource>:
+    SourcesCoordinator<SourceBase, SourceBase.Source>
+where
+    SourceBase.SourceBase == SourceBase,
+    SourceBase.Source: RangeReplaceableCollection,
+    SourceBase.Source.Element: DataSource,
+    SourceBase.Source.Element.Item == SourceBase.Item
+{
+    override var updateType: SourcesCoordinatorUpdate<SourceBase, SourceBase.Source>.Type {
+        DataSourcesCoordinatorUpdate<SourceBase>.self
+    }
+    
+    init(sources sourceBase: SourceBase) {
+        super.init(sourceBase, toSource: { $0 }, fromSource: { $0 })
     }
 }
 
@@ -281,11 +302,5 @@ extension SourcesCoordinator {
             indices.append(repeatElement: (index, false), count: count)
         }
         return(indices)
-    }
-}
-
-extension SourcesCoordinator where SourceBase.Source == Source {
-    convenience init(sources sourceBase: SourceBase) {
-        self.init(sourceBase, toSource: { $0 }, fromSource: { $0 })
     }
 }

@@ -48,6 +48,16 @@ where SourceBase.SourceBase == SourceBase {
         return true
     }
     
+    var section: ChangeSets<IndexSet> {
+        get { fatalError() }
+        set { }
+    }
+    
+    var item: ChangeSets<IndexPathSet> {
+        get { fatalError() }
+        set { }
+    }
+    
     init(
         _ coordinator: ListCoordinator<SourceBase>,
         update: ListUpdate<SourceBase>?,
@@ -177,6 +187,31 @@ where SourceBase.SourceBase == SourceBase {
     ) -> UpdateTarget<BatchUpdates.ItemTarget> {
         notImplemented()
     }
+    
+    // element batch update
+    func insert(_ element: SourceBase.Source.Element, at index: Int)
+    where SourceBase.Source: RangeReplaceableCollection { }
+        
+    func insert<C: Collection>(contentsOf elements: C, at index: Int)
+    where SourceBase.Source: RangeReplaceableCollection, C.Element == SourceBase.Source.Element { }
+        
+    func append(_ element: SourceBase.Source.Element)
+    where SourceBase.Source: RangeReplaceableCollection { }
+        
+    func append<S: Sequence>(contentsOf elements: S)
+    where SourceBase.Source: RangeReplaceableCollection, S.Element == SourceBase.Source.Element { }
+        
+    func remove(at index: Int)
+    where SourceBase.Source: RangeReplaceableCollection { }
+    
+    func remove(at indexSet: IndexSet)
+    where SourceBase.Source: RangeReplaceableCollection { }
+        
+    func update(_ element: SourceBase.Source.Element, at index: Int)
+    where SourceBase.Source: RangeReplaceableCollection { }
+        
+    func move(at index: Int, to newIndex: Int)
+    where SourceBase.Source: RangeReplaceableCollection { }
     
     override func generateListUpdates() -> BatchUpdates? {
         sourceType.isItems ? generateListUpdatesForItems() : generateListUpdatesForSections()

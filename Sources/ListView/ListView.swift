@@ -8,6 +8,7 @@
 import Foundation
 
 public protocol ListView: NSObject {
+    func resetDelegates()
     func reloadSynchronously(animated: Bool)
     func perform(_ update: () -> Void, animated: Bool, completion: ((Bool) -> Void)?)
     

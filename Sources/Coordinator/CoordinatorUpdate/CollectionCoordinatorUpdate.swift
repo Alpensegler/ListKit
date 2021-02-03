@@ -325,21 +325,13 @@ extension CollectionCoordinatorUpdate {
 }
 
 extension CollectionCoordinatorUpdate {
-    func append(_ element: Element) {
-        appendValues.append(toValue(element))
-    }
-    
-    func append<S: Sequence>(contentsOf elements: S) where Element == S.Element {
-        appendValues.append(contentsOf: elements.map(toValue))
-    }
-    
-    func insert(_ element: Element, at index: Int) {
+    func insertElement(_ element: Element, at index: Int) {
         let value = toValue(element)
         changeIndices.target.insert(index)
         changeDict.target[index] = toChange(value, index)
     }
     
-    func insert<C: Collection>(contentsOf elements: C, at index: Int) where Element == C.Element {
+    func insertElements<C: Collection>(contentsOf elements: C, at index: Int) where Element == C.Element {
         guard !elements.isEmpty else { return }
         var upper = index
         for element in elements {
@@ -350,17 +342,30 @@ extension CollectionCoordinatorUpdate {
         changeIndices.target.insert(integersIn: index..<upper)
     }
     
-    func remove(at index: Int) {
+    func appendElement(_ element: Element) {
+        appendValues.append(toValue(element))
+    }
+    
+    func appendElements<S: Sequence>(contentsOf elements: S) where Element == S.Element {
+        appendValues.append(contentsOf: elements.map(toValue))
+    }
+    
+    func removeElement(at index: Int) {
         changeIndices.source.insert(index)
         changeDict.source[index] = toChange(sourceValues[index], index)
     }
     
-    func update(_ element: Element, at index: Int) {
+    func removeElements(at indexSet: IndexSet) {
+        changeIndices.source.formUnion(indexSet)
+        indexSet.forEach { changeDict.source[$0] = toChange(sourceValues[$0], $0) }
+    }
+    
+    func updateElement(_ element: Element, at index: Int) {
         let sourceChange = toChange(sourceValues[index], index)
         updateDict[index] = (sourceChange, toValue(element))
     }
     
-    func move(at index: Int, to newIndex: Int) {
+    func moveElement(at index: Int, to newIndex: Int) {
         changeIndices.source.insert(index)
         changeIndices.target.insert(newIndex)
         let source = toChange(sourceValues[index], index)

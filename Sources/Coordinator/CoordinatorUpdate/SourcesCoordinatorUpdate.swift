@@ -7,7 +7,7 @@
 
 import Foundation
 
-final class SourcesCoordinatorUpdate<SourceBase: DataSource, Source: RangeReplaceableCollection>:
+class SourcesCoordinatorUpdate<SourceBase: DataSource, Source: RangeReplaceableCollection>:
     ContainerCoordinatorUpdate<SourceBase, Source, SourceElement<Source.Element>>
 where
     SourceBase.SourceBase == SourceBase,
@@ -26,7 +26,7 @@ where
     override var identifiable: Bool { true }
     override var moveAndReloadable: Bool { !noneDiffUpdate }
     
-    init(
+    required init(
         coordinator: SourcesCoordinator<SourceBase, Source>,
         update: ListUpdate<SourceBase>?,
         values: Mapping<Values>,
@@ -181,5 +181,55 @@ where
         coordinator.subsources = isSource ? sourceValues : targetValues
         coordinator.indices = isSource ? sourceIndices : targetIndices
         if !isSource { coordinator.resetDelegates() }
+    }
+}
+
+final class DataSourcesCoordinatorUpdate<SourceBase: DataSource>:
+    SourcesCoordinatorUpdate<SourceBase, SourceBase.Source>
+where
+    SourceBase.SourceBase == SourceBase,
+    SourceBase.Source: RangeReplaceableCollection,
+    SourceBase.Source.Element: DataSource,
+    SourceBase.Source.Element.Item == SourceBase.Item
+{
+    
+    override func insert(_ element: SourceBase.Source.Element, at index: Int)
+    where SourceBase.Source: RangeReplaceableCollection {
+        insertElement(element, at: index)
+    }
+        
+    override func insert<C: Collection>(contentsOf elements: C, at index: Int)
+    where SourceBase.Source: RangeReplaceableCollection, C.Element == SourceBase.Source.Element {
+        insertElements(contentsOf: elements, at: index)
+    }
+        
+    override func append(_ element: SourceBase.Source.Element)
+    where SourceBase.Source: RangeReplaceableCollection {
+        appendElement(element)
+    }
+        
+    override func append<S: Sequence>(contentsOf elements: S)
+    where SourceBase.Source: RangeReplaceableCollection, S.Element == SourceBase.Source.Element {
+        appendElements(contentsOf: elements)
+    }
+        
+    override func remove(at index: Int)
+    where SourceBase.Source: RangeReplaceableCollection {
+        removeElement(at: index)
+    }
+    
+    override func remove(at indexSet: IndexSet)
+    where SourceBase.Source: RangeReplaceableCollection {
+        removeElements(at: indexSet)
+    }
+        
+    override func update(_ element: SourceBase.Source.Element, at index: Int)
+    where SourceBase.Source: RangeReplaceableCollection {
+        updateElement(element, at: index)
+    }
+        
+    override func move(at index: Int, to newIndex: Int)
+    where SourceBase.Source: RangeReplaceableCollection {
+        moveElement(at: index, to: newIndex)
     }
 }

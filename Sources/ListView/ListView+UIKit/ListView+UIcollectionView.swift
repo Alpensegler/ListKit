@@ -30,6 +30,11 @@ public extension UICollectionView {
         set { Associator.set(value: newValue, key: &Self.listViewDefaultAnimationKey, to: self) }
     }
     
+    func resetDelegates() {
+        dataSource = nil
+        delegate = nil
+    }
+    
     func reloadSynchronously(animated: Bool = true) {
         if animated {
             reloadData()

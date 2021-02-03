@@ -16,6 +16,12 @@ where SourceBase.SourceBase == SourceBase {
     var coordinator: ListCoordinator<SourceBase>?
     
     public init() { }
+    
+    deinit {
+        coordinator?.listContexts.forEach {
+            $0.context?.listView?.resetDelegates()
+        }
+    }
 }
 
 public extension UpdatableDataSource {

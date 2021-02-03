@@ -16,12 +16,12 @@ where SourceBase.SourceBase == SourceBase {
     var _section: ChangeSets<IndexSet>?
     var _item: ChangeSets<IndexPathSet>?
     
-    var section: ChangeSets<IndexSet> {
+    override var section: ChangeSets<IndexSet> {
         get { _section.or(.init()) }
         set { _section = newValue }
     }
     
-    var item: ChangeSets<IndexPathSet> {
+    override var item: ChangeSets<IndexPathSet> {
         get { _item.or(.init()) }
         set { _item = newValue }
     }

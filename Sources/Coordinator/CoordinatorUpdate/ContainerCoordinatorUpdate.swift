@@ -400,7 +400,7 @@ extension ContainerCoordinatorUpdate {
 
 extension ContainerCoordinatorUpdate {
     func add(subupdate: Subupdate, at index: Int) {
-        subupdate.isRemove ? remove(at: index) : (subupdates[index] = subupdate)
+        subupdate.isRemove ? removeElement(at: index) : (subupdates[index] = subupdate)
     }
     
     func isMain(_ order: Order) -> Bool { sourceType.isItems ? order == .second : order == .first }

@@ -34,25 +34,20 @@ public extension BatchInitializable {
 }
 
 extension BatchInitializable {
-    init<Update>(
-        _ type: Update.Type,
-        needSource: Bool = false,
-        _ operation: @escaping (Update) -> Void
-    ) {
-        self.init(.init(operations: [{ ($0 as? Update).map(operation) }], needSource: needSource))
+    init(needSource: Bool = false, closure: @escaping (ListCoordinatorUpdate<SourceBase>) -> Void) {
+        self.init(.init(operations: [closure], needSource: needSource))
     }
-}
-
-public extension BatchInitializable where Source: Collection {
-    typealias Element = SourceBase.Source.Element
+    
+    init(section: ChangeSets<IndexSet>?, item: ChangeSets<IndexPathSet>?) {
+        self.init { update in
+            section.map { update.section = $0 }
+            item.map { update.item = $0 }
+        }
+    }
 }
 
 public extension BatchInitializable
 where Source: RangeReplaceableCollection, Source.Element == SourceBase.Item {
-    internal init(operation: @escaping (ItemsCoordinatorUpdate<SourceBase>) -> Void) {
-        self.init(ItemsCoordinatorUpdate<SourceBase>.self, operation)
-    }
-    
     static func insert(_ item: Item, at index: Int) -> Self {
         .init { $0.insert(item, at: index) }
     }
@@ -74,6 +69,10 @@ where Source: RangeReplaceableCollection, Source.Element == SourceBase.Item {
         .init { $0.remove(at: index) }
     }
     
+    static func remove(at indexSet: IndexSet) -> Self {
+        .init { $0.remove(at: indexSet) }
+    }
+    
     static func update(_ item: Item, at index: Int) -> Self {
         .init { $0.update(item, at: index) }
     }
@@ -89,11 +88,7 @@ where
     Source.Element: DataSource,
     Source.Element.SourceBase.Item == SourceBase.Item
 {
-    internal init(
-        operation: @escaping (SourcesCoordinatorUpdate<SourceBase, SourceBase.Source>) -> Void
-    ) {
-        self.init(SourcesCoordinatorUpdate<SourceBase, SourceBase.Source>.self, operation)
-    }
+    typealias Element = SourceBase.Source.Element
     
     static func subsource<Subsource: UpdatableDataSource>(
         _ source: Subsource,
@@ -132,6 +127,10 @@ where
         .init { $0.remove(at: index) }
     }
     
+    static func remove(at indexSet: IndexSet) -> Self {
+        .init { $0.remove(at: indexSet) }
+    }
+    
     static func update(_ element: Element, at index: Int) -> Self {
         .init { $0.update(element, at: index) }
     }
@@ -142,14 +141,6 @@ where
 }
 
 public extension BatchInitializable where SourceBase: NSDataSource {
-    internal init(operation: @escaping (NSCoordinatorUpdate<SourceBase>) -> Void) {
-        self.init(NSCoordinatorUpdate<SourceBase>.self, needSource: true, operation)
-    }
-    
-    internal init(section: ChangeSets<IndexSet>?, item: ChangeSets<IndexPathSet>?) {
-        self.init { ($0._section, $0._item) = (section, item) }
-    }
-    
     static func insertSection(_ section: Int) -> Self {
         .init { $0.section.insert(section) }
     }
@@ -219,7 +210,7 @@ where
         animatedForOtherContext: Bool? = nil,
         completionForOtherContext: ((ListView, Bool) -> Void)? = nil
     ) -> Self {
-        .init(ListCoordinatorUpdate<SourceBase>.self) {
+        .init {
             $0.subsource(
                 source,
                 update: update,

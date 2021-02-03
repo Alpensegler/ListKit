@@ -21,7 +21,7 @@ where
         self.listDiffer = .init(id: id)
         self.listUpdate = update
         self.listOptions = options
-        self.coordinatorMaker = { $0.coordinator(with: SourcesCoordinator(sources: $0)) }
+        self.coordinatorMaker = { $0.coordinator(with: DataSourcesCoordinator(sources: $0)) }
     }
 }
 

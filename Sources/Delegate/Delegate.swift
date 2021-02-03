@@ -50,14 +50,16 @@ final class Delegate: NSObject, DataSource {
         object: Object,
         with input: Input
     ) -> Output? {
-        context.apply(function, root: context, object: object, with: input)
+        guard context.valid else { return nil }
+        return context.apply(function, root: context, object: object, with: input)
     }
     
     func apply<Object: AnyObject, Target, Output, Closure>(
         _ function: ListDelegate.Function<Object, Delegate, Target, Void, Output, Closure>,
         object: Object
     ) -> Output? {
-        context.apply(function, root: context, object: object, with: ())
+        guard context.valid else { return nil }
+        return context.apply(function, root: context, object: object, with: ())
     }
     
     func apply<Object: AnyObject, Target, Input, Output, Closure, Index: ListIndex>(
@@ -65,7 +67,8 @@ final class Delegate: NSObject, DataSource {
         object: Object,
         with input: Input
     ) -> Output? {
-        context.apply(function, root: context, object: object, with: input, .zero)
+        guard context.valid else { return nil }
+        return context.apply(function, root: context, object: object, with: input, .zero)
     }
     
     override func responds(to aSelector: Selector!) -> Bool {

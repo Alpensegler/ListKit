@@ -8,6 +8,7 @@
 import Foundation
 
 protocol CoordinatorContext: AnyObject {
+    var valid: Bool { get }
     var itemCaches: ContiguousArray<ContiguousArray<Any?>> { get set }
     var itemNestedCache: ContiguousArray<ContiguousArray<((Any) -> Void)?>> { get set }
     

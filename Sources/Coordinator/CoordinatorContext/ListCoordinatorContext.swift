@@ -38,6 +38,10 @@ where SourceBase.SourceBase == SourceBase {
     
     var listView: ListView? { listViewGetter?() }
     var extraSelectors: Set<Selector> { listDelegate.extraSelectors }
+    var valid: Bool {
+        guard let storage = listCoordinator.storage else { return true }
+        return !storage.isObjectAssciated || storage.object != nil
+    }
     
     init(_ coordinator: ListCoordinator<SourceBase>) {
         self.listCoordinator = coordinator

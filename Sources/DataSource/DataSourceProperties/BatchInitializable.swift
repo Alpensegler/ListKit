@@ -49,36 +49,36 @@ extension BatchInitializable {
 public extension BatchInitializable
 where Source: RangeReplaceableCollection, Source.Element == SourceBase.Item {
     static func insert(_ item: Item, at index: Int) -> Self {
-        .init(needSource: true) { $0.insert(item, at: index) }
+        .init { $0.insert(item, at: index) }
     }
     
     static func insert<C: Collection>(contentsOf elements: C, at index: Int) -> Self
     where C.Element == Item {
-        .init(needSource: true) { $0.insert(contentsOf: elements, at: index) }
+        .init { $0.insert(contentsOf: elements, at: index) }
     }
     
     static func append(_ element: Item) -> Self {
-        .init(needSource: true) { $0.append(element) }
+        .init { $0.append(element) }
     }
     
     static func append<S: Sequence>(contentsOf items: S) -> Self where S.Element == Item {
-        .init(needSource: true) { $0.append(contentsOf: items) }
+        .init { $0.append(contentsOf: items) }
     }
     
     static func remove(at index: Int) -> Self {
-        .init(needSource: true) { $0.remove(at: index) }
+        .init { $0.remove(at: index) }
     }
     
     static func remove(at indexSet: IndexSet) -> Self {
-        .init(needSource: true) { $0.remove(at: indexSet) }
+        .init { $0.remove(at: indexSet) }
     }
     
     static func update(_ item: Item, at index: Int) -> Self {
-        .init(needSource: true) { $0.update(item, at: index) }
+        .init { $0.update(item, at: index) }
     }
     
     static func move(at index: Int, to newIndex: Int) -> Self {
-        .init(needSource: true) { $0.move(at: index, to: newIndex) }
+        .init { $0.move(at: index, to: newIndex) }
     }
 }
 
@@ -142,59 +142,59 @@ where
 
 public extension BatchInitializable where SourceBase: NSDataSource {
     static func insertSection(_ section: Int) -> Self {
-        .init { $0.section.insert(section) }
+        .init(needSource: true) { $0.section.insert(section) }
     }
     
     static func insertSections(_ sections: IndexSet) -> Self {
-        .init { $0.section.insert(sections) }
+        .init(needSource: true) { $0.section.insert(sections) }
     }
     
     static func deleteSection(_ section: Int) -> Self {
-        .init { $0.section.delete(section) }
+        .init(needSource: true) { $0.section.delete(section) }
     }
     
     static func deleteSections(_ sections: IndexSet) -> Self {
-        .init { $0.section.delete(sections) }
+        .init(needSource: true) { $0.section.delete(sections) }
     }
     
     static func reloadSection(_ section: Int, newSection: Int? = nil) -> Self {
-        .init { $0.section.reload(section, newIndex: newSection ?? section) }
+        .init(needSource: true) { $0.section.reload(section, newIndex: newSection ?? section) }
     }
     
     static func reloadSections(_ sections: IndexSet, newSections: IndexSet? = nil) -> Self {
-        .init { $0.section.reload(sections, newIndices: newSections ?? sections) }
+        .init(needSource: true) { $0.section.reload(sections, newIndices: newSections ?? sections) }
     }
     
     static func moveSection(_ section: Int, toSection newSection: Int) -> Self {
-        .init { $0.section.move(section, to: newSection) }
+        .init(needSource: true) { $0.section.move(section, to: newSection) }
     }
     
     static func insertItem(at indexPath: IndexPath) -> Self {
-        .init { $0.item.insert(indexPath) }
+        .init(needSource: true) { $0.item.insert(indexPath) }
     }
     
     static func insertItems(at indexPaths: [IndexPath]) -> Self {
-        .init { $0.item.insert(indexPaths) }
+        .init(needSource: true) { $0.item.insert(indexPaths) }
     }
     
     static func deleteItem(at indexPath: IndexPath) -> Self {
-        .init { $0.item.delete(indexPath) }
+        .init(needSource: true) { $0.item.delete(indexPath) }
     }
     
     static func deleteItems(at indexPaths: [IndexPath]) -> Self {
-        .init { $0.item.delete(indexPaths) }
+        .init(needSource: true) { $0.item.delete(indexPaths) }
     }
     
     static func reloadItem(at indexPath: IndexPath, newIndexPath: IndexPath? = nil) -> Self {
-        .init { $0.item.reload(indexPath, newIndex: newIndexPath ?? indexPath) }
+        .init(needSource: true) { $0.item.reload(indexPath, newIndex: newIndexPath ?? indexPath) }
     }
     
     static func reloadItems(at indexPaths: [IndexPath], newIndexPaths: [IndexPath]? = nil) -> Self {
-        .init { $0.item.reload(indexPaths, newIndices: newIndexPaths ?? indexPaths) }
+        .init(needSource: true) { $0.item.reload(indexPaths, newIndices: newIndexPaths ?? indexPaths) }
     }
     
     static func moveItem(at indexPath: IndexPath, to newIndexPath: IndexPath) -> Self {
-        .init { $0.item.move(indexPath, to: newIndexPath) }
+        .init(needSource: true) { $0.item.move(indexPath, to: newIndexPath) }
     }
 }
 

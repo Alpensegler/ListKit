@@ -9,7 +9,7 @@ public protocol CollectionListAdapter: ScrollListAdapter {
     var collectionList: CollectionList<AdapterBase> { get }
 }
 
-@dynamicMemberLookup
+@propertyWrapper
 public final class CollectionList<Source: DataSource>: ScrollList<Source>, CollectionListAdapter
 where Source.AdapterBase == Source {
     public var collectionList: CollectionList<Source> { self }

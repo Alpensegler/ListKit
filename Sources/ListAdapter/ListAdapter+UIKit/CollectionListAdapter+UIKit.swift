@@ -9,9 +9,9 @@
 import UIKit
 
 public extension DataSource {
-    typealias CollectionContext = ListContext<UICollectionView, SourceBase>
-    typealias CollectionItemContext = ListIndexContext<UICollectionView, SourceBase, IndexPath>
-    typealias CollectionSectionContext = ListIndexContext<UICollectionView, SourceBase, Int>
+    typealias CollectionContext = ListContext<UICollectionView, Self>
+    typealias CollectionItemContext = ListIndexContext<UICollectionView, Self, IndexPath>
+    typealias CollectionSectionContext = ListIndexContext<UICollectionView, Self, Int>
     
     typealias CollectionFunction<Input, Output, Closure> = ListDelegate.Function<UICollectionView, Self, CollectionList<AdapterBase>, Input, Output, Closure>
     typealias CollectionItemFunction<Input, Output, Closure> = ListDelegate.IndexFunction<UICollectionView, Self, CollectionList<AdapterBase>, Input, Output, Closure, IndexPath>

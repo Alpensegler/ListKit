@@ -7,11 +7,39 @@
 
 import Foundation
 
-public class ListCoordinatorContext<SourceBase: DataSource>: CoordinatorContext
+protocol CoordinatorContext: AnyObject {
+    var valid: Bool { get }
+    var itemCaches: ContiguousArray<ContiguousArray<Any?>> { get set }
+    var itemNestedCache: ContiguousArray<ContiguousArray<((Any) -> Void)?>> { get set }
+    
+    func isCoordinator(_ coordinator: AnyObject) -> Bool
+    
+    func numbersOfSections() -> Int
+    func numbersOfItems(in section: Int) -> Int
+    
+    func contain(selector: Selector) -> Bool
+    
+    func apply<Object: AnyObject, Target, Input, Output, Closure>(
+        _ function: ListDelegate.Function<Object, Delegate, Target, Input, Output, Closure>,
+        root: CoordinatorContext,
+        object: Object,
+        with input: Input
+    ) -> Output?
+    
+    func apply<Object: AnyObject, Target, Input, Output, Closure, Index: ListIndex>(
+        _ function: ListDelegate.IndexFunction<Object, Delegate, Target, Input, Output, Closure, Index>,
+        root: CoordinatorContext,
+        object: Object,
+        with input: Input
+    ) -> Output?
+    
+    func perform(updates: BatchUpdates, animated: Bool, completion: ((ListView, Bool) -> Void)?)
+}
+
+public final class ListCoordinatorContext<SourceBase: DataSource>: CoordinatorContext
 where SourceBase.SourceBase == SourceBase {
     typealias Item = SourceBase.Item
     typealias Caches<Cache> = ContiguousArray<ContiguousArray<Cache?>>
-    typealias Context = ListCoordinatorContext<SourceBase>
     
     let listCoordinator: ListCoordinator<SourceBase>
     
@@ -19,6 +47,25 @@ where SourceBase.SourceBase == SourceBase {
     var _itemNestedCache: Caches<((Any) -> Void)>?
     
     var listDelegate = ListDelegate()
+    
+    var index = 0
+    var isSectioned = true
+    var listViewGetter: (() -> ListView?)?
+    var resetDelegates: (() -> Void)?
+    var update: ((Int, CoordinatorUpdate) -> [(CoordinatorContext, CoordinatorUpdate)]?)?
+    var contextAtIndex: ((Int, IndexPath, ListView) -> [(IndexPath, CoordinatorContext)])?
+    
+    lazy var extraSelectors: Set<Selector> = {
+        guard listDelegate.extraSelectors.isEmpty else { return listDelegate.extraSelectors }
+        return listCoordinator.configExtraSelector() ?? []
+    }()
+    
+    var listView: ListView? { listViewGetter?() }
+    var valid: Bool {
+        guard let storage = listCoordinator.storage else { return true }
+        return !storage.isObjectAssciated || storage.object != nil
+    }
+    
     var itemCaches: Caches<Any> {
         get { cachesOrCreate(&_itemCaches) }
         set { _itemCaches = newValue }
@@ -29,22 +76,10 @@ where SourceBase.SourceBase == SourceBase {
         set { _itemNestedCache = newValue }
     }
     
-    var index = 0
-    var isSectioned = true
-    var listViewGetter: (() -> ListView?)?
-    var resetDelegates: (() -> Void)?
-    var update: ((Int, CoordinatorUpdate) -> [(CoordinatorContext, CoordinatorUpdate)]?)?
-    var contextAtIndex: ((Int, IndexPath, ListView) -> [(IndexPath, CoordinatorContext)])?
-    
-    var listView: ListView? { listViewGetter?() }
-    var extraSelectors: Set<Selector> { listDelegate.extraSelectors }
-    var valid: Bool {
-        guard let storage = listCoordinator.storage else { return true }
-        return !storage.isObjectAssciated || storage.object != nil
-    }
-    
-    init(_ coordinator: ListCoordinator<SourceBase>) {
+    init(_ coordinator: ListCoordinator<SourceBase>, listDelegate: ListDelegate = .init()) {
         self.listCoordinator = coordinator
+        self.listDelegate = listDelegate
+        coordinator.listContexts.append(.init(context: self))
     }
     
     func context(with listDelegate: ListDelegate) -> Self {
@@ -57,16 +92,6 @@ where SourceBase.SourceBase == SourceBase {
     func reconfig() { }
     func numbersOfSections() -> Int { listCoordinator.numbersOfSections() }
     func numbersOfItems(in section: Int) -> Int { listCoordinator.numbersOfItems(in: section) }
-    func cache<ItemCache>(for cached: inout Any?, at indexPath: IndexPath) -> ItemCache {
-        cached as? ItemCache ?? {
-            guard let getCache = listDelegate.getCache as? (Item) -> ItemCache else {
-                fatalError("\(SourceBase.self) no cache with \(ItemCache.self)")
-            }
-            let cache = getCache(listCoordinator.item(at: indexPath))
-            cached = cache
-            return cache
-        }()
-    }
     
     // Selectors
     @discardableResult
@@ -76,10 +101,7 @@ where SourceBase.SourceBase == SourceBase {
         object: Object,
         with input: Input
     ) -> Output? {
-        guard let c = listDelegate.functions[function.selector],
-              let closure = c as? (ListContext<Object, SourceBase>, Input) -> Output
-        else { return nil }
-        return closure(.init(listView: object, context: self, root: root), input)
+        listCoordinator.apply(function, for: self, root: root, object: object, with: input)
     }
     
     @discardableResult
@@ -87,14 +109,9 @@ where SourceBase.SourceBase == SourceBase {
         _ function: ListDelegate.IndexFunction<Object, Delegate, Target, Input, Output, Closure, Index>,
         root: CoordinatorContext,
         object: Object,
-        with input: Input,
-        _ offset: Index
+        with input: Input
     ) -> Output? {
-        guard let c = listDelegate.functions[function.selector],
-              let closure = c as? (ListIndexContext<Object, SourceBase, Index>, Input) -> Output
-        else { return nil }
-        let index = function.indexForInput(input)
-        return closure(.init(listView: object, index: index, offset: offset, context: self, root: root), input)
+        listCoordinator.apply(function, for: self, root: root, object: object, with: input, .zero)
     }
     
     func contain(selector: Selector) -> Bool {
@@ -137,6 +154,11 @@ where SourceBase.SourceBase == SourceBase {
                         batchUpdate.applyData()
                     }
                     batchUpdate.apply(by: list)
+                    if listDelegate.extraSelectors.isEmpty,
+                       let selectors = listCoordinator.configExtraSelector() {
+                        extraSelectors = selectors
+                        listView?.resetDelegates(toNil: false)
+                    }
                 }, animated: animated, completion: completion)
             }
         }

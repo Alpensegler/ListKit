@@ -31,9 +31,9 @@ public extension UITableView {
         set { Associator.set(value: newValue, key: &listViewDefaultAnimationKey, to: self) }
     }
     
-    func resetDelegates() {
-        dataSource = nil
-        delegate = nil
+    func resetDelegates(toNil: Bool) {
+        dataSource = toNil ? nil : dataSource
+        delegate = toNil ? nil : delegate
     }
     
     func reloadSynchronously(animated: Bool = true) {

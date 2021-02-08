@@ -73,10 +73,6 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
         }
     }
     
-    override func item(at indexPath: IndexPath) -> Item {
-        toItem(wrapped!.coordinator.item(at: indexPath))
-    }
-    
     override func numbersOfSections() -> Int {
         if sourceType == .sectionItems, wrapped?.coordinator.numbersOfItems(in: 0) == 0 {
             return options.removeEmptySection ? 0 : 1
@@ -88,16 +84,73 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
         wrapped?.coordinator.numbersOfItems(in: section) ?? 0
     }
     
+    override func item(at indexPath: IndexPath) -> Item {
+        toItem(wrapped!.coordinator.item(at: indexPath))
+    }
+    
+    override func cache<ItemCache>(
+        for cached: inout Any?,
+        at indexPath: IndexPath,
+        in delegate: ListDelegate
+    ) -> ItemCache {
+        guard delegate.getCache == nil, let wrapped = wrapped else {
+            return super.cache(for: &cached, at: indexPath, in: delegate)
+        }
+        return wrapped.coordinator.cache(for: &cached, at: indexPath, in: wrapped.context.listDelegate)
+    }
+    
     override func configSourceType() -> SourceType {
         if wrapped?.coordinator.sourceType == .items, isSectioned { return .sectionItems }
         return wrapped?.coordinator.sourceType ?? .items
     }
     
-    // Setup
-    override func context(with delegates: ListDelegate) -> ListCoordinatorContext<SourceBase> {
-        let context = WrapperCoordinatorContext(self).context(with: delegates)
-        listContexts.append(.init(context: context))
-        return context
+    // Selectors
+    override func configExtraSelector() -> Set<Selector>? {
+        guard let wrapped = wrapped else { return nil }
+        var selectors = wrapped.context.extraSelectors
+        wrapped.context.listDelegate.functions.keys.forEach { selectors.insert($0) }
+        return selectors
+    }
+    
+    override func apply<Object: AnyObject, Target, Input, Output, Closure>(
+        _ function: ListDelegate.Function<Object, Delegate, Target, Input, Output, Closure>,
+        for context: Context,
+        root: CoordinatorContext,
+        object: Object,
+        with input: Input
+    ) -> Output? {
+        guard context.extraSelectors.contains(function.selector) else {
+            return super.apply(function, for: context, root: root, object: object, with: input)
+        }
+        let output = wrapped.flatMap {
+            $0.context.apply(function, root: root, object: object, with: input)
+        }
+        if function.noOutput {
+            return super.apply(function, for: context, root: root, object: object, with: input) ?? output
+        } else {
+            return output ?? super.apply(function, for: context, root: root, object: object, with: input)
+        }
+    }
+    
+    override func apply<Object: AnyObject, Target, Input, Output, Closure, Index: ListIndex>(
+        _ function: ListDelegate.IndexFunction<Object, Delegate, Target, Input, Output, Closure, Index>,
+        for context: Context,
+        root: CoordinatorContext,
+        object: Object,
+        with input: Input,
+        _ offset: Index
+    ) -> Output? {
+        guard context.extraSelectors.contains(function.selector) else {
+            return super.apply(function, for: context, root: root, object: object, with: input, offset)
+        }
+        let output = wrapped.flatMap {
+            $0.coordinator.apply(function, for: $0.context, root: root, object: object, with: input, offset)
+        }
+        if function.noOutput {
+            return super.apply(function, for: context, root: root, object: object, with: input, offset) ?? output
+        } else {
+            return output ?? super.apply(function, for: context, root: root, object: object, with: input, offset)
+        }
     }
     
     // Updates:

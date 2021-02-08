@@ -68,7 +68,7 @@ final class Delegate: NSObject, DataSource {
         with input: Input
     ) -> Output? {
         guard context.valid else { return nil }
-        return context.apply(function, root: context, object: object, with: input, .zero)
+        return context.apply(function, root: context, object: object, with: input)
     }
     
     override func responds(to aSelector: Selector!) -> Bool {

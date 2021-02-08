@@ -7,24 +7,21 @@
 
 public extension DataSource where Self: TableListAdapter {
     var listCoordinatorContext: ListCoordinatorContext<SourceBase> {
-        listCoordinator
-            .context(with: scrollList.listDelegate)
+        ListCoordinatorContext(listCoordinator, listDelegate: scrollList.listDelegate)
             .context(with: tableList.listDelegate)
     }
 }
 
 public extension DataSource where Self: CollectionListAdapter {
     var listCoordinatorContext: ListCoordinatorContext<SourceBase> {
-        listCoordinator
-            .context(with: scrollList.listDelegate)
+        ListCoordinatorContext(listCoordinator, listDelegate: scrollList.listDelegate)
             .context(with: collectionList.listDelegate)
     }
 }
 
 public extension DataSource where Self: TableListAdapter, Self: CollectionListAdapter {
     var listCoordinatorContext: ListCoordinatorContext<SourceBase> {
-        listCoordinator
-            .context(with: scrollList.listDelegate)
+        ListCoordinatorContext(listCoordinator, listDelegate: scrollList.listDelegate)
             .context(with: tableList.listDelegate)
             .context(with: collectionList.listDelegate)
     }
@@ -32,14 +29,13 @@ public extension DataSource where Self: TableListAdapter, Self: CollectionListAd
 
 public extension DataSource where Self: ItemCachedDataSource {
     var listCoordinatorContext: ListCoordinatorContext<SourceBase> {
-        listCoordinator.context(with: itemCached.listDelegate)
+        ListCoordinatorContext(listCoordinator, listDelegate: itemCached.listDelegate)
     }
 }
 
 public extension DataSource where Self: TableListAdapter, Self: ItemCachedDataSource {
     var listCoordinatorContext: ListCoordinatorContext<SourceBase> {
-        listCoordinator
-            .context(with: scrollList.listDelegate)
+        ListCoordinatorContext(listCoordinator, listDelegate: scrollList.listDelegate)
             .context(with: tableList.listDelegate)
             .context(with: itemCached.listDelegate)
     }
@@ -47,8 +43,7 @@ public extension DataSource where Self: TableListAdapter, Self: ItemCachedDataSo
 
 public extension DataSource where Self: CollectionListAdapter, Self: ItemCachedDataSource {
     var listCoordinatorContext: ListCoordinatorContext<SourceBase> {
-        listCoordinator
-            .context(with: scrollList.listDelegate)
+        ListCoordinatorContext(listCoordinator, listDelegate: scrollList.listDelegate)
             .context(with: collectionList.listDelegate)
             .context(with: itemCached.listDelegate)
     }
@@ -57,8 +52,7 @@ public extension DataSource where Self: CollectionListAdapter, Self: ItemCachedD
 public extension DataSource
 where Self: TableListAdapter, Self: CollectionListAdapter, Self: ItemCachedDataSource {
     var listCoordinatorContext: ListCoordinatorContext<SourceBase> {
-        listCoordinator
-            .context(with: scrollList.listDelegate)
+        ListCoordinatorContext(listCoordinator, listDelegate: scrollList.listDelegate)
             .context(with: tableList.listDelegate)
             .context(with: collectionList.listDelegate)
             .context(with: itemCached.listDelegate)

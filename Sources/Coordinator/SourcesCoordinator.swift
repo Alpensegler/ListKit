@@ -135,7 +135,7 @@ where
                 elements: settingIndex(itemSources),
                 update: .init(way: update.way)
             )
-            let context = coordinator.context(with: .init())
+            let context = ListCoordinatorContext(coordinator)
             itemSources.forEach {
                 $0.context.isSectioned = false
                 coordinator.addContext(to: $0.context)
@@ -213,11 +213,6 @@ where
         return (context, indexPath.offseted(-context.offset, isSection: notItems))
     }
     
-    override func item(at indexPath: IndexPath) -> Item {
-        let (context, indexPath) = subContextIndex(at: indexPath)
-        return context.coordinator.item(at: indexPath)
-    }
-    
     override func numbersOfSections() -> Int {
         notItems ? indices.count : indices.isEmpty && options.removeEmptySection ? 0 : 1
     }
@@ -231,16 +226,81 @@ where
         return count
     }
     
+    override func item(at indexPath: IndexPath) -> Item {
+        let (context, indexPath) = subContextIndex(at: indexPath)
+        return context.coordinator.item(at: indexPath)
+    }
+    
+    override func cache<ItemCache>(
+        for cached: inout Any?,
+        at indexPath: IndexPath,
+        in delegate: ListDelegate
+    ) -> ItemCache {
+        guard delegate.getCache == nil else { return super.cache(for: &cached, at: indexPath, in: delegate) }
+        let (context, indexPath) = subContextIndex(at: indexPath)
+        return context.coordinator.cache(for: &cached, at: indexPath, in: context.context.listDelegate)
+    }
+    
     override func configSourceType() -> SourceType {
         subsourcesAndSubsectioned.sectioned ? .section : .items
     }
     
-    // Setup
-    override func context(with delegates: ListDelegate) -> ListCoordinatorContext<SourceBase> {
-        let context = SourcesCoordinatorContext(self).context(with: delegates)
-        listContexts.append(.init(context: context))
-        return context
+    // Selectors
+    override func configExtraSelector() -> Set<Selector>? {
+        var selectors = Set<Selector>()
+        for subsource in subsources {
+            subsource.context.listDelegate.functions.keys.forEach { selectors.insert($0) }
+            selectors.formUnion(subsource.context.extraSelectors)
+        }
+        return selectors
     }
+    
+    override func apply<Object: AnyObject, Target, Input, Output, Closure>(
+        _ function: ListDelegate.Function<Object, Delegate, Target, Input, Output, Closure>,
+        for context: Context,
+        root: CoordinatorContext,
+        object: Object,
+        with input: Input
+    ) -> Output? {
+        guard context.extraSelectors.contains(function.selector) else {
+            return super.apply(function, for: context, root: root, object: object, with: input)
+        }
+        if function.noOutput {
+            let output = subsources.compactMap { (element) in
+                element.coordinator.apply(function, for: element.context, root: root, object: object, with: input)
+            }.first
+            return super.apply(function, for: context, root: root, object: object, with: input) ?? output
+        } else {
+            let output = subsources.lazy.compactMap { (element) in
+                element.coordinator.apply(function, for: element.context, root: root, object: object, with: input)
+            }.first
+            return output ?? super.apply(function, for: context, root: root, object: object, with: input)
+        }
+    }
+    
+    override func apply<Object: AnyObject, Target, Input, Output, Closure, Index: ListIndex>(
+        _ function: ListDelegate.IndexFunction<Object, Delegate, Target, Input, Output, Closure, Index>,
+        for context: Context,
+        root: CoordinatorContext,
+        object: Object,
+        with input: Input,
+        _ offset: Index
+    ) -> Output? {
+        guard context.extraSelectors.contains(function.selector) else {
+            return super.apply(function, for: context, root: root, object: object, with: input, offset)
+        }
+        let path = function.indexForInput(input)
+        let index = sourceIndex(for: path.offseted(offset, plus: false))
+        let subsource = subsources[index], subcontext = subsource.context, subcoordinator = subsource.coordinator
+        let offset = offset.offseted(subsource.offset, isSection: sourceType.isSection)
+        let output = subcoordinator.apply(function, for: subcontext, root: root, object: object, with: input, offset)
+        if function.noOutput {
+            return super.apply(function, for: context, root: root, object: object, with: input, offset) ?? output
+        } else {
+            return output ?? super.apply(function, for: context, root: root, object: object, with: input, offset)
+        }
+    }
+    
     
     override func update(
         from coordinator: ListCoordinator<SourceBase>,

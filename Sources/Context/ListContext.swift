@@ -9,40 +9,38 @@ import Foundation
 
 @dynamicMemberLookup
 public protocol Context {
-    associatedtype SourceBase: DataSource where SourceBase.SourceBase == SourceBase
+    associatedtype Base: DataSource
     associatedtype List
     
-    var source: SourceBase.Source { get }
+    var source: Base.SourceBase.Source { get }
     var listView: List { get }
 }
 
-public struct ListContext<List, SourceBase: DataSource>: Context
-where SourceBase.SourceBase == SourceBase {
+public struct ListContext<List, Base: DataSource>: Context {
     public let listView: List
-    let context: ListCoordinatorContext<SourceBase>
+    let context: ListCoordinatorContext<Base.SourceBase>
     let root: CoordinatorContext
     
-    public var source: SourceBase.Source { context.listCoordinator.source }
+    public var source: Base.SourceBase.Source { context.listCoordinator.source }
 }
 
-public struct ListIndexContext<List, SourceBase: DataSource, Index>: Context
-where SourceBase.SourceBase == SourceBase {
+public struct ListIndexContext<List, Base: DataSource, Index>: Context {
     public let listView: List
     public let index: Index
     public let offset: Index
-    let context: ListCoordinatorContext<SourceBase>
+    let context: ListCoordinatorContext<Base.SourceBase>
     let root: CoordinatorContext
     
-    public var source: SourceBase.Source { context.listCoordinator.source }
+    public var source: Base.SourceBase.Source { context.listCoordinator.source }
 }
 
 public extension DataSource {
-    typealias ListSectionContext<List: ListView> = ListIndexContext<List, SourceBase, Int>
-    typealias ListItemContext<List: ListView> = ListIndexContext<List, SourceBase, IndexPath>
+    typealias ListSectionContext<List: ListView> = ListIndexContext<List, Self, Int>
+    typealias ListItemContext<List: ListView> = ListIndexContext<List, Self, IndexPath>
 }
 
 public extension Context {
-    subscript<Value>(dynamicMember keyPath: KeyPath<SourceBase.Source, Value>) -> Value {
+    subscript<Value>(dynamicMember keyPath: KeyPath<Base.SourceBase.Source, Value>) -> Value {
         source[keyPath: keyPath]
     }
 }
@@ -55,13 +53,13 @@ public extension ListIndexContext where Index == IndexPath {
     var section: Int { index.section - offset.section }
     var item: Int { index.item - offset.item }
     
-    var itemValue: SourceBase.Item {
+    var itemValue: Base.SourceBase.Item {
         context.listCoordinator.item(at: index.offseted(offset, plus: false))
     }
 }
 
-public extension ListIndexContext where SourceBase: ItemCachedDataSource, Index == IndexPath {
-    var itemCache: SourceBase.ItemCache { cache() }
+public extension ListIndexContext where Base: ItemCachedDataSource, Index == IndexPath {
+    var itemCache: Base.ItemCache { cache() }
 }
 
 extension ListIndexContext where Index == IndexPath {
@@ -70,6 +68,11 @@ extension ListIndexContext where Index == IndexPath {
     }
     
     func cache<Cache>() -> Cache {
-        context.cache(for: &root.itemCaches[index.section][index.item], at: index)
+        if let cache = root.itemCaches[index.section][index.item] as? Cache { return cache }
+        return context.listCoordinator.cache(
+            for: &root.itemCaches[index.section][index.item],
+            at: index,
+            in: context.listDelegate
+        )
     }
 }

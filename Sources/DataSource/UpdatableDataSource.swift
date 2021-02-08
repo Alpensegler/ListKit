@@ -26,7 +26,7 @@ where SourceBase.SourceBase == SourceBase {
     
     deinit {
         coordinator?.listContexts.forEach {
-            $0.context?.listView?.resetDelegates()
+            $0.context?.listView?.resetDelegates(toNil: true)
         }
     }
 }

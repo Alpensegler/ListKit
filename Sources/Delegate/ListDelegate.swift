@@ -17,7 +17,8 @@ public protocol ListFunction {
 public struct ListDelegate: ExpressibleByArrayLiteral {
     public struct Function<Object, Source, Target, Input, Output, Closure>: ListFunction
     where Source: DataSource, Target: ScrollList<Source.AdapterBase> {
-        typealias Context = ListContext<Object, Source.SourceBase>
+        typealias Context = ListContext<Object, Source>
+        typealias ToOutput = (ListContext<Object, Source>, Input) -> Output
         
         public let selector: Selector
         public var hasSectionIndex: Bool { false }
@@ -33,18 +34,17 @@ public struct ListDelegate: ExpressibleByArrayLiteral {
             toTarget { _, _ in output }
         }
         
-        func toTarget(
-            closure: @escaping (ListContext<Object, Source.SourceBase>, Input) -> Output
-        ) -> Target {
+        func toTarget(closure: @escaping ToOutput) -> Target {
             var delegate = sourceBase.listDelegate
-            delegate.functions[selector] = closure
+            delegate.functions[selector] = { closure(.init(listView: $0, context: $1, root: $2), $3) }
             return .init(sourceBase.adapterBase, listDelegate: delegate)
         }
     }
     
     public struct IndexFunction<Object, Source, Target, Input, Output, Closure, Index>: ListFunction
     where Source: DataSource, Target: ScrollList<Source.AdapterBase> {
-        typealias Context = ListIndexContext<Object, Source.SourceBase, Index>
+        typealias Context = ListIndexContext<Object, Source, Index>
+        typealias ToOutput = (ListIndexContext<Object, Source, Index>, Input) -> Output
         
         public let selector: Selector
         public let hasSectionIndex: Bool
@@ -61,13 +61,12 @@ public struct ListDelegate: ExpressibleByArrayLiteral {
             toTarget { _, _ in output }
         }
         
-        func toTarget(
-            getCache: Any? = nil,
-            closure: @escaping (ListIndexContext<Object, Source.SourceBase, Index>, Input) -> Output
-        ) -> Target {
+        func toTarget(getCache: Any? = nil, closure: @escaping ToOutput) -> Target {
             var delegate = sourceBase.listDelegate
             delegate.getCache = getCache ?? delegate.getCache
-            delegate.functions[selector] = closure
+            delegate.functions[selector] = {
+                closure(.init(listView: $0, index: $4, offset: $5, context: $1, root: $2), $3)
+            }
             delegate.hasSectionIndex = delegate.hasSectionIndex || hasSectionIndex
             return .init(sourceBase.adapterBase, listDelegate: delegate)
         }
@@ -125,32 +124,32 @@ extension DataSource {
         { closure in { context, input in closure(context, input.0, input.1) } }
     }
     
-    func toClosure<Output, Object>() -> (@escaping (ListIndexContext<Object, SourceBase, IndexPath>, Item) -> Output) -> (ListIndexContext<Object, SourceBase, IndexPath>, IndexPath) -> Output {
+    func toClosure<Output, Object>() -> (@escaping (ListIndexContext<Object, Self, IndexPath>, Item) -> Output) -> (ListIndexContext<Object, Self, IndexPath>, IndexPath) -> Output {
         { closure in { context, _ in closure(context, context.itemValue) } }
     }
 
-    func toClosure<Input, Output, Object>() -> (@escaping (ListIndexContext<Object, SourceBase, IndexPath>, Input, Item) -> Output) -> (ListIndexContext<Object, SourceBase, IndexPath>, (IndexPath, Input)) -> Output {
+    func toClosure<Input, Output, Object>() -> (@escaping (ListIndexContext<Object, Self, IndexPath>, Input, Item) -> Output) -> (ListIndexContext<Object, Self, IndexPath>, (IndexPath, Input)) -> Output {
         { closure in { context, input in closure(context, input.1, context.itemValue) } }
     }
 
-    func toClosure<Input1, Input2, Output, Object>() -> (@escaping (ListIndexContext<Object, SourceBase, IndexPath>, Input1, Input2, Item) -> Output) -> (ListIndexContext<Object, SourceBase, IndexPath>, (IndexPath, Input1, Input2)) -> Output {
+    func toClosure<Input1, Input2, Output, Object>() -> (@escaping (ListIndexContext<Object, Self, IndexPath>, Input1, Input2, Item) -> Output) -> (ListIndexContext<Object, Self, IndexPath>, (IndexPath, Input1, Input2)) -> Output {
         { closure in { context, input in closure(context, input.1, input.2, context.itemValue) } }
     }
     
-    func toClosure<Input, Output, Object>() -> (@escaping (ListIndexContext<Object, SourceBase, Int>, Input) -> Output) -> (ListIndexContext<Object, SourceBase, Int>, (Int, Input)) -> Output {
+    func toClosure<Input, Output, Object>() -> (@escaping (ListIndexContext<Object, Self, Int>, Input) -> Output) -> (ListIndexContext<Object, Self, Int>, (Int, Input)) -> Output {
         { closure in { context, input in closure(context, input.1) } }
     }
     
     func toFunction<Object, Target, Input, Output, Closure>(
         _ selector: Selector,
-        _ toClosure: @escaping (Closure) -> (ListContext<Object, SourceBase>, Input) -> Output
+        _ toClosure: @escaping (Closure) -> (ListContext<Object, Self>, Input) -> Output
     ) -> ListDelegate.Function<Object, Self, Target, Input, Output, Closure> {
         .init(selector: selector, noOutput: false, sourceBase: self, toClosure: toClosure)
     }
     
     func toFunction<Object, Target, Input, Closure>(
         _ selector: Selector,
-        _ toClosure: @escaping (Closure) -> (ListContext<Object, SourceBase>, Input) -> Void
+        _ toClosure: @escaping (Closure) -> (ListContext<Object, Self>, Input) -> Void
     ) -> ListDelegate.Function<Object, Self, Target, Input, Void, Closure> {
         .init(selector: selector, noOutput: true, sourceBase: self, toClosure: toClosure)
     }
@@ -158,7 +157,7 @@ extension DataSource {
     func toFunction<Object, Target, Input, Output, Closure, Index: ListIndex>(
         _ selector: Selector,
         _ indexForInput: @escaping (Input) -> Index,
-        _ toClosure: @escaping (Closure) -> (ListIndexContext<Object, SourceBase, Index>, Input) -> Output
+        _ toClosure: @escaping (Closure) -> (ListIndexContext<Object, Self, Index>, Input) -> Output
     ) -> ListDelegate.IndexFunction<Object, Self, Target, Input, Output, Closure, Index> {
         .init(selector: selector, hasSectionIndex: Index.isSection, noOutput: false, sourceBase: self, indexForInput: indexForInput, toClosure: toClosure)
     }
@@ -166,21 +165,21 @@ extension DataSource {
     func toFunction<Object, Target, Input, Closure, Index: ListIndex>(
         _ selector: Selector,
         _ indexForInput: @escaping (Input) -> Index,
-        _ toClosure: @escaping (Closure) -> (ListIndexContext<Object, SourceBase, Index>, Input) -> Void
+        _ toClosure: @escaping (Closure) -> (ListIndexContext<Object, Self, Index>, Input) -> Void
     ) -> ListDelegate.IndexFunction<Object, Self, Target, Input, Void, Closure, Index> {
         .init(selector: selector, hasSectionIndex: Index.isSection, noOutput: true, sourceBase: self, indexForInput: indexForInput, toClosure: toClosure)
     }
     
     func toFunction<Object, Target, Output, Closure, Index: ListIndex>(
         _ selector: Selector,
-        _ toClosure: @escaping (Closure) -> (ListIndexContext<Object, SourceBase, Index>, Index) -> Output
+        _ toClosure: @escaping (Closure) -> (ListIndexContext<Object, Self, Index>, Index) -> Output
     ) -> ListDelegate.IndexFunction<Object, Self, Target, Index, Output, Closure, Index> {
         .init(selector: selector, hasSectionIndex: Index.isSection, noOutput: false, sourceBase: self, indexForInput: { $0 }, toClosure: toClosure)
     }
     
     func toFunction<Object, Target, Closure, Index: ListIndex>(
         _ selector: Selector,
-        _ toClosure: @escaping (Closure) -> (ListIndexContext<Object, SourceBase, Index>, Index) -> Void
+        _ toClosure: @escaping (Closure) -> (ListIndexContext<Object, Self, Index>, Index) -> Void
     ) -> ListDelegate.IndexFunction<Object, Self, Target, Index, Void, Closure, Index> {
         .init(selector: selector, hasSectionIndex: Index.isSection, noOutput: true, sourceBase: self, indexForInput: { $0 }, toClosure: toClosure)
     }

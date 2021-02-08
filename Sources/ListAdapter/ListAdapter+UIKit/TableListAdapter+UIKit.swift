@@ -9,9 +9,9 @@
 import UIKit
 
 public extension DataSource {
-    typealias TableContext = ListContext<UITableView, SourceBase>
-    typealias TableItemContext = ListIndexContext<UITableView, SourceBase, IndexPath>
-    typealias TableSectionContext = ListIndexContext<UITableView, SourceBase, Int>
+    typealias TableContext = ListContext<UITableView, Self>
+    typealias TableItemContext = ListIndexContext<UITableView, Self, IndexPath>
+    typealias TableSectionContext = ListIndexContext<UITableView, Self, Int>
     
     typealias TableFunction<Input, Output, Closure> = ListDelegate.Function<UITableView, Self, TableList<AdapterBase>, Input, Output, Closure>
     typealias TableItemFunction<Input, Output, Closure> = ListDelegate.IndexFunction<UITableView, Self, TableList<AdapterBase>, Input, Output, Closure, IndexPath>

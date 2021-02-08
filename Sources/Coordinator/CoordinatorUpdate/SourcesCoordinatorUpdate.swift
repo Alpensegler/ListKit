@@ -109,7 +109,7 @@ where
                 elements: [source],
                 update: .init(way: updateWay)
             )
-            let context = coordinator.context(with: .init())
+            let context = ListCoordinatorContext(coordinator)
             source.context.isSectioned = false
             coordinator.addContext(to: source.context)
             self.coordinator.map { $0.addContext(to: context) }

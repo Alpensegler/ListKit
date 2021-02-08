@@ -32,7 +32,7 @@ public extension DataSource {
         fatalError("unsupported source \(Source.self) item \(Item.self)")
     }
     var listCoordinatorContext: ListCoordinatorContext<SourceBase> {
-        listCoordinator.context(with: listDelegate)
+        ListCoordinatorContext(listCoordinator, listDelegate: listDelegate)
     }
 }
 

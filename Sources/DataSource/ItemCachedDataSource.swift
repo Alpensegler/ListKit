@@ -19,6 +19,8 @@ public protocol ItemCachedDataSource: DataSource {
     var itemCached: ItemCached<SourceBase, ItemCache> { get }
 }
 
+@propertyWrapper
+@dynamicMemberLookup
 public struct ItemCached<Base: DataSource, ItemCache>: ItemCachedDataSource
 where Base.SourceBase == Base {
     public typealias Item = Base.Item
@@ -32,6 +34,20 @@ where Base.SourceBase == Base {
     public var itemCached: ItemCached<Base, ItemCache> { self }
     public var listCoordinatorContext: ListCoordinatorContext<Base> {
         sourceBase.listCoordinatorContext
+    }
+    
+    public var wrappedValue: Base {
+        get { sourceBase }
+        set { sourceBase = newValue }
+    }
+    
+    public subscript<Value>(dynamicMember path: KeyPath<Base, Value>) -> Value {
+        sourceBase[keyPath: path]
+    }
+    
+    public subscript<Value>(dynamicMember path: WritableKeyPath<Base, Value>) -> Value {
+        get { sourceBase[keyPath: path] }
+        set { sourceBase[keyPath: path] = newValue }
     }
     
     init(_ sourceBase: Base, cacheForItem: Any? = nil) {

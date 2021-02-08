@@ -10,6 +10,7 @@ import Foundation
 public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase == SourceBase {
     typealias Item = SourceBase.Item
     typealias Indices = ContiguousArray<(index: Int, isFake: Bool)>
+    typealias Context = ListCoordinatorContext<SourceBase>
 
     struct WeakContext {
         weak var context: ListCoordinatorContext<SourceBase>?
@@ -57,12 +58,51 @@ public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase
     
     func item(at indexPath: IndexPath) -> Item { notImplemented() }
     
+    func cache<ItemCache>(
+        for cached: inout Any?,
+        at indexPath: IndexPath,
+        in delegate: ListDelegate
+    ) -> ItemCache {
+        guard let getCache = delegate.getCache as? (Item) -> ItemCache else {
+            fatalError("\(SourceBase.self) no cache with \(ItemCache.self)")
+        }
+        let cache = getCache(item(at: indexPath))
+        cached = cache
+        return cache
+    }
+    
     func configSourceType() -> SourceType { notImplemented() }
     
-    func context(with delegates: ListDelegate) -> ListCoordinatorContext<SourceBase> {
-        let context = ListCoordinatorContext(self).context(with: delegates)
-        listContexts.append(.init(context: context))
-        return context
+    // Selectors:
+    func configExtraSelector() -> Set<Selector>? { nil }
+    
+    @discardableResult
+    func apply<Object: AnyObject, Target, Input, Output, Closure>(
+        _ function: ListDelegate.Function<Object, Delegate, Target, Input, Output, Closure>,
+        for context: Context,
+        root: CoordinatorContext,
+        object: Object,
+        with input: Input
+    ) -> Output? {
+        guard let c = context.listDelegate.functions[function.selector],
+              let closure = c as? (Object, Context, CoordinatorContext, Input) -> Output
+        else { return nil }
+        return closure(object, context, root, input)
+    }
+    
+    @discardableResult
+    func apply<Object: AnyObject, Target, Input, Output, Closure, Index: ListIndex>(
+        _ function: ListDelegate.IndexFunction<Object, Delegate, Target, Input, Output, Closure, Index>,
+        for context: Context,
+        root: CoordinatorContext,
+        object: Object,
+        with input: Input,
+        _ offset: Index
+    ) -> Output? {
+        guard let c = context.listDelegate.functions[function.selector],
+              let closure = c as? (Object, Context, CoordinatorContext, Input, Index, Index) -> Output
+        else { return nil }
+        return closure(object, context, root, input, function.indexForInput(input), offset)
     }
     
     // Updates:

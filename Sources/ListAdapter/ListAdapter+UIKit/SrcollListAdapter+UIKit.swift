@@ -9,7 +9,7 @@
 import UIKit
 
 public extension DataSource {
-    typealias ScrollContext = ListContext<UIScrollView, SourceBase>
+    typealias ScrollContext = ListContext<UIScrollView, Self>
     typealias ScrollFunction<Input, Output, Closure> = ListDelegate.Function<UIScrollView, Self, ScrollList<AdapterBase>, Input, Output, Closure>
     
     var scrollViewDidScroll: ScrollFunction<Void, Void, (ScrollContext) -> Void> {

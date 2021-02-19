@@ -246,13 +246,17 @@ where
     }
     
     // Selectors
-    override func configExtraSelector() -> Set<Selector>? {
-        var selectors = Set<Selector>()
+    override func configExtraSelector(delegate: ListDelegate) -> Set<Selector>? {
+        guard delegate.extraSelectors.isEmpty else { return nil }
+        var results = Set<Selector>()
         for subsource in subsources {
-            subsource.context.listDelegate.functions.keys.forEach { selectors.insert($0) }
-            selectors.formUnion(subsource.context.extraSelectors)
+            let subdelegate = subsource.context.listDelegate
+            subdelegate.functions.keys.forEach { results.insert($0) }
+            if let selectors = subsource.coordinator.configExtraSelector(delegate: subdelegate) {
+                results.formUnion(selectors)
+            }
         }
-        return selectors
+        return results
     }
     
     override func apply<Object: AnyObject, Target, Input, Output, Closure>(

@@ -74,7 +74,7 @@ public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase
     func configSourceType() -> SourceType { notImplemented() }
     
     // Selectors:
-    func configExtraSelector() -> Set<Selector>? { nil }
+    func configExtraSelector(delegate: ListDelegate) -> Set<Selector>? { nil }
     
     @discardableResult
     func apply<Object: AnyObject, Target, Input, Output, Closure>(

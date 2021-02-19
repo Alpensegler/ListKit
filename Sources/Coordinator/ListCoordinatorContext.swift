@@ -55,10 +55,8 @@ where SourceBase.SourceBase == SourceBase {
     var update: ((Int, CoordinatorUpdate) -> [(CoordinatorContext, CoordinatorUpdate)]?)?
     var contextAtIndex: ((Int, IndexPath, ListView) -> [(IndexPath, CoordinatorContext)])?
     
-    lazy var extraSelectors: Set<Selector> = {
-        guard listDelegate.extraSelectors.isEmpty else { return listDelegate.extraSelectors }
-        return listCoordinator.configExtraSelector() ?? []
-    }()
+    lazy var extraSelectors = listCoordinator.configExtraSelector(delegate: listDelegate)
+        ?? listDelegate.extraSelectors
     
     var listView: ListView? { listViewGetter?() }
     var valid: Bool {
@@ -153,12 +151,11 @@ where SourceBase.SourceBase == SourceBase {
                     case (false, false):
                         batchUpdate.applyData()
                     }
-                    batchUpdate.apply(by: list)
-                    if listDelegate.extraSelectors.isEmpty,
-                       let selectors = listCoordinator.configExtraSelector() {
+                    if let selectors = listCoordinator.configExtraSelector(delegate: listDelegate) {
                         extraSelectors = selectors
                         listView?.resetDelegates(toNil: false)
                     }
+                    batchUpdate.apply(by: list)
                 }, animated: animated, completion: completion)
             }
         }

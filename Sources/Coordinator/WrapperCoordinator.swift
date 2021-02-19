@@ -74,6 +74,7 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
     }
     
     override func numbersOfSections() -> Int {
+        if sourceType == .items, wrapped == nil { return 1 }
         if sourceType == .sectionItems, wrapped?.coordinator.numbersOfItems(in: 0) == 0 {
             return options.removeEmptySection ? 0 : 1
         }
@@ -105,10 +106,11 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
     }
     
     // Selectors
-    override func configExtraSelector() -> Set<Selector>? {
-        guard let wrapped = wrapped else { return nil }
-        var selectors = wrapped.context.extraSelectors
-        wrapped.context.listDelegate.functions.keys.forEach { selectors.insert($0) }
+    override func configExtraSelector(delegate: ListDelegate) -> Set<Selector>? {
+        guard let wrapped = wrapped, delegate.extraSelectors.isEmpty else { return nil }
+        let subdelegate = wrapped.context.listDelegate
+        var selectors = wrapped.coordinator.configExtraSelector(delegate: subdelegate) ?? []
+        subdelegate.functions.keys.forEach { selectors.insert($0) }
         return selectors
     }
     

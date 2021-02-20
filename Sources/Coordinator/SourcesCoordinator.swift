@@ -296,7 +296,7 @@ where
         let path = function.indexForInput(input)
         let index = sourceIndex(for: path.offseted(offset, plus: false))
         let subsource = subsources[index], subcontext = subsource.context, subcoordinator = subsource.coordinator
-        let offset = offset.offseted(subsource.offset, isSection: sourceType.isSection)
+        let offset = offset.offseted(subsource.offset, isSection: sourceType == .section)
         let output = subcoordinator.apply(function, for: subcontext, root: root, object: object, with: input, offset)
         if function.noOutput {
             return super.apply(function, for: context, root: root, object: object, with: input, offset) ?? output

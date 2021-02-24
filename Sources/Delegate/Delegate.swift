@@ -41,7 +41,7 @@ final class Delegate: NSObject, DataSource {
 //            coordinator.update(from: $0, animated: animated, completion: completion)
 //        } ?? false
 //        if updatable { return }
-        listView.reloadSynchronously(animated: animated)
+        if update != nil { listView.reloadSynchronously(animated: animated) }
         completion?(true)
     }
     

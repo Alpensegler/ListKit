@@ -77,7 +77,7 @@ public extension ListDelegate.IndexFunction where Object: UICollectionView, Inde
     func callAsFunction(
         closureWithCache: @escaping (ListIndexContext<Object, Source, Index>, CollectionView.SupplementaryViewType, Source.Item, Source.ItemCache) -> UICollectionReusableView
     ) -> Target where Output == UICollectionReusableView, Input == (String, IndexPath) {
-        toTarget { context, input in closureWithCache(context, .init(input.0), context.itemValue, context.cache()) }
+        toTarget { context, input in closureWithCache(context, .init(rawValue: input.0), context.itemValue, context.cache()) }
     }
     
     @available(iOS 11.0, *)

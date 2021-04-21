@@ -82,12 +82,12 @@ public extension UICollectionView {
 }
 
 public extension UICollectionView {
-    enum SupplementaryViewType: Hashable {
+    enum SupplementaryViewType: Hashable, RawRepresentable {
         case header
         case footer
         case custom(String)
         
-        init(_ rawValue: String) {
+        public init(rawValue: String) {
             switch rawValue {
             case UICollectionView.elementKindSectionHeader: self = .header
             case UICollectionView.elementKindSectionFooter: self = .footer
@@ -95,7 +95,7 @@ public extension UICollectionView {
             }
         }
         
-        var rawValue: String {
+        public var rawValue: String {
             switch self {
             case .header: return UICollectionView.elementKindSectionHeader
             case .footer: return UICollectionView.elementKindSectionFooter

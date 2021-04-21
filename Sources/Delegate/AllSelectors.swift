@@ -29,8 +29,6 @@ let allSelectors: Set<Selector> = {
         #selector(UICollectionViewDataSource.collectionView(_:viewForSupplementaryElementOfKind:at:)),
         #selector(UICollectionViewDataSource.collectionView(_:canMoveItemAt:)),
         #selector(UICollectionViewDataSource.collectionView(_:moveItemAt:to:)),
-        #selector(UICollectionViewDataSource.indexTitles(for:)),
-        #selector(UICollectionViewDataSource.collectionView(_:indexPathForIndexTitle:at:)),
         
         #selector(UICollectionViewDelegate.collectionView(_:shouldSelectItemAt:)),
         #selector(UICollectionViewDelegate.collectionView(_:didSelectItemAt:)),
@@ -136,6 +134,12 @@ let allSelectors: Set<Selector> = {
         #selector(UITableViewDelegate.tableView(_:previewForDismissingContextMenuWithConfiguration:)),
         #selector(UITableViewDelegate.tableView(_:previewForHighlightingContextMenuWithConfiguration:)),
         #selector(UITableViewDelegate.tableView(_:willPerformPreviewActionForMenuWith:animator:)),
+    ])
+    
+    guard #available(iOS 14.0, *) else { return selectors }
+    selectors.formUnion([
+        #selector(UICollectionViewDataSource.indexTitles(for:)),
+        #selector(UICollectionViewDataSource.collectionView(_:indexPathForIndexTitle:at:)),
     ])
     
     return selectors

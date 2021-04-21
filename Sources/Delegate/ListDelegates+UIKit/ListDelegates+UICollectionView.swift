@@ -37,10 +37,12 @@ extension Delegate: UICollectionViewDataSource {
     }
 
     //Configuring an Index
+    @available(iOS 14.0, *)
     func indexTitles(for collectionView: UICollectionView) -> [String]? {
         apply(collectionViewIndexTitles, object: collectionView) ?? nil
     }
     
+    @available(iOS 14.0, *)
     func collectionView(_ collectionView: UICollectionView, indexPathForIndexTitle title: String, at index: Int) -> IndexPath {
         apply(collectionViewIndexPathForIndexTitle, object: collectionView, with: (title, index)) ?? .zero
     }

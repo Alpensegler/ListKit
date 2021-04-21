@@ -26,7 +26,7 @@ public extension DataSource {
     }
     
     var collectionViewSupplementaryViewForItem: CollectionItemFunction<(IndexPath, String), UICollectionReusableView, (CollectionItemContext, CollectionView.SupplementaryViewType) -> UICollectionReusableView> {
-        toFunction(#selector(UICollectionViewDataSource.collectionView(_:viewForSupplementaryElementOfKind:at:)), \.0) { closure in { context, input in closure(context, .init(input.1)) } }
+        toFunction(#selector(UICollectionViewDataSource.collectionView(_:viewForSupplementaryElementOfKind:at:)), \.0) { closure in { context, input in closure(context, .init(rawValue: input.1)) } }
     }
 
     //Reordering Items
@@ -39,10 +39,12 @@ public extension DataSource {
     }
     
     //Configuring an Index
+    @available(iOS 14.0, *)
     var collectionViewIndexTitles: CollectionFunction<Void, [String]?, (CollectionContext) -> [String]?> {
         toFunction(#selector(UICollectionViewDataSource.indexTitles(for:)), toClosure())
     }
     
+    @available(iOS 14.0, *)
     var collectionViewIndexPathForIndexTitle: CollectionFunction<(String, Int), IndexPath, (CollectionContext, String, Int) -> IndexPath> {
         toFunction(#selector(UICollectionViewDataSource.collectionView(_:indexPathForIndexTitle:at:)), toClosure())
     }
@@ -101,7 +103,7 @@ public extension DataSource {
     }
     
     var collectionViewWillDisplaySupplementaryView: CollectionItemFunction<(IndexPath, UICollectionReusableView, String), Void, (CollectionItemContext, UICollectionReusableView, CollectionView.SupplementaryViewType, Item) -> Void> {
-        toFunction(#selector(UICollectionViewDelegate.collectionView(_:willDisplaySupplementaryView:forElementKind:at:)), \.0) { closure in { context, input in closure(context, input.1, .init(input.2), context.itemValue) } }
+        toFunction(#selector(UICollectionViewDelegate.collectionView(_:willDisplaySupplementaryView:forElementKind:at:)), \.0) { closure in { context, input in closure(context, input.1, .init(rawValue: input.2), context.itemValue) } }
     }
     
     var collectionViewDidEndDisplayingItem: CollectionFunction<(IndexPath, UICollectionViewCell), Void, (CollectionContext, IndexPath, UICollectionViewCell) -> Void> {
@@ -109,7 +111,7 @@ public extension DataSource {
     }
     
     var collectionViewDidEndDisplayingSupplementaryView: CollectionFunction<(UICollectionReusableView, String, IndexPath), Void, (CollectionContext, UICollectionReusableView, CollectionView.SupplementaryViewType, IndexPath) -> Void> {
-        toFunction(#selector(UICollectionViewDelegate.collectionView(_:didEndDisplayingSupplementaryView:forElementOfKind:at:))) { closure in { context, input in closure(context, input.0, .init(input.1), input.2) } }
+        toFunction(#selector(UICollectionViewDelegate.collectionView(_:didEndDisplayingSupplementaryView:forElementOfKind:at:))) { closure in { context, input in closure(context, input.0, .init(rawValue: input.1), input.2) } }
     }
     
     //Handling Layout Changes

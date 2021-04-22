@@ -136,12 +136,6 @@ let allSelectors: Set<Selector> = {
         #selector(UITableViewDelegate.tableView(_:willPerformPreviewActionForMenuWith:animator:)),
     ])
     
-    guard #available(iOS 14.0, *) else { return selectors }
-    selectors.formUnion([
-        #selector(UICollectionViewDataSource.indexTitles(for:)),
-        #selector(UICollectionViewDataSource.collectionView(_:indexPathForIndexTitle:at:)),
-    ])
-    
     return selectors
 }()
 #endif

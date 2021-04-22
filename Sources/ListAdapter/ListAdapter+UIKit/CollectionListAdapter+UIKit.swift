@@ -37,17 +37,6 @@ public extension DataSource {
     var collectionViewMoveItem: CollectionFunction<(IndexPath, IndexPath), Void, (CollectionContext, IndexPath, IndexPath) -> Void> {
         toFunction(#selector(UICollectionViewDataSource.collectionView(_:moveItemAt:to:)), toClosure())
     }
-    
-    //Configuring an Index
-    @available(iOS 14.0, *)
-    var collectionViewIndexTitles: CollectionFunction<Void, [String]?, (CollectionContext) -> [String]?> {
-        toFunction(#selector(UICollectionViewDataSource.indexTitles(for:)), toClosure())
-    }
-    
-    @available(iOS 14.0, *)
-    var collectionViewIndexPathForIndexTitle: CollectionFunction<(String, Int), IndexPath, (CollectionContext, String, Int) -> IndexPath> {
-        toFunction(#selector(UICollectionViewDataSource.collectionView(_:indexPathForIndexTitle:at:)), toClosure())
-    }
 }
 
 //Collection View Delegate

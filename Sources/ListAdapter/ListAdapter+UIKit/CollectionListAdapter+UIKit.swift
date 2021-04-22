@@ -39,10 +39,12 @@ public extension DataSource {
     }
     
     //Configuring an Index
+    @available(iOS 14, *)
     var collectionViewIndexTitles: CollectionFunction<Void, [String]?, (CollectionContext) -> [String]?> {
         toFunction(#selector(UICollectionViewDataSource.indexTitles(for:)), toClosure())
     }
     
+    @available(iOS 14, *)
     var collectionViewIndexPathForIndexTitle: CollectionFunction<(String, Int), IndexPath, (CollectionContext, String, Int) -> IndexPath> {
         toFunction(#selector(UICollectionViewDataSource.collectionView(_:indexPathForIndexTitle:at:)), toClosure())
     }

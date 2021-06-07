@@ -159,12 +159,12 @@ public extension DataSource {
     
     //Responding to Row Actions
     @available(iOS 11.0, *)
-    var tableViewLeadingSwipeActionsConfiguration: TableItemFunction<IndexPath, UISwipeActionsConfiguration?, (TableItemContext, Item) -> UISwipeActionsConfiguration> {
+    var tableViewLeadingSwipeActionsConfiguration: TableItemFunction<IndexPath, UISwipeActionsConfiguration?, (TableItemContext, Item) -> UISwipeActionsConfiguration?> {
         toFunction(#selector(UITableViewDelegate.tableView(_:leadingSwipeActionsConfigurationForRowAt:)), toClosure())
     }
     
     @available(iOS 11.0, *)
-    var tableViewTrailingSwipeActionsConfiguration: TableItemFunction<IndexPath, UISwipeActionsConfiguration?, (TableItemContext, Item) -> UISwipeActionsConfiguration> {
+    var tableViewTrailingSwipeActionsConfiguration: TableItemFunction<IndexPath, UISwipeActionsConfiguration?, (TableItemContext, Item) -> UISwipeActionsConfiguration?> {
         toFunction(#selector(UITableViewDelegate.tableView(_:trailingSwipeActionsConfigurationForRowAt:)), toClosure())
     }
     

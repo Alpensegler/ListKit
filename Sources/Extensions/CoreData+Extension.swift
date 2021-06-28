@@ -43,6 +43,7 @@ where Item: NSFetchRequestResult {
     public var listUpdate = ListUpdate<SourceBase>.Whole.reload
     public var listDiffer = ListDiffer<SourceBase>.diff
     public var listOptions = ListOptions()
+    public var updateAnimated: Bool?
     
     public var didChangeContent: (() -> Void)?
     public var willChangeContent: (() -> Void)?
@@ -133,7 +134,7 @@ where Item: NSFetchRequestResult {
         }
         
         guard shouldUpdate?(self) != false else { return }
-        perform(.init(section: _section, item: _item), completion: updateCompletion)
+        perform(.init(section: _section, item: _item), animated: updateAnimated, completion: updateCompletion)
         didUpdate?(self)
     }
     

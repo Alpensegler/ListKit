@@ -14,7 +14,7 @@ public extension AnySources {
     }
 }
 
-@_functionBuilder
+@resultBuilder
 public struct AnySourcesBuilder {
     public static func buildIf<S: DataSource>(_ content: S?) -> S? {
         content

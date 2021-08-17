@@ -33,7 +33,7 @@ protocol CoordinatorContext: AnyObject {
         with input: Input
     ) -> Output?
     
-    func perform(updates: BatchUpdates, animated: Bool, completion: ((ListView, Bool) -> Void)?)
+    func perform(updates: BatchUpdates?, animated: Bool, completion: ((ListView, Bool) -> Void)?)
 }
 
 public final class ListCoordinatorContext<SourceBase: DataSource>: CoordinatorContext
@@ -122,8 +122,12 @@ where SourceBase.SourceBase == SourceBase {
         })
     }
     
-    func perform(updates: BatchUpdates, animated: Bool, completion: ((ListView, Bool) -> Void)?) {
+    func perform(updates: BatchUpdates?, animated: Bool, completion: ((ListView, Bool) -> Void)?) {
         guard let list = listView else { return }
+        guard let updates = updates else {
+            completion?(list, false)
+            return
+        }
         switch updates {
         case let .reload(change: change):
             (_itemCaches, _itemNestedCache) = (nil, nil)

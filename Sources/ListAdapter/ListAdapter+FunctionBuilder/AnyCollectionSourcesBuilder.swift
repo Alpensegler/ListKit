@@ -16,7 +16,7 @@ public extension CollectionList where Source == AnySources {
     }
 }
 
-@_functionBuilder
+@resultBuilder
 public struct AnyCollectionSourcesBuilder {
     public static func buildIf<S: CollectionListAdapter>(_ content: S?) -> S? {
         content

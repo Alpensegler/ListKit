@@ -56,9 +56,7 @@ public extension UpdatableDataSource {
         isMainThread ? work() : DispatchQueue.main.sync(execute: work)
         let coordinatorUpdate = coordinator.update(update: update, options: options)
         let contextAndUpdates = coordinator.contextAndUpdates(update: coordinatorUpdate)
-        let results = contextAndUpdates?.compactMap { arg in
-            arg.1.listUpdates.map { (arg.0, arg.1, $0) }
-        }
+        let results = contextAndUpdates?.map { arg in (arg.0, arg.1, arg.1.listUpdates) }
         let afterWork: () -> Void = {
             guard let results = results else { return coordinatorUpdate.finalChange(true)() }
             for (context, coordinatorUpdate, update) in results {

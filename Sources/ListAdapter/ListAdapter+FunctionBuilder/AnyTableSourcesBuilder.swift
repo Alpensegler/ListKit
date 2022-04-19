@@ -16,7 +16,7 @@ public extension TableList where Source == AnySources {
     }
 }
 
-@_functionBuilder
+@resultBuilder
 public struct AnyTableSourcesBuilder {
     public static func buildIf<S: TableListAdapter>(_ content: S?) -> S? {
         content

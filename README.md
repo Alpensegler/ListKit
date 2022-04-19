@@ -8,8 +8,9 @@
 - 支持 `Property Wrapper` 形式的数据源
 - **自动**根据数据模型选择更新方式 (基于 `Diff`)，且可自定义
 - 一维列表支持任意 `Collection` 作为数据模型
-- 创建具有多个数据类型的列表，支持不限于二维的复杂 `Diff`
-- 支持定义缓存，仅在第一次和更新时计算，可用于高度 / 大小缓存
+- 创建具有多个数据类型的列表
+- 支持不限于二维的复杂 `Diff`
+- 支持定义缓存，可用于高度 / 大小缓存
 - 支持单一数据源绑定多个 List
 - 支持任何 `CollectionListLayout`
 - 支持 SwiftUI
@@ -72,7 +73,7 @@ class RoomViewModel: UpdatableTableListAdapter {
 roomViewModel.source = [[1, 2], [4, 5, 6, 3]]
 ```
 
-最后看一个更复杂的例子，非常常见的，有需求要在一个页面组合多种不同类型的数据源到一个 tableView 中，比如将上述两个例子结合
+非常常见的，有时需要在一个页面组合多种不同类型的数据源到一个 tableView 中，比如将上述两个例子结合
 
 ``` swift
 class NestedViewModel {
@@ -108,3 +109,42 @@ nestedViewModel.roomViewModel.source = [[1, 2], [4, 5, 6, 3]] // 将把 3 对应
 ```
 
 我们就能通过这种方式将 DataSource 解耦成多个可以单独处理相关数据的多个子 DataSource，减少复杂度，方便测试
+
+当然，上例中的子 DataSourece 不算复杂，对这种情况我们可以用支持 `PropertyWrapper` 的自带 Sources 类型简化代码：
+
+``` swift
+class NestedViewModel {
+    @Sources<String, Character> var emojis = "🥳🤭😇"
+    @Sources<[[Int]], Int> var room = [[1, 2, 3], [4, 5, 6]]
+    var shouldShowEmoji = false {
+        didSet {
+            performUpdate()
+        }
+    }
+}
+
+extension NestedViewModel: UpdatableTableListAdapter {
+    typealias Item = Any
+    var source: AnyTableSources {
+        AnyTableSources {
+            if shouldShowEmoji {
+                $emojis
+                    .tableViewCellForRow(UITableViewCell.self) { cell, context, item in
+                        cell.textLabel?.text = "\(item)"
+                    }
+            }
+            $room
+                .tableViewCellForRow(UITableViewCell.self) { cell, context, item in
+                    cell.textLabel?.text = "\(item)"
+                }
+                .tableViewDidSelectRow { (context, item) in
+                    print(item)
+                }
+        }
+    }
+}
+
+nestedViewModel.shouldShowEmoji.toggle() // 将把 emoji 显示出来
+nestedViewModel.room = [[1, 2], [4, 5, 6, 3]] // 将把 3 对应的 cell 移动到最后一个 section 最后
+
+```

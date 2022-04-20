@@ -2,19 +2,19 @@
 
 ## 核心功能
 
-- 无须直接调用 `performBatchUpdates(_:, completion:)` 或 `reloadData()`
-- 更加现代的链式 Swift API
-- 支持基于 `Result Builder` 的声明式构建写法，支持 `Flow control`
-- 支持 `Property Wrapper` 形式的数据源
-- **自动**根据数据模型选择更新方式 (基于 `Diff`)，且可自定义
-- 一维列表支持任意 `Collection` 作为数据模型
-- 创建具有多个数据类型的列表
-- 支持不限于二维的复杂 `Diff`
-- 支持定义缓存，可用于高度 / 大小缓存
-- 支持单一数据源绑定多个 List
-- 支持任何 `CollectionListLayout`
-- 支持 SwiftUI
-- 支持 CoreData
+- [x] 无须直接调用 `performBatchUpdates(_:, completion:)` 或 `reloadData()`
+- [x] 更加现代的链式 Swift API
+- [x] 支持基于 `Result Builder` 的声明式构建写法，支持 `Flow control`
+- [x] 支持 `Property Wrapper` 形式的数据源
+- [x] **自动**根据数据模型选择更新方式 (基于 `Diff`)，且可自定义
+- [x] 一维列表支持任意 `Collection` 作为数据模型
+- [x] 创建具有多个数据类型的列表
+- [x] 支持不限于二维的复杂 `Diff`
+- [x] 支持定义缓存，可用于高度 / 大小缓存
+- [x] 支持单一数据源绑定多个 List
+- [x] 支持任何 `CollectionListLayout`
+- [x] 支持 SwiftUI
+- [x] 支持 CoreData
 
 ## 例子
 
@@ -148,3 +148,17 @@ nestedViewModel.shouldShowEmoji.toggle() // 将把 emoji 显示出来
 nestedViewModel.room = [[1, 2], [4, 5, 6, 3]] // 将把 3 对应的 cell 移动到最后一个 section 最后
 
 ```
+
+## 安装
+
+### Carthage
+
+将下面一行添加进 Cartfile 即可：
+
+```text
+github "Alpensegler/ListKit"
+```
+
+### Swift Package Manager
+
+在 Xcode 中，点击 "Files -> Swift Package Manager -> Add Package Dependency..."，在搜索栏中输入 "https://github.com/Alpensegler/ListKit"

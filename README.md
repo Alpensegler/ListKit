@@ -12,7 +12,7 @@
 - [x] 支持不限于二维的复杂 `Diff`
 - [x] 支持定义缓存，可用于高度 / 大小缓存
 - [x] 支持单一数据源绑定多个 List
-- [x] 支持任何 `CollectionListLayout`
+- [x] 支持任何 `UICollectionViewLayout`
 - [x] 支持 SwiftUI
 - [x] 支持 CoreData
 

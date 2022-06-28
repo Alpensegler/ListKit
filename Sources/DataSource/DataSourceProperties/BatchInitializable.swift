@@ -111,7 +111,7 @@ where
     }
     
     static func insert<C: Collection>(contentsOf elements: C, at index: Int) -> Self
-    where Element == C.Element {
+    where SourceBase.Source.Element == C.Element {
         .init { $0.insert(contentsOf: elements, at: index) }
     }
     
@@ -119,7 +119,7 @@ where
         .init { $0.append(element) }
     }
     
-    static func append<S: Sequence>(contentsOf elements: S) -> Self where Element == S.Element {
+    static func append<S: Sequence>(contentsOf elements: S) -> Self where SourceBase.Source.Element == S.Element {
         .init { $0.append(contentsOf: elements) }
     }
     

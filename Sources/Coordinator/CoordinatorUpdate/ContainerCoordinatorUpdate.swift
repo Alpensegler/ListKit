@@ -143,8 +143,8 @@ where
 
 extension ContainerCoordinatorUpdate {
     func enumerateDifferences(ids: [AnyHashable], closure: (Subupdate, [AnyHashable]) -> Void) {
-        differences.source.forEach {
-            switch $0 {
+        for change in differences.source {
+            switch change {
             case let .change(.change(change, isSource: isSource)):
                 let value = isSource ? (change[ids]?.change.value ?? change.value) : change.value
                 let ids = ids + [toIdentifier(value)]

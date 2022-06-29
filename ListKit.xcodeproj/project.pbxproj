@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3C41F2DD286C85B500DA80CE /* CompileTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C41F2DC286C85B500DA80CE /* CompileTests.swift */; };
+		3C41F2DE286C85B500DA80CE /* ListKitNext.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3CCA3BBB286AA24E00422554 /* ListKitNext.framework */; };
 		3CCA3BD0286AA24F00422554 /* ListKitNext.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3CCA3BBB286AA24E00422554 /* ListKitNext.framework */; };
 		3CCA3BD1286AA24F00422554 /* ListKitNext.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3CCA3BBB286AA24E00422554 /* ListKitNext.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		3CCA3BDA286AA32400422554 /* DataSourceBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CCA3BD8286AA31200422554 /* DataSourceBuilder.swift */; };
@@ -115,6 +117,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		3C41F2DF286C85B500DA80CE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = OBJ_1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3CCA3BBA286AA24E00422554;
+			remoteInfo = ListKitNext;
+		};
 		3CCA3BCE286AA24F00422554 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = OBJ_1 /* Project object */;
@@ -147,6 +156,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		3C41F2DA286C85B400DA80CE /* ListKitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ListKitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		3C41F2DC286C85B500DA80CE /* CompileTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompileTests.swift; sourceTree = "<group>"; };
 		3CCA3BBB286AA24E00422554 /* ListKitNext.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ListKitNext.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3CCA3BD8286AA31200422554 /* DataSourceBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSourceBuilder.swift; sourceTree = "<group>"; };
 		F3040D26238904860055E6E7 /* CollectionListAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionListAdapter.swift; sourceTree = "<group>"; };
@@ -169,7 +180,6 @@
 		F331623524B467390086B7CE /* ListUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListUpdate.swift; sourceTree = "<group>"; };
 		F331623724B467D20086B7CE /* DiffInitializableUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiffInitializableUpdate.swift; sourceTree = "<group>"; };
 		F33E4CB425A4854500D139CB /* ItemCachedDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemCachedDataSource.swift; sourceTree = "<group>"; };
-		F33FBC3A234F26B60054BA38 /* ListKitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListKitTests.swift; sourceTree = "<group>"; };
 		F33FBC3C234F33A70054BA38 /* DataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSource.swift; sourceTree = "<group>"; };
 		F33FBC42234F3A600054BA38 /* Sources.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources.swift; sourceTree = "<group>"; };
 		F344B9462517F47800F9E499 /* ContainerCoordinatorUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerCoordinatorUpdate.swift; sourceTree = "<group>"; };
@@ -257,6 +267,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		3C41F2D7286C85B400DA80CE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C41F2DE286C85B500DA80CE /* ListKitNext.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		3CCA3BB8286AA24E00422554 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -283,6 +301,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3C41F2DB286C85B400DA80CE /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				3C41F2DC286C85B500DA80CE /* CompileTests.swift */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
 		F3040D242389046D0055E6E7 /* ListAdapter */ = {
 			isa = PBXGroup;
 			children = (
@@ -341,22 +367,6 @@
 				F39A23F123A16B660024F9AF /* AnyTableSourcesBuilder.swift */,
 			);
 			path = "ListAdapter+FunctionBuilder";
-			sourceTree = "<group>";
-		};
-		F33FBC38234F26B60054BA38 /* Tests */ = {
-			isa = PBXGroup;
-			children = (
-				F33FBC39234F26B60054BA38 /* ListKitTests */,
-			);
-			path = Tests;
-			sourceTree = "<group>";
-		};
-		F33FBC39234F26B60054BA38 /* ListKitTests */ = {
-			isa = PBXGroup;
-			children = (
-				F33FBC3A234F26B60054BA38 /* ListKitTests.swift */,
-			);
-			path = ListKitTests;
 			sourceTree = "<group>";
 		};
 		F33FBC3B234F29E30054BA38 /* DataSource */ = {
@@ -570,6 +580,7 @@
 				"ListKit::ListKit::Product" /* ListKit.framework */,
 				F36550172451B4060038172F /* ListKitExample.app */,
 				3CCA3BBB286AA24E00422554 /* ListKitNext.framework */,
+				3C41F2DA286C85B400DA80CE /* ListKitTests.xctest */,
 			);
 			name = Products;
 			sourceTree = BUILT_PRODUCTS_DIR;
@@ -581,7 +592,7 @@
 				OBJ_6 /* Package.swift */,
 				OBJ_7 /* Sources */,
 				F36550182451B4060038172F /* ListKitExample */,
-				F33FBC38234F26B60054BA38 /* Tests */,
+				3C41F2DB286C85B400DA80CE /* Tests */,
 				OBJ_10 /* Products */,
 				F36550332451B6910038172F /* Frameworks */,
 			);
@@ -617,6 +628,24 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		3C41F2D9286C85B400DA80CE /* ListKitTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3C41F2E1286C85B500DA80CE /* Build configuration list for PBXNativeTarget "ListKitTests" */;
+			buildPhases = (
+				3C41F2D6286C85B400DA80CE /* Sources */,
+				3C41F2D7286C85B400DA80CE /* Frameworks */,
+				3C41F2D8286C85B400DA80CE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				3C41F2E0286C85B500DA80CE /* PBXTargetDependency */,
+			);
+			name = ListKitTests;
+			productName = ListKitTests;
+			productReference = 3C41F2DA286C85B400DA80CE /* ListKitTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		3CCA3BBA286AA24E00422554 /* ListKitNext */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 3CCA3BD6286AA24F00422554 /* Build configuration list for PBXNativeTarget "ListKitNext" */;
@@ -695,6 +724,10 @@
 				LastSwiftUpdateCheck = 1400;
 				LastUpgradeCheck = 1250;
 				TargetAttributes = {
+					3C41F2D9286C85B400DA80CE = {
+						CreatedOnToolsVersion = 14.0;
+						ProvisioningStyle = Automatic;
+					};
 					3CCA3BBA286AA24E00422554 = {
 						CreatedOnToolsVersion = 14.0;
 						ProvisioningStyle = Automatic;
@@ -722,11 +755,19 @@
 				F36550162451B4050038172F /* ListKitExample */,
 				"ListKit::ListKit" /* ListKit */,
 				"ListKit::SwiftPMPackageDescription" /* ListKitPackageDescription */,
+				3C41F2D9286C85B400DA80CE /* ListKitTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		3C41F2D8286C85B400DA80CE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		3CCA3BB9286AA24E00422554 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -747,6 +788,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		3C41F2D6286C85B400DA80CE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C41F2DD286C85B500DA80CE /* CompileTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		3CCA3BB7286AA24E00422554 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -876,6 +925,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		3C41F2E0286C85B500DA80CE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3CCA3BBA286AA24E00422554 /* ListKitNext */;
+			targetProxy = 3C41F2DF286C85B500DA80CE /* PBXContainerItemProxy */;
+		};
 		3CCA3BCF286AA24F00422554 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 3CCA3BBA286AA24E00422554 /* ListKitNext */;
@@ -900,6 +954,82 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		3C41F2E2286C85B500DA80CE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MACOSX_DEPLOYMENT_TARGET = 12.4;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.Alpensegler.ListKitTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		3C41F2E3286C85B500DA80CE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MACOSX_DEPLOYMENT_TARGET = 12.4;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.Alpensegler.ListKitTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		3CCA3BD2286AA24F00422554 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1309,6 +1439,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		3C41F2E1286C85B500DA80CE /* Build configuration list for PBXNativeTarget "ListKitTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3C41F2E2286C85B500DA80CE /* Debug */,
+				3C41F2E3286C85B500DA80CE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		3CCA3BD6286AA24F00422554 /* Build configuration list for PBXNativeTarget "ListKitNext" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

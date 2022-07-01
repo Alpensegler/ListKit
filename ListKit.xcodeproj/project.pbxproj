@@ -11,7 +11,7 @@
 		3C41F2DE286C85B500DA80CE /* ListKitNext.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3CCA3BBB286AA24E00422554 /* ListKitNext.framework */; };
 		3CCA3BD0286AA24F00422554 /* ListKitNext.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3CCA3BBB286AA24E00422554 /* ListKitNext.framework */; };
 		3CCA3BD1286AA24F00422554 /* ListKitNext.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3CCA3BBB286AA24E00422554 /* ListKitNext.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		3CCA3BDA286AA32400422554 /* DataSourceBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CCA3BD8286AA31200422554 /* DataSourceBuilder.swift */; };
+		3CCA3BDA286AA32400422554 /* SourceBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CCA3BD8286AA31200422554 /* SourceBuilder.swift */; };
 		3CCA3BDB286AA39F00422554 /* DataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F33FBC3C234F33A70054BA38 /* DataSource.swift */; };
 		F3040D27238904860055E6E7 /* CollectionListAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3040D26238904860055E6E7 /* CollectionListAdapter.swift */; };
 		F3040D81238B21560055E6E7 /* ListCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3040D80238B21560055E6E7 /* ListCoordinator.swift */; };
@@ -159,7 +159,7 @@
 		3C41F2DA286C85B400DA80CE /* ListKitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ListKitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3C41F2DC286C85B500DA80CE /* CompileTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompileTests.swift; sourceTree = "<group>"; };
 		3CCA3BBB286AA24E00422554 /* ListKitNext.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ListKitNext.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		3CCA3BD8286AA31200422554 /* DataSourceBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSourceBuilder.swift; sourceTree = "<group>"; };
+		3CCA3BD8286AA31200422554 /* SourceBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourceBuilder.swift; sourceTree = "<group>"; };
 		F3040D26238904860055E6E7 /* CollectionListAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionListAdapter.swift; sourceTree = "<group>"; };
 		F3040D80238B21560055E6E7 /* ListCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListCoordinator.swift; sourceTree = "<group>"; };
 		F304A6DE239E94CC00133D14 /* Context+UIKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Context+UIKit.swift"; sourceTree = "<group>"; };
@@ -375,7 +375,7 @@
 				F398E1C024008725000A5637 /* DataSourceProperties */,
 				F36D2A1723A105B900091464 /* DataSource+Coordinator */,
 				F33FBC3C234F33A70054BA38 /* DataSource.swift */,
-				3CCA3BD8286AA31200422554 /* DataSourceBuilder.swift */,
+				3CCA3BD8286AA31200422554 /* SourceBuilder.swift */,
 				F3D785C72398FC5B00D7A5CD /* UpdatableDataSource.swift */,
 				F3D785C92398FCA200D7A5CD /* NSDataSource.swift */,
 				F33E4CB425A4854500D139CB /* ItemCachedDataSource.swift */,
@@ -801,7 +801,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3CCA3BDB286AA39F00422554 /* DataSource.swift in Sources */,
-				3CCA3BDA286AA32400422554 /* DataSourceBuilder.swift in Sources */,
+				3CCA3BDA286AA32400422554 /* SourceBuilder.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

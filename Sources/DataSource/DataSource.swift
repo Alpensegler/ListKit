@@ -13,12 +13,12 @@ public protocol DataSource<Source, Item> {
     /// The type of datasource representing the content of the list
     associatedtype Source = [Item]
     
-    /// A replacment of `Self`
+    /// A replacement of `Self`
     associatedtype Base: DataSource = Self
     where Base.Item == Item, Base.Base == Base
     
     /// The content and behavior of the list
-    @DataSourceBuilder<Base>
+    @SourceBuilder<Base>
     var source: Source { get }
     
     /// The base of the datasource, euqal to `Self` in normal cases

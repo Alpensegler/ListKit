@@ -7,21 +7,21 @@
 
 public protocol DiffInitializableUpdate: DiffInitializable where Value == SourceBase.Item {
     associatedtype SourceBase: DataSource where SourceBase.SourceBase == SourceBase
-    
+
     init(_ whole: ListUpdate<SourceBase>.Whole)
 }
 
 public extension DiffInitializableUpdate {
     static var reload: Self { .init(.init(way: .other(.reload))) }
-    
+
     static func diff(by areEquivalent: @escaping (Value, Value) -> Bool) -> Self {
         .init(.init(id: nil, by: areEquivalent))
     }
-    
+
     static func diff<ID: Hashable>(id: @escaping (Value) -> ID) -> Self {
         .init(.init(id: id, by: nil))
     }
-    
+
     static func diff<ID: Hashable>(
         id: @escaping (Value) -> ID,
         by areEquivalent: @escaping (Value, Value) -> Bool

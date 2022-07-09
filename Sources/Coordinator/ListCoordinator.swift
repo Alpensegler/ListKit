@@ -15,25 +15,25 @@ public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase
     struct WeakContext {
         weak var context: ListCoordinatorContext<SourceBase>?
     }
-    
+
     let update: ListUpdate<SourceBase>.Whole
     let differ: ListDiffer<SourceBase>
     var options: ListOptions
     var source: SourceBase.Source!
-    
+
     weak var storage: CoordinatorStorage<SourceBase>?
     weak var currentCoordinatorUpdate: ListCoordinatorUpdate<SourceBase>?
     var listContexts = [WeakContext]()
-    
+
     lazy var sourceType = configSourceType()
-    
+
     var sourceBaseType: Any.Type { SourceBase.self }
     var isSectioned: Bool {
         options.preferSection || listContexts.contains {
             $0.context?.listDelegate.hasSectionIndex == true
         }
     }
-    
+
     init(
         source: SourceBase.Source!,
         update: ListUpdate<SourceBase>.Whole,
@@ -45,19 +45,19 @@ public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase
         self.options = options
         self.source = source
     }
-    
+
     init(_ sourceBase: SourceBase) {
         self.differ = sourceBase.listDiffer
         self.update = sourceBase.listUpdate
         self.options = sourceBase.listOptions
         self.source = sourceBase.source
     }
-    
+
     func numbersOfSections() -> Int { notImplemented() }
     func numbersOfItems(in section: Int) -> Int { notImplemented() }
-    
+
     func item(at indexPath: IndexPath) -> Item { notImplemented() }
-    
+
     func cache<ItemCache>(
         for cached: inout Any?,
         at indexPath: IndexPath,
@@ -70,12 +70,12 @@ public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase
         cached = cache
         return cache
     }
-    
+
     func configSourceType() -> SourceType { notImplemented() }
-    
+
     // Selectors:
     func configExtraSelector(delegate: ListDelegate) -> Set<Selector>? { nil }
-    
+
     @discardableResult
     func apply<Object: AnyObject, Target, Input, Output, Closure>(
         _ function: ListDelegate.Function<Object, Delegate, Target, Input, Output, Closure>,
@@ -84,12 +84,13 @@ public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase
         object: Object,
         with input: Input
     ) -> Output? {
-        guard let c = context.listDelegate.functions[function.selector],
-              let closure = c as? (Object, Context, CoordinatorContext, Input) -> Output
+        guard let rawClosure = context.listDelegate.functions[function.selector],
+              let closure = rawClosure as? (Object, Context, CoordinatorContext, Input) -> Output
         else { return nil }
         return closure(object, context, root, input)
     }
-    
+
+    // swiftlint:disable function_parameter_count
     @discardableResult
     func apply<Object: AnyObject, Target, Input, Output, Closure, Index: ListIndex>(
         _ function: ListDelegate.IndexFunction<Object, Delegate, Target, Input, Output, Closure, Index>,
@@ -99,30 +100,31 @@ public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase
         with input: Input,
         _ offset: Index
     ) -> Output? {
-        guard let c = context.listDelegate.functions[function.selector],
-              let closure = c as? (Object, Context, CoordinatorContext, Input, Index, Index) -> Output
+        guard let rawClosure = context.listDelegate.functions[function.selector],
+              let closure = rawClosure as? (Object, Context, CoordinatorContext, Input, Index, Index) -> Output
         else { return nil }
         return closure(object, context, root, input, function.indexForInput(input), offset)
     }
-    
+    // swiftlint:enable function_parameter_count
+
     // Updates:
     func identifier(for sourceBase: SourceBase) -> [AnyHashable] {
         let id = ObjectIdentifier(sourceBaseType)
         guard let identifier = differ.identifier else { return [id, sourceType] }
         return [id, sourceType, identifier(sourceBase)]
     }
-    
+
     func equal(lhs: SourceBase, rhs: SourceBase) -> Bool {
         differ.areEquivalent?(lhs, rhs) ?? true
     }
-    
+
     func update(
         update: ListUpdate<SourceBase>,
         options: ListOptions? = nil
     ) -> ListCoordinatorUpdate<SourceBase> {
         notImplemented()
     }
-    
+
     func update(
         from coordinator: ListCoordinator<SourceBase>,
         updateWay: ListUpdateWay<Item>?
@@ -144,7 +146,7 @@ extension ListCoordinator {
         }
         return results
     }
-    
+
     func offsetAndRoot(offset: IndexPath, list: ListView) -> [(IndexPath, CoordinatorContext)] {
         var results = [(IndexPath, CoordinatorContext)]()
         for context in self.listContexts {
@@ -152,12 +154,12 @@ extension ListCoordinator {
             if context.listView === list {
                 results.append((offset, context))
             }
-            
+
             results += context.contextAtIndex?(context.index, offset, list) ?? []
         }
         return results
     }
-    
+
     func resetDelegates() {
         listContexts.forEach { $0.context?.reconfig() }
     }

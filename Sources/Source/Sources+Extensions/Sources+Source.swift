@@ -5,6 +5,8 @@
 //  Created by Frain on 2020/1/16.
 //
 
+// swiftlint:disable opening_brace
+
 extension Sources where Source: DataSource, Source.Item == Item {
     init(
         _ id: AnyHashable?,
@@ -18,7 +20,7 @@ extension Sources where Source: DataSource, Source.Item == Item {
         self.listOptions = options
         self.coordinatorMaker = { $0.coordinator(with: WrapperCoordinator(wrapper: $0)) }
     }
-    
+
     init(
         _ id: AnyHashable? = nil,
         update: ListUpdate<SourceBase>.Whole,
@@ -42,7 +44,7 @@ public extension Sources where Source: DataSource, Source.Item == Item {
     ) {
         self.init(id, dataSource: dataSource, update: update, options: options)
     }
-    
+
     init(
         wrappedValue: Source,
         id: AnyHashable? = nil,
@@ -51,39 +53,39 @@ public extension Sources where Source: DataSource, Source.Item == Item {
     ) {
         self.init(id, dataSource: wrappedValue, update: update, options: options)
     }
-    
+
     init(dataSource: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, dataSource: dataSource, update: .reload, options: options)
     }
-    
+
     init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, dataSource: wrappedValue, update: .reload, options: options)
     }
 }
 
-//Equatable
+// MARK: - Equatable
 public extension Sources where Source: DataSource, Source.Item == Item, Item: Equatable {
     init(dataSource: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, dataSource: dataSource, update: .diff, options: options)
     }
-    
+
     init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, dataSource: wrappedValue, update: .diff, options: options)
     }
 }
 
-//Hashable
+// MARK: - Hashable
 public extension Sources where Source: DataSource, Source.Item == Item, Item: Hashable {
     init(dataSource: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, dataSource: dataSource, update: .diff, options: options)
     }
-    
+
     init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, dataSource: wrappedValue, update: .diff, options: options)
     }
 }
 
-//Identifiable
+// MARK: - Identifiable
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public extension Sources
 where
@@ -94,13 +96,13 @@ where
     init(dataSource: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, dataSource: dataSource, update: .diff, options: options)
     }
-    
+
     init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, dataSource: wrappedValue, update: .diff, options: options)
     }
 }
 
-//Identifiable + Equatable
+// MARK: - Identifiable + Equatable
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public extension Sources
 where
@@ -112,13 +114,13 @@ where
     init(dataSource: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, dataSource: dataSource, update: .diff, options: options)
     }
-    
+
     init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, dataSource: wrappedValue, update: .diff, options: options)
     }
 }
 
-//Identifiable + Hashable
+// MARK: - Identifiable + Hashable
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public extension Sources
 where
@@ -130,9 +132,8 @@ where
     init(dataSource: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, dataSource: dataSource, update: .diff, options: options)
     }
-    
+
     init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, dataSource: wrappedValue, update: .diff, options: options)
     }
 }
-

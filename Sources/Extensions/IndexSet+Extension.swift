@@ -14,15 +14,15 @@ extension IndexSet: UpdateIndexCollection {
     static func move(_ element: Mapping<Int>, by list: ListView) {
         list.moveSection(element.source, toSection: element.target)
     }
-    
+
     var elements: IndexSet { self }
     init(_ element: Int) { self.init(integer: element) }
     init(_ from: Int, _ to: Int) { self.init(integersIn: from..<to) }
-    
+
     mutating func add(_ other: IndexSet) { formUnion(other) }
     mutating func add(_ element: Int) { insert(element) }
     mutating func add(_ from: Int, _ to: Int) { insert(integersIn: from..<to) }
-    
+
     func elements(_ offset: Int?) -> IndexSet {
         guard let offset = offset else { return self }
         return .init(map { $0 + offset })

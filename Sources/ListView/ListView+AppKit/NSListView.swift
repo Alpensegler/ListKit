@@ -9,7 +9,7 @@
 import AppKit
 
 public protocol NSListView: NSView, ListView {
-    
+
 }
 
 #endif

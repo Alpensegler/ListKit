@@ -1,5 +1,5 @@
-import XCTest
 @testable import ListKit
+import XCTest
 
 final class ListKitTests: XCTestCase {
     func testExample() {

@@ -5,16 +5,17 @@
 //  Created by Frain on 2020/6/10.
 //
 
+// swiftlint:disable opening_brace
+
 import Foundation
 
-class ItemsCoordinatorUpdate<SourceBase: DataSource>:
-    CollectionCoordinatorUpdate<
-        SourceBase,
-        SourceBase.Source,
-        SourceBase.Item,
-        CoordinatorUpdate.Change<SourceBase.Item>,
-        CoordinatorUpdate.Change<SourceBase.Item>
-    >
+class ItemsCoordinatorUpdate<SourceBase: DataSource>: CollectionCoordinatorUpdate<
+    SourceBase,
+    SourceBase.Source,
+    SourceBase.Item,
+    CoordinatorUpdate.Change<SourceBase.Item>,
+    CoordinatorUpdate.Change<SourceBase.Item>
+>
 where
     SourceBase.SourceBase == SourceBase,
     SourceBase.Source: Collection,
@@ -22,15 +23,15 @@ where
 {
     typealias Source = SourceBase.Source
     typealias Change = CoordinatorUpdate.Change<SourceBase.Item>
-    
+
     weak var coordinator: ItemsCoordinator<SourceBase>?
-    
+
     lazy var extraValues = Cache(value: ContiguousArray<Item>())
     lazy var extraChanges = Cache(value: ([], []) as Changes)
-    
+
     override var equatable: Bool { differ?.areEquivalent != nil }
     override var identifiable: Bool { differ?.identifier != nil }
-    
+
     required init(
         coordinator: ItemsCoordinator<SourceBase>,
         update: ListUpdate<SourceBase>?,
@@ -41,31 +42,31 @@ where
         self.coordinator = coordinator
         super.init(coordinator, update: update, values: values, sources: sources, options: options)
     }
-    
+
     override func isEqual(lhs: Item, rhs: Item) -> Bool { differ.equal(lhs: lhs, rhs: rhs) }
     override func identifier(for value: Item) -> AnyHashable { differ.identifier!(value) }
     override func isDiffEqual(lhs: Item, rhs: Item) -> Bool { differ.diffEqual(lhs: lhs, rhs: rhs) }
-    
+
     override func toValue(_ element: Element) -> Item { element }
-    
+
     override func toChange(_ value: Item, _ index: Int) -> Change {
         let change = Change(value: value, index: index, moveAndReloadable: moveAndReloadable)
         change.coordinatorUpdate = self
         return change
     }
-    
+
     override func add(change: Change, isSource: Bool, to changes: inout Differences) {
         changes[keyPath: path(isSource)].append(.change(change))
     }
-    
+
     override func configSourceCount() -> Int { sourceValues.count }
     override func configTargetCount() -> Int { targetValues.count }
-    
+
     override func updateData(_ isSource: Bool, containsSubupdate: Bool) {
         super.updateData(isSource, containsSubupdate: containsSubupdate)
         coordinator?.items = isSource ? sourceValues : targetValues
     }
-    
+
     override func inferringMoves(context: Context? = nil, ids: [AnyHashable] = []) {
         guard identifiable else { return }
         _ = uniqueDict
@@ -75,13 +76,13 @@ where
         target.forEach { add($0, id: identifier(for: $0.value), ids: ids, to: &context.dicts.target) }
         apply(uniqueMapping, dict: &context.dicts) { $0 as? Change }
     }
-    
+
     override func customUpdateWay() -> UpdateWay? {
         if isBatchUpdate { return .batch }
         guard diffable else { return .other(.reload) }
         return diffs.isEmpty ? nil : .batch
     }
-    
+
     override func generateSourceItemUpdate(
         order: Order,
         context: UpdateContext<IndexPath> = (nil, false, [])
@@ -104,7 +105,7 @@ where
             return (sourceCount, update)
         }
     }
-    
+
     override func generateTargetItemUpdate(
         order: Order,
         context: UpdateContext<Offset<IndexPath>> = (nil, false, [])
@@ -135,7 +136,7 @@ where
                     )
                 }
             }
-            
+
             let change: (() -> Void)?
             if hasNext(order, context) {
                 let values = extraValues[context], source = toSource(values)
@@ -151,8 +152,7 @@ where
     }
 }
 
-final class RangeReplacableItemsCoordinatorUpdate<SourceBase>:
-    ItemsCoordinatorUpdate<SourceBase>
+final class RangeReplacableItemsCoordinatorUpdate<SourceBase>: ItemsCoordinatorUpdate<SourceBase>
 where
     SourceBase: DataSource,
     SourceBase.SourceBase == SourceBase,
@@ -161,42 +161,42 @@ where
 {
     override var moveAndReloadable: Bool { !noneDiffUpdate }
     override func toSource(_ items: ContiguousArray<Item>) -> SourceBase.Source? { .init(items) }
-    
+
     override func insert(_ element: SourceBase.Source.Element, at index: Int)
     where SourceBase.Source: RangeReplaceableCollection {
         insertElement(element, at: index)
     }
-        
+
     override func insert<C: Collection>(contentsOf elements: C, at index: Int)
     where SourceBase.Source: RangeReplaceableCollection, C.Element == SourceBase.Source.Element {
         insertElements(contentsOf: elements, at: index)
     }
-        
+
     override func append(_ element: SourceBase.Source.Element)
     where SourceBase.Source: RangeReplaceableCollection {
         appendElement(element)
     }
-        
+
     override func append<S: Sequence>(contentsOf elements: S)
     where SourceBase.Source: RangeReplaceableCollection, S.Element == SourceBase.Source.Element {
         appendElements(contentsOf: elements)
     }
-        
+
     override func remove(at index: Int)
     where SourceBase.Source: RangeReplaceableCollection {
         removeElement(at: index)
     }
-    
+
     override func remove(at indexSet: IndexSet)
     where SourceBase.Source: RangeReplaceableCollection {
         removeElements(at: indexSet)
     }
-        
+
     override func update(_ element: SourceBase.Source.Element, at index: Int)
     where SourceBase.Source: RangeReplaceableCollection {
         updateElement(element, at: index)
     }
-        
+
     override func move(at index: Int, to newIndex: Int)
     where SourceBase.Source: RangeReplaceableCollection {
         moveElement(at: index, to: newIndex)

@@ -11,34 +11,34 @@ final class ItemCoordinatorUpdate<SourceBase: DataSource>: ListCoordinatorUpdate
 where SourceBase.Item == SourceBase.Source, SourceBase.SourceBase == SourceBase {
     lazy var changes = configChanges()
     lazy var extraChange = Cache(value: (nil, nil) as Mapping<Change<Item>?>)
-    
+
     override var moveAndReloadable: Bool { !noneDiffUpdate }
-    
+
     override func configSourceCount() -> Int { 1 }
     override func configTargetCount() -> Int { 1 }
-    
+
     override func customUpdateWay() -> UpdateWay? {
         diffable && (changes.source != nil || changes.target != nil) ? .batch : nil
     }
-    
+
     func toChange(_ value: Item, _ index: Int) -> Change<Item> {
         let change = Change(value: value, index: index, moveAndReloadable: true)
         change.coordinatorUpdate = self
         return change
     }
-    
+
     func configChanges() -> Mapping<Change<Item>?> {
-        guard let s = source, let t = target else { return (nil, nil) }
+        guard let source = source, let target = target else { return (nil, nil) }
         switch updateWay {
-        case .other(.insert): return (nil, toChange(t, 0))
-        case .other(.remove): return (toChange(s, 0), nil)
+        case .other(.insert): return (nil, toChange(target, 0))
+        case .other(.remove): return (toChange(source, 0), nil)
         default: break
         }
         guard diffable else { return (nil, nil) }
-        let isEqual = differ.diffEqual(lhs: s, rhs: t)
-        return isEqual ? (nil, nil) : (toChange(s, 0), toChange(t, 0))
+        let isEqual = differ.diffEqual(lhs: source, rhs: target)
+        return isEqual ? (nil, nil) : (toChange(source, 0), toChange(target, 0))
     }
-    
+
     override func inferringMoves(context: Context? = nil, ids: [AnyHashable] = []) {
         guard diffable,
               let id = differ.identifier,
@@ -53,7 +53,7 @@ where SourceBase.Item == SourceBase.Source, SourceBase.SourceBase == SourceBase 
         changes.source.map { config(for: $0, key.source, &context.dicts, differ.areEquivalent) }
         changes.target.map { config(for: $0, key.target, &context.dicts, differ.areEquivalent) }
     }
-    
+
     override func generateSourceItemUpdate(
         order: Order,
         context: UpdateContext<IndexPath> = (nil, false, [])
@@ -71,7 +71,7 @@ where SourceBase.Item == SourceBase.Source, SourceBase.SourceBase == SourceBase 
             return (1, update)
         }
     }
-    
+
     override func generateTargetItemUpdate(
         order: Order,
         context: UpdateContext<Offset<IndexPath>> = (nil, false, [])
@@ -92,7 +92,7 @@ where SourceBase.Item == SourceBase.Source, SourceBase.SourceBase == SourceBase 
                 let target = context.offset?.offset.target ?? .zero
                 update.move(source, to: target)
             }
-            
+
             let change: (() -> Void)?
             if hasNext(order, context) {
                 let source = extraChange[context].source?.value

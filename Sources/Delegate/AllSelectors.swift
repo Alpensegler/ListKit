@@ -5,7 +5,6 @@
 //  Created by Frain on 2019/12/13.
 //
 
-
 #if os(iOS) || os(tvOS)
 import UIKit
 
@@ -24,12 +23,12 @@ let allSelectors: Set<Selector> = {
         #selector(UIScrollViewDelegate.scrollViewDidEndZooming(_:with:atScale:)),
         #selector(UIScrollViewDelegate.scrollViewShouldScrollToTop(_:)),
         #selector(UIScrollViewDelegate.scrollViewDidScrollToTop(_:)),
-        
+
         #selector(UICollectionViewDataSource.collectionView(_:cellForItemAt:)),
         #selector(UICollectionViewDataSource.collectionView(_:viewForSupplementaryElementOfKind:at:)),
         #selector(UICollectionViewDataSource.collectionView(_:canMoveItemAt:)),
         #selector(UICollectionViewDataSource.collectionView(_:moveItemAt:to:)),
-        
+
         #selector(UICollectionViewDelegate.collectionView(_:shouldSelectItemAt:)),
         #selector(UICollectionViewDelegate.collectionView(_:didSelectItemAt:)),
         #selector(UICollectionViewDelegate.collectionView(_:shouldDeselectItemAt:)),
@@ -51,14 +50,14 @@ let allSelectors: Set<Selector> = {
         #selector(UICollectionViewDelegate.indexPathForPreferredFocusedView(in:)),
         #selector(UICollectionViewDelegate.collectionView(_:shouldUpdateFocusIn:)),
         #selector(UICollectionViewDelegate.collectionView(_:didUpdateFocusIn:with:)),
-        
+
         #selector(UICollectionViewDelegateFlowLayout.collectionView(_:layout:sizeForItemAt:)),
         #selector(UICollectionViewDelegateFlowLayout.collectionView(_:layout:insetForSectionAt:)),
         #selector(UICollectionViewDelegateFlowLayout.collectionView(_:layout:minimumLineSpacingForSectionAt:)),
         #selector(UICollectionViewDelegateFlowLayout.collectionView(_:layout:minimumInteritemSpacingForSectionAt:)),
         #selector(UICollectionViewDelegateFlowLayout.collectionView(_:layout:referenceSizeForHeaderInSection:)),
         #selector(UICollectionViewDelegateFlowLayout.collectionView(_:layout:referenceSizeForFooterInSection:)),
-        
+
         #selector(UITableViewDataSource.tableView(_:cellForRowAt:)),
         #selector(UITableViewDataSource.tableView(_:titleForHeaderInSection:)),
         #selector(UITableViewDataSource.tableView(_:titleForFooterInSection:)),
@@ -68,7 +67,7 @@ let allSelectors: Set<Selector> = {
         #selector(UITableViewDataSource.tableView(_:moveRowAt:to:)),
         #selector(UITableViewDataSource.sectionIndexTitles(for:)),
         #selector(UITableViewDataSource.tableView(_:sectionForSectionIndexTitle:at:)),
-        
+
         #selector(UITableViewDelegate.tableView(_:willDisplay:forRowAt:)),
         #selector(UITableViewDelegate.tableView(_:indentationLevelForRowAt:)),
         #selector(UITableViewDelegate.tableView(_:willSelectRowAt:)),
@@ -107,7 +106,7 @@ let allSelectors: Set<Selector> = {
         #selector(UITableViewDelegate.tableView(_:didUpdateFocusIn:with:)),
         #selector(UITableViewDelegate.indexPathForPreferredFocusedView(in:)),
     ]
-    
+
     guard #available(iOS 11.0, *) else { return selectors }
     selectors.formUnion([
         #selector(UIScrollViewDelegate.scrollViewDidChangeAdjustedContentInset(_:)),
@@ -116,8 +115,7 @@ let allSelectors: Set<Selector> = {
         #selector(UITableViewDelegate.tableView(_:leadingSwipeActionsConfigurationForRowAt:)),
         #selector(UITableViewDelegate.tableView(_:trailingSwipeActionsConfigurationForRowAt:)),
     ])
-    
-    
+
     guard #available(iOS 13.0, *) else { return selectors }
     selectors.formUnion([
         #selector(UICollectionViewDelegate.collectionView(_:shouldBeginMultipleSelectionInteractionAt:)),
@@ -135,7 +133,7 @@ let allSelectors: Set<Selector> = {
         #selector(UITableViewDelegate.tableView(_:previewForHighlightingContextMenuWithConfiguration:)),
         #selector(UITableViewDelegate.tableView(_:willPerformPreviewActionForMenuWith:animator:)),
     ])
-    
+
     return selectors
 }()
 #endif

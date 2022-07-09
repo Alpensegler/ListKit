@@ -9,14 +9,14 @@ public struct AnySources: DataSource {
     public typealias Item = Any
     public typealias SourceBase = Self
     let coordinatorMaker: (Self) -> ListCoordinator<AnySources>
-    
+
     public let source: Any
     public let listDiffer: ListDiffer<AnySources>
     public let listOptions: ListOptions
     public let listUpdate: ListUpdate<SourceBase>.Whole
-    
+
     public var listCoordinator: ListCoordinator<Self> { coordinatorMaker(self) }
-    
+
     public init<Source: DataSource>(_ dataSource: Source, options: ListOptions = .init()) {
         source = dataSource
         listDiffer = .init(dataSource.listDiffer) { (($0.source) as! Source).sourceBase }

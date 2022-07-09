@@ -1,9 +1,11 @@
-import UIKit
 import ListKit
+import UIKit
+
+// swiftlint:disable comment_spacing
 
 public class TestListViewController: UIViewController, UpdatableTableListAdapter {
     public var toggle = true
-    
+
     lazy var itemSource = ItemSource()
     lazy var itemsSource = Sources(items: [1.0, 2.0, 3.0], options: .removeEmptySection)
         .tableViewCellForRow()
@@ -11,17 +13,19 @@ public class TestListViewController: UIViewController, UpdatableTableListAdapter
             self.batchRemove(at: context.item)
         }
         .tableViewHeaderTitleForSection("items")
-    
+
     final class ItemSource: UpdatableTableListAdapter {
+        // swiftlint: disable nesting
         public typealias Item = Any
+        // swiftlint: enable nesting
         var toggle = true
-        
+
         public var source: AnyTableSources {
             AnyTableSources {
                 if toggle {
                     Sources(item: true)
                         .tableViewCellForRow()
-                        .tableViewDidSelectRow { [unowned self] (context, item) in
+                        .tableViewDidSelectRow { [unowned self] (context, _) in
                             context.deselectItem(animated: false)
                             self.toggle.toggle()
                             self.performUpdate()
@@ -29,7 +33,7 @@ public class TestListViewController: UIViewController, UpdatableTableListAdapter
                 } else {
                     Sources(items: [false, false, false])
                         .tableViewCellForRow()
-                        .tableViewDidSelectRow { (context, item) in
+                        .tableViewDidSelectRow { (context, _) in
                             context.deselectItem(animated: false)
                             self.toggle.toggle()
                             self.performUpdate()
@@ -39,7 +43,7 @@ public class TestListViewController: UIViewController, UpdatableTableListAdapter
             .tableViewHeaderTitleForSection("item")
         }
     }
-    
+
     public typealias Item = Any
     public var source: AnyTableSources {
         AnyTableSources {
@@ -66,12 +70,12 @@ public class TestListViewController: UIViewController, UpdatableTableListAdapter
             }.tableViewHeaderTitleForSection("sources")
         }
     }
-    
+
     public override func viewDidLoad() {
         apply(by: tableView)
         configActions()
     }
-    
+
     func configActions() {
         navigationItem.rightBarButtonItem = UIBarButtonItem(
             barButtonSystemItem: .refresh,
@@ -79,12 +83,12 @@ public class TestListViewController: UIViewController, UpdatableTableListAdapter
             action: #selector(refresh)
         )
     }
-    
+
     @objc func refresh() {
         toggle.toggle()
         performUpdate()
     }
-    
+
     func batchRemove(at item: Int) {
         itemsSource.perform(.remove(at: item))
     }
@@ -106,13 +110,13 @@ import SwiftUI
 @available(iOS 13.0, *)
 struct TestList_Preview: UIViewControllerRepresentable, PreviewProvider {
     static var previews: some View { TestList_Preview() }
-    
+
     func makeUIViewController(context: Self.Context) -> UINavigationController {
         UINavigationController(rootViewController: TestListViewController())
     }
-    
+
     func updateUIViewController(_ uiViewController: UINavigationController, context: Self.Context) {
-        
+
     }
 }
 

@@ -15,15 +15,15 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
         var context: ListCoordinatorContext<Other.SourceBase>
         var coordinator: ListCoordinator<Other.SourceBase> { context.listCoordinator }
     }
-    
+
     let toItem: (Other.Item) -> SourceBase.Item
     let toOther: (SourceBase.Source) -> Other?
-    
+
     var rawOptions = ListOptions()
     var wrapped: Wrapped?
-    
+
     override var sourceBaseType: Any.Type { Other.SourceBase.self }
-    
+
     init(
         _ sourceBase: SourceBase,
         toItem: @escaping (Other.Item) -> SourceBase.Item,
@@ -31,13 +31,13 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
     ) {
         self.toItem = toItem
         self.toOther = toOther
-        
+
         super.init(sourceBase)
         self.rawOptions = options
         self.wrapped = toOther(source).map(toWrapped)
         self.wrapped.map { options.formUnion($0.coordinator.options) }
     }
-    
+
     func toWrapped(_ other: Other) -> Wrapped {
         let context = other.listCoordinatorContext
         context.update = { [weak self] (_, subupdate) in
@@ -53,12 +53,12 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
             )
             return self.contextAndUpdates(update: update)
         }
-        context.contextAtIndex = { [weak self] (index, offset, listView) in
+        context.contextAtIndex = { [weak self] (_, offset, listView) in
             self?.offsetAndRoot(offset: offset, list: listView) ?? []
         }
         return .init(value: other, context: context)
     }
-    
+
     func update(from: Wrapped?, to: Wrapped?, way: ListUpdateWay<Item>?) -> Subupdate? {
         switch (from, to) {
         case (nil, nil):
@@ -72,7 +72,7 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
             return to.coordinator.update(from: from.coordinator, updateWay: updateWay)
         }
     }
-    
+
     override func numbersOfSections() -> Int {
         if sourceType == .items, wrapped == nil { return 1 }
         if sourceType == .sectionItems, wrapped?.coordinator.numbersOfItems(in: 0) == 0 {
@@ -80,15 +80,15 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
         }
         return wrapped?.coordinator.numbersOfSections() ?? 0
     }
-    
+
     override func numbersOfItems(in section: Int) -> Int {
         wrapped?.coordinator.numbersOfItems(in: section) ?? 0
     }
-    
+
     override func item(at indexPath: IndexPath) -> Item {
         toItem(wrapped!.coordinator.item(at: indexPath))
     }
-    
+
     override func cache<ItemCache>(
         for cached: inout Any?,
         at indexPath: IndexPath,
@@ -99,12 +99,12 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
         }
         return wrapped.coordinator.cache(for: &cached, at: indexPath, in: wrapped.context.listDelegate)
     }
-    
+
     override func configSourceType() -> SourceType {
         if wrapped?.coordinator.sourceType == .items, isSectioned { return .sectionItems }
         return wrapped?.coordinator.sourceType ?? .items
     }
-    
+
     // Selectors
     override func configExtraSelector(delegate: ListDelegate) -> Set<Selector>? {
         guard let wrapped = wrapped, delegate.extraSelectors.isEmpty else { return nil }
@@ -113,7 +113,7 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
         subdelegate.functions.keys.forEach { selectors.insert($0) }
         return selectors
     }
-    
+
     override func apply<Object: AnyObject, Target, Input, Output, Closure>(
         _ function: ListDelegate.Function<Object, Delegate, Target, Input, Output, Closure>,
         for context: Context,
@@ -133,7 +133,7 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
             return output ?? super.apply(function, for: context, root: root, object: object, with: input)
         }
     }
-    
+
     override func apply<Object: AnyObject, Target, Input, Output, Closure, Index: ListIndex>(
         _ function: ListDelegate.IndexFunction<Object, Delegate, Target, Input, Output, Closure, Index>,
         for context: Context,
@@ -154,14 +154,14 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
             return output ?? super.apply(function, for: context, root: root, object: object, with: input, offset)
         }
     }
-    
+
     // Updates:
     override func identifier(for sourceBase: SourceBase) -> [AnyHashable] {
         let id = ObjectIdentifier(sourceBaseType)
         guard let identifier = differ.identifier else { return [id, sourceType] }
         return [id, sourceType, identifier(sourceBase)]
     }
-    
+
     override func update(
         from coordinator: ListCoordinator<SourceBase>,
         updateWay: ListUpdateWay<Item>?
@@ -176,7 +176,7 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
             options: (options, options)
         )
     }
-    
+
     override func update(
         update: ListUpdate<SourceBase>,
         options: ListOptions? = nil
@@ -198,7 +198,7 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
             targetWrapped = wrapped
             subupdate = wrapped?.coordinator.update(update: .init(.init()))
         }
-        
+
         return WrapperCoordinatorUpdate(
             coordinator: self,
             update: update,

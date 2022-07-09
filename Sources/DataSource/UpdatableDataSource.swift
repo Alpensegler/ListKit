@@ -16,14 +16,14 @@ where SourceBase.SourceBase == SourceBase {
     var coordinator: ListCoordinator<SourceBase>?
     var isObjectAssciated = false
     weak var object: AnyObject?
-    
+
     public init() { }
-    
+
     init(_ object: AnyObject) {
         self.object = object
         self.isObjectAssciated = true
     }
-    
+
     deinit {
         coordinator?.listContexts.forEach {
             $0.context?.listView?.resetDelegates(toNil: true)
@@ -33,7 +33,7 @@ where SourceBase.SourceBase == SourceBase {
 
 public extension UpdatableDataSource {
     var currentSource: SourceBase.Source { listCoordinator.source }
-    
+
     func perform(
         _ update: ListUpdate<SourceBase>,
         animated: Bool? = nil,
@@ -66,7 +66,7 @@ public extension UpdatableDataSource {
         }
         isMainThread ? afterWork() : DispatchQueue.main.sync(execute: afterWork)
     }
-    
+
     func performUpdate(
         animated: Bool? = nil,
         to source: SourceBase.Source,
@@ -78,7 +78,7 @@ public extension UpdatableDataSource {
             completion: completion
         )
     }
-    
+
     func performUpdate(animated: Bool? = nil, completion: ((ListView, Bool) -> Void)? = nil) {
         perform(.init(updateType: .whole(listUpdate)), animated: animated, completion: completion)
     }
@@ -88,11 +88,11 @@ public extension UpdatableDataSource {
     func currentItem(at indexPath: IndexPath) -> Item {
         listCoordinator.item(at: indexPath)
     }
-    
+
     func currentNumbersOfSections() -> Int {
         listCoordinator.numbersOfSections()
     }
-    
+
     func currentNumbersOfItem(in section: Int) -> Int {
         listCoordinator.numbersOfItems(in: section)
     }
@@ -128,7 +128,7 @@ extension UpdatableDataSource {
                     root: context
                 ))
             }
-            
+
             for (offset, root) in context.contextAtIndex?(context.index, .zero, listView) ?? [] {
                 results.append(.init(
                     listView: listView,

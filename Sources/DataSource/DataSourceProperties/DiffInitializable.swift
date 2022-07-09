@@ -7,7 +7,7 @@
 
 public protocol DiffInitializable {
     associatedtype Value
-    
+
     static func diff(by areEquivalent: @escaping (Value, Value) -> Bool) -> Self
     static func diff<ID: Hashable>(id: @escaping (Value) -> ID) -> Self
     static func diff<ID: Hashable>(
@@ -16,18 +16,18 @@ public protocol DiffInitializable {
     ) -> Self
 }
 
-//Value Equatable
+// MARK: - Value Equatable
 public extension DiffInitializable where Value: Equatable {
     static var diff: Self { diff(by: ==) }
     static func diff<ID: Hashable>(id: @escaping (Value) -> ID) -> Self { diff(id: id, by: ==) }
 }
 
-//Value Hashable
+// MARK: - Value Hashable
 public extension DiffInitializable where Value: Hashable {
     static var diff: Self { diff(id: { $0 }) }
 }
 
-//Value Identifiable
+// MARK: - Value Identifiable
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public extension DiffInitializable where Value: Identifiable {
     static var diff: Self { diff(id: \.id) }
@@ -36,13 +36,13 @@ public extension DiffInitializable where Value: Identifiable {
     }
 }
 
-//Value Identifiable + Equatable
+// MARK: - Value Identifiable + Equatable
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public extension DiffInitializable where Value: Identifiable, Value: Equatable {
     static var diff: Self { diff(id: \.id, by: ==) }
 }
 
-//Value Identifiable + Hashable
+// MARK: - Value Identifiable + Hashable
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public extension DiffInitializable where Value: Identifiable, Value: Hashable {
     static var diff: Self { diff(id: \.id, by: ==) }

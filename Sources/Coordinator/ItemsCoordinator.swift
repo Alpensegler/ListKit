@@ -5,6 +5,8 @@
 //  Created by Frain on 2019/11/25.
 //
 
+// swiftlint:disable opening_brace
+
 import Foundation
 
 class ItemsCoordinator<SourceBase: DataSource>: ListCoordinator<SourceBase>
@@ -14,15 +16,15 @@ where
     SourceBase.Item == SourceBase.Source.Element
 {
     lazy var items = toItems(source)
-    
+
     var updateType: ItemsCoordinatorUpdate<SourceBase>.Type {
         ItemsCoordinatorUpdate<SourceBase>.self
     }
-    
+
     func toItems(_ source: SourceBase.Source) -> ContiguousArray<Item> {
         source.mapContiguous { $0 }
     }
-    
+
     override func numbersOfItems(in section: Int) -> Int { items.count }
     override func numbersOfSections() -> Int { items.isEmpty && options.removeEmptySection ? 0 : 1 }
 
@@ -67,5 +69,3 @@ where
         RangeReplacableItemsCoordinatorUpdate<SourceBase>.self
     }
 }
-
-

@@ -8,17 +8,17 @@
 public enum ConditionalSources<TrueContent: DataSource, FalseContent: DataSource>: DataSource {
     public typealias Item = Any
     public typealias SourceBase = Self
-    
+
     case trueContent(TrueContent)
     case falseContent(FalseContent)
-    
+
     public var source: [AnySources] {
         switch self {
         case let .trueContent(content): return [.init(content)]
         case let .falseContent(content): return [.init(content)]
         }
     }
-    
+
     public var listDiffer: ListDiffer<ConditionalSources<TrueContent, FalseContent>> {
         switch self {
         case let .trueContent(content):
@@ -27,14 +27,14 @@ public enum ConditionalSources<TrueContent: DataSource, FalseContent: DataSource
             return .init(content.listDiffer) { _ in content.sourceBase }
         }
     }
-    
+
     public var listOptions: ListOptions {
         switch self {
         case let .trueContent(content): return content.listOptions
         case let .falseContent(content): return content.listOptions
         }
     }
-    
+
     public var listUpdate: ListUpdate<ConditionalSources<TrueContent, FalseContent>>.Whole {
         switch self {
         case let .trueContent(content):
@@ -44,7 +44,6 @@ public enum ConditionalSources<TrueContent: DataSource, FalseContent: DataSource
         }
     }
 }
-
 
 extension ConditionalSources: ScrollListAdapter
 where TrueContent: ScrollListAdapter, FalseContent: ScrollListAdapter { }

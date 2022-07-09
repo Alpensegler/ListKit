@@ -37,7 +37,7 @@ public extension TableListAdapter {
         )
         return tableList
     }
-    
+
     @discardableResult
     func apply(
         by tableView: TableView,

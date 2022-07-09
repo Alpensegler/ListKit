@@ -1,14 +1,16 @@
-import UIKit
+// swiftlint:disable unused_closure_parameter
+
 import ListKit
+import UIKit
 
 public class NestedListViewController: UIViewController, UpdatableTableListAdapter {
     public typealias Item = Any
-    
+
     let nestedSources = Sources(items: 0..<10)
         .collectionViewCellForItem(CenterLabelCell.self) { (cell, context, item) in
             cell.text = "\(item)"
         }
-    
+
     public var source: AnyTableSources {
         AnyTableSources {
             Sources(item: nestedSources)
@@ -21,7 +23,7 @@ public class NestedListViewController: UIViewController, UpdatableTableListAdapt
                 .tableViewHeightForRow(50)
         }
     }
-    
+
     public override func viewDidLoad() {
         apply(by: tableView)
     }
@@ -39,13 +41,13 @@ extension NestedListViewController {
             self.contentView.addSubview(view)
             return view
         }()
-        
+
         override func layoutSubviews() {
             super.layoutSubviews()
             collectionView.frame = contentView.frame
         }
     }
-    
+
     final class CenterLabelCell: UICollectionViewCell {
         lazy private var label: UILabel = {
             let view = UILabel()
@@ -56,19 +58,19 @@ extension NestedListViewController {
             self.contentView.addSubview(view)
             return view
         }()
-        
+
         var text: String? {
             get { return label.text }
             set { label.text = newValue }
         }
-        
+
         override func layoutSubviews() {
             super.layoutSubviews()
             label.frame = contentView.bounds
         }
-        
+
     }
-    
+
     var tableView: UITableView {
         let tableView = UITableView(frame: view.bounds)
         view.addSubview(tableView)
@@ -77,7 +79,6 @@ extension NestedListViewController {
     }
 }
 
-
 #if canImport(SwiftUI) && EXAMPLE
 
 import SwiftUI
@@ -85,13 +86,13 @@ import SwiftUI
 @available(iOS 13.0, *)
 struct NestedList_Preview: UIViewControllerRepresentable, PreviewProvider {
     static var previews: some View { NestedList_Preview() }
-    
+
     func makeUIViewController(context: Self.Context) -> UINavigationController {
         UINavigationController(rootViewController: NestedListViewController())
     }
-    
+
     func updateUIViewController(_ uiViewController: UINavigationController, context: Self.Context) {
-        
+
     }
 }
 

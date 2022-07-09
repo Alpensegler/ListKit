@@ -7,7 +7,7 @@
 
 public struct ListOptions: OptionSet {
     public private(set) var rawValue: Int8
-    
+
     public init(rawValue: Int8) { self.rawValue = rawValue }
 }
 

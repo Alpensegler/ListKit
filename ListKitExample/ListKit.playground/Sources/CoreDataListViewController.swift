@@ -6,18 +6,20 @@
 //
 
 import CoreData
-import UIKit
 import ListKit
+import UIKit
+
+// swiftlint: disable unused_closure_parameter comment_spacing
 
 public class CoreDataListViewController: UIViewController, UpdatableTableListAdapter {
     var fetchLimit = 3
-    
+
     public var toggle = true
     lazy var todosList = configTodosList()
     lazy var recent = configRecentList()
     lazy var loadMore = configLoadMore()
     lazy var tableView = _tableView
-    
+
     public typealias Item = Any
     public var source: AnyTableSources {
         AnyTableSources {
@@ -38,7 +40,7 @@ public class CoreDataListViewController: UIViewController, UpdatableTableListAda
             }
         }
     }
-    
+
     func configTodosList() -> ListFetchedResultsController<ToDo> {
         let fetchRequest = NSFetchRequest<ToDo>(entityName: ToDo.entityName)
         fetchRequest.sortDescriptors = [
@@ -60,7 +62,7 @@ public class CoreDataListViewController: UIViewController, UpdatableTableListAda
         try? controller.performFetch()
         return controller
     }
-    
+
     func configRecentList() -> ListFetchedResultsController<ToDo> {
         let fetchRequest = NSFetchRequest<ToDo>(entityName: ToDo.entityName)
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "createAt", ascending: false)]
@@ -72,7 +74,7 @@ public class CoreDataListViewController: UIViewController, UpdatableTableListAda
         try? controller.performFetch()
         return controller
     }
-    
+
     func configLoadMore() -> TableList<ItemSources<String>> {
         Sources(item: "loadmore")
             .tableViewCellForRow(UITableViewCell.self) { (cell, context, item) in
@@ -90,12 +92,12 @@ public class CoreDataListViewController: UIViewController, UpdatableTableListAda
                 }
             }
     }
-    
+
     public override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         apply(by: tableView)
-        
+
         navigationItem.rightBarButtonItems = [
             UIBarButtonItem(
                 barButtonSystemItem: .add,
@@ -113,12 +115,12 @@ public class CoreDataListViewController: UIViewController, UpdatableTableListAda
 
 public class ToDo: NSManagedObject {
     class var entityName: String { "ToDo" }
-    
+
     @NSManaged var title: String
     @NSManaged var priority: Int16
     @NSManaged var done: Bool
     @NSManaged var createAt: Date
-    
+
     static func insert(title: String, priority: Int16) {
         #if EXAMPLE
         let toDo = ToDo(context: CoreDataListViewController.managedObjectContext)
@@ -144,7 +146,7 @@ extension ToDo {
         done.toggle()
         CoreDataListViewController.saveContext()
     }
-    
+
     func delete() {
         CoreDataListViewController.managedObjectContext.delete(self)
         CoreDataListViewController.saveContext()
@@ -159,7 +161,7 @@ extension NSManagedObject {
         didChangeValue(forKey: "done")
         CoreDataListViewController.saveContext()
     }
-    
+
     func delete() {
         CoreDataListViewController.managedObjectContext.delete(self)
         CoreDataListViewController.saveContext()
@@ -206,16 +208,16 @@ extension CoreDataListViewController {
         }
         return container
     }()
-    
+
     static var managedObjectContext: NSManagedObjectContext {
         persistentContainer.viewContext
     }
-    
+
     static func saveContext () {
         guard managedObjectContext.hasChanges else { return }
         try? managedObjectContext.save()
     }
-    
+
     var _tableView: UITableView {
         let tableView = UITableView(frame: view.bounds)
         tableView.allowsMultipleSelectionDuringEditing = true
@@ -223,33 +225,32 @@ extension CoreDataListViewController {
         tableView.autoresizingMask = [.flexibleHeight, .flexibleWidth]
         return tableView
     }
-    
+
     @objc func add() {
         let alert = UIAlertController(title: "Add ToDo", message: nil, preferredStyle: .alert)
         alert.addTextField { (textField) in
             textField.text = "Title"
             textField.selectAll(nil)
         }
-        
+
         alert.addTextField { (textField) in
             textField.placeholder = "priority"
             textField.keyboardType = .numberPad
         }
-        
+
         alert.addAction(UIAlertAction(title: "cancel", style: .cancel))
-        
+
         let ok = UIAlertAction(title: "Done", style: .default) { [unowned alert] _ in
             guard let title = alert.textFields?.first?.text, !title.isEmpty else { return }
             let priority = (alert.textFields?.last?.text).flatMap(Int16.init) ?? 0
             ToDo.insert(title: title, priority: priority)
         }
-        
+
         alert.addAction(ok)
         present(alert, animated: true)
         alert.textFields?.first?.selectAll(nil)
     }
 }
-
 
 #if canImport(SwiftUI) && EXAMPLE
 
@@ -258,11 +259,11 @@ import SwiftUI
 @available(iOS 13.0, *)
 struct CoreDataList_Preview: UIViewControllerRepresentable, PreviewProvider {
     static var previews: some View { CoreDataList_Preview() }
-    
+
     func makeUIViewController(context: Self.Context) -> UINavigationController {
         UINavigationController(rootViewController: CoreDataListViewController())
     }
-    
+
     func updateUIViewController(_ uiViewController: UINavigationController, context: Self.Context) { }
 }
 
@@ -300,7 +301,7 @@ struct CoreDataList_Preview: UIViewControllerRepresentable, PreviewProvider {
 //            todosList
 //                .tableConfig()
 //                .tableViewHeaderTitleForSection { [unowned self] (context) -> String? in
-//                    self.todosList.sectionInfo[context.section].name == "0" ? "TODO" : "Done"
+//                    self.todosList.sectionInfo[context.section].name == "0" ? "Todo" : "Done"
 //                }
 //        }
 //    }

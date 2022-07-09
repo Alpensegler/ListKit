@@ -5,6 +5,8 @@
 //  Created by Frain on 2019/3/17.
 //
 
+// swiftlint:disable all
+
 extension CollectionDifference {
     fileprivate func _fastEnumeratedApply(
         _ consume: (Change) throws -> Void

@@ -5,8 +5,8 @@
 //  Created by Frain on 2020/4/23.
 //
 
-import UIKit
 import ListKit
+import UIKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -15,11 +15,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         ListKit.Log.logger = { print($0) }
-        
+
         window = UIWindow()
         window?.rootViewController = UINavigationController(rootViewController: ContentsViewController())
         window?.makeKeyAndVisible()
         return true
     }
 }
-

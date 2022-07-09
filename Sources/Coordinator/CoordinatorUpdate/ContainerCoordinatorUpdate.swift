@@ -5,16 +5,17 @@
 //  Created by Frain on 2020/8/21.
 //
 
+// swiftlint:disable shorthand_operator opening_brace
+
 import Foundation
 
-class ContainerCoordinatorUpdate<SourceBase, Source, Value>:
-    CollectionCoordinatorUpdate<
-        SourceBase,
-        Source,
-        Value,
-        CoordinatorUpdate.SourcesChange<Source.Element, Value>,
-        CoordinatorUpdate.DifferenceChange<Source.Element, Value>
-    >
+class ContainerCoordinatorUpdate<SourceBase, Source, Value>: CollectionCoordinatorUpdate<
+    SourceBase,
+    Source,
+    Value,
+    CoordinatorUpdate.SourcesChange<Source.Element, Value>,
+    CoordinatorUpdate.DifferenceChange<Source.Element, Value>
+>
 where
     SourceBase: DataSource,
     SourceBase.SourceBase == SourceBase,
@@ -24,18 +25,18 @@ where
 {
     typealias Subupdate = ListCoordinatorUpdate<Source.Element.SourceBase>
     typealias Change = SourcesChange<Source.Element, Value>
-    
+
     let sourceIndices: Indices
-    
+
     lazy var targetIndices = toIndices(targetValues)
     lazy var subupdates = [Int: Subupdate]()
     lazy var offsetForOrder = Cache(value: [Order: [ObjectIdentifier: Int]]())
     lazy var defaultContext = Context()
-    
+
     override var shouldConsiderUpdate: Bool {
         !isBatchUpdate || super.shouldConsiderUpdate || !subupdates.isEmpty
     }
-    
+
     init(
         _ coordinator: ListCoordinator<SourceBase>,
         _ update: ListUpdate<SourceBase>?,
@@ -48,23 +49,23 @@ where
         super.init(coordinator, update: update, values: values, sources: sources, options: options)
         if !isBatchUpdate { self.targetIndices = indices.target }
     }
-    
+
     func withOffset(_ value: Value, offset: Int, count: Int? = nil) -> Value { value }
     func toIdentifier(_ value: Value) -> ObjectIdentifier { notImplemented() }
     func toIndices(_ values: Values) -> Indices { notImplemented() }
     func subupdate(from value: Mapping<Value>) -> Subupdate { notImplemented() }
     func changeWhenHasNext(values: Values, source: SourceBase.Source?, indices: Indices) { }
-    
+
     override func add(change: Change, isSource: Bool, to differences: inout Differences) {
         differences[keyPath: path(isSource)].append(.change(.change(change, isSource: isSource)))
         guard change.associated[[]] == nil else { return }
         differences[keyPath: path(!isSource)].append(.change(.change(change, isSource: isSource)))
     }
-    
+
     override func canConfig(at index: Mapping<Int>) -> Bool {
         isBatchUpdate ? super.canConfig(at: index) || subupdates[index.source] != nil : true
     }
-    
+
     override func configUpdate(at index: Mapping<Int>, into differences: inout Differences) {
         if isBatchUpdate {
             if let update = subupdates[index.source] {
@@ -81,10 +82,10 @@ where
             differences.target.append(.change(.update(index, (source, target), update)))
         }
     }
-    
+
     override func configSourceCount() -> Int { sourceIndices.count }
     override func configTargetCount() -> Int { targetIndices.count }
-    
+
     override func inferringMoves(context: Context? = nil, ids: [AnyHashable] = []) {
         if isBatchUpdate { return }
         let context = context ?? defaultContext
@@ -95,7 +96,7 @@ where
             context.inferredContext.insert(identifier)
         }
     }
-    
+
     override func configMaxOrderForContext(_ ids: [AnyHashable]) -> Order? {
         guard changeType == .batch else { return super.configMaxOrderForContext(ids) }
         var order: Order?
@@ -105,11 +106,11 @@ where
         }
         return order
     }
-    
+
     override func customUpdateWay() -> UpdateWay? {
         diffable || isBatchUpdate ? .batch : .other(.reload)
     }
-    
+
     override func generateSourceUpdate(
         order: Order,
         context: UpdateContext<Int> = (nil, false, [])
@@ -117,7 +118,7 @@ where
         if sourceType.isItems { return super.generateSourceUpdate(order: order, context: context) }
         return sourceUpdate(order, in: context, \.section, Subupdate.generateContianerSourceUpdate)
     }
-    
+
     override func generateTargetUpdate(
         order: Order,
         context: UpdateContext<Offset<Int>> = (nil, false, [])
@@ -125,14 +126,14 @@ where
         if sourceType.isItems { return super.generateTargetUpdate(order: order, context: context) }
         return targetUpdate(order, in: context, \.section, Subupdate.generateContianerTargetUpdate)
     }
-    
+
     override func generateSourceItemUpdate(
         order: Order,
         context: UpdateContext<IndexPath> = (nil, false, [])
     ) -> UpdateSource<BatchUpdates.ItemSource> {
         sourceUpdate(order, in: context, \.self, Subupdate.generateSourceItemUpdateForContianer)
     }
-    
+
     override func generateTargetItemUpdate(
         order: Order,
         context: UpdateContext<Offset<IndexPath>> = (nil, false, [])
@@ -141,6 +142,7 @@ where
     }
 }
 
+// swiftlint:disable function_body_length
 extension ContainerCoordinatorUpdate {
     func enumerateDifferences(ids: [AnyHashable], closure: (Subupdate, [AnyHashable]) -> Void) {
         differences.source.forEach {
@@ -156,7 +158,7 @@ extension ContainerCoordinatorUpdate {
             }
         }
     }
-    
+
     func sourceUpdate<Collection: UpdateIndexCollection, Result: BatchUpdate, O>(
         _ order: Order,
         in context: UpdateContext<O>,
@@ -165,20 +167,20 @@ extension ContainerCoordinatorUpdate {
     ) -> UpdateSource<Result> where Collection.Element == O {
         var count = 0, offsets = [ObjectIdentifier: Int](), result = Result()
         var offset: O { .init(context.offset, offset: count) }
-        
+
         defer { offsetForOrder[context][order] = offsets }
-        
+
         func move(value: Value) {
             let count = toCount(value)
             if count == 0 { return }
             result[keyPath: keyPath].move(offset, offset.offseted(count))
         }
-        
+
         func add(value: Value, targetCount: Int? = nil) {
             if toCount(value) == 0 { return }
             count += targetCount ?? toCount(value)
         }
-        
+
         func add(value: Value, _ update: Subupdate, isMoved: Bool) {
             let id = toIdentifier(value)
             offsets[id] = count
@@ -195,7 +197,7 @@ extension ContainerCoordinatorUpdate {
             Log.log("\(value) \(type(of: update)) \(subupdate.isEmpty ? "none " : " : ")")
             Log.log(subupdate.isEmpty ? nil : subupdate?.description)
         }
-        
+
         func reload(from value: Value, to other: Value) {
             let (diff, minValue) = (toCount(value) - toCount(other), min(toCount(value), toCount(other)))
             defer { count += toCount(value) }
@@ -207,7 +209,7 @@ extension ContainerCoordinatorUpdate {
                 result[keyPath: keyPath].add(\.deletes, upper.offseted(-diff), upper)
             }
         }
-        
+
         func configChange(_ change: Change) {
             configCoordinatorChange(
                 change,
@@ -243,7 +245,7 @@ extension ContainerCoordinatorUpdate {
                 }
             )
         }
-        
+
         func config(value: Difference) {
             switch value {
             case let .change(.change(change, isSource: isSource)):
@@ -259,16 +261,16 @@ extension ContainerCoordinatorUpdate {
                 (from.source..<to.source).forEach { add(value: sourceValues[$0]) }
             }
         }
-        
+
         if isMain(order) {
             differences.source.forEach(config(value:))
         } else {
             differences.target.forEach(config(value:))
         }
-        
+
         return (count, result)
     }
-    
+
     func targetUpdate<Collection: UpdateIndexCollection, Result: BatchUpdate, O>(
         _ order: Order,
         in context: UpdateContext<Offset<O>>,
@@ -278,31 +280,31 @@ extension ContainerCoordinatorUpdate {
         var values = ContiguousArray<Value>(capacity: targetValues.count)
         var indices = Indices(capacity: self.sourceIndices.count)
         var result = Result(), change: (() -> Void)?
-        var offset: O { .init(context.offset?.offset.target, offset: indices.count) }
+        var target: O { .init(context.offset?.offset.target, offset: indices.count) }
         var index: Int { values.count }
         let offsets = offsetForOrder[context][order]!
-        
+
         func move(value: Value) {
             let count = toCount(value)
-            guard count != 0, let o = offsets[toIdentifier(value)] else { return }
-            let source = O(context.offset?.offset.source, offset: o)
+            guard count != 0, let offset = offsets[toIdentifier(value)] else { return }
+            let source = O(context.offset?.offset.source, offset: offset)
             result[keyPath: keyPath].move(
-                (source, offset),
-                (source.offseted(count), offset.offseted(count))
+                (source, target),
+                (source.offseted(count), target.offseted(count))
             )
         }
-        
+
         func add(value: Value, targetCount: Int? = nil) {
             let count = indices.count
             indices.append(repeatElement: (index, false), count: targetCount ?? toCount(value))
             values.append(withOffset(value, offset: count))
         }
-        
+
         func add(value: Value, update: Subupdate, isMoved: Bool) {
             let id = toIdentifier(value)
-            guard let o = offsets[id] else { return }
+            guard let offset = offsets[id] else { return }
             let subcontext = toContext(context, isMoved, id: id, or: (0, (.zero, .zero))) {
-                (index, ($0.offset.source.offseted(o), $0.offset.target.offseted(indices.count)))
+                (index, ($0.offset.source.offseted(offset), $0.offset.target.offseted(indices.count)))
             }
             if update.notUpdate(order, subcontext) {
                 if isMoved, isMain(order) { move(value: value) }
@@ -319,21 +321,21 @@ extension ContainerCoordinatorUpdate {
             indices.append(contentsOf: subindices)
             values.append(withOffset(value, offset: count, count: subindices.count))
         }
-        
+
         func reload(from other: Value, to value: Value) {
             let diff = toCount(value) - toCount(other), minValue = min(toCount(other), toCount(value))
             if minValue != 0 {
-                result[keyPath: keyPath].reload(offset, offset.offseted(minValue))
+                result[keyPath: keyPath].reload(target, target.offseted(minValue))
             }
             if diff > 0 {
-                let upper = offset.offseted(toCount(value))
+                let upper = target.offseted(toCount(value))
                 result[keyPath: keyPath].add(\.inserts, upper.offseted(-diff), upper)
             }
             let count = indices.count
             indices.append(repeatElement: (index, false), count: toCount(value))
             values.append(withOffset(value, offset: count))
         }
-        
+
         func configChange(_ change: Change) {
             configCoordinatorChange(
                 change,
@@ -369,7 +371,7 @@ extension ContainerCoordinatorUpdate {
                 }
             )
         }
-        
+
         for value in differences.target {
             switch value {
             case let .change(.change(change, isSource: isSource)):
@@ -385,7 +387,7 @@ extension ContainerCoordinatorUpdate {
                 (from.target..<to.target).forEach { add(value: targetValues[$0]) }
             }
         }
-        
+
         if hasNext(order, context) {
             let source = toSource(values)
             change = change + { [unowned self] in
@@ -397,15 +399,16 @@ extension ContainerCoordinatorUpdate {
         return (toIndices(indices, context), result, change)
     }
 }
+// swiftlint:enable function_body_length
 
 extension ContainerCoordinatorUpdate {
     func add(subupdate: Subupdate, at index: Int) {
         subupdate.isRemove ? removeElement(at: index) : (subupdates[index] = subupdate)
     }
-    
+
     func isMain(_ order: Order) -> Bool { sourceType.isItems ? order == .second : order == .first }
     func isExtra(_ order: Order) -> Bool { sourceType.isItems ? order == .third : order == .second }
-    
+
     func toContext<Offset, OtherOffset>(
         _ context: UpdateContext<Offset>,
         _ isMoved: Bool = false,

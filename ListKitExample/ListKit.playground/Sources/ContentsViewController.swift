@@ -1,10 +1,10 @@
-import UIKit
 import ListKit
+import UIKit
 
 public class ContentsViewController: UIViewController, UpdatableTableListAdapter {
     public typealias Item = (title: String, viewController: UIViewController.Type)
     public var source = [Item]()
-    
+
     public var tableList: TableList<ContentsViewController> {
         tableViewCellForRow { (context, item) -> UITableViewCell in
             let labelCell = context.dequeueReusableCell(UITableViewCell.self)
@@ -18,12 +18,12 @@ public class ContentsViewController: UIViewController, UpdatableTableListAdapter
             navigationController?.pushViewController(viewController, animated: true)
         }
     }
-    
+
     public override func viewDidLoad() {
         apply(by: tableView)
         title = "Contents"
     }
-    
+
     #if EXAMPLE
     convenience init() {
         self.init(nibName: nil, bundle: nil)
@@ -49,20 +49,18 @@ extension ContentsViewController {
     }
 }
 
-
 #if canImport(SwiftUI) && EXAMPLE
 import SwiftUI
 
 @available(iOS 13.0, *)
 struct Contents_Preview: UIViewControllerRepresentable, PreviewProvider {
     static var previews: some View { Contents_Preview() }
-    
+
     func makeUIViewController(context: Self.Context) -> UINavigationController {
         UINavigationController(rootViewController: ContentsViewController())
     }
-    
+
     func updateUIViewController(_ uiViewController: UINavigationController, context: Self.Context) { }
 }
 
 #endif
-

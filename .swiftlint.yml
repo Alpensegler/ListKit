@@ -1,0 +1,31 @@
+# general
+# sort in alphabetical order
+disabled_rules:
+  - force_cast
+  - nesting
+  - no_fallthrough_only
+  - trailing_comma
+
+opt_in_rules:
+  - sorted_imports
+
+# configurable rules
+# sort in alphabetical order
+cyclomatic_complexity: 14
+
+file_length:
+  warning: 800
+  error: 1500
+
+identifier_name:
+  min_length: 2
+  max_length: 40
+  allowed_symbols: ["_"]
+
+line_length: 250
+
+type_name:
+  min_length: 2
+  max_length: 40
+  allowed_symbols: ["_"]
+

@@ -5,6 +5,8 @@
 //  Created by Frain on 2021/1/5.
 //
 
+// swiftlint:disable opening_brace
+
 public extension DataSource where SourceBase == Self {
     func withItemCached<ItemCache>(
         cacheForItem: @escaping (Item) -> ItemCache
@@ -15,7 +17,7 @@ public extension DataSource where SourceBase == Self {
 
 public protocol ItemCachedDataSource: DataSource {
     associatedtype ItemCache
-    
+
     var itemCached: ItemCached<SourceBase, ItemCache> { get }
 }
 
@@ -26,30 +28,30 @@ where Base.SourceBase == Base {
     public typealias Item = Base.Item
     public typealias Source = Base.Source
     public typealias SourceBase = Base.SourceBase
-    
+
     public var source: Source { sourceBase.source }
     public var sourceBase: Base
     public var listDelegate: ListDelegate
-    
+
     public var itemCached: ItemCached<Base, ItemCache> { self }
     public var listCoordinatorContext: ListCoordinatorContext<Base> {
         sourceBase.listCoordinatorContext
     }
-    
+
     public var wrappedValue: Base {
         get { sourceBase }
         set { sourceBase = newValue }
     }
-    
+
     public subscript<Value>(dynamicMember path: KeyPath<Base, Value>) -> Value {
         sourceBase[keyPath: path]
     }
-    
+
     public subscript<Value>(dynamicMember path: WritableKeyPath<Base, Value>) -> Value {
         get { sourceBase[keyPath: path] }
         set { sourceBase[keyPath: path] = newValue }
     }
-    
+
     init(_ sourceBase: Base, cacheForItem: Any? = nil) {
         var delegate = sourceBase.listDelegate
         delegate.getCache = cacheForItem

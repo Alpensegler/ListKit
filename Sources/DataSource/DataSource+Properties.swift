@@ -5,13 +5,15 @@
 //  Created by Frain on 2020/2/22.
 //
 
+// swiftlint:disable opening_brace
+
 public extension DataSource {
     var listDiffer: ListDiffer<SourceBase> { .none }
     var listOptions: ListOptions { .none }
     var listUpdate: ListUpdate<SourceBase>.Whole { .reload }
 }
 
-//Equatable
+// MARK: - Equatable
 public extension DataSource where SourceBase: Equatable {
     var listDiffer: ListDiffer<SourceBase> { .diff }
 }
@@ -20,7 +22,7 @@ public extension DataSource where SourceBase.Item: Equatable {
     var listUpdate: ListUpdate<SourceBase>.Whole { .diff }
 }
 
-//Hashable
+// MARK: - Hashable
 public extension DataSource where SourceBase: Hashable {
     var listDiffer: ListDiffer<SourceBase> { .diff }
 }
@@ -29,7 +31,7 @@ public extension DataSource where SourceBase.Item: Hashable {
     var listUpdate: ListUpdate<SourceBase>.Whole { .diff }
 }
 
-//Identifiable
+// MARK: - Identifiable
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public extension DataSource where SourceBase: Identifiable {
     var listDiffer: ListDiffer<SourceBase> { .diff }
@@ -40,7 +42,7 @@ public extension DataSource where SourceBase.Item: Identifiable {
     var listUpdate: ListUpdate<SourceBase>.Whole { .diff }
 }
 
-//Identifiable + Equatable
+// MARK: - Identifiable + Equatable
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public extension DataSource where SourceBase: Identifiable, SourceBase: Equatable {
     var listDiffer: ListDiffer<SourceBase> { .diff }
@@ -51,7 +53,7 @@ public extension DataSource where SourceBase.Item: Identifiable, SourceBase.Item
     var listUpdate: ListUpdate<SourceBase>.Whole { .diff }
 }
 
-//Identifiable + Hashable
+// MARK: - Identifiable + Hashable
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public extension DataSource where SourceBase: Identifiable, SourceBase: Hashable {
     var listDiffer: ListDiffer<SourceBase> { .diff }
@@ -62,22 +64,22 @@ public extension DataSource where SourceBase.Item: Identifiable, SourceBase.Item
     var listUpdate: ListUpdate<SourceBase>.Whole { .diff }
 }
 
-//Object
+// MARK: - Object
 public extension DataSource where SourceBase: AnyObject {
     var listDiffer: ListDiffer<SourceBase> { .diff(id: { ObjectIdentifier($0) }) }
 }
 
-//Object + Equatable
+// MARK: - Object + Equatable
 public extension DataSource where SourceBase: AnyObject, SourceBase: Equatable {
     var listDiffer: ListDiffer<SourceBase> { .diff }
 }
 
-//Object + Hashable
+// MARK: - Object + Hashable
 public extension DataSource where SourceBase: AnyObject, SourceBase: Hashable {
     var listDiffer: ListDiffer<SourceBase> { .diff }
 }
 
-//Subupdate
+// MARK: - Subupdate
 public extension DataSource
 where
     SourceBase.Source: DataSource,

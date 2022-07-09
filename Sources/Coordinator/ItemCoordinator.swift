@@ -5,16 +5,21 @@
 //  Created by Frain on 2019/10/10.
 //
 
+// swiftlint:disable opening_brace
+
 import Foundation
 
 final class ItemCoordinator<SourceBase: DataSource>: ListCoordinator<SourceBase>
-where SourceBase.Item == SourceBase.Source, SourceBase.SourceBase == SourceBase  {
+where
+    SourceBase.Item == SourceBase.Source,
+    SourceBase.SourceBase == SourceBase
+{
     override func numbersOfSections() -> Int { 1 }
     override func numbersOfItems(in section: Int) -> Int { 1 }
-    
+
     override func item(at indexPath: IndexPath) -> Item { source }
     override func configSourceType() -> SourceType { isSectioned ? .sectionItems : .items }
-    
+
     override func update(
         from coordinator: ListCoordinator<SourceBase>,
         updateWay: ListUpdateWay<Item>?
@@ -27,7 +32,7 @@ where SourceBase.Item == SourceBase.Source, SourceBase.SourceBase == SourceBase 
             options: (coordinator.options, options)
         )
     }
-    
+
     override func update(
         update: ListUpdate<SourceBase>,
         options: ListOptions? = nil

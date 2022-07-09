@@ -5,6 +5,8 @@
 //  Created by Frain on 2020/1/16.
 //
 
+// swiftlint:disable opening_brace
+
 extension Sources where Source: Collection, Source.Element == Item {
     init(_ id: AnyHashable?, items: Source, update: ListUpdate<SourceBase>.Whole, options: ListOptions) {
         self.sourceValue = .value(items)
@@ -34,7 +36,7 @@ public extension Sources where Source: Collection, Source.Element == Item {
     ) {
         self.init(id, items: items, update: update, options: options)
     }
-    
+
     init(
         wrappedValue: Source,
         id: AnyHashable? = nil,
@@ -43,11 +45,11 @@ public extension Sources where Source: Collection, Source.Element == Item {
     ) {
         self.init(id, items: wrappedValue, update: update, options: options)
     }
-    
+
     init(items: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, items: items, update: .reload, options: options)
     }
-    
+
     init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, items: wrappedValue, update: .reload, options: options)
     }
@@ -62,7 +64,7 @@ public extension Sources where Source: RangeReplaceableCollection, Source.Elemen
     ) {
         self.init(id, items: items, update: update, options: options)
     }
-    
+
     init(
         wrappedValue: Source,
         id: AnyHashable? = nil,
@@ -71,17 +73,17 @@ public extension Sources where Source: RangeReplaceableCollection, Source.Elemen
     ) {
         self.init(id, items: wrappedValue, update: update, options: options)
     }
-    
+
     init(items: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, items: items, update: .reload, options: options)
     }
-    
+
     init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, items: wrappedValue, update: .reload, options: options)
     }
 }
 
-//Equatable
+// MARK: - Equatable
 public extension Sources
 where
     Source: Collection,
@@ -91,7 +93,7 @@ where
     init(items: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, items: items, update: .diff, options: options)
     }
-    
+
     init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, items: wrappedValue, update: .diff, options: options)
     }
@@ -106,13 +108,13 @@ where
     init(items: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, items: items, update: .diff, options: options)
     }
-    
+
     init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, items: wrappedValue, update: .diff, options: options)
     }
 }
 
-//Hashable
+// MARK: - Hashable
 public extension Sources
 where
     Source: Collection,
@@ -122,7 +124,7 @@ where
     init(items: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, items: items, update: .diff, options: options)
     }
-    
+
     init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, items: wrappedValue, update: .diff, options: options)
     }
@@ -137,13 +139,13 @@ where
     init(items: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, items: items, update: .diff, options: options)
     }
-    
+
     init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, items: wrappedValue, update: .diff, options: options)
     }
 }
 
-//Identifiable
+// MARK: - Identifiable
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public extension Sources
 where
@@ -154,7 +156,7 @@ where
     init(items: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, items: items, update: .diff, options: options)
     }
-    
+
     init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, items: wrappedValue, update: .diff, options: options)
     }
@@ -170,13 +172,13 @@ where
     init(items: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, items: items, update: .diff, options: options)
     }
-    
+
     init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, items: wrappedValue, update: .diff, options: options)
     }
 }
 
-//Identifiable + Equatable
+// MARK: - Identifiable + Equatable
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public extension Sources
 where
@@ -188,7 +190,7 @@ where
     init(items: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, items: items, update: .diff, options: options)
     }
-    
+
     init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, items: wrappedValue, update: .diff, options: options)
     }
@@ -205,13 +207,13 @@ where
     init(items: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, items: items, update: .diff, options: options)
     }
-    
+
     init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, items: wrappedValue, update: .diff, options: options)
     }
 }
 
-//Identifiable + Hashable
+// MARK: - Identifiable + Hashable
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public extension Sources
 where
@@ -223,7 +225,7 @@ where
     init(items: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, items: items, update: .diff, options: options)
     }
-    
+
     init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, items: wrappedValue, update: .diff, options: options)
     }
@@ -240,9 +242,8 @@ where
     init(items: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, items: items, update: .diff, options: options)
     }
-    
+
     init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, items: wrappedValue, update: .diff, options: options)
     }
 }
-

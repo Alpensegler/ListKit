@@ -1,5 +1,7 @@
-import UIKit
+// swiftlint:disable unused_closure_parameter comment_spacing
+
 import ListKit
+import UIKit
 
 public struct Room: UpdatableDataSource {
     public var coordinatorStorage = CoordinatorStorage<Room>()
@@ -10,12 +12,12 @@ public struct Room: UpdatableDataSource {
 extension Room: CollectionListAdapter, ItemCachedDataSource {
     public typealias Item = String
     public typealias ItemCache = String
-    
+
     public var source: [String] { people.shuffled() }
     public var listDiffer: ListDiffer<Room> { .diff(id: \.name) }
     public var listOptions: ListOptions { .removeEmptySection }
     public var itemCached: ItemCached<Room, String> { withItemCached { $0 } }
-    
+
     public var collectionList: CollectionList<Room> {
         collectionViewCellForItem(CenterLabelCell.self) { (cell, context, item) in
             cell.text = item
@@ -39,23 +41,23 @@ extension Room: CollectionListAdapter, ItemCachedDataSource {
 public class IdentifiableSectionListViewController: UIViewController, UpdatableCollectionListAdapter, ItemCachedDataSource {
     public typealias Item = String
     public typealias ItemCache = String
-    
+
     public var source: [Room] {
         Room.random
     }
-    
+
     public override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         apply(by: collectionView)
-        
+
         navigationItem.rightBarButtonItem = UIBarButtonItem(
             barButtonSystemItem: .refresh,
             target: self,
             action: #selector(refresh)
         )
     }
-    
+
     @objc func refresh() {
         performUpdate()
     }
@@ -67,7 +69,7 @@ extension Room: CustomStringConvertible {
         "July", "Raynor", "Tonny", "Dooze", "Charlie", "Venry",
         "Bernard", "Mai", "Melissa", "Kippa", "Jerry"
     ]
-    
+
     static var random: [Room] {
         var shuffled = members.shuffled()
         var rooms = [
@@ -87,8 +89,7 @@ extension Room: CustomStringConvertible {
 
         return results.sorted { $0.people.count > $1.people.count }
     }
-    
-    
+
     init(_ name: String, _ people: [String]) {
         self.name = name
         self.people = people
@@ -97,7 +98,7 @@ extension Room: CustomStringConvertible {
         self.name = name
         self.people = people.map { "\($0)" }
     }
-    
+
     public var description: String { "Room(\"\(name)\", \(people))" }
 }
 
@@ -123,18 +124,18 @@ extension Room {
             self.contentView.addSubview(view)
             return view
         }()
-        
+
         var text: String? {
             get { return label.text }
             set { label.text = newValue }
         }
-        
+
         override func layoutSubviews() {
             super.layoutSubviews()
             label.frame = contentView.bounds
         }
     }
-    
+
     final class TitleHeader: UICollectionReusableView {
         lazy private var label: UILabel = {
             let view = UILabel(frame: bounds)
@@ -147,7 +148,7 @@ extension Room {
             self.addSubview(view)
             return view
         }()
-        
+
         lazy private var refreshButton: UIButton = {
             let button = UIButton(type: .system)
             button.setTitle("Refresh", for: .normal)
@@ -158,16 +159,16 @@ extension Room {
             self.addSubview(button)
             return button
         }()
-        
+
         var text: String? {
             get { return label.text }
             set { label.text = newValue }
         }
-        
+
         var refresh: (() -> Void)? {
             didSet { refreshButton.isHidden = refresh == nil }
         }
-        
+
         @objc func refreshAction() {
             refresh?()
         }
@@ -181,13 +182,13 @@ import SwiftUI
 @available(iOS 13.0, *)
 struct IdentifiableSectionList_Preview: UIViewControllerRepresentable, PreviewProvider {
     static var previews: some View { IdentifiableSectionList_Preview() }
-    
+
     func makeUIViewController(context: Self.Context) -> UINavigationController {
         UINavigationController(rootViewController: IdentifiableSectionListViewController())
     }
-    
+
     func updateUIViewController(_ uiViewController: UINavigationController, context: Self.Context) {
-        
+
     }
 }
 

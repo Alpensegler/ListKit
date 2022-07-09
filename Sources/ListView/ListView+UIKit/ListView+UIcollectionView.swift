@@ -13,12 +13,12 @@ public typealias CollectionView = UICollectionView
 extension UICollectionView: UIListView, SetuptableListView {
     public typealias Cell = UICollectionViewCell
     public typealias Animation = Bool
-    
+
     func setup(with listDelegate: Delegate) {
         dataSource = listDelegate
         delegate = listDelegate
     }
-    
+
     func isDelegate(_ listDelegate: Delegate) -> Bool {
         dataSource === listDelegate && delegate === listDelegate
     }
@@ -29,12 +29,12 @@ public extension UICollectionView {
         get { Associator.getValue(key: &Self.listViewDefaultAnimationKey, from: self) ?? true }
         set { Associator.set(value: newValue, key: &Self.listViewDefaultAnimationKey, to: self) }
     }
-    
+
     func resetDelegates(toNil: Bool) {
         dataSource = toNil ? nil : dataSource
         delegate = toNil ? nil : delegate
     }
-    
+
     func reloadSynchronously(animated: Bool = true) {
         if animated {
             reloadData()
@@ -48,7 +48,7 @@ public extension UICollectionView {
             layoutIfNeeded()
         }
     }
-    
+
     func perform(_ update: () -> Void, animated: Bool, completion: ((Bool) -> Void)? = nil) {
         if animated {
             performBatchUpdates(update, completion: completion)
@@ -59,23 +59,23 @@ public extension UICollectionView {
             CATransaction.commit()
         }
     }
-    
+
     func register(_ cellClass: AnyClass?, forCellReuseIdentifier identifier: String) {
         register(cellClass, forCellWithReuseIdentifier: identifier)
     }
-    
+
     func register(_ nib: UINib?, forCellReuseIdentifier identifier: String) {
         register(nib, forCellWithReuseIdentifier: identifier)
     }
-    
+
     func register(supplementaryViewType: SupplementaryViewType, _ nib: UINib?, identifier: String) {
         register(nib, forSupplementaryViewOfKind: kind(for: supplementaryViewType), withReuseIdentifier: identifier)
     }
-    
+
     func register(supplementaryViewType: SupplementaryViewType, _ supplementaryClass: AnyClass?, identifier: String) {
         register(supplementaryClass, forSupplementaryViewOfKind: kind(for: supplementaryViewType), withReuseIdentifier: identifier)
     }
-    
+
     func dequeueReusableCell(withIdentifier identifier: String, for indexPath: IndexPath) -> UICollectionViewCell {
         dequeueReusableCell(withReuseIdentifier: identifier, for: indexPath)
     }
@@ -86,7 +86,7 @@ public extension UICollectionView {
         case header
         case footer
         case custom(String)
-        
+
         public init(rawValue: String) {
             switch rawValue {
             case UICollectionView.elementKindSectionHeader: self = .header
@@ -94,7 +94,7 @@ public extension UICollectionView {
             default: self = .custom(rawValue)
             }
         }
-        
+
         public var rawValue: String {
             switch self {
             case .header: return UICollectionView.elementKindSectionHeader
@@ -107,7 +107,7 @@ public extension UICollectionView {
 
 extension UICollectionView {
     static var listViewDefaultAnimationKey: Void?
-    
+
     func kind(for kind: SupplementaryViewType) -> String {
         switch kind {
         case .header: return UICollectionView.elementKindSectionHeader

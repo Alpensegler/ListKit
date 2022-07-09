@@ -5,6 +5,8 @@
 //  Created by Frain on 2019/12/17.
 //
 
+// swiftlint:disable opening_brace
+
 public extension DataSource
 where
     SourceBase.Source: Collection,

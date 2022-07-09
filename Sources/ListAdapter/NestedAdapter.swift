@@ -23,18 +23,18 @@ public extension ListIndexContext where Index == IndexPath {
             completion: completion
         )
         var coordinator = list.listCoordinator
-        setNestedCache { [weak collectionView] Base in
-            guard let Base = Base as? Base.Item,
+        setNestedCache { [weak collectionView] base in
+            guard let baseItem = base as? Base.Item,
                   let collectionView = collectionView,
                   collectionView.isCoordinator(coordinator)
             else { return }
-            let adapter = Base[keyPath: keyPath]
+            let adapter = baseItem[keyPath: keyPath]
             let list = adapter.apply(by: collectionView, animated: animated, completion: completion)
             coordinator = list.listCoordinator
         }
         return list
     }
-    
+
     @discardableResult
     func nestedAdapter<Adapter: TableListAdapter>(
         _ keyPath: KeyPath<Base.Item, Adapter>,
@@ -50,12 +50,12 @@ public extension ListIndexContext where Index == IndexPath {
             completion: completion
         )
         var coordinator = list.listCoordinator
-        setNestedCache { [weak tableView] Base in
-            guard let Base = Base as? Base.Item,
+        setNestedCache { [weak tableView] base in
+            guard let baseItem = base as? Base.Item,
                   let tableView = tableView,
                   tableView.isCoordinator(coordinator)
             else { return }
-            let adapter = Base[keyPath: keyPath]
+            let adapter = baseItem[keyPath: keyPath]
             let list = adapter.apply(by: tableView, animated: animated, completion: completion)
             coordinator = list.listCoordinator
         }

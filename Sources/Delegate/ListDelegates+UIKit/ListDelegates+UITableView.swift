@@ -9,7 +9,7 @@
 import UIKit
 
 extension Delegate: UITableViewDataSource {
-    //Providing the Number of Rows and Sections
+    // MARK: - Providing the Number of Rows and Sections
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         context.numbersOfItems(in: section)
     }
@@ -17,8 +17,8 @@ extension Delegate: UITableViewDataSource {
     func numberOfSections(in tableView: UITableView) -> Int {
         context.numbersOfSections()
     }
-    
-    //Providing Cells, Headers, and Footers
+
+    // MARK: - Providing Cells, Headers, and Footers
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         apply(tableViewCellForRow, object: tableView, with: indexPath) ?? .init()
     }
@@ -31,7 +31,7 @@ extension Delegate: UITableViewDataSource {
         apply(tableViewFooterTitleForSection, object: tableView, with: section) ?? nil
     }
 
-    //Inserting or DeletingTable Rows
+    // MARK: - Inserting or DeletingTable Rows
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         apply(tableViewCommitEdittingStyleForRow, object: tableView, with: (indexPath, editingStyle))
     }
@@ -39,8 +39,8 @@ extension Delegate: UITableViewDataSource {
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         apply(tableViewCanEditRow, object: tableView, with: indexPath) ?? true
     }
-    
-    //ReorderingTable Rows
+
+    // MARK: - ReorderingTable Rows
     func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
         apply(tableViewCanMoveRow, object: tableView, with: indexPath) ?? true
     }
@@ -49,18 +49,18 @@ extension Delegate: UITableViewDataSource {
         apply(tableViewMoveRow, object: tableView, with: (sourceIndexPath, destinationIndexPath))
     }
 
-    //Configuring an Index
+    // MARK: - Configuring an Index
     func sectionIndexTitles(for tableView: UITableView) -> [String]? {
         apply(tableViewSectionIndexTitles, object: (tableView)) ?? nil
     }
-    
+
     func tableView(_ tableView: UITableView, sectionForSectionIndexTitle title: String, at index: Int) -> Int {
         apply(tableViewSectionForSectionIndexTitle, object: tableView, with: (title, index)) ?? index
     }
 }
 
 extension Delegate: UITableViewDelegate {
-    //Configuring Rows for theTable View
+    // MARK: - Configuring Rows for theTable View
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         apply(tableViewWillDisplayRow, object: tableView, with: (indexPath, cell))
     }
@@ -74,7 +74,7 @@ extension Delegate: UITableViewDelegate {
         apply(tableViewShouldSpringLoadRow, object: tableView, with: (indexPath, context)) ?? true
     }
 
-    //Responding to Row Selections
+    // MARK: - Responding to Row Selections
     func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
         apply(tableViewWillSelectRow, object: tableView, with: indexPath) ?? indexPath
     }
@@ -95,18 +95,18 @@ extension Delegate: UITableViewDelegate {
     func tableView(_ tableView: UITableView, shouldBeginMultipleSelectionInteractionAt indexPath: IndexPath) -> Bool {
         apply(tableViewShouldBeginMultipleSelectionInteraction, object: tableView, with: indexPath) ?? true
     }
-    
+
     @available(iOS 13.0, *)
     func tableView(_ tableView: UITableView, didBeginMultipleSelectionInteractionAt indexPath: IndexPath) {
         apply(tableViewDidBeginMultipleSelectionInteraction, object: tableView, with: indexPath)
     }
-    
+
     @available(iOS 13.0, *)
     func tableViewDidEndMultipleSelectionInteraction(_ tableView: UITableView) {
         apply(tableViewDidEndMultipleSelectionInteraction, object: tableView)
     }
-    
-    //Providing Custom Header and Footer Views
+
+    // MARK: - Providing Custom Header and Footer Views
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         apply(tableViewViewHeaderForSection, object: tableView, with: section) ?? nil
     }
@@ -123,7 +123,7 @@ extension Delegate: UITableViewDelegate {
         apply(tableViewWillDisplayFooterView, object: tableView, with: (section, view))
     }
 
-    //Providing Header, Footer, and Row Heights
+    // MARK: - Providing Header, Footer, and Row Heights
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         apply(tableViewHeightForRow, object: tableView, with: indexPath) ?? tableView.rowHeight
     }
@@ -136,7 +136,7 @@ extension Delegate: UITableViewDelegate {
         apply(tableViewHeightForFooter, object: tableView, with: section) ?? tableView.sectionFooterHeight
     }
 
-    //Estimating Heights for theTable's Content
+    // MARK: - Estimating Heights for theTable's Content
     func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
         apply(tableViewEstimatedHeightForRow, object: tableView, with: indexPath) ?? tableView.estimatedRowHeight
     }
@@ -149,12 +149,12 @@ extension Delegate: UITableViewDelegate {
         apply(tableViewEstimatedHeightForFooter, object: tableView, with: section) ?? tableView.estimatedSectionFooterHeight
     }
 
-    //Managing Accessory Views
+    // MARK: - Managing Accessory Views
     func tableView(_ tableView: UITableView, accessoryButtonTappedForRowWith indexPath: IndexPath) {
         apply(tableViewAccessoryButtonTapped, object: tableView, with: indexPath)
     }
 
-    //Responding to Row Actions
+    // MARK: - Responding to Row Actions
     @available(iOS 11.0, *)
     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         apply(tableViewLeadingSwipeActionsConfiguration, object: tableView, with: indexPath) ?? nil
@@ -181,8 +181,8 @@ extension Delegate: UITableViewDelegate {
         apply(tableViewEditActionsForRow, object: tableView, with: indexPath) ?? nil
     }
 
-    //ManagingTable View Highlights
-    
+    // MARK: - ManagingTable View Highlights
+
     func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool {
         apply(tableViewShouldHighlight, object: tableView, with: indexPath) ?? true
     }
@@ -195,7 +195,7 @@ extension Delegate: UITableViewDelegate {
         apply(tableViewDidUnhighlight, object: tableView, with: indexPath)
     }
 
-    //EditingTable Rows
+    // MARK: - EditingTable Rows
 
     func tableView(_ tableView: UITableView, willBeginEditingRowAt indexPath: IndexPath) {
         apply(tableViewWillBeginEditing, object: tableView, with: indexPath)
@@ -217,13 +217,13 @@ extension Delegate: UITableViewDelegate {
         apply(tableViewShouldIndentWhileEditing, object: tableView, with: indexPath) ?? false
     }
 
-    //ReorderingTable Rows
+    // MARK: - ReorderingTable Rows
 
     func tableView(_ tableView: UITableView, targetIndexPathForMoveFromRowAt sourceIndexPath: IndexPath, toProposedIndexPath proposedDestinationIndexPath: IndexPath) -> IndexPath {
         apply(tableViewTargetIndexPathForMoveFromRowAtToProposedIndexPath, object: tableView, with: (sourceIndexPath, proposedDestinationIndexPath)) ?? proposedDestinationIndexPath
     }
 
-    //Tracking the Removal of Views
+    // MARK: - Tracking the Removal of Views
     func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         apply(tableViewdidEndDisplayingForRowAt, object: tableView, with: (cell, indexPath))
     }
@@ -236,7 +236,7 @@ extension Delegate: UITableViewDelegate {
         apply(tableViewDidEndDisplayingFooterView, object: tableView, with: (view, section))
     }
 
-    //ManagingTable View Focus
+    // MARK: - ManagingTable View Focus
     func tableView(_ tableView: UITableView, canFocusRowAt indexPath: IndexPath) -> Bool {
         apply(tableViewCanFocusRow, object: tableView, with: indexPath) ?? true
     }
@@ -253,22 +253,22 @@ extension Delegate: UITableViewDelegate {
         apply(tableViewIndexPathForPreferredFocusedView, object: tableView) ?? nil
     }
 
-    //Instance Methods
+    // MARK: - Instance Methods
     @available(iOS 13.0, *)
     func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
         apply(tableViewContextMenuConfigurationForRow, object: tableView, with: (indexPath, point))
     }
-    
+
     @available(iOS 13.0, *)
     func tableView(_ tableView: UITableView, previewForDismissingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
         apply(tableViewPreviewForDismissingContextMenuWithConfiguration, object: tableView, with: configuration)
     }
-    
+
     @available(iOS 13.0, *)
     func tableView(_ tableView: UITableView, previewForHighlightingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
         apply(tableViewPreviewForHighlightingContextMenuWithConfiguration, object: tableView, with: (configuration))
     }
-    
+
     @available(iOS 13.0, *)
     func tableView(_ tableView: UITableView, willPerformPreviewActionForMenuWith configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionCommitAnimating) {
         apply(tableViewWillPerformPreviewActionForMenuWithAnimator, object: tableView, with: (configuration, animator))

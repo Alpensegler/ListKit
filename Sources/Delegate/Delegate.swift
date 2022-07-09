@@ -9,15 +9,15 @@ import Foundation
 
 final class Delegate: NSObject, DataSource {
     typealias Item = Never
-    
+
     unowned let listView: SetuptableListView
     var context: CoordinatorContext!
     var source: Never { fatalError() }
-    
+
     init(_ listView: SetuptableListView) {
         self.listView = listView
     }
-    
+
     func setCoordinator<SourceBase: DataSource>(
         context: ListCoordinatorContext<SourceBase>,
         update: ListUpdate<SourceBase>.Whole?,
@@ -44,7 +44,7 @@ final class Delegate: NSObject, DataSource {
         if update != nil { listView.reloadSynchronously(animated: animated) }
         completion?(true)
     }
-    
+
     func apply<Object: AnyObject, Target, Input, Output, Closure>(
         _ function: ListDelegate.Function<Object, Delegate, Target, Input, Output, Closure>,
         object: Object,
@@ -53,7 +53,7 @@ final class Delegate: NSObject, DataSource {
         guard context.valid else { return nil }
         return context.apply(function, root: context, object: object, with: input)
     }
-    
+
     func apply<Object: AnyObject, Target, Output, Closure>(
         _ function: ListDelegate.Function<Object, Delegate, Target, Void, Output, Closure>,
         object: Object
@@ -61,7 +61,7 @@ final class Delegate: NSObject, DataSource {
         guard context.valid else { return nil }
         return context.apply(function, root: context, object: object, with: ())
     }
-    
+
     func apply<Object: AnyObject, Target, Input, Output, Closure, Index: ListIndex>(
         _ function: ListDelegate.IndexFunction<Object, Delegate, Target, Input, Output, Closure, Index>,
         object: Object,
@@ -70,10 +70,9 @@ final class Delegate: NSObject, DataSource {
         guard context.valid else { return nil }
         return context.apply(function, root: context, object: object, with: input)
     }
-    
+
     override func responds(to aSelector: Selector!) -> Bool {
         guard allSelectors.contains(aSelector) else { return super.responds(to: aSelector) }
         return aSelector.map(context.contain(selector:)) == true
     }
 }
-

@@ -12,15 +12,15 @@ public protocol DataSource {
         where SourceBase.Item == Item, SourceBase.SourceBase == SourceBase
     associatedtype AdapterBase: DataSource = Self
         where AdapterBase.Item == Item, AdapterBase.AdapterBase == AdapterBase
-    
+
     var source: Source { get }
     var sourceBase: SourceBase { get }
     var adapterBase: AdapterBase { get }
-    
+
     var listOptions: ListOptions { get }
     var listUpdate: ListUpdate<SourceBase>.Whole { get }
     var listDiffer: ListDiffer<SourceBase> { get }
-    
+
     var listDelegate: ListDelegate { get }
     var listCoordinator: ListCoordinator<SourceBase> { get }
     var listCoordinatorContext: ListCoordinatorContext<SourceBase> { get }

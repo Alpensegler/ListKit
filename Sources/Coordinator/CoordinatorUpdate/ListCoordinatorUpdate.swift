@@ -5,6 +5,8 @@
 //  Created by Frain on 2020/8/3.
 //
 
+// swiftlint:disable shorthand_operator
+
 import Foundation
 
 class ListCoordinatorUpdate<SourceBase: DataSource>: CoordinatorUpdate
@@ -12,29 +14,29 @@ where SourceBase.SourceBase == SourceBase {
     typealias Item = SourceBase.Item
     typealias Sources = Mapping<SourceBase.Source?>
     typealias Options = Mapping<ListOptions>
-    
+
     weak var listCoordinator: ListCoordinator<SourceBase>?
     let source: SourceBase.Source?
     let sourceType: SourceType
     var updateWay: ListUpdateWay<SourceBase.Item>
     var differ: ListDiffer<SourceBase.Item>!
     var isBatchUpdate = false
-    
+
     lazy var target = configTarget()
     lazy var suboperations = [() -> Void]()
     lazy var sourceCount = configSourceCount()
     lazy var targetCount = configTargetCount()
-    
+
     lazy var changeType = configUpdateWay()
     lazy var cachedMaxOrder = Cache(value: nil as Order??)
-    
+
     var diffable: Bool { differ?.isNone == false }
     var moveAndReloadable: Bool { false }
     var isRemove: Bool {
         guard case .other(.remove) = updateWay else { return false }
         return true
     }
-    
+
     var noneDiffUpdate: Bool {
         if isBatchUpdate { return false }
         switch changeType {
@@ -42,22 +44,24 @@ where SourceBase.SourceBase == SourceBase {
         default: return true
         }
     }
-    
+
     var isInsert: Bool {
         guard case .other(.insert) = updateWay else { return false }
         return true
     }
-    
+
+    // swiftlint:disable unused_setter_value
     var section: ChangeSets<IndexSet> {
         get { fatalError() }
         set { }
     }
-    
+
     var item: ChangeSets<IndexPathSet> {
         get { fatalError() }
         set { }
     }
-    
+    // swiftlint:enable unused_setter_value
+
     init(
         _ coordinator: ListCoordinator<SourceBase>,
         update: ListUpdate<SourceBase>?,
@@ -96,12 +100,12 @@ where SourceBase.SourceBase == SourceBase {
             break
         }
     }
-    
+
     func configTarget() -> SourceBase.Source? { source }
     func configSourceCount() -> Int { notImplemented() }
     func configTargetCount() -> Int { notImplemented() }
     func inferringMoves(context: Context? = nil, ids: [AnyHashable] = []) { }
-    
+
     func configMaxOrderForContext(_ ids: [AnyHashable]) -> Order? {
         switch (sourceType, changeType) {
         case (.sectionItems, _) where targetHasSection != sourceHasSection: break
@@ -112,14 +116,14 @@ where SourceBase.SourceBase == SourceBase {
         case (_, .batch) where moveType(ids) == .moveAndReload: return .third
         case (_, _): return .second
         }
-        
+
         switch (targetHasSection && !sourceHasSection, moveType(ids)) {
         case (_, .none): return .first
         case (true, .some): return .second
         case (false, .some): return .third
         }
     }
-    
+
     func customUpdateWay() -> UpdateWay? { notImplemented() }
     func configUpdateWay() -> UpdateWay? {
         switch (updateWay, sourceCount == 0, targetCount == 0) {
@@ -133,7 +137,7 @@ where SourceBase.SourceBase == SourceBase {
         default: return customUpdateWay()
         }
     }
-    
+
     func generateSourceUpdate(
         order: Order,
         context: UpdateContext<Int> = (nil, false, [])
@@ -151,7 +155,7 @@ where SourceBase.SourceBase == SourceBase {
             return (sourceCountForContainer, .init(item: itemUpdate))
         }
     }
-    
+
     func generateTargetUpdate(
         order: Order,
         context: UpdateContext<Offset<Int>> = (nil, false, [])
@@ -174,50 +178,50 @@ where SourceBase.SourceBase == SourceBase {
             return (indices, .init(item: itemUpdate), change)
         }
     }
-    
+
     func generateSourceItemUpdate(
         order: Order,
         context: UpdateContext<IndexPath> = (nil, false, [])
     ) -> UpdateSource<BatchUpdates.ItemSource> {
         notImplemented()
     }
-    
+
     func generateTargetItemUpdate(
         order: Order,
         context: UpdateContext<Offset<IndexPath>> = (nil, false, [])
     ) -> UpdateTarget<BatchUpdates.ItemTarget> {
         notImplemented()
     }
-    
+
     // element batch update
     func insert(_ element: SourceBase.Source.Element, at index: Int)
     where SourceBase.Source: RangeReplaceableCollection { }
-        
+
     func insert<C: Collection>(contentsOf elements: C, at index: Int)
     where SourceBase.Source: RangeReplaceableCollection, C.Element == SourceBase.Source.Element { }
-        
+
     func append(_ element: SourceBase.Source.Element)
     where SourceBase.Source: RangeReplaceableCollection { }
-        
+
     func append<S: Sequence>(contentsOf elements: S)
     where SourceBase.Source: RangeReplaceableCollection, S.Element == SourceBase.Source.Element { }
-        
+
     func remove(at index: Int)
     where SourceBase.Source: RangeReplaceableCollection { }
-    
+
     func remove(at indexSet: IndexSet)
     where SourceBase.Source: RangeReplaceableCollection { }
-        
+
     func update(_ element: SourceBase.Source.Element, at index: Int)
     where SourceBase.Source: RangeReplaceableCollection { }
-        
+
     func move(at index: Int, to newIndex: Int)
     where SourceBase.Source: RangeReplaceableCollection { }
-    
+
     override func generateListUpdates() -> BatchUpdates? {
         sourceType.isItems ? generateListUpdatesForItems() : generateListUpdatesForSections()
     }
-    
+
     override func updateData(_ isSource: Bool, containsSubupdate: Bool) {
         listCoordinator?.source = isSource ? source : target
         listCoordinator?.options = isSource ? options.source : options.target
@@ -242,23 +246,23 @@ extension ListCoordinatorUpdate {
             default:
                 break
             }
-            
+
             var subupdate = generateSourceUpdate(order: order, context: context)
             if order == .second, targetHasSection && !sourceHasSection { subupdate.count = 1 }
             return subupdate
         }
-        
+
         switch changeType {
         case .none: return (sourceCountForContainer, nil)
-        case .other(let way) where way == .remove && moveType(context) != nil,
-             .other(let way) where way != .reload && isSectionItems: fallthrough
+        case .other(let way) where way == .remove && moveType(context) != nil: fallthrough
+        case .other(let way) where way != .reload && isSectionItems: fallthrough
         case .batch: return generateSourceUpdate(order: order, context: context)
         case .other(.insert): return (sourceCountForContainer, nil)
         case .other(let way): update = .init(section: sourceUpdate(way, context, isSectionItems))
         }
         return (sourceCountForContainer, update)
     }
-    
+
     func generateContianerTargetUpdate(
         order: Order,
         context: UpdateContext<Offset<Int>> = (nil, false, [])
@@ -282,7 +286,7 @@ extension ListCoordinatorUpdate {
             default:
                 break
             }
-            
+
             var subupdate = generateTargetUpdate(order: order, context: context)
             switch order {
             case .first:
@@ -295,19 +299,19 @@ extension ListCoordinatorUpdate {
             }
             return subupdate
         }
-        
-        var c: () -> Void { hasNext(order, context) ? firstChange(true) : finalChange(true) }
+
+        var change: () -> Void { hasNext(order, context) ? firstChange(true) : finalChange(true) }
         switch changeType {
         case .none: return (toIndices(targetCountForContainer, context), nil, nil)
-        case .other(let way) where way == .insert && moveType(context) != nil,
-             .other(let way) where way != .reload && isSectionItems: fallthrough
+        case .other(let way) where way == .insert && moveType(context) != nil: fallthrough
+        case .other(let way) where way != .reload && isSectionItems: fallthrough
         case .batch: return generateTargetUpdate(order: order, context: context)
-        case .other(.remove): return (toIndices(targetCountForContainer, context), nil, c)
+        case .other(.remove): return (toIndices(targetCountForContainer, context), nil, change)
         case .other(let way): update = .init(section: targetUpdate(way, context, isSectionItems))
         }
         return (toIndices(targetCountForContainer, context), update, finalChange(true))
     }
-    
+
     func generateSourceItemUpdateForContianer(
         order: Order,
         context: UpdateContext<IndexPath> = (nil, false, [])
@@ -319,7 +323,7 @@ extension ListCoordinatorUpdate {
         case .other(let way): return (sourceCount, sourceUpdate(way, context))
         }
     }
-    
+
     func generateTargetItemUpdateForContianer(
         order: Order,
         context: UpdateContext<Offset<IndexPath>> = (nil, false, [])
@@ -339,56 +343,56 @@ extension ListCoordinatorUpdate {
 extension ListCoordinatorUpdate {
     func sourceUpdate<C: UpdateIndexCollection>(
         _ way: ListKit.UpdateWay,
-        _ offset: UpdateContext<C.Element> = (nil, false, []),
+        _ context: UpdateContext<C.Element> = (nil, false, []),
         _ forContainer: Bool = false
     ) -> BatchUpdates.Source<C>? {
-        let o = offset.offset ?? .zero
+        let offset = context.offset ?? .zero
         let source = forContainer ? sourceCountForContainer : sourceCount
         let target = forContainer ? targetCountForContainer : targetCount
         switch way {
         case .remove:
-            return .init(\.deletes, o, o.offseted(source))
+            return .init(\.deletes, offset, offset.offseted(source))
         case .appendOrRemoveLast where sourceCount > targetCount:
-            return .init(\.deletes, o.offseted(target), o.offseted(source))
+            return .init(\.deletes, offset.offseted(target), offset.offseted(source))
         case .prependOrRemoveFirst where sourceCount > targetCount:
-            return .init(\.deletes, o, o.offseted(source - target))
+            return .init(\.deletes, offset, offset.offseted(source - target))
         case .reload:
             var update = BatchUpdates.Source<C>()
             let diff = source - target, minValue = min(source, target)
-            if minValue != 0 { update.add(\.reloads, o, o.offseted(minValue)) }
-            if diff > 0 { update.add(\.deletes, o.offseted(minValue), o.offseted(source)) }
+            if minValue != 0 { update.add(\.reloads, offset, offset.offseted(minValue)) }
+            if diff > 0 { update.add(\.deletes, offset.offseted(minValue), offset.offseted(source)) }
             return update
         case .appendOrRemoveLast, .prependOrRemoveFirst, .insert:
             return nil
         }
     }
-    
+
     func targetUpdate<C: UpdateIndexCollection>(
         _ way: ListKit.UpdateWay,
         _ context: UpdateContext<Offset<C.Element>> = (nil, false, []),
         _ forContainer: Bool = false
     ) -> BatchUpdates.Target<C>? {
-        let o = context.offset?.offset.target ?? .zero
+        let offset = context.offset?.offset.target ?? .zero
         let source = forContainer ? sourceCountForContainer : sourceCount
         let target = forContainer ? targetCountForContainer : targetCount
         switch way {
         case .insert:
-            return .init(\.inserts, o, o.offseted(target))
+            return .init(\.inserts, offset, offset.offseted(target))
         case .appendOrRemoveLast where targetCount > sourceCount:
-            return .init(\.inserts, o.offseted(source), o.offseted(target))
+            return .init(\.inserts, offset.offseted(source), offset.offseted(target))
         case .prependOrRemoveFirst where targetCount > sourceCount:
-            return .init(\.inserts, o, o.offseted(target - source))
+            return .init(\.inserts, offset, offset.offseted(target - source))
         case .reload:
             var update = BatchUpdates.Target<C>()
             let diff = target - source, minValue = min(source, target)
-            if minValue != 0 { update.reload(o, o.offseted(minValue)) }
-            if diff > 0 { update.add(\.inserts, o.offseted(minValue), o.offseted(target)) }
+            if minValue != 0 { update.reload(offset, offset.offseted(minValue)) }
+            if diff > 0 { update.add(\.inserts, offset.offseted(minValue), offset.offseted(target)) }
             return update
         case .appendOrRemoveLast, .prependOrRemoveFirst, .remove:
             return nil
         }
     }
-    
+
     func batchChangeFor<C: UpdateIndexCollection>(
         way: ListKit.UpdateWay,
         _ indexType: C.Type
@@ -406,13 +410,13 @@ extension ListCoordinatorUpdate {
 
 extension ListCoordinatorUpdate {
     var isSectionItems: Bool { sourceType == .sectionItems }
-    
+
     var sourceHasSection: Bool { sourceCount != 0 || !options.source.removeEmptySection }
     var targetHasSection: Bool { targetCount != 0 || !options.target.removeEmptySection }
-    
+
     var sourceCountForContainer: Int { isSectionItems ? (sourceHasSection ? 1 : 0) : sourceCount }
     var targetCountForContainer: Int { isSectionItems ? (targetHasSection ? 1 : 0) : targetCount }
-    
+
     func generateListUpdatesForItems() -> BatchUpdates? {
         if targetHasSection && !sourceHasSection {
             return .init(target: BatchUpdates.SectionTarget(\.inserts, 0), finalChange(true))
@@ -426,7 +430,7 @@ extension ListCoordinatorUpdate {
         case .none: return .none
         }
     }
-    
+
     func generateListUpdatesForSections() -> BatchUpdates? {
         switch changeType {
         case .other(let way): return batchChangeFor(way: way, IndexSet.self)
@@ -434,7 +438,7 @@ extension ListCoordinatorUpdate {
         default: return .none
         }
     }
-    
+
     func listUpdatesForSections() -> BatchUpdates {
         inferringMoves()
         return .batch(Order.allCases.compactMapContiguous { order in
@@ -448,7 +452,7 @@ extension ListCoordinatorUpdate {
             return .init(update: (source.update, target.update), change: target.change)
         })
     }
-    
+
     func listUpdatesForItems() -> BatchUpdates {
         inferringMoves()
         return .batch([Order.second, Order.third].compactMapContiguous { order in
@@ -470,26 +474,26 @@ extension ListCoordinatorUpdate {
         guard let index = context.offset?.index else { return indices }
         return indices.mapContiguous { (index, $0.isFake) }
     }
-    
+
     func toIndices<O>(_ count: Int, _ context: UpdateContext<Offset<O>>, isFake: Bool = false) -> Indices {
         .init(repeatElement: (context.offset?.index ?? 0, isFake), count: count)
     }
-    
+
     func toContext<Offset, OtherOffset>(
         _ context: UpdateContext<Offset>,
         add: (Offset) -> OtherOffset
     ) -> UpdateContext<OtherOffset> {
         return (context.offset.map(add), context.isMoved, context.ids)
     }
-    
+
     func notUpdate<O>(_ order: Order, _ context: UpdateContext<O>) -> Bool {
         order > maxOrder(context.ids)
     }
-    
+
     func hasNext<O>(_ order: Order, _ context: UpdateContext<O>) -> Bool {
         maxOrder(context.ids) > order
     }
-    
+
     func maxOrder(_ ids: [AnyHashable] = []) -> Order? {
         cachedMaxOrder.value ?? cachedMaxOrder[ids] ?? {
             let maxOrder = configMaxOrderForContext(ids)
@@ -497,7 +501,7 @@ extension ListCoordinatorUpdate {
             return maxOrder
         }()
     }
-    
+
     func moveType<O>(_ context: UpdateContext<O>) -> MoveType? { moveType(context.ids) }
     func moveType(_ ids: [AnyHashable]) -> MoveType? { moveType.value ?? moveType[ids] }
 }
@@ -526,7 +530,7 @@ extension ListCoordinatorUpdate {
             dict[id] = .some(.none)
         }
     }
-    
+
     func config<T, Value, Change: CoordinatorUpdate.Change<Value>>(
         for change: Change,
         _ key: AnyHashable,
@@ -535,7 +539,7 @@ extension ListCoordinatorUpdate {
         _ associate: ((Mapping<Change>, Mapping<[AnyHashable]>) -> Void)? = nil,
         _ toChange: (T) -> Change? = { $0 as? Change }
     ) {
-        func convert(_ change: (ids: [AnyHashable], change: T)??) ->  ([AnyHashable], Change)? {
+        func convert(_ change: (ids: [AnyHashable], change: T)??) -> ([AnyHashable], Change)? {
             change?.flatMap { change in toChange(change.change).map { (change.ids, $0) } }
         }
         guard let (sourceID, source) = convert(dict.source[key]),
@@ -559,7 +563,8 @@ extension ListCoordinatorUpdate {
             associate?((source, target), (sourceID, targetID))
         }
     }
-    
+
+    // swiftlint:disable function_parameter_count
     func configCoordinatorChange<Offset, Value, Change: CoordinatorUpdate.Change<Value>>(
         _ change: Change,
         context: UpdateContext<Offset>,
@@ -585,7 +590,8 @@ extension ListCoordinatorUpdate {
             deleteOrInsert(change)
         }
     }
-    
+    // swiftlint:enable function_parameter_count
+
     func configCoordinatorChange<Offset: ListIndex, Value>(
         _ change: Change<Value>,
         context: UpdateContext<Offset>,
@@ -604,12 +610,12 @@ extension ListCoordinatorUpdate {
             reload: { change, _ in
                 update.add(\.reloads, change.indexPath(context.ids))
             },
-            move: { change, associated, isReload in
+            move: { change, _, _ in
                 update.move(change.indexPath(context.ids))
             }
         )
     }
-    
+
     func configCoordinatorChange<O: ListIndex, Value>(
         _ change: Change<Value>,
         context: UpdateContext<Offset<O>>,

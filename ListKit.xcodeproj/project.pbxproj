@@ -608,6 +608,7 @@
 			buildPhases = (
 				OBJ_17 /* Sources */,
 				OBJ_19 /* Frameworks */,
+				F8FD93942877197B00DFF7DA /* SwiftLint */,
 			);
 			buildRules = (
 			);
@@ -680,6 +681,27 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		F8FD93942877197B00DFF7DA /* SwiftLint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = SwiftLint;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [[ $(uname -p) == 'arm' ]]; then\n  # add M1 homebrew path\n  export PATH=\"$PATH:/opt/homebrew/bin\"\nfi\n\nif which swiftlint > /dev/null; then\n  swiftlint\nelse\n  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		F36550132451B4050038172F /* Sources */ = {

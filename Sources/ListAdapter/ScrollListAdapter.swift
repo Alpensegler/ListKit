@@ -20,42 +20,42 @@ where Source.AdapterBase == Source {
     public typealias Item = Source.Item
     public typealias SourceBase = Source.SourceBase
     public typealias AdapterBase = Source
-    
+
     public var source: Source
     public var sourceBase: SourceBase { source.sourceBase }
     public var adapterBase: Source { source }
-    
+
     public var listUpdate: ListUpdate<SourceBase>.Whole { source.listUpdate }
     public var listDiffer: ListDiffer<SourceBase> { source.listDiffer }
     public var listOptions: ListOptions { source.listOptions }
-    
+
     public var listDelegate: ListDelegate
     public var listCoordinatorContext: ListCoordinatorContext<SourceBase> {
         source.listCoordinatorContext.context(with: listDelegate)
     }
-    
+
     public lazy var listCoordinator = source.listCoordinator
     public lazy var coordinatorStorage = listCoordinator.storage.or({
         let storage = CoordinatorStorage<SourceBase>()
         listCoordinator.storage = storage
         return storage
     }())
-    
+
     public var scrollList: ScrollList<Source> { self }
     public var wrappedValue: Source {
         get { source }
         set { source = newValue }
     }
-    
+
     public subscript<Value>(dynamicMember path: KeyPath<Source, Value>) -> Value {
         source[keyPath: path]
     }
-    
+
     public subscript<Value>(dynamicMember path: WritableKeyPath<Source, Value>) -> Value {
         get { source[keyPath: path] }
         set { source[keyPath: path] = newValue }
     }
-    
+
     required init<OtherSource: DataSource>(
         _ source: OtherSource,
         options: ListOptions = .init()
@@ -63,12 +63,12 @@ where Source.AdapterBase == Source {
         self.source = AnySources(source, options: options)
         self.listDelegate = .init()
     }
-    
+
     required init(_ source: Source) {
         self.source = source
         self.listDelegate = source.listDelegate
     }
-    
+
     required init(_ source: Source, listDelegate: ListDelegate) {
         self.source = source
         self.listDelegate = listDelegate
@@ -77,6 +77,6 @@ where Source.AdapterBase == Source {
 
 extension ScrollList: ItemCachedDataSource where Source: ItemCachedDataSource {
     public typealias ItemCache = Source.ItemCache
-    
+
     public var itemCached: ItemCached<Source.SourceBase, Source.ItemCache> { source.itemCached }
 }

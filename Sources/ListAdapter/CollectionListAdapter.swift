@@ -37,7 +37,7 @@ public extension CollectionListAdapter {
         )
         return collectionList
     }
-    
+
     @discardableResult
     func apply(
         by collectionView: CollectionView,

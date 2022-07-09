@@ -5,6 +5,8 @@
 //  Created by Frain on 2020/1/16.
 //
 
+// swiftlint:disable opening_brace
+
 extension Sources
 where
     Source: RangeReplaceableCollection,
@@ -39,7 +41,7 @@ where
     ) {
         self.init(id, dataSources: dataSources, update: update, options: options)
     }
-    
+
     init(
         wrappedValue: Source,
         id: AnyHashable? = nil,
@@ -48,17 +50,17 @@ where
     ) {
         self.init(id, dataSources: wrappedValue, update: update, options: options)
     }
-    
+
     init(dataSources: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, dataSources: dataSources, update: .subupdate, options: options)
     }
-    
+
     init(wrappedValue: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, dataSources: wrappedValue, update: .subupdate, options: options)
     }
 }
 
-//Equatable
+// MARK: - Equatable
 public extension Sources
 where
     Source: RangeReplaceableCollection,
@@ -74,7 +76,7 @@ where
     ) {
         self.init(id, dataSources: dataSources, update: .diff, options: options)
     }
-    
+
     init(
         wrappedValue: Source,
         id: AnyHashable? = nil,
@@ -85,7 +87,7 @@ where
     }
 }
 
-//Hashable
+// MARK: - Hashable
 public extension Sources
 where
     Source: RangeReplaceableCollection,
@@ -101,7 +103,7 @@ where
     ) {
         self.init(id, dataSources: dataSources, update: .diff, options: options)
     }
-    
+
     init(
         wrappedValue: Source,
         id: AnyHashable? = nil,
@@ -112,7 +114,7 @@ where
     }
 }
 
-//Identifiable
+// MARK: - Identifiable
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public extension Sources
 where
@@ -129,7 +131,7 @@ where
     ) {
         self.init(id, dataSources: dataSources, update: .diff, options: options)
     }
-    
+
     init(
         wrappedValue: Source,
         id: AnyHashable? = nil,
@@ -140,7 +142,7 @@ where
     }
 }
 
-//Identifiable + Equatable
+// MARK: - Identifiable + Equatable
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public extension Sources
 where
@@ -158,7 +160,7 @@ where
     ) {
         self.init(id, dataSources: dataSources, update: .diff, options: options)
     }
-    
+
     init(
         wrappedValue: Source,
         id: AnyHashable? = nil,
@@ -169,7 +171,7 @@ where
     }
 }
 
-//Identifiable + Hashable
+// MARK: - Identifiable + Hashable
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public extension Sources
 where
@@ -187,7 +189,7 @@ where
     ) {
         self.init(id, dataSources: dataSources, update: .diff, options: options)
     }
-    
+
     init(
         wrappedValue: Source,
         id: AnyHashable? = nil,

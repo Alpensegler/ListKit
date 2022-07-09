@@ -9,25 +9,25 @@
 import UIKit
 
 extension Delegate: UICollectionViewDataSource {
-    //Getting Item and Section Metrics
+    // MARK: - Getting Item and Section Metrics
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         context.numbersOfItems(in: section)
     }
-    
+
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         context.numbersOfSections()
     }
-    
-    //Getting Views for Items
+
+    // MARK: - Getting Views for Items
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         apply(collectionViewCellForItem, object: collectionView, with: indexPath) ?? .init()
     }
-    
+
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         apply(collectionViewSupplementaryViewForItem, object: collectionView, with: (indexPath, kind)) ?? .init()
     }
-    
-    //Reordering Items
+
+    // MARK: - Reordering Items
     func collectionView(_ collectionView: UICollectionView, canMoveItemAt indexPath: IndexPath) -> Bool {
         apply(collectionViewCanMoveItem, object: collectionView, with: indexPath) ?? true
     }
@@ -38,7 +38,7 @@ extension Delegate: UICollectionViewDataSource {
 }
 
 extension Delegate: UICollectionViewDelegate {
-    //Managing the Selected Cells
+    // MARK: - Managing the Selected Cells
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
         apply(collectionViewShouldSelectItem, object: collectionView, with: indexPath) ?? true
     }
@@ -54,23 +54,23 @@ extension Delegate: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
         apply(collectionViewDidDeselectItem, object: collectionView, with: indexPath)
     }
-    
+
     @available(iOS 13.0, *)
     func collectionView(_ collectionView: UICollectionView, shouldBeginMultipleSelectionInteractionAt indexPath: IndexPath) -> Bool {
         apply(collectionViewShouldBeginMultipleSelectionInteractionForItem, object: collectionView, with: indexPath) ?? true
     }
-    
+
     @available(iOS 13.0, *)
     func collectionView(_ collectionView: UICollectionView, didBeginMultipleSelectionInteractionAt indexPath: IndexPath) {
         apply(collectionViewDidBeginMultipleSelectionInteractionAtForItem, object: collectionView, with: indexPath)
     }
-    
+
     @available(iOS 13.0, *)
     func collectionViewDidEndMultipleSelectionInteraction(_ collectionView: UICollectionView) {
         apply(collectionViewDidEndMultipleSelectionInteraction, object: collectionView)
     }
 
-    //Managing Cell Highlighting
+    // MARK: - Managing Cell Highlighting
     func collectionView(_ collectionView: UICollectionView, shouldHighlightItemAt indexPath: IndexPath) -> Bool {
         apply(collectionViewShouldHighlightItem, object: collectionView, with: indexPath) ?? true
     }
@@ -83,7 +83,7 @@ extension Delegate: UICollectionViewDelegate {
         apply(collectionViewDidUnhighlightItem, object: collectionView, with: indexPath)
     }
 
-    //Tracking the Addition and Removal of Views
+    // MARK: - Tracking the Addition and Removal of Views
     func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         apply(collectionViewWillDisplayForItem, object: collectionView, with: (indexPath, cell))
     }
@@ -100,7 +100,7 @@ extension Delegate: UICollectionViewDelegate {
         apply(collectionViewDidEndDisplayingSupplementaryView, object: collectionView, with: (view, elementKind, indexPath))
     }
 
-    //Handling Layout Changes
+    // MARK: - Handling Layout Changes
     func collectionView(_ collectionView: UICollectionView, transitionLayoutForOldLayout fromLayout: UICollectionViewLayout, newLayout toLayout: UICollectionViewLayout) -> UICollectionViewTransitionLayout {
         apply(collectionViewTransitionLayoutForOldLayoutNewLayout, object: collectionView, with: (fromLayout, toLayout)) ?? .init(currentLayout: fromLayout, nextLayout: toLayout)
     }
@@ -113,7 +113,7 @@ extension Delegate: UICollectionViewDelegate {
         apply(collectionViewTargetIndexPathForMoveFromItem, object: collectionView, with: (originalIndexPath, proposedIndexPath)) ?? proposedIndexPath
     }
 
-    //Managing Actions for Cells
+    // MARK: - Managing Actions for Cells
     func collectionView(_ collectionView: UICollectionView, shouldShowMenuForItemAt indexPath: IndexPath) -> Bool {
         apply(collectionViewShouldShowMenuForItem, object: collectionView, with: indexPath) ?? true
     }
@@ -126,7 +126,7 @@ extension Delegate: UICollectionViewDelegate {
         apply(collectionViewPerformActionWithSender, object: collectionView, with: (indexPath, action, sender))
     }
 
-    //Managing Focus in a Collection View
+    // MARK: - Managing Focus in a Collection View
     func collectionView(_ collectionView: UICollectionView, canFocusItemAt indexPath: IndexPath) -> Bool {
         apply(collectionViewCanFocusItem, object: collectionView, with: indexPath) ?? true
     }
@@ -143,28 +143,28 @@ extension Delegate: UICollectionViewDelegate {
         apply(collectionViewDidUpdateFocusInWith, object: collectionView, with: (context, coordinator))
     }
 
-    //Controlling the Spring-Loading Behavior
+    // MARK: - Controlling the Spring-Loading Behavior
     @available(iOS 11.0, *)
     func collectionView(_ collectionView: UICollectionView, shouldSpringLoadItemAt indexPath: IndexPath, with context: UISpringLoadedInteractionContext) -> Bool {
         apply(collectionViewShouldSpringLoadItemAtWith, object: collectionView, with: (indexPath, context)) ?? true
     }
 
-    //Instance Methods
+    // MARK: - Instance Methods
     @available(iOS 13.0, *)
     func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
         apply(collectionViewContextMenuConfigurationForItem, object: collectionView, with: (indexPath, point)) ?? nil
     }
-    
+
     @available(iOS 13.0, *)
     func collectionView(_ collectionView: UICollectionView, previewForDismissingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
         apply(collectionViewPreviewForDismissingContextMenuWithConfiguration, object: collectionView, with: (configuration)) ?? nil
     }
-    
+
     @available(iOS 13.0, *)
     func collectionView(_ collectionView: UICollectionView, previewForHighlightingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
         apply(collectionViewPreviewForHighlightingContextMenuWithConfiguration, object: collectionView, with: (configuration)) ?? nil
     }
-    
+
     @available(iOS 13.0, *)
     func collectionView(_ collectionView: UICollectionView, willPerformPreviewActionForMenuWith configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionCommitAnimating) {
         apply(collectionViewWillPerformPreviewActionForMenuWithAnimator, object: collectionView, with: (configuration, animator))
@@ -172,12 +172,12 @@ extension Delegate: UICollectionViewDelegate {
 }
 
 extension Delegate: UICollectionViewDelegateFlowLayout {
-    //Getting the Size of Items
+    // MARK: - Getting the Size of Items
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         apply(collectionViewLayoutSizeForItem, object: collectionView, with: (indexPath, collectionViewLayout)) ?? (collectionViewLayout as? UICollectionViewFlowLayout)?.itemSize ?? .zero
     }
 
-    //Getting the Section Spacing
+    // MARK: - Getting the Section Spacing
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
         apply(collectionViewLayoutInsetForSection, object: collectionView, with: (section, collectionViewLayout)) ?? (collectionViewLayout as? UICollectionViewFlowLayout)?.sectionInset ?? .zero
     }
@@ -190,7 +190,7 @@ extension Delegate: UICollectionViewDelegateFlowLayout {
         apply(collectionViewLayoutMinimumInteritemSpacingForSection, object: collectionView, with: (section, collectionViewLayout)) ?? (collectionViewLayout as? UICollectionViewFlowLayout)?.minimumInteritemSpacing ?? .zero
     }
 
-    //Getting the Header and Footer Sizes
+    // MARK: - Getting the Header and Footer Sizes
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
         apply(collectionViewLayoutReferenceSizeForHeaderInSection, object: collectionView, with: (section, collectionViewLayout)) ?? (collectionViewLayout as? UICollectionViewFlowLayout)?.headerReferenceSize ?? .zero
     }
@@ -199,6 +199,5 @@ extension Delegate: UICollectionViewDelegateFlowLayout {
         apply(collectionViewLayoutReferenceSizeForFooterInSection, object: collectionView, with: (section, collectionViewLayout)) ?? (collectionViewLayout as? UICollectionViewFlowLayout)?.footerReferenceSize ?? .zero
     }
 }
-
 
 #endif

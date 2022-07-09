@@ -11,7 +11,7 @@ public protocol ListView: NSObject {
     func resetDelegates(toNil: Bool)
     func reloadSynchronously(animated: Bool)
     func perform(_ update: () -> Void, animated: Bool, completion: ((Bool) -> Void)?)
-    
+
     func insertItems(at indexPaths: [IndexPath])
     func deleteItems(at indexPaths: [IndexPath])
     func reloadItems(at indexPaths: [IndexPath])
@@ -33,7 +33,7 @@ extension SetuptableListView {
     var listDelegate: Delegate {
         Associator.getValue(key: &listDelegateKey, from: self, initialValue: .init(self))
     }
-    
+
     func isCoordinator(_ coordinator: AnyObject) -> Bool {
         if let delegate: Delegate = Associator.getValue(key: &listDelegateKey, from: self) {
             return isDelegate(delegate) && delegate.context?.isCoordinator(coordinator) ?? false

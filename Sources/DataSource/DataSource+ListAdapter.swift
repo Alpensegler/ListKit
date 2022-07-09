@@ -5,6 +5,8 @@
 //  Created by Frain on 2020/6/10.
 //
 
+// swiftlint:disable opening_brace
+
 public extension DataSource where Self: TableListAdapter {
     var listCoordinatorContext: ListCoordinatorContext<SourceBase> {
         ListCoordinatorContext(listCoordinator, listDelegate: scrollList.listDelegate)
@@ -95,7 +97,6 @@ where
 }
 
 // MARK: - DataSource + nested Collection Adapter
-
 public extension DataSource
 where
     SourceBase.Source: CollectionListAdapter,

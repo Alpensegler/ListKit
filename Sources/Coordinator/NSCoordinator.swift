@@ -11,7 +11,7 @@ final class NSCoordinator<SourceBase: NSDataSource>: ListCoordinator<SourceBase>
 where SourceBase.SourceBase == SourceBase {
     unowned let sourceBase: SourceBase
     lazy var indices = toIndices(source)
-    
+
     func toIndices(_ source: [Int]) -> Indices {
         if sourceType == .items {
             guard let index = source[safe: 0], index != 0 else { return [] }
@@ -19,10 +19,10 @@ where SourceBase.SourceBase == SourceBase {
         }
         if !options.removeEmptySection { return source.indices.mapContiguous { ($0, false) } }
         var indices = Indices(capacity: source.count)
-        for (i, section) in source.enumerated() where section != 0 { indices.append((i, false)) }
+        for (index, section) in source.enumerated() where section != 0 { indices.append((index, false)) }
         return indices
     }
-    
+
     override func numbersOfSections() -> Int { sourceType.isSection ? indices.count : 1 }
     override func numbersOfItems(in section: Int) -> Int {
         if sourceType == .items { return indices.count }
@@ -30,17 +30,17 @@ where SourceBase.SourceBase == SourceBase {
         if index.isFake { return 0 }
         return source[index.index]
     }
-    
+
     override func item(at indexPath: IndexPath) -> Item { sourceBase.item(at: indexPath) }
     override func configSourceType() -> SourceType {
         isSectioned || source.count > 1 ? .section : .items
     }
-    
+
     override init(_ sourceBase: SourceBase) {
         self.sourceBase = sourceBase
         super.init(sourceBase)
     }
-    
+
     override func update(
         from coordinator: ListCoordinator<SourceBase>,
         updateWay: ListUpdateWay<Item>?

@@ -5,14 +5,15 @@
 //  Created by Frain on 2020/7/15.
 //
 
+// swiftlint:disable opening_brace
+
 import Foundation
 
-class SectionsCoordinatorUpdate<SourceBase>:
-    ContainerCoordinatorUpdate<
-        SourceBase,
-        ContiguousArray<Sources<SourceBase.Source.Element, SourceBase.Item>>,
-        Sources<SourceBase.Source.Element, SourceBase.Item>
-    >
+class SectionsCoordinatorUpdate<SourceBase>: ContainerCoordinatorUpdate<
+    SourceBase,
+    ContiguousArray<Sources<SourceBase.Source.Element, SourceBase.Item>>,
+    Sources<SourceBase.Source.Element, SourceBase.Item>
+>
 where
     SourceBase: DataSource,
     SourceBase.SourceBase == SourceBase,
@@ -22,13 +23,13 @@ where
 {
     typealias Value = ListKit.Sources<SourceBase.Source.Element, SourceBase.Item>
     typealias Sections = ContiguousArray<Value>
-    
+
     weak var coordinator: SectionsCoordinator<SourceBase>?
-    
+
     var updateType: ItemsCoordinatorUpdate<Value>.Type { ItemsCoordinatorUpdate<Value>.self }
-    
+
     override var identifiable: Bool { false }
-    
+
     required init(
         coordinator: SectionsCoordinator<SourceBase>,
         update: ListUpdate<SourceBase>?,
@@ -40,33 +41,33 @@ where
         self.coordinator = coordinator
         super.init(coordinator, update, values, sources, indices, options)
     }
-    
+
     override func toIdentifier(_ value: Value) -> ObjectIdentifier {
         ObjectIdentifier(value.listCoordinator)
     }
-    
+
     override func toIndices(_ values: Values) -> Indices {
         SectionsCoordinator<SourceBase>.toIndices(values, options.target)
     }
-    
+
     override func subupdate(from value: Mapping<Value>) -> Subupdate {
         let (source, target) = (value.source.listCoordinator, value.target.listCoordinator)
         return target.update(from: source, updateWay: updateWay)
     }
-    
+
     override func changeWhenHasNext(values: Values, source: SourceBase.Source?, indices: Indices) {
         coordinator?.sections = values
         coordinator?.indices = indices
         coordinator?.source = source
     }
-    
+
     override func toValue(_ element: Element) -> Value { element }
     override func toChange(_ value: Value, _ index: Int) -> Change {
         let change = Change(value: value, index: index, value.listCoordinator, moveAndReloadable)
         change.coordinatorUpdate = self
         return change
     }
-    
+
     override func configChangesForDiffs() -> Changes {
         let (sourceCount, targetCount) = (sourceValues.count, targetValues.count)
         let diff = sourceCount - targetCount, minCount = min(sourceCount, targetCount)
@@ -75,31 +76,31 @@ where
         let changes = (minCount..<minCount + abs(diff)).mapContiguous { toChange(values[$0], $0) }
         return (diff > 0) ? (changes, .init()) : (.init(), changes)
     }
-    
+
     override func updateData(_ isSource: Bool, containsSubupdate: Bool) {
         super.updateData(isSource, containsSubupdate: containsSubupdate)
         coordinator?.sections = isSource ? sourceValues : targetValues
         coordinator?.indices = isSource ? sourceIndices : targetIndices
     }
-    
+
     override func inferringMoves(context: Context? = nil, ids: [AnyHashable] = []) {
         guard differ.identifier != nil else { return }
         super.inferringMoves(context: context)
     }
-    
+
     override func customUpdateWay() -> UpdateWay? {
         if isBatchUpdate { return .batch }
         guard differ?.isNone == false else { return .other(.reload) }
         return .batch
     }
-    
+
     override func generateSourceUpdate(
         order: Order,
         context: UpdateContext<Int> = (nil, false, [])
     ) -> UpdateSource<BatchUpdates.ListSource> {
         sourceUpdate(order, in: context, \.section, Subupdate.generateContianerSourceUpdate)
     }
-    
+
     override func generateTargetUpdate(
         order: Order,
         context: UpdateContext<Offset<Int>> = (nil, false, [])
@@ -108,8 +109,7 @@ where
     }
 }
 
-final class RangeReplacableSectionsCoordinatorUpdate<SourceBase>:
-    SectionsCoordinatorUpdate<SourceBase>
+final class RangeReplacableSectionsCoordinatorUpdate<SourceBase>: SectionsCoordinatorUpdate<SourceBase>
 where
     SourceBase: DataSource,
     SourceBase.SourceBase == SourceBase,
@@ -118,11 +118,11 @@ where
     SourceBase.Source.Element.Element == SourceBase.Item
 {
     override var moveAndReloadable: Bool { !noneDiffUpdate }
-    
+
     override var updateType: ItemsCoordinatorUpdate<Value>.Type {
         RangeReplacableItemsCoordinatorUpdate<Value>.self
     }
-    
+
     override func toSource(_ values: ContiguousArray<Value>) -> SourceBase.Source? {
         .init(values.map { $0.source })
     }

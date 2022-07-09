@@ -5,6 +5,8 @@
 //  Created by Frain on 2019/3/17.
 //
 
+// swiftlint:disable all
+
 public struct CollectionDifference<ChangeElement> {
     /// A single change to a collection.
     public enum Change {

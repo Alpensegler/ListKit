@@ -28,18 +28,18 @@ public struct ItemUpdates {
     public let allTargetChange: [IndexPath]
 }
 
-open class ListFetchedResultsController<Item>: NSObject, NSFetchedResultsControllerDelegate
-where Item: NSFetchRequestResult {
+open class ListFetchedResultsController<Model>: NSObject, NSFetchedResultsControllerDelegate
+where Model: NSFetchRequestResult {
     public struct Section {
         public let info: NSFetchedResultsSectionInfo
         public var indexTitle: String? { info.indexTitle }
         public var count: Int { info.numberOfObjects }
         public var name: String { info.name }
-        public var items: [Item] { info.objects as? [Item] ?? [] }
+        public var models: [Model] { info.objects as? [Model] ?? [] }
     }
 
-    public typealias SourceBase = ListFetchedResultsController<Item>
-    public var fetchedResultController: NSFetchedResultsController<Item>
+    public typealias SourceBase = ListFetchedResultsController<Model>
+    public var fetchedResultController: NSFetchedResultsController<Model>
     public var listUpdate = ListUpdate<SourceBase>.Whole.reload
     public var listDiffer = ListDiffer<SourceBase>.diff
     public var listOptions = ListOptions()
@@ -57,10 +57,10 @@ where Item: NSFetchRequestResult {
     public var removeSection: ((SourceBase, Int) -> Void)?
     public var shouldReloadSection: ((SourceBase, NSFetchedResultsSectionInfo, Int) -> Bool)?
 
-    public var insertItem: ((SourceBase, Item, IndexPath) -> Void)?
+    public var insertItem: ((SourceBase, Model, IndexPath) -> Void)?
     public var removeItem: ((SourceBase, IndexPath) -> Void)?
-    public var shouldReloadItem: ((SourceBase, Item, IndexPath, IndexPath) -> Bool)?
-    public var shouldMoveItem: ((SourceBase, Item, IndexPath, IndexPath) -> Bool)?
+    public var shouldReloadItem: ((SourceBase, Model, IndexPath, IndexPath) -> Bool)?
+    public var shouldMoveItem: ((SourceBase, Model, IndexPath, IndexPath) -> Bool)?
 
     var update: ListUpdate<SourceBase>!
     var _section: ChangeSets<IndexSet>?
@@ -76,7 +76,7 @@ where Item: NSFetchRequestResult {
         set { _item = newValue }
     }
 
-    public var fetchedObjects: [Item] {
+    public var fetchedObjects: [Model] {
         fetchedResultController.fetchedObjects ?? []
     }
 
@@ -84,7 +84,7 @@ where Item: NSFetchRequestResult {
         fetchedResultController.sections ?? []
     }
 
-    public init(_ fetchedResultController: NSFetchedResultsController<Item>) {
+    public init(_ fetchedResultController: NSFetchedResultsController<Model>) {
         self.fetchedResultController = fetchedResultController
         super.init()
         self.fetchedResultController.delegate = self
@@ -93,7 +93,7 @@ where Item: NSFetchRequestResult {
     }
 
     public init(
-        fetchRequest: NSFetchRequest<Item>,
+        fetchRequest: NSFetchRequest<Model>,
         managedObjectContext context: NSManagedObjectContext,
         sectionNameKeyPath: String? = nil,
         cacheName name: String? = nil
@@ -134,7 +134,7 @@ where Item: NSFetchRequestResult {
         }
 
         guard shouldUpdate?(self) != false else { return }
-        perform(.init(section: _section, item: _item), animated: updateAnimated, completion: updateCompletion)
+        perform(.init(section: _section, model: _item), animated: updateAnimated, completion: updateCompletion)
         didUpdate?(self)
     }
 
@@ -174,11 +174,11 @@ extension ListFetchedResultsController: NSDataSource {
         .init(info: fetchedResultController.sections![section])
     }
 
-    public func items(at section: Int) -> [Item] {
-        self.section(at: section).items
+    public func items(at section: Int) -> [Model] {
+        self.section(at: section).models
     }
 
-    public func item(at indexPath: IndexPath) -> Item {
+    public func model(at indexPath: IndexPath) -> Model {
         fetchedResultController.object(at: indexPath)
     }
 
@@ -186,21 +186,21 @@ extension ListFetchedResultsController: NSDataSource {
         fetchedResultController.sections?.count ?? 0
     }
 
-    public func numbersOfItem(in section: Int) -> Int {
+    public func numbersOfModel(in section: Int) -> Int {
         self.section(at: section).count
     }
 }
 
 public extension ListFetchedResultsController {
     var itemUpdates: ItemUpdates? {
-        _item.map { items in
+        _item.map { models in
             .init(
-                insert: items.target.inserts.elements(),
-                remove: items.source.deletes.elements(),
-                reload: items.source.reloads.elements(),
-                moves: items.target.moves.elements().map { (items.target.moveDict[$0]!, $0) },
-                allSourceChange: items.source.all.elements(),
-                allTargetChange: items.target.all.elements()
+                insert: models.target.inserts.elements(),
+                remove: models.source.deletes.elements(),
+                reload: models.source.reloads.elements(),
+                moves: models.target.moves.elements().map { (models.target.moveDict[$0]!, $0) },
+                allSourceChange: models.source.all.elements(),
+                allTargetChange: models.target.all.elements()
             )
         }
     }
@@ -257,10 +257,10 @@ extension ListFetchedResultsController {
             if sectionAll.target.contains($0.section) {
                 item.target.inserts.remove($0)
             } else {
-                insertItem?(self, self.item(at: $0), $0)
+                insertItem?(self, self.model(at: $0), $0)
             }
         }
-        update = .init(section: section, item: item)
+        update = .init(section: section, model: item)
     }
 
     func prepareUpdate(sets: inout ChangeSets<IndexSet>) {
@@ -295,19 +295,19 @@ extension ListFetchedResultsController {
             sets.source.deletes.elements().forEach { remove(self, $0) }
         }
         if let insert = insertItem {
-            sets.target.inserts.elements().forEach { insert(self, item(at: $0), $0) }
+            sets.target.inserts.elements().forEach { insert(self, model(at: $0), $0) }
         }
     }
 
     func prepare(move sets: inout ChangeSets<IndexPathSet>, from: IndexPath!, to: IndexPath) {
-        guard shouldMoveItem?(self, item(at: to), from, to) == false else { return }
+        guard shouldMoveItem?(self, model(at: to), from, to) == false else { return }
         sets.target.moves.remove(to)
         sets.source.moves.remove(from)
         sets.target.moveDict[to] = nil
     }
 
     func prepare(reload sets: inout ChangeSets<IndexPathSet>, from: IndexPath, to: IndexPath!) {
-        guard shouldReloadItem?(self, item(at: to), from, to) == false else { return }
+        guard shouldReloadItem?(self, model(at: to), from, to) == false else { return }
         sets.source.reloads.remove(from)
         sets.target.reloads.remove(to)
         sets.reloadDict[from] = nil

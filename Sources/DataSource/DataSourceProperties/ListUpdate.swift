@@ -15,8 +15,8 @@ enum UpdateWay {
     case prependOrRemoveFirst
 }
 
-enum ListUpdateWay<Item> {
-    case diff(ListDiffer<Item>)
+enum ListUpdateWay<Model> {
+    case diff(ListDiffer<Model>)
     case other(UpdateWay)
     case subupdate
 
@@ -25,12 +25,12 @@ enum ListUpdateWay<Item> {
         return way
     }
 
-    var differ: ListDiffer<Item>? {
+    var differ: ListDiffer<Model>? {
         guard case let .diff(differ) = self else { return nil }
         return differ
     }
 
-    init<OtherItem>(_ way: ListUpdateWay<OtherItem>, cast: @escaping (Item) -> (OtherItem)) {
+    init<OtherModel>(_ way: ListUpdateWay<OtherModel>, cast: @escaping (Model) -> (OtherModel)) {
         switch way {
         case .diff(let differ): self = .diff(.init(differ, cast: cast))
         case .other(let other): self = .other(other)
@@ -41,7 +41,7 @@ enum ListUpdateWay<Item> {
 
 public struct ListUpdate<SourceBase: DataSource> where SourceBase.SourceBase == SourceBase {
     public struct Whole {
-        let way: ListUpdateWay<SourceBase.Item>
+        let way: ListUpdateWay<SourceBase.Model>
     }
 
     public struct Batch {
@@ -69,7 +69,7 @@ public struct ListUpdate<SourceBase: DataSource> where SourceBase.SourceBase == 
 }
 
 extension ListUpdate.Whole: DiffInitializableUpdate {
-    var diff: ListDiffer<SourceBase.Item>? { way.differ }
+    var diff: ListDiffer<SourceBase.Model>? { way.differ }
 
     init(id: ((Value) -> AnyHashable)? = nil, by areEquivalent: ((Value, Value) -> Bool)? = nil) {
         self.init(diff: ListDiffer(identifier: id, areEquivalent: areEquivalent))
@@ -81,7 +81,7 @@ extension ListUpdate.Whole: DiffInitializableUpdate {
 }
 
 public extension ListUpdate.Whole {
-    typealias Value = SourceBase.Item
+    typealias Value = SourceBase.Model
 
     init(_ whole: ListUpdate<SourceBase>.Whole) {
         self = whole
@@ -102,14 +102,14 @@ extension ListUpdate: BatchInitializable, DiffInitializableUpdate {
         self.updateType = .whole(whole)
         self.source = source
     }
-    init?(_ way: ListUpdateWay<SourceBase.Item>?) {
+    init?(_ way: ListUpdateWay<SourceBase.Model>?) {
         guard let way = way else { return nil }
         self.updateType = .whole(.init(way: way))
     }
 }
 
 public extension ListUpdate {
-    typealias Value = SourceBase.Item
+    typealias Value = SourceBase.Model
 
     static var remove: Self { .init(.init(way: .other(.remove))) }
     static func remove(to source: Source) -> Self { .init(.init(way: .other(.remove)), source) }
@@ -186,7 +186,7 @@ public extension DiffInitializableUpdate
 where
     SourceBase.Source: RangeReplaceableCollection,
     SourceBase.Source.Element: DataSource,
-    SourceBase.Source.Element.SourceBase.Item == SourceBase.Item
+    SourceBase.Source.Element.SourceBase.Model == SourceBase.Model
 {
     static var subupdate: Self { .init(.init(way: .subupdate)) }
 }

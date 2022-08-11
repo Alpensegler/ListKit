@@ -5,7 +5,7 @@
 //  Created by Frain on 2020/7/7.
 //
 
-public protocol DiffInitializableUpdate: DiffInitializable where Value == SourceBase.Item {
+public protocol DiffInitializableUpdate: DiffInitializable where Value == SourceBase.Model {
     associatedtype SourceBase: DataSource where SourceBase.SourceBase == SourceBase
 
     init(_ whole: ListUpdate<SourceBase>.Whole)

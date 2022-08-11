@@ -7,7 +7,7 @@
 
 // swiftlint:disable opening_brace
 
-extension Sources where Source: DataSource, Source.Item == Item {
+extension Sources where Source: DataSource, Source.Model == Model {
     init(
         _ id: AnyHashable?,
         dataSource: Source,
@@ -35,7 +35,7 @@ extension Sources where Source: DataSource, Source.Item == Item {
     }
 }
 
-public extension Sources where Source: DataSource, Source.Item == Item {
+public extension Sources where Source: DataSource, Source.Model == Model {
     init(
         dataSource: Source,
         id: AnyHashable? = nil,
@@ -64,7 +64,7 @@ public extension Sources where Source: DataSource, Source.Item == Item {
 }
 
 // MARK: - Equatable
-public extension Sources where Source: DataSource, Source.Item == Item, Item: Equatable {
+public extension Sources where Source: DataSource, Source.Model == Model, Model: Equatable {
     init(dataSource: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, dataSource: dataSource, update: .diff, options: options)
     }
@@ -75,7 +75,7 @@ public extension Sources where Source: DataSource, Source.Item == Item, Item: Eq
 }
 
 // MARK: - Hashable
-public extension Sources where Source: DataSource, Source.Item == Item, Item: Hashable {
+public extension Sources where Source: DataSource, Source.Model == Model, Model: Hashable {
     init(dataSource: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, dataSource: dataSource, update: .diff, options: options)
     }
@@ -90,8 +90,8 @@ public extension Sources where Source: DataSource, Source.Item == Item, Item: Ha
 public extension Sources
 where
     Source: DataSource,
-    Source.Item == Item,
-    Item: Identifiable
+    Source.Model == Model,
+    Model: Identifiable
 {
     init(dataSource: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, dataSource: dataSource, update: .diff, options: options)
@@ -107,9 +107,9 @@ where
 public extension Sources
 where
     Source: DataSource,
-    Source.Item == Item,
-    Item: Identifiable,
-    Item: Equatable
+    Source.Model == Model,
+    Model: Identifiable,
+    Model: Equatable
 {
     init(dataSource: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, dataSource: dataSource, update: .diff, options: options)
@@ -125,9 +125,9 @@ where
 public extension Sources
 where
     Source: DataSource,
-    Source.Item == Item,
-    Item: Identifiable,
-    Item: Hashable
+    Source.Model == Model,
+    Model: Identifiable,
+    Model: Hashable
 {
     init(dataSource: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, dataSource: dataSource, update: .diff, options: options)

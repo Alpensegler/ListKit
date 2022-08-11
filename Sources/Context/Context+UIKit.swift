@@ -9,11 +9,11 @@
 import UIKit
 
 public extension ListIndexContext where Index == IndexPath, List: UIListView {
-    func selectItem(animated: Bool, scrollPosition: List.ScrollPosition) {
+    func select(animated: Bool, scrollPosition: List.ScrollPosition) {
         listView.selectItem(at: index, animated: animated, scrollPosition: scrollPosition)
     }
 
-    func deselectItem(animated: Bool) {
+    func deselect(animated: Bool) {
         listView.deselectItem(at: index, animated: animated)
     }
 

@@ -13,7 +13,7 @@ public extension DataSource
 where
     SourceBase.Source: RangeReplaceableCollection,
     SourceBase.Source.Element: DataSource,
-    SourceBase.Source.Element.SourceBase.Item == Item
+    SourceBase.Source.Element.SourceBase.Model == Model
 {
     var listCoordinator: ListCoordinator<SourceBase> {
         DataSourcesCoordinator(sources: sourceBase)
@@ -25,7 +25,7 @@ where
     SourceBase: UpdatableDataSource,
     SourceBase.Source: RangeReplaceableCollection,
     SourceBase.Source.Element: DataSource,
-    SourceBase.Source.Element.SourceBase.Item == Item
+    SourceBase.Source.Element.SourceBase.Model == Model
 {
     var listCoordinator: ListCoordinator<SourceBase> {
         sourceBase.coordinator(with: DataSourcesCoordinator(sources: sourceBase))
@@ -37,9 +37,9 @@ where
     SourceBase: UpdatableDataSource,
     SourceBase.Source: RangeReplaceableCollection,
     SourceBase.Source.Element: DataSource,
-    SourceBase.Source.Element.SourceBase.Item == Item
+    SourceBase.Source.Element.SourceBase.Model == Model
 {
-    func itemContext<List: ListView>(for listView: List, at index: IndexPath) -> [ListItemContext<List>] {
-        _itemContext(for: listView, at: index)
+    func modelContext<List: ListView>(for listView: List, at index: IndexPath) -> [ListModelContext<List>] {
+        _modelContext(for: listView, at: index)
     }
 }

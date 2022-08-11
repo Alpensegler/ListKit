@@ -11,7 +11,7 @@ extension Sources
 where
     Source: Collection,
     Source.Element: Collection,
-    Source.Element.Element == Item
+    Source.Element.Element == Model
 {
     init(
         _ id: AnyHashable?,
@@ -31,7 +31,7 @@ extension Sources
 where
     Source: RangeReplaceableCollection,
     Source.Element: RangeReplaceableCollection,
-    Source.Element.Element == Item
+    Source.Element.Element == Model
 {
     init(
         _ id: AnyHashable?,
@@ -51,7 +51,7 @@ public extension Sources
 where
     Source: Collection,
     Source.Element: Collection,
-    Source.Element.Element == Item
+    Source.Element.Element == Model
 {
     init(
         sections: Source,
@@ -84,7 +84,7 @@ public extension Sources
 where
     Source: RangeReplaceableCollection,
     Source.Element: RangeReplaceableCollection,
-    Source.Element.Element == Item
+    Source.Element.Element == Model
 {
     init(
         sections: Source,
@@ -118,8 +118,8 @@ public extension Sources
 where
     Source: Collection,
     Source.Element: Collection,
-    Source.Element.Element == Item,
-    Item: Equatable
+    Source.Element.Element == Model,
+    Model: Equatable
 {
     init(sections: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, sections: sections, update: .diff, options: options)
@@ -134,8 +134,8 @@ public extension Sources
 where
     Source: RangeReplaceableCollection,
     Source.Element: RangeReplaceableCollection,
-    Source.Element.Element == Item,
-    Item: Equatable
+    Source.Element.Element == Model,
+    Model: Equatable
 {
     init(sections: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, sections: sections, update: .diff, options: options)
@@ -151,8 +151,8 @@ public extension Sources
 where
     Source: Collection,
     Source.Element: Collection,
-    Source.Element.Element == Item,
-    Item: Hashable
+    Source.Element.Element == Model,
+    Model: Hashable
 {
     init(sections: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, sections: sections, update: .diff, options: options)
@@ -167,8 +167,8 @@ public extension Sources
 where
     Source: RangeReplaceableCollection,
     Source.Element: RangeReplaceableCollection,
-    Source.Element.Element == Item,
-    Item: Hashable
+    Source.Element.Element == Model,
+    Model: Hashable
 {
     init(sections: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, sections: sections, update: .diff, options: options)
@@ -185,8 +185,8 @@ public extension Sources
 where
     Source: Collection,
     Source.Element: Collection,
-    Source.Element.Element == Item,
-    Item: Identifiable
+    Source.Element.Element == Model,
+    Model: Identifiable
 {
     init(sections: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, sections: sections, update: .diff, options: options)
@@ -202,8 +202,8 @@ public extension Sources
 where
     Source: RangeReplaceableCollection,
     Source.Element: RangeReplaceableCollection,
-    Source.Element.Element == Item,
-    Item: Identifiable
+    Source.Element.Element == Model,
+    Model: Identifiable
 {
     init(sections: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, sections: sections, update: .diff, options: options)
@@ -220,9 +220,9 @@ public extension Sources
 where
     Source: Collection,
     Source.Element: Collection,
-    Source.Element.Element == Item,
-    Item: Identifiable,
-    Item: Equatable
+    Source.Element.Element == Model,
+    Model: Identifiable,
+    Model: Equatable
 {
     init(sections: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, sections: sections, update: .diff, options: options)
@@ -238,9 +238,9 @@ public extension Sources
 where
     Source: RangeReplaceableCollection,
     Source.Element: RangeReplaceableCollection,
-    Source.Element.Element == Item,
-    Item: Identifiable,
-    Item: Equatable
+    Source.Element.Element == Model,
+    Model: Identifiable,
+    Model: Equatable
 {
     init(sections: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, sections: sections, update: .diff, options: options)
@@ -257,9 +257,9 @@ public extension Sources
 where
     Source: Collection,
     Source.Element: Collection,
-    Source.Element.Element == Item,
-    Item: Identifiable,
-    Item: Hashable
+    Source.Element.Element == Model,
+    Model: Identifiable,
+    Model: Hashable
 {
     init(sections: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, sections: sections, update: .diff, options: options)
@@ -275,9 +275,9 @@ public extension Sources
 where
     Source: RangeReplaceableCollection,
     Source.Element: RangeReplaceableCollection,
-    Source.Element.Element == Item,
-    Item: Identifiable,
-    Item: Hashable
+    Source.Element.Element == Model,
+    Model: Identifiable,
+    Model: Hashable
 {
     init(sections: Source, id: AnyHashable? = nil, options: ListOptions = .none) {
         self.init(id, sections: sections, update: .diff, options: options)

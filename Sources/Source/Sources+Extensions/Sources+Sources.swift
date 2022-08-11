@@ -11,7 +11,7 @@ extension Sources
 where
     Source: RangeReplaceableCollection,
     Source.Element: DataSource,
-    Source.Element.Item == Item
+    Source.Element.Model == Model
 {
     init(
         _ id: AnyHashable?,
@@ -31,7 +31,7 @@ public extension Sources
 where
     Source: RangeReplaceableCollection,
     Source.Element: DataSource,
-    Source.Element.Item == Item
+    Source.Element.Model == Model
 {
     init(
         dataSources: Source,
@@ -65,8 +65,8 @@ public extension Sources
 where
     Source: RangeReplaceableCollection,
     Source.Element: DataSource,
-    Source.Element.Item == Item,
-    Item: Equatable
+    Source.Element.Model == Model,
+    Model: Equatable
 {
     init(
         dataSources: Source,
@@ -92,8 +92,8 @@ public extension Sources
 where
     Source: RangeReplaceableCollection,
     Source.Element: DataSource,
-    Source.Element.Item == Item,
-    Item: Hashable
+    Source.Element.Model == Model,
+    Model: Hashable
 {
     init(
         dataSources: Source,
@@ -120,8 +120,8 @@ public extension Sources
 where
     Source: RangeReplaceableCollection,
     Source.Element: DataSource,
-    Source.Element.Item == Item,
-    Item: Identifiable
+    Source.Element.Model == Model,
+    Model: Identifiable
 {
     init(
         dataSources: Source,
@@ -148,9 +148,9 @@ public extension Sources
 where
     Source: RangeReplaceableCollection,
     Source.Element: DataSource,
-    Source.Element.Item == Item,
-    Item: Identifiable,
-    Item: Equatable
+    Source.Element.Model == Model,
+    Model: Identifiable,
+    Model: Equatable
 {
     init(
         dataSources: Source,
@@ -177,9 +177,9 @@ public extension Sources
 where
     Source: RangeReplaceableCollection,
     Source.Element: DataSource,
-    Source.Element.Item == Item,
-    Item: Identifiable,
-    Item: Hashable
+    Source.Element.Model == Model,
+    Model: Identifiable,
+    Model: Hashable
 {
     init(
         dataSources: Source,

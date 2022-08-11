@@ -1,5 +1,5 @@
 //
-//  ItemCoordinatorUpdate.swift
+//  ModelCoordinatorUpdate.swift
 //  ListKit
 //
 //  Created by Frain on 2020/8/3.
@@ -7,10 +7,10 @@
 
 import Foundation
 
-final class ItemCoordinatorUpdate<SourceBase: DataSource>: ListCoordinatorUpdate<SourceBase>
-where SourceBase.Item == SourceBase.Source, SourceBase.SourceBase == SourceBase {
+final class ModelCoordinatorUpdate<SourceBase: DataSource>: ListCoordinatorUpdate<SourceBase>
+where SourceBase.Model == SourceBase.Source, SourceBase.SourceBase == SourceBase {
     lazy var changes = configChanges()
-    lazy var extraChange = Cache(value: (nil, nil) as Mapping<Change<Item>?>)
+    lazy var extraChange = Cache(value: (nil, nil) as Mapping<Change<Model>?>)
 
     override var moveAndReloadable: Bool { !noneDiffUpdate }
 
@@ -21,13 +21,13 @@ where SourceBase.Item == SourceBase.Source, SourceBase.SourceBase == SourceBase 
         diffable && (changes.source != nil || changes.target != nil) ? .batch : nil
     }
 
-    func toChange(_ value: Item, _ index: Int) -> Change<Item> {
+    func toChange(_ value: Model, _ index: Int) -> Change<Model> {
         let change = Change(value: value, index: index, moveAndReloadable: true)
         change.coordinatorUpdate = self
         return change
     }
 
-    func configChanges() -> Mapping<Change<Item>?> {
+    func configChanges() -> Mapping<Change<Model>?> {
         guard let source = source, let target = target else { return (nil, nil) }
         switch updateWay {
         case .other(.insert): return (nil, toChange(target, 0))

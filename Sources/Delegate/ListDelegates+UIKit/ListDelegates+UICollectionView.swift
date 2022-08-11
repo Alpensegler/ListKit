@@ -11,7 +11,7 @@ import UIKit
 extension Delegate: UICollectionViewDataSource {
     // MARK: - Getting Item and Section Metrics
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        context.numbersOfItems(in: section)
+        context.numbersOfModel(in: section)
     }
 
     func numberOfSections(in collectionView: UICollectionView) -> Int {

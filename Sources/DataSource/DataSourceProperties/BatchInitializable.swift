@@ -12,8 +12,8 @@ import Foundation
 public protocol BatchInitializable: ExpressibleByArrayLiteral
 where ArrayLiteralElement == ListUpdate<SourceBase>.Batch {
     associatedtype SourceBase: DataSource where SourceBase.SourceBase == SourceBase
-    typealias Item = SourceBase.Item
-    typealias Value = SourceBase.Item
+    typealias Model = SourceBase.Model
+    typealias Value = SourceBase.Model
     typealias Source = SourceBase.Source
 
     var batch: ListUpdate<SourceBase>.Batch? { get }
@@ -40,30 +40,30 @@ extension BatchInitializable {
         self.init(.init(operations: [closure], needSource: needSource))
     }
 
-    init(section: ChangeSets<IndexSet>?, item: ChangeSets<IndexPathSet>?) {
+    init(section: ChangeSets<IndexSet>?, model: ChangeSets<IndexPathSet>?) {
         self.init(needSource: true) { update in
             section.map { update.section = $0 }
-            item.map { update.item = $0 }
+            model.map { update.item = $0 }
         }
     }
 }
 
 public extension BatchInitializable
-where Source: RangeReplaceableCollection, Source.Element == SourceBase.Item {
-    static func insert(_ item: Item, at index: Int) -> Self {
-        .init { $0.insert(item, at: index) }
+where Source: RangeReplaceableCollection, Source.Element == SourceBase.Model {
+    static func insert(_ model: Model, at index: Int) -> Self {
+        .init { $0.insert(model, at: index) }
     }
 
     static func insert<C: Collection>(contentsOf elements: C, at index: Int) -> Self
-    where C.Element == Item {
+    where C.Element == Model {
         .init { $0.insert(contentsOf: elements, at: index) }
     }
 
-    static func append(_ element: Item) -> Self {
+    static func append(_ element: Model) -> Self {
         .init { $0.append(element) }
     }
 
-    static func append<S: Sequence>(contentsOf items: S) -> Self where S.Element == Item {
+    static func append<S: Sequence>(contentsOf items: S) -> Self where S.Element == Model {
         .init { $0.append(contentsOf: items) }
     }
 
@@ -75,8 +75,8 @@ where Source: RangeReplaceableCollection, Source.Element == SourceBase.Item {
         .init { $0.remove(at: indexSet) }
     }
 
-    static func update(_ item: Item, at index: Int) -> Self {
-        .init { $0.update(item, at: index) }
+    static func update(_ model: Model, at index: Int) -> Self {
+        .init { $0.update(model, at: index) }
     }
 
     static func move(at index: Int, to newIndex: Int) -> Self {
@@ -88,7 +88,7 @@ public extension BatchInitializable
 where
     Source: RangeReplaceableCollection,
     Source.Element: DataSource,
-    Source.Element.SourceBase.Item == SourceBase.Item
+    Source.Element.SourceBase.Model == SourceBase.Model
 {
     typealias Element = SourceBase.Source.Element
 
@@ -171,31 +171,31 @@ public extension BatchInitializable where SourceBase: NSDataSource {
         .init(needSource: true) { $0.section.move(section, to: newSection) }
     }
 
-    static func insertItem(at indexPath: IndexPath) -> Self {
+    static func insertModel(at indexPath: IndexPath) -> Self {
         .init(needSource: true) { $0.item.insert(indexPath) }
     }
 
-    static func insertItems(at indexPaths: [IndexPath]) -> Self {
+    static func insertModels(at indexPaths: [IndexPath]) -> Self {
         .init(needSource: true) { $0.item.insert(indexPaths) }
     }
 
-    static func deleteItem(at indexPath: IndexPath) -> Self {
+    static func deleteModel(at indexPath: IndexPath) -> Self {
         .init(needSource: true) { $0.item.delete(indexPath) }
     }
 
-    static func deleteItems(at indexPaths: [IndexPath]) -> Self {
+    static func deleteModels(at indexPaths: [IndexPath]) -> Self {
         .init(needSource: true) { $0.item.delete(indexPaths) }
     }
 
-    static func reloadItem(at indexPath: IndexPath, newIndexPath: IndexPath? = nil) -> Self {
+    static func reloadModel(at indexPath: IndexPath, newIndexPath: IndexPath? = nil) -> Self {
         .init(needSource: true) { $0.item.reload(indexPath, newIndex: newIndexPath ?? indexPath) }
     }
 
-    static func reloadItems(at indexPaths: [IndexPath], newIndexPaths: [IndexPath]? = nil) -> Self {
+    static func reloadModels(at indexPaths: [IndexPath], newIndexPaths: [IndexPath]? = nil) -> Self {
         .init(needSource: true) { $0.item.reload(indexPaths, newIndices: newIndexPaths ?? indexPaths) }
     }
 
-    static func moveItem(at indexPath: IndexPath, to newIndexPath: IndexPath) -> Self {
+    static func moveModel(at indexPath: IndexPath, to newIndexPath: IndexPath) -> Self {
         .init(needSource: true) { $0.item.move(indexPath, to: newIndexPath) }
     }
 }
@@ -204,7 +204,7 @@ public extension BatchInitializable
 where
     Source: DataSource,
     Source.SourceBase == AnySources,
-    Item == Any
+    Model == Any
 {
     static func subsource<Subsource: UpdatableDataSource>(
         _ source: Subsource,

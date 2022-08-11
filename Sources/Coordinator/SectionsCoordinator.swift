@@ -14,9 +14,9 @@ where
     SourceBase.SourceBase == SourceBase,
     SourceBase.Source: Collection,
     SourceBase.Source.Element: Collection,
-    SourceBase.Source.Element.Element == SourceBase.Item
+    SourceBase.Source.Element.Element == SourceBase.Model
 {
-    typealias Section = Sources<SourceBase.Source.Element, SourceBase.Item>
+    typealias Section = Sources<SourceBase.Source.Element, SourceBase.Model>
 
     lazy var sections = toSections(source)
     lazy var indices = Self.toIndices(sections, options)
@@ -28,20 +28,20 @@ where
     func toSections(_ source: SourceBase.Source) -> ContiguousArray<Section> {
         source.mapContiguous {
             .init(
-                items: $0,
+                models: $0,
                 update: .init(way: update.way),
                 options: options.union(.preferSection)
             )
         }
     }
 
-    override func item(at indexPath: IndexPath) -> Item {
+    override func model(at indexPath: IndexPath) -> Model {
         let section = sections[indices[indexPath.section].index]
-        return section.listCoordinator.item(at: .init(item: indexPath.item))
+        return section.listCoordinator.model(at: .init(item: indexPath.item))
     }
 
     override func numbersOfSections() -> Int { indices.count }
-    override func numbersOfItems(in section: Int) -> Int {
+    override func numbersOfModel(in section: Int) -> Int {
         let index = indices[section]
         if index.isFake { return 0 }
         return sections[index.index].count
@@ -51,7 +51,7 @@ where
 
     override func update(
         from coordinator: ListCoordinator<SourceBase>,
-        updateWay: ListUpdateWay<Item>?
+        updateWay: ListUpdateWay<Model>?
     ) -> ListCoordinatorUpdate<SourceBase> {
         let coordinator = coordinator as! SectionsCoordinator<SourceBase>
         return updateType.init(
@@ -86,7 +86,7 @@ where
     SourceBase.SourceBase == SourceBase,
     SourceBase.Source: RangeReplaceableCollection,
     SourceBase.Source.Element: RangeReplaceableCollection,
-    SourceBase.Source.Element.Element == SourceBase.Item
+    SourceBase.Source.Element.Element == SourceBase.Model
 {
     override var updateType: SectionsCoordinatorUpdate<SourceBase>.Type {
         RangeReplacableSectionsCoordinatorUpdate<SourceBase>.self
@@ -95,7 +95,7 @@ where
     override func toSections(_ source: SourceBase.Source) -> ContiguousArray<Section> {
         source.mapContiguous {
             .init(
-                items: $0,
+                models: $0,
                 update: .init(way: update.way),
                 options: options.union(.preferSection)
             )

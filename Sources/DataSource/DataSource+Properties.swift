@@ -18,7 +18,7 @@ public extension DataSource where SourceBase: Equatable {
     var listDiffer: ListDiffer<SourceBase> { .diff }
 }
 
-public extension DataSource where SourceBase.Item: Equatable {
+public extension DataSource where SourceBase.Model: Equatable {
     var listUpdate: ListUpdate<SourceBase>.Whole { .diff }
 }
 
@@ -27,7 +27,7 @@ public extension DataSource where SourceBase: Hashable {
     var listDiffer: ListDiffer<SourceBase> { .diff }
 }
 
-public extension DataSource where SourceBase.Item: Hashable {
+public extension DataSource where SourceBase.Model: Hashable {
     var listUpdate: ListUpdate<SourceBase>.Whole { .diff }
 }
 
@@ -38,7 +38,7 @@ public extension DataSource where SourceBase: Identifiable {
 }
 
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
-public extension DataSource where SourceBase.Item: Identifiable {
+public extension DataSource where SourceBase.Model: Identifiable {
     var listUpdate: ListUpdate<SourceBase>.Whole { .diff }
 }
 
@@ -49,7 +49,7 @@ public extension DataSource where SourceBase: Identifiable, SourceBase: Equatabl
 }
 
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
-public extension DataSource where SourceBase.Item: Identifiable, SourceBase.Item: Equatable {
+public extension DataSource where SourceBase.Model: Identifiable, SourceBase.Model: Equatable {
     var listUpdate: ListUpdate<SourceBase>.Whole { .diff }
 }
 
@@ -60,7 +60,7 @@ public extension DataSource where SourceBase: Identifiable, SourceBase: Hashable
 }
 
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
-public extension DataSource where SourceBase.Item: Identifiable, SourceBase.Item: Hashable {
+public extension DataSource where SourceBase.Model: Identifiable, SourceBase.Model: Hashable {
     var listUpdate: ListUpdate<SourceBase>.Whole { .diff }
 }
 
@@ -84,7 +84,7 @@ public extension DataSource
 where
     SourceBase.Source: DataSource,
     SourceBase.Source.SourceBase == AnySources,
-    SourceBase.Item == Any
+    SourceBase.Model == Any
 {
     var listUpdate: ListUpdate<SourceBase>.Whole { .subupdate }
 }
@@ -93,8 +93,8 @@ public extension DataSource
 where
     SourceBase.Source: RangeReplaceableCollection,
     SourceBase.Source.Element: DataSource,
-    SourceBase.Source.Element.SourceBase.Item == SourceBase.Item,
-    SourceBase.Item == Any
+    SourceBase.Source.Element.SourceBase.Model == SourceBase.Model,
+    SourceBase.Model == Any
 {
     var listUpdate: ListUpdate<SourceBase>.Whole { .subupdate }
 }

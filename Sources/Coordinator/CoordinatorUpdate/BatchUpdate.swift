@@ -385,10 +385,10 @@ extension BatchUpdates {
             countIn: (Int) -> Int,
             applyData: (Self) -> Void = { $0.applyData() }
         ) {
-            var itemCaches = [IndexPath: Cache?](), sectionCaches = [Int: ContiguousArray<Cache?>]()
-            add(from: &caches, &itemCaches, &sectionCaches)
+            var modelCaches = [IndexPath: Cache?](), sectionCaches = [Int: ContiguousArray<Cache?>]()
+            add(from: &caches, &modelCaches, &sectionCaches)
             applyData(self)
-            apply(by: &caches, itemCaches, sectionCaches, countIn: countIn)
+            apply(by: &caches, modelCaches, sectionCaches, countIn: countIn)
         }
     }
 }

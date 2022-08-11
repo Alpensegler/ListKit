@@ -8,15 +8,15 @@
 import Foundation
 
 public protocol NSDataSource: AnyObject, UpdatableDataSource where Source == [Int] {
-    func item(at indexPath: IndexPath) -> Item
+    func model(at indexPath: IndexPath) -> Model
     func numbersOfSections() -> Int
-    func numbersOfItem(in section: Int) -> Int
+    func numbersOfModel(in section: Int) -> Int
 }
 
 public extension NSDataSource {
     var source: [Int] {
         let section = numbersOfSections()
         if section == 0 { return [] }
-        return (0..<section).map { numbersOfItem(in: $0) }
+        return (0..<section).map { numbersOfModel(in: $0) }
     }
 }

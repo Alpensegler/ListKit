@@ -12,17 +12,17 @@ public extension NSDataSource where SourceBase: NSDataSource {
         sourceBase.coordinator(with: NSCoordinator(sourceBase))
     }
 
-    func itemContext<List: ListView>(
+    func modelContext<List: ListView>(
         for listView: List,
         at indexPath: IndexPath
-    ) -> [ListItemContext<List>] {
-        _itemContext(for: listView, at: indexPath)
+    ) -> [ListModelContext<List>] {
+        _modelContext(for: listView, at: indexPath)
     }
 
-    func itemContext<List: ListView>(
+    func modelContext<List: ListView>(
         for listView: List,
         at index: Int
-    ) -> [ListItemContext<List>] {
-        _itemContext(for: listView, at: .init(item: index))
+    ) -> [ListModelContext<List>] {
+        _modelContext(for: listView, at: .init(item: index))
     }
 }

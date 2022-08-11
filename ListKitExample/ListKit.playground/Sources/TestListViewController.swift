@@ -7,7 +7,7 @@ public class TestListViewController: UIViewController, UpdatableTableListAdapter
     public var toggle = true
 
     lazy var itemSource = ItemSource()
-    lazy var itemsSource = Sources(items: [1.0, 2.0, 3.0], options: .removeEmptySection)
+    lazy var itemsSource = Sources(models: [1.0, 2.0, 3.0], options: .removeEmptySection)
         .tableViewCellForRow()
         .tableViewDidSelectRow { [unowned self] (context, item) in
             self.batchRemove(at: context.item)
@@ -16,25 +16,25 @@ public class TestListViewController: UIViewController, UpdatableTableListAdapter
 
     final class ItemSource: UpdatableTableListAdapter {
         // swiftlint: disable nesting
-        public typealias Item = Any
+        public typealias Model = Any
         // swiftlint: enable nesting
         var toggle = true
 
         public var source: AnyTableSources {
             AnyTableSources {
                 if toggle {
-                    Sources(item: true)
+                    Sources(model: true)
                         .tableViewCellForRow()
                         .tableViewDidSelectRow { [unowned self] (context, _) in
-                            context.deselectItem(animated: false)
+                            context.deselect(animated: false)
                             self.toggle.toggle()
                             self.performUpdate()
                         }
                 } else {
-                    Sources(items: [false, false, false])
+                    Sources(models: [false, false, false])
                         .tableViewCellForRow()
                         .tableViewDidSelectRow { (context, _) in
-                            context.deselectItem(animated: false)
+                            context.deselect(animated: false)
                             self.toggle.toggle()
                             self.performUpdate()
                         }
@@ -44,7 +44,7 @@ public class TestListViewController: UIViewController, UpdatableTableListAdapter
         }
     }
 
-    public typealias Item = Any
+    public typealias Model = Any
     public var source: AnyTableSources {
         AnyTableSources {
             if toggle {
@@ -55,16 +55,16 @@ public class TestListViewController: UIViewController, UpdatableTableListAdapter
                 .tableViewCellForRow()
                 .tableViewHeaderTitleForSection("sections")
             AnyTableSources {
-                Sources(item: 2)
+                Sources(model: 2)
                     .tableViewCellForRow()
                     .tableViewDidSelectRow { (context, item) in
-                        context.deselectItem(animated: false)
+                        context.deselect(animated: false)
                         print(item)
                     }
-                Sources(items: ["a", "b", "c"])
+                Sources(models: ["a", "b", "c"])
                     .tableViewCellForRow()
                     .tableViewDidSelectRow { (context, item) in
-                        context.deselectItem(animated: false)
+                        context.deselect(animated: false)
                         print(item)
                     }
             }.tableViewHeaderTitleForSection("sources")
@@ -126,7 +126,7 @@ struct TestList_Preview: UIViewControllerRepresentable, PreviewProvider {
 //    var source: AnyTableSources {
 //        AnyTableSources {
 //            if toggle {
-//                Sources(item: "b")
+//                Sources(model: "b")
 //                    .tableViewCellForRow()
 //                    .tableViewDidSelectRow { (context, item) in
 //                        context.deselectItem(animated: false)

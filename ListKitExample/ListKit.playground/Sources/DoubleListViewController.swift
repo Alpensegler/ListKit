@@ -6,8 +6,8 @@ import UIKit
 public class DoubleListViewController: UIViewController, TableListAdapter, CollectionListAdapter, UpdatableDataSource {
     private let _models = ["Roy", "Pinlin", "Zhiyi", "Frain", "Jack", "Cookie", "Kubrick", "Jeremy", "Juhao", "Herry"]
 
-    public typealias Item = String
-    public typealias ItemCache = CGSize
+    public typealias Model = String
+    public typealias ModelCache = CGSize
 
     var toggle = false
 

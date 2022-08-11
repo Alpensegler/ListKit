@@ -53,7 +53,7 @@ extension TableList: CustomStringConvertible, CustomDebugStringConvertible {
     public var debugDescription: String { "TableList(\(source))" }
 }
 
-public extension TableList where Source: ItemCachedDataSource {
+public extension TableList where Source: ModelCachedDataSource {
     var base: TableList<Source.SourceBase.AdapterBase> {
         .init(source.sourceBase.adapterBase, listDelegate: listDelegate)
     }

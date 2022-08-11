@@ -11,15 +11,15 @@ import Foundation
 
 class ListCoordinatorUpdate<SourceBase: DataSource>: CoordinatorUpdate
 where SourceBase.SourceBase == SourceBase {
-    typealias Item = SourceBase.Item
+    typealias Model = SourceBase.Model
     typealias Sources = Mapping<SourceBase.Source?>
     typealias Options = Mapping<ListOptions>
 
     weak var listCoordinator: ListCoordinator<SourceBase>?
     let source: SourceBase.Source?
     let sourceType: SourceType
-    var updateWay: ListUpdateWay<SourceBase.Item>
-    var differ: ListDiffer<SourceBase.Item>!
+    var updateWay: ListUpdateWay<SourceBase.Model>
+    var differ: ListDiffer<SourceBase.Model>!
     var isBatchUpdate = false
 
     lazy var target = configTarget()
@@ -108,8 +108,8 @@ where SourceBase.SourceBase == SourceBase {
 
     func configMaxOrderForContext(_ ids: [AnyHashable]) -> Order? {
         switch (sourceType, changeType) {
-        case (.sectionItems, _) where targetHasSection != sourceHasSection: break
-        case (.sectionItems, .other(.reload)): return .first
+        case (.sectionModels, _) where targetHasSection != sourceHasSection: break
+        case (.sectionModels, .other(.reload)): return .first
         case (_, .none): return nil
         case (.section, .batch) where moveType(ids) == .moveAndReload: return .second
         case (.section, _): return .first
@@ -219,7 +219,7 @@ where SourceBase.SourceBase == SourceBase {
     where SourceBase.Source: RangeReplaceableCollection { }
 
     override func generateListUpdates() -> BatchUpdates? {
-        sourceType.isItems ? generateListUpdatesForItems() : generateListUpdatesForSections()
+        sourceType.isModels ? generateListUpdatesForModels() : generateListUpdatesForSections()
     }
 
     override func updateData(_ isSource: Bool, containsSubupdate: Bool) {
@@ -234,7 +234,7 @@ extension ListCoordinatorUpdate {
         context: UpdateContext<Int> = (nil, false, [])
     ) -> UpdateSource<BatchUpdates.ListSource> {
         let update: BatchUpdates.ListSource
-        if isSectionItems, targetHasSection != sourceHasSection {
+        if isSectionModels, targetHasSection != sourceHasSection {
             switch (order, targetHasSection && !sourceHasSection) {
             case (.first, false) where !hasNext(order, context):
                 update = .init(section: sourceUpdate(.remove, context, true))
@@ -255,10 +255,10 @@ extension ListCoordinatorUpdate {
         switch changeType {
         case .none: return (sourceCountForContainer, nil)
         case .other(let way) where way == .remove && moveType(context) != nil: fallthrough
-        case .other(let way) where way != .reload && isSectionItems: fallthrough
+        case .other(let way) where way != .reload && isSectionModels: fallthrough
         case .batch: return generateSourceUpdate(order: order, context: context)
         case .other(.insert): return (sourceCountForContainer, nil)
-        case .other(let way): update = .init(section: sourceUpdate(way, context, isSectionItems))
+        case .other(let way): update = .init(section: sourceUpdate(way, context, isSectionModels))
         }
         return (sourceCountForContainer, update)
     }
@@ -268,7 +268,7 @@ extension ListCoordinatorUpdate {
         context: UpdateContext<Offset<Int>> = (nil, false, [])
     ) -> UpdateTarget<BatchUpdates.ListTarget> {
         let update: BatchUpdates.ListTarget
-        if isSectionItems, targetHasSection != sourceHasSection {
+        if isSectionModels, targetHasSection != sourceHasSection {
             func count(_ count: Int, isFake: Bool = false) -> Indices {
                 self.toIndices(count, context, isFake: isFake)
             }
@@ -304,10 +304,10 @@ extension ListCoordinatorUpdate {
         switch changeType {
         case .none: return (toIndices(targetCountForContainer, context), nil, nil)
         case .other(let way) where way == .insert && moveType(context) != nil: fallthrough
-        case .other(let way) where way != .reload && isSectionItems: fallthrough
+        case .other(let way) where way != .reload && isSectionModels: fallthrough
         case .batch: return generateTargetUpdate(order: order, context: context)
         case .other(.remove): return (toIndices(targetCountForContainer, context), nil, change)
-        case .other(let way): update = .init(section: targetUpdate(way, context, isSectionItems))
+        case .other(let way): update = .init(section: targetUpdate(way, context, isSectionModels))
         }
         return (toIndices(targetCountForContainer, context), update, finalChange(true))
     }
@@ -409,15 +409,15 @@ extension ListCoordinatorUpdate {
 }
 
 extension ListCoordinatorUpdate {
-    var isSectionItems: Bool { sourceType == .sectionItems }
+    var isSectionModels: Bool { sourceType == .sectionModels }
 
     var sourceHasSection: Bool { sourceCount != 0 || !options.source.removeEmptySection }
     var targetHasSection: Bool { targetCount != 0 || !options.target.removeEmptySection }
 
-    var sourceCountForContainer: Int { isSectionItems ? (sourceHasSection ? 1 : 0) : sourceCount }
-    var targetCountForContainer: Int { isSectionItems ? (targetHasSection ? 1 : 0) : targetCount }
+    var sourceCountForContainer: Int { isSectionModels ? (sourceHasSection ? 1 : 0) : sourceCount }
+    var targetCountForContainer: Int { isSectionModels ? (targetHasSection ? 1 : 0) : targetCount }
 
-    func generateListUpdatesForItems() -> BatchUpdates? {
+    func generateListUpdatesForModels() -> BatchUpdates? {
         if targetHasSection && !sourceHasSection {
             return .init(target: BatchUpdates.SectionTarget(\.inserts, 0), finalChange(true))
         }

@@ -8,7 +8,7 @@
 import Foundation
 
 public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase == SourceBase {
-    typealias Item = SourceBase.Item
+    typealias Model = SourceBase.Model
     typealias Indices = ContiguousArray<(index: Int, isFake: Bool)>
     typealias Context = ListCoordinatorContext<SourceBase>
 
@@ -54,19 +54,19 @@ public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase
     }
 
     func numbersOfSections() -> Int { notImplemented() }
-    func numbersOfItems(in section: Int) -> Int { notImplemented() }
+    func numbersOfModel(in section: Int) -> Int { notImplemented() }
 
-    func item(at indexPath: IndexPath) -> Item { notImplemented() }
+    func model(at indexPath: IndexPath) -> Model { notImplemented() }
 
-    func cache<ItemCache>(
+    func cache<ModelCache>(
         for cached: inout Any?,
         at indexPath: IndexPath,
         in delegate: ListDelegate
-    ) -> ItemCache {
-        guard let getCache = delegate.getCache as? (Item) -> ItemCache else {
-            fatalError("\(SourceBase.self) no cache with \(ItemCache.self)")
+    ) -> ModelCache {
+        guard let getCache = delegate.getCache as? (Model) -> ModelCache else {
+            fatalError("\(SourceBase.self) no cache with \(ModelCache.self)")
         }
-        let cache = getCache(item(at: indexPath))
+        let cache = getCache(model(at: indexPath))
         cached = cache
         return cache
     }
@@ -127,7 +127,7 @@ public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase
 
     func update(
         from coordinator: ListCoordinator<SourceBase>,
-        updateWay: ListUpdateWay<Item>?
+        updateWay: ListUpdateWay<Model>?
     ) -> ListCoordinatorUpdate<SourceBase> {
         notImplemented()
     }

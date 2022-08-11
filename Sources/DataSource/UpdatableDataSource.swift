@@ -53,7 +53,7 @@ public extension UpdatableDataSource {
                 Log.log("to   \(update.source!)")
             }
         }
-        isMainThread ? work() : DispatchQueue.main.sync(execute: work)
+        _ = isMainThread ? work() : DispatchQueue.main.sync(execute: work)
         let coordinatorUpdate = coordinator.update(update: update, options: options)
         let contextAndUpdates = coordinator.contextAndUpdates(update: coordinatorUpdate)
         let results = contextAndUpdates?.map { arg in (arg.0, arg.1, arg.1.listUpdates) }
@@ -64,7 +64,7 @@ public extension UpdatableDataSource {
                 context.perform(updates: update, animated: updateAnimated, completion: completion)
             }
         }
-        isMainThread ? afterWork() : DispatchQueue.main.sync(execute: afterWork)
+        _ = isMainThread ? afterWork() : DispatchQueue.main.sync(execute: afterWork)
     }
 
     func performUpdate(
@@ -85,16 +85,16 @@ public extension UpdatableDataSource {
 }
 
 public extension UpdatableDataSource {
-    func currentItem(at indexPath: IndexPath) -> Item {
-        listCoordinator.item(at: indexPath)
+    func currentModel(at indexPath: IndexPath) -> Model {
+        listCoordinator.model(at: indexPath)
     }
 
     func currentNumbersOfSections() -> Int {
         listCoordinator.numbersOfSections()
     }
 
-    func currentNumbersOfItem(in section: Int) -> Int {
-        listCoordinator.numbersOfItems(in: section)
+    func currentNumbersOfModel(in section: Int) -> Int {
+        listCoordinator.numbersOfModel(in: section)
     }
 }
 
@@ -112,11 +112,11 @@ extension UpdatableDataSource where SourceBase == Self {
 }
 
 extension UpdatableDataSource {
-    func _itemContext<List: ListView>(
+    func _modelContext<List: ListView>(
         for listView: List,
         at indexPath: IndexPath
-    ) -> [ListItemContext<List>] {
-        var results = [ListItemContext<List>]()
+    ) -> [ListModelContext<List>] {
+        var results = [ListModelContext<List>]()
         for context in listCoordinator.listContexts {
             guard let context = context.context else { continue }
             if context.listView === listView {

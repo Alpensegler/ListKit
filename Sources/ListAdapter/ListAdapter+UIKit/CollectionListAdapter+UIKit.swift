@@ -12,27 +12,27 @@ import UIKit
 
 public extension DataSource {
     typealias CollectionContext = ListContext<UICollectionView, Self>
-    typealias CollectionItemContext = ListIndexContext<UICollectionView, Self, IndexPath>
+    typealias CollectionModelContext = ListIndexContext<UICollectionView, Self, IndexPath>
     typealias CollectionSectionContext = ListIndexContext<UICollectionView, Self, Int>
 
     typealias CollectionFunction<Input, Output, Closure> = ListDelegate.Function<UICollectionView, Self, CollectionList<AdapterBase>, Input, Output, Closure>
-    typealias CollectionItemFunction<Input, Output, Closure> = ListDelegate.IndexFunction<UICollectionView, Self, CollectionList<AdapterBase>, Input, Output, Closure, IndexPath>
+    typealias CollectionModelFunction<Input, Output, Closure> = ListDelegate.IndexFunction<UICollectionView, Self, CollectionList<AdapterBase>, Input, Output, Closure, IndexPath>
     typealias CollectionSectionFunction<Input, Output, Closure> = ListDelegate.IndexFunction<UICollectionView, Self, CollectionList<AdapterBase>, Input, Output, Closure, Int>
 }
 
 // MARK: - Collection View Data Source
 public extension DataSource {
     // MARK: - Getting Views for Items
-    var collectionViewCellForItem: CollectionItemFunction<IndexPath, UICollectionViewCell, (CollectionItemContext, Item) -> UICollectionViewCell> {
+    var collectionViewCellForItem: CollectionModelFunction<IndexPath, UICollectionViewCell, (CollectionModelContext, Model) -> UICollectionViewCell> {
         toFunction(#selector(UICollectionViewDataSource.collectionView(_:cellForItemAt:)), toClosure())
     }
 
-    var collectionViewSupplementaryViewForItem: CollectionItemFunction<(IndexPath, String), UICollectionReusableView, (CollectionItemContext, CollectionView.SupplementaryViewType) -> UICollectionReusableView> {
+    var collectionViewSupplementaryViewForItem: CollectionModelFunction<(IndexPath, String), UICollectionReusableView, (CollectionModelContext, CollectionView.SupplementaryViewType) -> UICollectionReusableView> {
         toFunction(#selector(UICollectionViewDataSource.collectionView(_:viewForSupplementaryElementOfKind:at:)), \.0) { closure in { context, input in closure(context, .init(rawValue: input.1)) } }
     }
 
     // MARK: - Reordering Items
-    var collectionViewCanMoveItem: CollectionItemFunction<IndexPath, Bool, (CollectionItemContext, Item) -> Bool> {
+    var collectionViewCanMoveItem: CollectionModelFunction<IndexPath, Bool, (CollectionModelContext, Model) -> Bool> {
         toFunction(#selector(UICollectionViewDataSource.collectionView(_:canMoveItemAt:)), toClosure())
     }
 
@@ -44,29 +44,29 @@ public extension DataSource {
 // MARK: - Collection View Delegate
 public extension DataSource {
     // MARK: - Managing the Selected Cells
-    var collectionViewShouldSelectItem: CollectionItemFunction<IndexPath, Bool, (CollectionItemContext, Item) -> Bool> {
+    var collectionViewShouldSelectItem: CollectionModelFunction<IndexPath, Bool, (CollectionModelContext, Model) -> Bool> {
         toFunction(#selector(UICollectionViewDelegate.collectionView(_:shouldSelectItemAt:)), toClosure())
     }
 
-    var collectionViewDidSelectItem: CollectionItemFunction<IndexPath, Void, (CollectionItemContext, Item) -> Void> {
+    var collectionViewDidSelectItem: CollectionModelFunction<IndexPath, Void, (CollectionModelContext, Model) -> Void> {
         toFunction(#selector(UICollectionViewDelegate.collectionView(_:didSelectItemAt:)), toClosure())
     }
 
-    var collectionViewShouldDeselectItem: CollectionItemFunction<IndexPath, Bool, (CollectionItemContext, Item) -> Bool> {
+    var collectionViewShouldDeselectItem: CollectionModelFunction<IndexPath, Bool, (CollectionModelContext, Model) -> Bool> {
         toFunction(#selector(UICollectionViewDelegate.collectionView(_:shouldDeselectItemAt:)), toClosure())
     }
 
-    var collectionViewDidDeselectItem: CollectionItemFunction<IndexPath, Void, (CollectionItemContext, Item) -> Void> {
+    var collectionViewDidDeselectItem: CollectionModelFunction<IndexPath, Void, (CollectionModelContext, Model) -> Void> {
         toFunction(#selector(UICollectionViewDelegate.collectionView(_:didDeselectItemAt:)), toClosure())
     }
 
     @available(iOS 13.0, *)
-    var collectionViewShouldBeginMultipleSelectionInteractionForItem: CollectionItemFunction<IndexPath, Bool, (CollectionItemContext, Item) -> Bool> {
+    var collectionViewShouldBeginMultipleSelectionInteractionForItem: CollectionModelFunction<IndexPath, Bool, (CollectionModelContext, Model) -> Bool> {
         toFunction(#selector(UICollectionViewDelegate.collectionView(_:shouldBeginMultipleSelectionInteractionAt:)), toClosure())
     }
 
     @available(iOS 13.0, *)
-    var collectionViewDidBeginMultipleSelectionInteractionAtForItem: CollectionItemFunction<IndexPath, Void, (CollectionItemContext, Item) -> Void> {
+    var collectionViewDidBeginMultipleSelectionInteractionAtForItem: CollectionModelFunction<IndexPath, Void, (CollectionModelContext, Model) -> Void> {
         toFunction(#selector(UICollectionViewDelegate.collectionView(_:didBeginMultipleSelectionInteractionAt:)), toClosure())
     }
 
@@ -76,25 +76,25 @@ public extension DataSource {
     }
 
     // MARK: - Managing Cell Highlighting
-    var collectionViewShouldHighlightItem: CollectionItemFunction<IndexPath, Bool, (CollectionItemContext, Item) -> Bool> {
+    var collectionViewShouldHighlightItem: CollectionModelFunction<IndexPath, Bool, (CollectionModelContext, Model) -> Bool> {
         toFunction(#selector(UICollectionViewDelegate.collectionView(_:shouldHighlightItemAt:)), toClosure())
     }
 
-    var collectionViewDidHighlightItem: CollectionItemFunction<IndexPath, Void, (CollectionItemContext, Item) -> Void> {
+    var collectionViewDidHighlightItem: CollectionModelFunction<IndexPath, Void, (CollectionModelContext, Model) -> Void> {
         toFunction(#selector(UICollectionViewDelegate.collectionView(_:didHighlightItemAt:)), toClosure())
     }
 
-    var collectionViewDidUnhighlightItem: CollectionItemFunction<IndexPath, Void, (CollectionItemContext, Item) -> Void> {
+    var collectionViewDidUnhighlightItem: CollectionModelFunction<IndexPath, Void, (CollectionModelContext, Model) -> Void> {
         toFunction(#selector(UICollectionViewDelegate.collectionView(_:didUnhighlightItemAt:)), toClosure())
     }
 
     // MARK: - Tracking the Addition and Removal of Views
-    var collectionViewWillDisplayForItem: CollectionItemFunction<(IndexPath, UICollectionViewCell), Void, (CollectionItemContext, UICollectionViewCell, Item) -> Void> {
+    var collectionViewWillDisplayForItem: CollectionModelFunction<(IndexPath, UICollectionViewCell), Void, (CollectionModelContext, UICollectionViewCell, Model) -> Void> {
         toFunction(#selector(UICollectionViewDelegate.collectionView(_:willDisplay:forItemAt:)), \.0, toClosure())
     }
 
-    var collectionViewWillDisplaySupplementaryView: CollectionItemFunction<(IndexPath, UICollectionReusableView, String), Void, (CollectionItemContext, UICollectionReusableView, CollectionView.SupplementaryViewType, Item) -> Void> {
-        toFunction(#selector(UICollectionViewDelegate.collectionView(_:willDisplaySupplementaryView:forElementKind:at:)), \.0) { closure in { context, input in closure(context, input.1, .init(rawValue: input.2), context.itemValue) } }
+    var collectionViewWillDisplaySupplementaryView: CollectionModelFunction<(IndexPath, UICollectionReusableView, String), Void, (CollectionModelContext, UICollectionReusableView, CollectionView.SupplementaryViewType, Model) -> Void> {
+        toFunction(#selector(UICollectionViewDelegate.collectionView(_:willDisplaySupplementaryView:forElementKind:at:)), \.0) { closure in { context, input in closure(context, input.1, .init(rawValue: input.2), context.model) } }
     }
 
     var collectionViewDidEndDisplayingItem: CollectionFunction<(IndexPath, UICollectionViewCell), Void, (CollectionContext, IndexPath, UICollectionViewCell) -> Void> {
@@ -119,20 +119,20 @@ public extension DataSource {
     }
 
     // MARK: - Managing Actions for Cells
-    var collectionViewShouldShowMenuForItem: CollectionItemFunction<IndexPath, Bool, (CollectionItemContext, Item) -> Bool> {
+    var collectionViewShouldShowMenuForItem: CollectionModelFunction<IndexPath, Bool, (CollectionModelContext, Model) -> Bool> {
         toFunction(#selector(UICollectionViewDelegate.collectionView(_:shouldShowMenuForItemAt:)), toClosure())
     }
 
-    var collectionViewCanPerformActionWithSender: CollectionItemFunction<(IndexPath, Selector, Any?), Bool, (CollectionItemContext, Selector, Any?, Item) -> Bool> {
+    var collectionViewCanPerformActionWithSender: CollectionModelFunction<(IndexPath, Selector, Any?), Bool, (CollectionModelContext, Selector, Any?, Model) -> Bool> {
         toFunction(#selector(UICollectionViewDelegate.collectionView(_:canPerformAction:forItemAt:withSender:)), \.0, toClosure())
     }
 
-    var collectionViewPerformActionWithSender: CollectionItemFunction<(IndexPath, Selector, Any?), Void, (CollectionItemContext, Selector, Any?, Item) -> Void> {
+    var collectionViewPerformActionWithSender: CollectionModelFunction<(IndexPath, Selector, Any?), Void, (CollectionModelContext, Selector, Any?, Model) -> Void> {
         toFunction(#selector(UICollectionViewDelegate.collectionView(_:performAction:forItemAt:withSender:)), \.0, toClosure())
     }
 
     // MARK: - Managing Focus in a Collection View
-    var collectionViewCanFocusItem: CollectionItemFunction<IndexPath, Bool, (CollectionItemContext, Item) -> Bool> {
+    var collectionViewCanFocusItem: CollectionModelFunction<IndexPath, Bool, (CollectionModelContext, Model) -> Bool> {
         toFunction(#selector(UICollectionViewDelegate.collectionView(_:canFocusItemAt:)), toClosure())
     }
 
@@ -150,13 +150,13 @@ public extension DataSource {
 
     // MARK: - Controlling the Spring-Loading Behavior
     @available(iOS 11.0, *)
-    var collectionViewShouldSpringLoadItemAtWith: CollectionItemFunction<(IndexPath, UISpringLoadedInteractionContext), Bool, (CollectionItemContext, UISpringLoadedInteractionContext, Item) -> Bool> {
+    var collectionViewShouldSpringLoadItemAtWith: CollectionModelFunction<(IndexPath, UISpringLoadedInteractionContext), Bool, (CollectionModelContext, UISpringLoadedInteractionContext, Model) -> Bool> {
         toFunction(#selector(UICollectionViewDelegate.collectionView(_:shouldSpringLoadItemAt:with:)), \.0, toClosure())
     }
 
     // MARK: - Instance Methods
     @available(iOS 13.0, *)
-    var collectionViewContextMenuConfigurationForItem: CollectionItemFunction<(IndexPath, CGPoint), UIContextMenuConfiguration?, (CollectionItemContext, CGPoint, Item) -> UIContextMenuConfiguration> {
+    var collectionViewContextMenuConfigurationForItem: CollectionModelFunction<(IndexPath, CGPoint), UIContextMenuConfiguration?, (CollectionModelContext, CGPoint, Model) -> UIContextMenuConfiguration> {
         toFunction(#selector(UICollectionViewDelegate.collectionView(_:contextMenuConfigurationForItemAt:point:)), \.0, toClosure())
     }
 
@@ -179,7 +179,7 @@ public extension DataSource {
 // MARK: - Collection View Delegate Flow Layout
 public extension DataSource {
     // MARK: - Getting the Size of Items
-    var collectionViewLayoutSizeForItem: CollectionItemFunction<(IndexPath, UICollectionViewLayout), CGSize, (CollectionItemContext, UICollectionViewLayout, Item) -> CGSize> {
+    var collectionViewLayoutSizeForItem: CollectionModelFunction<(IndexPath, UICollectionViewLayout), CGSize, (CollectionModelContext, UICollectionViewLayout, Model) -> CGSize> {
         toFunction(#selector(UICollectionViewDelegateFlowLayout.collectionView(_:layout:sizeForItemAt:)), \.0, toClosure())
     }
 

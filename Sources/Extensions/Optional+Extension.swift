@@ -6,7 +6,7 @@
 //
 
 extension Optional: DataSource where Wrapped: DataSource {
-    public typealias Item = Wrapped.Item
+    public typealias Model = Wrapped.Model
     public typealias Source = Self
     public typealias SourceBase = Self
 
@@ -23,7 +23,7 @@ extension Optional: DataSource where Wrapped: DataSource {
     public var listOptions: ListOptions { source?.listOptions ?? .none }
 
     public var listCoordinator: ListCoordinator<SourceBase> {
-        WrapperCoordinator(self, toItem: { $0 }, toOther: { $0 })
+        WrapperCoordinator(self, toModel: { $0 }, toOther: { $0 })
     }
 }
 

@@ -6,12 +6,12 @@
 //
 
 public protocol DataSource {
-    associatedtype Item
-    associatedtype Source = [Item]
+    associatedtype Model
+    associatedtype Source = [Model]
     associatedtype SourceBase: DataSource = Self
-        where SourceBase.Item == Item, SourceBase.SourceBase == SourceBase
+        where SourceBase.Model == Model, SourceBase.SourceBase == SourceBase
     associatedtype AdapterBase: DataSource = Self
-        where AdapterBase.Item == Item, AdapterBase.AdapterBase == AdapterBase
+        where AdapterBase.Model == Model, AdapterBase.AdapterBase == AdapterBase
 
     var source: Source { get }
     var sourceBase: SourceBase { get }
@@ -29,7 +29,7 @@ public protocol DataSource {
 public extension DataSource {
     var listDelegate: ListDelegate { .init() }
     var listCoordinator: ListCoordinator<SourceBase> {
-        fatalError("unsupported source \(Source.self) item \(Item.self)")
+        fatalError("unsupported source \(Source.self) model \(Model.self)")
     }
     var listCoordinatorContext: ListCoordinatorContext<SourceBase> {
         ListCoordinatorContext(listCoordinator, listDelegate: listDelegate)

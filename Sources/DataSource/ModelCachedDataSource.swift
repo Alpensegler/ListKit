@@ -1,5 +1,5 @@
 //
-//  ItemCachedDataSource.swift
+//  ModelCachedDataSource.swift
 //  ListKit
 //
 //  Created by Frain on 2021/1/5.
@@ -8,24 +8,24 @@
 // swiftlint:disable opening_brace
 
 public extension DataSource where SourceBase == Self {
-    func withItemCached<ItemCache>(
-        cacheForItem: @escaping (Item) -> ItemCache
-    ) -> ItemCached<SourceBase, ItemCache> {
-        .init(sourceBase, cacheForItem: cacheForItem)
+    func withModelCached<ModelCache>(
+        cacheForModel: @escaping (Model) -> ModelCache
+    ) -> ModelCached<SourceBase, ModelCache> {
+        .init(sourceBase, cacheForModel: cacheForModel)
     }
 }
 
-public protocol ItemCachedDataSource: DataSource {
-    associatedtype ItemCache
+public protocol ModelCachedDataSource: DataSource {
+    associatedtype ModelCache
 
-    var itemCached: ItemCached<SourceBase, ItemCache> { get }
+    var modelCached: ModelCached<SourceBase, ModelCache> { get }
 }
 
 @propertyWrapper
 @dynamicMemberLookup
-public struct ItemCached<Base: DataSource, ItemCache>: ItemCachedDataSource
+public struct ModelCached<Base: DataSource, ModelCache>: ModelCachedDataSource
 where Base.SourceBase == Base {
-    public typealias Item = Base.Item
+    public typealias Model = Base.Model
     public typealias Source = Base.Source
     public typealias SourceBase = Base.SourceBase
 
@@ -33,7 +33,7 @@ where Base.SourceBase == Base {
     public var sourceBase: Base
     public var listDelegate: ListDelegate
 
-    public var itemCached: ItemCached<Base, ItemCache> { self }
+    public var modelCached: ModelCached<Base, ModelCache> { self }
     public var listCoordinatorContext: ListCoordinatorContext<Base> {
         sourceBase.listCoordinatorContext
     }
@@ -52,35 +52,35 @@ where Base.SourceBase == Base {
         set { sourceBase[keyPath: path] = newValue }
     }
 
-    init(_ sourceBase: Base, cacheForItem: Any? = nil) {
+    init(_ sourceBase: Base, cacheForModel: Any? = nil) {
         var delegate = sourceBase.listDelegate
-        delegate.getCache = cacheForItem
+        delegate.getCache = cacheForModel
         self.listDelegate = delegate
         self.sourceBase = sourceBase
     }
 }
 
-public extension ItemCachedDataSource
+public extension ModelCachedDataSource
 where
     SourceBase.Source: DataSource,
     SourceBase.Source.SourceBase == AnySources,
-    SourceBase.Item == Any
+    SourceBase.Model == Any
 {
-    var itemCached: ItemCached<SourceBase, ItemCache> { .init(sourceBase) }
+    var modelCached: ModelCached<SourceBase, ModelCache> { .init(sourceBase) }
 }
 
-public extension ItemCachedDataSource
+public extension ModelCachedDataSource
 where
     SourceBase.Source: RangeReplaceableCollection,
-    SourceBase.Source.Element: ItemCachedDataSource,
-    SourceBase.Source.Element.SourceBase.Item == SourceBase.Item,
-    SourceBase.Source.Element.ItemCache == ItemCache
+    SourceBase.Source.Element: ModelCachedDataSource,
+    SourceBase.Source.Element.SourceBase.Model == SourceBase.Model,
+    SourceBase.Source.Element.ModelCache == ModelCache
 {
-    var itemCached: ItemCached<SourceBase, ItemCache> { .init(sourceBase) }
+    var modelCached: ModelCached<SourceBase, ModelCache> { .init(sourceBase) }
 }
 
 #if canImport(CoreGraphics)
 import CoreGraphics
-public typealias ItemHeightCached<Base: DataSource> = ItemCached<Base, CGFloat> where Base.SourceBase == Base
-public typealias ItemSizeCached<Base: DataSource> = ItemCached<Base, CGSize> where Base.SourceBase == Base
+public typealias ModelHeightCached<Base: DataSource> = ModelCached<Base, CGFloat> where Base.SourceBase == Base
+public typealias ModelSizeCached<Base: DataSource> = ModelCached<Base, CGSize> where Base.SourceBase == Base
 #endif

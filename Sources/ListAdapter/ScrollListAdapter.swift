@@ -17,7 +17,7 @@ public extension ScrollListAdapter {
 @dynamicMemberLookup
 public class ScrollList<Source: DataSource>: ScrollListAdapter, UpdatableDataSource
 where Source.AdapterBase == Source {
-    public typealias Item = Source.Item
+    public typealias Model = Source.Model
     public typealias SourceBase = Source.SourceBase
     public typealias AdapterBase = Source
 
@@ -75,8 +75,8 @@ where Source.AdapterBase == Source {
     }
 }
 
-extension ScrollList: ItemCachedDataSource where Source: ItemCachedDataSource {
-    public typealias ItemCache = Source.ItemCache
+extension ScrollList: ModelCachedDataSource where Source: ModelCachedDataSource {
+    public typealias ModelCache = Source.ModelCache
 
-    public var itemCached: ItemCached<Source.SourceBase, Source.ItemCache> { source.itemCached }
+    public var modelCached: ModelCached<Source.SourceBase, Source.ModelCache> { source.modelCached }
 }

@@ -6,7 +6,7 @@ import UIKit
 public class SectionListViewControlle: UIViewController, UpdatableCollectionListAdapter {
     static let emojis = (0x1F600...0x1F647).compactMap { UnicodeScalar($0) }
 
-    public typealias Item = UnicodeScalar
+    public typealias Model = UnicodeScalar
     public var source: [[UnicodeScalar]] {
         (0..<Int.random(in: 2...4)).map { _ in
             Array(Self.emojis.shuffled()[0..<Int.random(in: 20...30)])

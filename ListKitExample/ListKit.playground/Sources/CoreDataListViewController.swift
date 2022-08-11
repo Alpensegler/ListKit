@@ -20,7 +20,7 @@ public class CoreDataListViewController: UIViewController, UpdatableTableListAda
     lazy var loadMore = configLoadMore()
     lazy var tableView = _tableView
 
-    public typealias Item = Any
+    public typealias Model = Any
     public var source: AnyTableSources {
         AnyTableSources {
             todosList
@@ -54,7 +54,7 @@ public class CoreDataListViewController: UIViewController, UpdatableTableListAda
             sectionNameKeyPath: "done"
         )
         controller.shouldMoveItem = { [unowned tableView] (controller, todo, indexPath, _) in
-            controller.itemContext(for: tableView, at: indexPath).forEach {
+            controller.modelContext(for: tableView, at: indexPath).forEach {
                 $0.cell?.configUI(with: todo)
             }
             return true
@@ -75,14 +75,14 @@ public class CoreDataListViewController: UIViewController, UpdatableTableListAda
         return controller
     }
 
-    func configLoadMore() -> TableList<ItemSources<String>> {
-        Sources(item: "loadmore")
+    func configLoadMore() -> TableList<ModelSources<String>> {
+        Sources(model: "loadmore")
             .tableViewCellForRow(UITableViewCell.self) { (cell, context, item) in
                 cell.textLabel?.text = item
                 cell.textLabel?.textAlignment = .center
             }
             .tableViewDidSelectRow { [unowned self] (context, _) in
-                context.deselectItem(animated: true)
+                context.deselect(animated: true)
                 self.fetchLimit += 3
                 self.recent.fetchedResultController.fetchRequest.fetchLimit = self.fetchLimit
                 try? self.recent.performFetch()
@@ -169,13 +169,13 @@ extension NSManagedObject {
 }
 #endif
 
-extension DataSource where Item == ToDo {
+extension DataSource where Model == ToDo {
     func tableConfig() -> TableList<AdapterBase> {
         tableViewCellForRow(UITableViewCell.self) { (cell, context, todo) in
             cell.configUI(with: todo)
         }
         .tableViewDidSelectRow { (context, todo) in
-            context.deselectItem(animated: true)
+            context.deselect(animated: true)
             todo.toggle()
         }
         .tableViewCanEditRow(true)
@@ -282,7 +282,7 @@ struct CoreDataList_Preview: UIViewControllerRepresentable, PreviewProvider {
 //        var source: AnyTableSources {
 //            AnyTableSources {
 //                if value {
-//                    Sources(item: 1.0).tableViewCellForRow()
+//                    Sources(model: 1.0).tableViewCellForRow()
 //                }
 //            }
 //        }
@@ -295,7 +295,7 @@ struct CoreDataList_Preview: UIViewControllerRepresentable, PreviewProvider {
 //        AnyTableSources {
 //            Self.itemSource
 //            if toggle {
-//                Sources(item: 0)
+//                Sources(model: 0)
 //                    .tableViewCellForRow()
 //            }
 //            todosList

@@ -4,21 +4,21 @@ import ListKit
 import UIKit
 
 public class NestedListViewController: UIViewController, UpdatableTableListAdapter {
-    public typealias Item = Any
+    public typealias Model = Any
 
-    let nestedSources = Sources(items: 0..<10)
+    let nestedSources = Sources(models: 0..<10)
         .collectionViewCellForItem(CenterLabelCell.self) { (cell, context, item) in
             cell.text = "\(item)"
         }
 
     public var source: AnyTableSources {
         AnyTableSources {
-            Sources(item: nestedSources)
+            Sources(model: nestedSources)
                 .tableViewCellForRow(EmbeddedCell.self) { (cell, context, item) in
                     context.nestedAdapter(applyBy: cell.collectionView)
                 }
                 .tableViewHeightForRow(100)
-            Sources(items: ["a", "b", "c"])
+            Sources(models: ["a", "b", "c"])
                 .tableViewCellForRow()
                 .tableViewHeightForRow(50)
         }

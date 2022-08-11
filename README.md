@@ -24,17 +24,17 @@
 
 ``` swift
 class EmojiViewModel: TableListAdapter {
-    typealias Item = Character
+    typealias Model = Character
     var source = "🥳🤭😇"
     var tableList: TableList<AdapterBase> {
-        tableViewCellForRow(UITableViewCell.self) { cell, context, item in
-            cell.textLabel?.text = "\(item)"
+        tableViewCellForRow(UITableViewCell.self) { cell, context, model in
+            cell.textLabel?.text = "\(model)"
         }
     }
 }
 ```
 
-通过 adopt 协议 `TableListAdapter`，将 `String` 这个 `Collection` 的 `Element` —— `Charater` 指定为 `Item`，然后通过链式写法实现 `tableList` ，我们就以非常少量的代码实现了一个 `TableView` 的静态数据源
+通过 adopt 协议 `TableListAdapter`，将 `String` 这个 `Collection` 的 `Element` —— `Charater` 指定为 `Model`，然后通过链式写法实现 `tableList` ，我们就以非常少量的代码实现了一个 `TableView` 的静态数据源
 
 然后通过 `emojiViewModel.apply(by: tableView)` 即可将数据绑定至 UI
 
@@ -49,7 +49,7 @@ emojiViewModel.performUpdate()
 
 ``` swift
 class RoomViewModel: UpdatableTableListAdapter {
-    typealias Item = Int
+    typealias Model = Int
     var source = [[1, 2, 3], [4, 5, 6]] {
         didSet {
             performUpdate()
@@ -57,11 +57,11 @@ class RoomViewModel: UpdatableTableListAdapter {
     }
     
     var tableList: TableList<AdapterBase> {
-        tableViewCellForRow(UITableViewCell.self) { cell, context, item in
-            cell.textLabel?.text = "\(item)"
+        tableViewCellForRow(UITableViewCell.self) { cell, context, model in
+            cell.textLabel?.text = "\(model)"
         }
-        .tableViewDidSelectRow { (context, item) in
-            print(item)
+        .tableViewDidSelectRow { (context, model) in
+            print(model)
         }
     }
 }
@@ -87,7 +87,7 @@ class NestedViewModel {
 }
 
 extension NestedViewModel: UpdatableTableListAdapter {
-    typealias Item = Any
+    typealias Model = Any
     var source: AnyTableSources {
         AnyTableSources {
             if shouldShowEmoji {
@@ -99,7 +99,7 @@ extension NestedViewModel: UpdatableTableListAdapter {
 }
 ```
 
-通过将 source 指定为 `AnyTableSources`，`Item` 指定为 `Any`，我们就能结合不同的数据源
+通过将 source 指定为 `AnyTableSources`，`Model` 指定为 `Any`，我们就能结合不同的数据源
 
 同时，各个子 viewModel 仍能支持更新，此时不需要考虑上下文，ListKit 会自动帮你处理
 
@@ -124,21 +124,21 @@ class NestedViewModel {
 }
 
 extension NestedViewModel: UpdatableTableListAdapter {
-    typealias Item = Any
+    typealias Model = Any
     var source: AnyTableSources {
         AnyTableSources {
             if shouldShowEmoji {
                 $emojis
-                    .tableViewCellForRow(UITableViewCell.self) { cell, context, item in
-                        cell.textLabel?.text = "\(item)"
+                    .tableViewCellForRow(UITableViewCell.self) { cell, context, model in
+                        cell.textLabel?.text = "\(model)"
                     }
             }
             $room
-                .tableViewCellForRow(UITableViewCell.self) { cell, context, item in
-                    cell.textLabel?.text = "\(item)"
+                .tableViewCellForRow(UITableViewCell.self) { cell, context, model in
+                    cell.textLabel?.text = "\(model)"
                 }
-                .tableViewDidSelectRow { (context, item) in
-                    print(item)
+                .tableViewDidSelectRow { (context, model) in
+                    print(model)
                 }
         }
     }

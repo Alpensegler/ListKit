@@ -13,7 +13,7 @@ where SourceBase.SourceBase == SourceBase {
     lazy var indices = toIndices(source)
 
     func toIndices(_ source: [Int]) -> Indices {
-        if sourceType == .items {
+        if sourceType == .models {
             guard let index = source[safe: 0], index != 0 else { return [] }
             return (0..<index).mapContiguous { ($0, false) }
         }
@@ -24,16 +24,16 @@ where SourceBase.SourceBase == SourceBase {
     }
 
     override func numbersOfSections() -> Int { sourceType.isSection ? indices.count : 1 }
-    override func numbersOfItems(in section: Int) -> Int {
-        if sourceType == .items { return indices.count }
+    override func numbersOfModel(in section: Int) -> Int {
+        if sourceType == .models { return indices.count }
         let index = indices[section]
         if index.isFake { return 0 }
         return source[index.index]
     }
 
-    override func item(at indexPath: IndexPath) -> Item { sourceBase.item(at: indexPath) }
+    override func model(at indexPath: IndexPath) -> Model { sourceBase.model(at: indexPath) }
     override func configSourceType() -> SourceType {
-        isSectioned || source.count > 1 ? .section : .items
+        isSectioned || source.count > 1 ? .section : .models
     }
 
     override init(_ sourceBase: SourceBase) {
@@ -43,7 +43,7 @@ where SourceBase.SourceBase == SourceBase {
 
     override func update(
         from coordinator: ListCoordinator<SourceBase>,
-        updateWay: ListUpdateWay<Item>?
+        updateWay: ListUpdateWay<Model>?
     ) -> ListCoordinatorUpdate<SourceBase> {
         let coordinator = coordinator as! NSCoordinator<SourceBase>
         return NSCoordinatorUpdate(

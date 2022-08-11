@@ -15,7 +15,7 @@
 		F304A6E5239E962300133D14 /* NSListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F304A6E4239E962300133D14 /* NSListView.swift */; };
 		F30CF60824E7D2370078720C /* ListOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35A67FE248F7DB700FEAC22 /* ListOptions.swift */; };
 		F30CF60924E7D23F0078720C /* SourcesCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3AD067F238FF3DA000AF1B3 /* SourcesCoordinator.swift */; };
-		F30CF60A24E7D2440078720C /* ItemsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3AD0139238BE6FE000AF1B3 /* ItemsCoordinator.swift */; };
+		F30CF60A24E7D2440078720C /* ModelsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3AD0139238BE6FE000AF1B3 /* ModelsCoordinator.swift */; };
 		F31250E9239C545200E77969 /* ListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31250E8239C545200E77969 /* ListView.swift */; };
 		F31250EE239C5EB200E77969 /* ListDelegates+UICollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31250ED239C5EB200E77969 /* ListDelegates+UICollectionView.swift */; };
 		F31250F0239C636100E77969 /* ListDelegates+UIScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31250EF239C636100E77969 /* ListDelegates+UIScrollView.swift */; };
@@ -26,11 +26,11 @@
 		F329598323A10B7D001D6063 /* ListViewStorage+UIKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = F329598223A10B7D001D6063 /* ListViewStorage+UIKit.swift */; };
 		F32E6CC524901F6C008D6D97 /* DataSource+ListAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F32E6CC424901F6C008D6D97 /* DataSource+ListAdapter.swift */; };
 		F32E6CC724906D33008D6D97 /* NSCoordinatorUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F32E6CC624906D33008D6D97 /* NSCoordinatorUpdate.swift */; };
-		F32E6D2F24908A28008D6D97 /* ItemsCoordinatorUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F32E6D2E24908A28008D6D97 /* ItemsCoordinatorUpdate.swift */; };
+		F32E6D2F24908A28008D6D97 /* ModelsCoordinatorUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F32E6D2E24908A28008D6D97 /* ModelsCoordinatorUpdate.swift */; };
 		F32F922B25B6FAAC00C55F7A /* ListDelegate+IndexFunction+CallAsFunction.swift in Sources */ = {isa = PBXBuildFile; fileRef = F32F922A25B6FAAC00C55F7A /* ListDelegate+IndexFunction+CallAsFunction.swift */; };
 		F331623624B467390086B7CE /* ListUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F331623524B467390086B7CE /* ListUpdate.swift */; };
 		F331623824B467D20086B7CE /* DiffInitializableUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F331623724B467D20086B7CE /* DiffInitializableUpdate.swift */; };
-		F33E4CB525A4854500D139CB /* ItemCachedDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F33E4CB425A4854500D139CB /* ItemCachedDataSource.swift */; };
+		F33E4CB525A4854500D139CB /* ModelCachedDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F33E4CB425A4854500D139CB /* ModelCachedDataSource.swift */; };
 		F33FBC3D234F33A70054BA38 /* DataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F33FBC3C234F33A70054BA38 /* DataSource.swift */; };
 		F33FBC43234F3A600054BA38 /* Sources.swift in Sources */ = {isa = PBXBuildFile; fileRef = F33FBC42234F3A600054BA38 /* Sources.swift */; };
 		F344B9472517F47800F9E499 /* ContainerCoordinatorUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F344B9462517F47800F9E499 /* ContainerCoordinatorUpdate.swift */; };
@@ -38,7 +38,7 @@
 		F354B6F624C38A0C00E9D19B /* BatchUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F354B6F524C38A0C00E9D19B /* BatchUpdate.swift */; };
 		F35BBA05239FD0EA0024EA7D /* TableListAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35BBA04239FD0EA0024EA7D /* TableListAdapter.swift */; };
 		F35BBA07239FD1600024EA7D /* TableListAdapter+UIKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35BBA06239FD1600024EA7D /* TableListAdapter+UIKit.swift */; };
-		F363E3EE24D817FB00AE4BAB /* ItemCoordinatorUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F363E3ED24D817FB00AE4BAB /* ItemCoordinatorUpdate.swift */; };
+		F363E3EE24D817FB00AE4BAB /* ModelCoordinatorUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F363E3ED24D817FB00AE4BAB /* ModelCoordinatorUpdate.swift */; };
 		F363E45624D83B3A00AE4BAB /* ListCoordinatorUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F363E45524D83B3A00AE4BAB /* ListCoordinatorUpdate.swift */; };
 		F365501A2451B4060038172F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F36550192451B4060038172F /* AppDelegate.swift */; };
 		F36550232451B4070038172F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F36550222451B4070038172F /* Assets.xcassets */; };
@@ -53,7 +53,7 @@
 		F374B1442471A0FA0009420D /* Mapping.swift in Sources */ = {isa = PBXBuildFile; fileRef = F374B1432471A0FA0009420D /* Mapping.swift */; };
 		F37A122A239FC0720001E9EE /* SrcollListAdapter+UIKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = F37A1229239FC0720001E9EE /* SrcollListAdapter+UIKit.swift */; };
 		F37A122E239FC0CB0001E9EE /* CollectionListAdapter+UIKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = F37A122D239FC0CB0001E9EE /* CollectionListAdapter+UIKit.swift */; };
-		F37BF3CA239686470095C419 /* ItemCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F37BF3C9239686470095C419 /* ItemCoordinator.swift */; };
+		F37BF3CA239686470095C419 /* ModelCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F37BF3C9239686470095C419 /* ModelCoordinator.swift */; };
 		F37BF3CC23968B7E0095C419 /* SectionsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F37BF3CB23968B7E0095C419 /* SectionsCoordinator.swift */; };
 		F37BF3CE23969DFD0095C419 /* NSCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F37BF3CD23969DFD0095C419 /* NSCoordinator.swift */; };
 		F383064323506BAC00AE8B97 /* CollectionDifference.swift in Sources */ = {isa = PBXBuildFile; fileRef = F383064023506BAC00AE8B97 /* CollectionDifference.swift */; };
@@ -67,7 +67,7 @@
 		F39A23F623A16D1F0024F9AF /* CoreData+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = F39A23F523A16D1F0024F9AF /* CoreData+Extension.swift */; };
 		F39E089F24F527C1006FC50E /* WrapperCoordinatorUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F39E089E24F527C1006FC50E /* WrapperCoordinatorUpdate.swift */; };
 		F3A4940223A8CDEA00809E7F /* WrapperCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A4940123A8CDEA00809E7F /* WrapperCoordinator.swift */; };
-		F3A4940823A8E5FC00809E7F /* DataSource+ItemCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A4940723A8E5FC00809E7F /* DataSource+ItemCoordinator.swift */; };
+		F3A4940823A8E5FC00809E7F /* DataSource+ModelCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A4940723A8E5FC00809E7F /* DataSource+ModelCoordinator.swift */; };
 		F3A4940A23A8E63300809E7F /* DataSource+ItemsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A4940923A8E63300809E7F /* DataSource+ItemsCoordinator.swift */; };
 		F3A4940C23A8E65100809E7F /* DataSource+SectionsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A4940B23A8E65100809E7F /* DataSource+SectionsCoordinator.swift */; };
 		F3A4940E23A8E67200809E7F /* DataSource+SourceCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A4940D23A8E67200809E7F /* DataSource+SourceCoordinator.swift */; };
@@ -75,8 +75,8 @@
 		F3A4941223A8E69900809E7F /* DataSource+NSCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A4941123A8E69900809E7F /* DataSource+NSCoordinator.swift */; };
 		F3A4941423A906A900809E7F /* NestedAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A4941323A906A900809E7F /* NestedAdapter.swift */; };
 		F3A4A2EC2463AD22007FAB3B /* ListIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A4A2EB2463AD22007FAB3B /* ListIndex.swift */; };
-		F3AC673823D057450070B991 /* Sources+Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3AC673723D057450070B991 /* Sources+Item.swift */; };
-		F3AC673A23D0574E0070B991 /* Sources+Items.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3AC673923D0574E0070B991 /* Sources+Items.swift */; };
+		F3AC673823D057450070B991 /* Sources+Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3AC673723D057450070B991 /* Sources+Model.swift */; };
+		F3AC673A23D0574E0070B991 /* Sources+Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3AC673923D0574E0070B991 /* Sources+Models.swift */; };
 		F3AC673C23D057580070B991 /* Sources+Sections.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3AC673B23D057580070B991 /* Sources+Sections.swift */; };
 		F3AC673E23D057990070B991 /* Sources+Sources.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3AC673D23D057990070B991 /* Sources+Sources.swift */; };
 		F3AC674223D066AC0070B991 /* Sources+Source.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3AC674123D066AC0070B991 /* Sources+Source.swift */; };
@@ -150,11 +150,11 @@
 		F32959E523A11CF5001D6063 /* AnyCollectionSourcesBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyCollectionSourcesBuilder.swift; sourceTree = "<group>"; };
 		F32E6CC424901F6C008D6D97 /* DataSource+ListAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataSource+ListAdapter.swift"; sourceTree = "<group>"; };
 		F32E6CC624906D33008D6D97 /* NSCoordinatorUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSCoordinatorUpdate.swift; sourceTree = "<group>"; };
-		F32E6D2E24908A28008D6D97 /* ItemsCoordinatorUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemsCoordinatorUpdate.swift; sourceTree = "<group>"; };
+		F32E6D2E24908A28008D6D97 /* ModelsCoordinatorUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelsCoordinatorUpdate.swift; sourceTree = "<group>"; };
 		F32F922A25B6FAAC00C55F7A /* ListDelegate+IndexFunction+CallAsFunction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ListDelegate+IndexFunction+CallAsFunction.swift"; sourceTree = "<group>"; };
 		F331623524B467390086B7CE /* ListUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListUpdate.swift; sourceTree = "<group>"; };
 		F331623724B467D20086B7CE /* DiffInitializableUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiffInitializableUpdate.swift; sourceTree = "<group>"; };
-		F33E4CB425A4854500D139CB /* ItemCachedDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemCachedDataSource.swift; sourceTree = "<group>"; };
+		F33E4CB425A4854500D139CB /* ModelCachedDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelCachedDataSource.swift; sourceTree = "<group>"; };
 		F33FBC3A234F26B60054BA38 /* ListKitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListKitTests.swift; sourceTree = "<group>"; };
 		F33FBC3C234F33A70054BA38 /* DataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSource.swift; sourceTree = "<group>"; };
 		F33FBC42234F3A600054BA38 /* Sources.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources.swift; sourceTree = "<group>"; };
@@ -164,7 +164,7 @@
 		F35A67FE248F7DB700FEAC22 /* ListOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListOptions.swift; sourceTree = "<group>"; };
 		F35BBA04239FD0EA0024EA7D /* TableListAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableListAdapter.swift; sourceTree = "<group>"; };
 		F35BBA06239FD1600024EA7D /* TableListAdapter+UIKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TableListAdapter+UIKit.swift"; sourceTree = "<group>"; };
-		F363E3ED24D817FB00AE4BAB /* ItemCoordinatorUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemCoordinatorUpdate.swift; sourceTree = "<group>"; };
+		F363E3ED24D817FB00AE4BAB /* ModelCoordinatorUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelCoordinatorUpdate.swift; sourceTree = "<group>"; };
 		F363E45524D83B3A00AE4BAB /* ListCoordinatorUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListCoordinatorUpdate.swift; sourceTree = "<group>"; };
 		F36550172451B4060038172F /* ListKitExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ListKitExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F36550192451B4060038172F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -179,7 +179,7 @@
 		F374B1432471A0FA0009420D /* Mapping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Mapping.swift; sourceTree = "<group>"; };
 		F37A1229239FC0720001E9EE /* SrcollListAdapter+UIKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SrcollListAdapter+UIKit.swift"; sourceTree = "<group>"; };
 		F37A122D239FC0CB0001E9EE /* CollectionListAdapter+UIKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CollectionListAdapter+UIKit.swift"; sourceTree = "<group>"; };
-		F37BF3C9239686470095C419 /* ItemCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemCoordinator.swift; sourceTree = "<group>"; };
+		F37BF3C9239686470095C419 /* ModelCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelCoordinator.swift; sourceTree = "<group>"; };
 		F37BF3CB23968B7E0095C419 /* SectionsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionsCoordinator.swift; sourceTree = "<group>"; };
 		F37BF3CD23969DFD0095C419 /* NSCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSCoordinator.swift; sourceTree = "<group>"; };
 		F383064023506BAC00AE8B97 /* CollectionDifference.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CollectionDifference.swift; sourceTree = "<group>"; };
@@ -194,7 +194,7 @@
 		F39A23F523A16D1F0024F9AF /* CoreData+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CoreData+Extension.swift"; sourceTree = "<group>"; };
 		F39E089E24F527C1006FC50E /* WrapperCoordinatorUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WrapperCoordinatorUpdate.swift; sourceTree = "<group>"; };
 		F3A4940123A8CDEA00809E7F /* WrapperCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WrapperCoordinator.swift; sourceTree = "<group>"; };
-		F3A4940723A8E5FC00809E7F /* DataSource+ItemCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataSource+ItemCoordinator.swift"; sourceTree = "<group>"; };
+		F3A4940723A8E5FC00809E7F /* DataSource+ModelCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataSource+ModelCoordinator.swift"; sourceTree = "<group>"; };
 		F3A4940923A8E63300809E7F /* DataSource+ItemsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataSource+ItemsCoordinator.swift"; sourceTree = "<group>"; };
 		F3A4940B23A8E65100809E7F /* DataSource+SectionsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataSource+SectionsCoordinator.swift"; sourceTree = "<group>"; };
 		F3A4940D23A8E67200809E7F /* DataSource+SourceCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataSource+SourceCoordinator.swift"; sourceTree = "<group>"; };
@@ -202,13 +202,13 @@
 		F3A4941123A8E69900809E7F /* DataSource+NSCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataSource+NSCoordinator.swift"; sourceTree = "<group>"; };
 		F3A4941323A906A900809E7F /* NestedAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NestedAdapter.swift; sourceTree = "<group>"; };
 		F3A4A2EB2463AD22007FAB3B /* ListIndex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListIndex.swift; sourceTree = "<group>"; };
-		F3AC673723D057450070B991 /* Sources+Item.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Sources+Item.swift"; sourceTree = "<group>"; };
-		F3AC673923D0574E0070B991 /* Sources+Items.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Sources+Items.swift"; sourceTree = "<group>"; };
+		F3AC673723D057450070B991 /* Sources+Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Sources+Model.swift"; sourceTree = "<group>"; };
+		F3AC673923D0574E0070B991 /* Sources+Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Sources+Models.swift"; sourceTree = "<group>"; };
 		F3AC673B23D057580070B991 /* Sources+Sections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Sources+Sections.swift"; sourceTree = "<group>"; };
 		F3AC673D23D057990070B991 /* Sources+Sources.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Sources+Sources.swift"; sourceTree = "<group>"; };
 		F3AC674123D066AC0070B991 /* Sources+Source.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Sources+Source.swift"; sourceTree = "<group>"; };
 		F3AD00DC238BC2AF000AF1B3 /* ListDiffer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListDiffer.swift; sourceTree = "<group>"; };
-		F3AD0139238BE6FE000AF1B3 /* ItemsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemsCoordinator.swift; sourceTree = "<group>"; };
+		F3AD0139238BE6FE000AF1B3 /* ModelsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelsCoordinator.swift; sourceTree = "<group>"; };
 		F3AD067F238FF3DA000AF1B3 /* SourcesCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourcesCoordinator.swift; sourceTree = "<group>"; };
 		F3B15B8A24E598F8009BE889 /* ListKit.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = ListKit.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		F3BDC78724CAAA50009F6272 /* BatchInitializable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatchInitializable.swift; sourceTree = "<group>"; };
@@ -281,8 +281,8 @@
 				F372F6E5248E52E9001B42D5 /* ListCoordinatorContext.swift */,
 				F3040D80238B21560055E6E7 /* ListCoordinator.swift */,
 				F3A4940123A8CDEA00809E7F /* WrapperCoordinator.swift */,
-				F37BF3C9239686470095C419 /* ItemCoordinator.swift */,
-				F3AD0139238BE6FE000AF1B3 /* ItemsCoordinator.swift */,
+				F37BF3C9239686470095C419 /* ModelCoordinator.swift */,
+				F3AD0139238BE6FE000AF1B3 /* ModelsCoordinator.swift */,
 				F37BF3CB23968B7E0095C419 /* SectionsCoordinator.swift */,
 				F3AD067F238FF3DA000AF1B3 /* SourcesCoordinator.swift */,
 				F37BF3CD23969DFD0095C419 /* NSCoordinator.swift */,
@@ -345,7 +345,7 @@
 				F33FBC3C234F33A70054BA38 /* DataSource.swift */,
 				F3D785C72398FC5B00D7A5CD /* UpdatableDataSource.swift */,
 				F3D785C92398FCA200D7A5CD /* NSDataSource.swift */,
-				F33E4CB425A4854500D139CB /* ItemCachedDataSource.swift */,
+				F33E4CB425A4854500D139CB /* ModelCachedDataSource.swift */,
 				F32E6CC424901F6C008D6D97 /* DataSource+ListAdapter.swift */,
 				F398E1C124008DA1000A5637 /* DataSource+Properties.swift */,
 			);
@@ -403,7 +403,7 @@
 		F36D2A1723A105B900091464 /* DataSource+Coordinator */ = {
 			isa = PBXGroup;
 			children = (
-				F3A4940723A8E5FC00809E7F /* DataSource+ItemCoordinator.swift */,
+				F3A4940723A8E5FC00809E7F /* DataSource+ModelCoordinator.swift */,
 				F3A4940923A8E63300809E7F /* DataSource+ItemsCoordinator.swift */,
 				F3A4940B23A8E65100809E7F /* DataSource+SectionsCoordinator.swift */,
 				F3A4940D23A8E67200809E7F /* DataSource+SourceCoordinator.swift */,
@@ -485,8 +485,8 @@
 		F39A23F723A17FC40024F9AF /* Sources+Extensions */ = {
 			isa = PBXGroup;
 			children = (
-				F3AC673723D057450070B991 /* Sources+Item.swift */,
-				F3AC673923D0574E0070B991 /* Sources+Items.swift */,
+				F3AC673723D057450070B991 /* Sources+Model.swift */,
+				F3AC673923D0574E0070B991 /* Sources+Models.swift */,
 				F3AC673B23D057580070B991 /* Sources+Sections.swift */,
 				F3AC674123D066AC0070B991 /* Sources+Source.swift */,
 				F3AC673D23D057990070B991 /* Sources+Sources.swift */,
@@ -502,8 +502,8 @@
 				F363E45524D83B3A00AE4BAB /* ListCoordinatorUpdate.swift */,
 				F3F349E724BC6A4700D38D16 /* CollectionCoordinatorUpdate.swift */,
 				F344B9462517F47800F9E499 /* ContainerCoordinatorUpdate.swift */,
-				F363E3ED24D817FB00AE4BAB /* ItemCoordinatorUpdate.swift */,
-				F32E6D2E24908A28008D6D97 /* ItemsCoordinatorUpdate.swift */,
+				F363E3ED24D817FB00AE4BAB /* ModelCoordinatorUpdate.swift */,
+				F32E6D2E24908A28008D6D97 /* ModelsCoordinatorUpdate.swift */,
 				F3DC96CC24BEDC2900861274 /* SectionsCoordinatorUpdate.swift */,
 				F3C2048F24BAF1DE001E82C5 /* SourcesCoordinatorUpdate.swift */,
 				F32E6CC624906D33008D6D97 /* NSCoordinatorUpdate.swift */,
@@ -739,10 +739,10 @@
 				F32E6CC724906D33008D6D97 /* NSCoordinatorUpdate.swift in Sources */,
 				F32F922B25B6FAAC00C55F7A /* ListDelegate+IndexFunction+CallAsFunction.swift in Sources */,
 				F30CF60824E7D2370078720C /* ListOptions.swift in Sources */,
-				F363E3EE24D817FB00AE4BAB /* ItemCoordinatorUpdate.swift in Sources */,
+				F363E3EE24D817FB00AE4BAB /* ModelCoordinatorUpdate.swift in Sources */,
 				F3A4940C23A8E65100809E7F /* DataSource+SectionsCoordinator.swift in Sources */,
 				F3EB15DA23A2CF8D00C9AC5E /* Optional+Extension.swift in Sources */,
-				F33E4CB525A4854500D139CB /* ItemCachedDataSource.swift in Sources */,
+				F33E4CB525A4854500D139CB /* ModelCachedDataSource.swift in Sources */,
 				F304A6E3239E95ED00133D14 /* ListView+NSTableView.swift in Sources */,
 				F314FAE723BDC66C0060985E /* AnyCollectionSourcesBuilder.swift in Sources */,
 				F3AC674223D066AC0070B991 /* Sources+Source.swift in Sources */,
@@ -752,20 +752,20 @@
 				F331623624B467390086B7CE /* ListUpdate.swift in Sources */,
 				F3BDC78824CAAA50009F6272 /* BatchInitializable.swift in Sources */,
 				F3FAECCD24FFE16A001CBA34 /* ChangeSet.swift in Sources */,
-				F3AC673823D057450070B991 /* Sources+Item.swift in Sources */,
+				F3AC673823D057450070B991 /* Sources+Model.swift in Sources */,
 				F329598323A10B7D001D6063 /* ListViewStorage+UIKit.swift in Sources */,
 				F374B1442471A0FA0009420D /* Mapping.swift in Sources */,
 				F383064323506BAC00AE8B97 /* CollectionDifference.swift in Sources */,
 				F3A4940E23A8E67200809E7F /* DataSource+SourceCoordinator.swift in Sources */,
 				F331623824B467D20086B7CE /* DiffInitializableUpdate.swift in Sources */,
 				F3C2049024BAF1DE001E82C5 /* SourcesCoordinatorUpdate.swift in Sources */,
-				F30CF60A24E7D2440078720C /* ItemsCoordinator.swift in Sources */,
+				F30CF60A24E7D2440078720C /* ModelsCoordinator.swift in Sources */,
 				F31250E9239C545200E77969 /* ListView.swift in Sources */,
 				F398E1C224008DA1000A5637 /* DataSource+Properties.swift in Sources */,
 				F3040D27238904860055E6E7 /* CollectionListAdapter.swift in Sources */,
 				F3A4941423A906A900809E7F /* NestedAdapter.swift in Sources */,
 				F31250EE239C5EB200E77969 /* ListDelegates+UICollectionView.swift in Sources */,
-				F3A4940823A8E5FC00809E7F /* DataSource+ItemCoordinator.swift in Sources */,
+				F3A4940823A8E5FC00809E7F /* DataSource+ModelCoordinator.swift in Sources */,
 				F312515C239E352100E77969 /* ListDelegates+UITableView.swift in Sources */,
 				F3AD00DD238BC2AF000AF1B3 /* ListDiffer.swift in Sources */,
 				F369244F250FA849007CFBCD /* SourceType.swift in Sources */,
@@ -775,7 +775,7 @@
 				F37BF3CE23969DFD0095C419 /* NSCoordinator.swift in Sources */,
 				F3A4940A23A8E63300809E7F /* DataSource+ItemsCoordinator.swift in Sources */,
 				F3DC96CD24BEDC2900861274 /* SectionsCoordinatorUpdate.swift in Sources */,
-				F32E6D2F24908A28008D6D97 /* ItemsCoordinatorUpdate.swift in Sources */,
+				F32E6D2F24908A28008D6D97 /* ModelsCoordinatorUpdate.swift in Sources */,
 				F3A4941223A8E69900809E7F /* DataSource+NSCoordinator.swift in Sources */,
 				F37BF3CC23968B7E0095C419 /* SectionsCoordinator.swift in Sources */,
 				F3AC673E23D057990070B991 /* Sources+Sources.swift in Sources */,
@@ -783,8 +783,8 @@
 				F383064423506BAC00AE8B97 /* Differing.swift in Sources */,
 				F363E45624D83B3A00AE4BAB /* ListCoordinatorUpdate.swift in Sources */,
 				F3698AFD258B5DB800285F56 /* ListDelegate.swift in Sources */,
-				F3AC673A23D0574E0070B991 /* Sources+Items.swift in Sources */,
-				F37BF3CA239686470095C419 /* ItemCoordinator.swift in Sources */,
+				F3AC673A23D0574E0070B991 /* Sources+Models.swift in Sources */,
+				F37BF3CA239686470095C419 /* ModelCoordinator.swift in Sources */,
 				F3D787032399327200D7A5CD /* ListViewStorage.swift in Sources */,
 				F3A4A2EC2463AD22007FAB3B /* ListIndex.swift in Sources */,
 				F39E089F24F527C1006FC50E /* WrapperCoordinatorUpdate.swift in Sources */,

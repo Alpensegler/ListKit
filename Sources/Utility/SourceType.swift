@@ -7,9 +7,9 @@
 
 enum SourceType {
     case section
-    case sectionItems
-    case items
+    case sectionModels
+    case models
 
-    var isSection: Bool { self == .section || self == .sectionItems }
-    var isItems: Bool { self == .items || self == .sectionItems }
+    var isSection: Bool { self == .section || self == .sectionModels }
+    var isModels: Bool { self == .models || self == .sectionModels }
 }

@@ -9,14 +9,14 @@ public struct Room: UpdatableDataSource {
     let people: [String]
 }
 
-extension Room: CollectionListAdapter, ItemCachedDataSource {
-    public typealias Item = String
-    public typealias ItemCache = String
+extension Room: CollectionListAdapter, ModelCachedDataSource {
+    public typealias Model = String
+    public typealias ModelCache = String
 
     public var source: [String] { people.shuffled() }
     public var listDiffer: ListDiffer<Room> { .diff(id: \.name) }
     public var listOptions: ListOptions { .removeEmptySection }
-    public var itemCached: ItemCached<Room, String> { withItemCached { $0 } }
+    public var modelCached: ModelCached<Room, String> { withModelCached { $0 } }
 
     public var collectionList: CollectionList<Room> {
         collectionViewCellForItem(CenterLabelCell.self) { (cell, context, item) in
@@ -38,9 +38,9 @@ extension Room: CollectionListAdapter, ItemCachedDataSource {
     }
 }
 
-public class IdentifiableSectionListViewController: UIViewController, UpdatableCollectionListAdapter, ItemCachedDataSource {
-    public typealias Item = String
-    public typealias ItemCache = String
+public class IdentifiableSectionListViewController: UIViewController, UpdatableCollectionListAdapter, ModelCachedDataSource {
+    public typealias Model = String
+    public typealias ModelCache = String
 
     public var source: [Room] {
         Room.random

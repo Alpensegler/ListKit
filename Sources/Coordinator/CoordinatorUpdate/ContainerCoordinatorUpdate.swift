@@ -21,7 +21,7 @@ where
     SourceBase.SourceBase == SourceBase,
     Source: Collection,
     Source.Element: DataSource,
-    Source.Element.SourceBase.Item == SourceBase.Item
+    Source.Element.SourceBase.Model == SourceBase.Model
 {
     typealias Subupdate = ListCoordinatorUpdate<Source.Element.SourceBase>
     typealias Change = SourcesChange<Source.Element, Value>
@@ -115,7 +115,7 @@ where
         order: Order,
         context: UpdateContext<Int> = (nil, false, [])
     ) -> UpdateSource<BatchUpdates.ListSource> {
-        if sourceType.isItems { return super.generateSourceUpdate(order: order, context: context) }
+        if sourceType.isModels { return super.generateSourceUpdate(order: order, context: context) }
         return sourceUpdate(order, in: context, \.section, Subupdate.generateContianerSourceUpdate)
     }
 
@@ -123,7 +123,7 @@ where
         order: Order,
         context: UpdateContext<Offset<Int>> = (nil, false, [])
     ) -> UpdateTarget<BatchUpdates.ListTarget> {
-        if sourceType.isItems { return super.generateTargetUpdate(order: order, context: context) }
+        if sourceType.isModels { return super.generateTargetUpdate(order: order, context: context) }
         return targetUpdate(order, in: context, \.section, Subupdate.generateContianerTargetUpdate)
     }
 
@@ -406,8 +406,8 @@ extension ContainerCoordinatorUpdate {
         subupdate.isRemove ? removeElement(at: index) : (subupdates[index] = subupdate)
     }
 
-    func isMain(_ order: Order) -> Bool { sourceType.isItems ? order == .second : order == .first }
-    func isExtra(_ order: Order) -> Bool { sourceType.isItems ? order == .third : order == .second }
+    func isMain(_ order: Order) -> Bool { sourceType.isModels ? order == .second : order == .first }
+    func isExtra(_ order: Order) -> Bool { sourceType.isModels ? order == .third : order == .second }
 
     func toContext<Offset, OtherOffset>(
         _ context: UpdateContext<Offset>,

@@ -1,12 +1,12 @@
 //
-//  AnyItemSource.swift
+//  AnySource.swift
 //  ListKit
 //
 //  Created by Frain on 2019/12/11.
 //
 
 public struct AnySources: DataSource {
-    public typealias Item = Any
+    public typealias Model = Any
     public typealias SourceBase = Self
     let coordinatorMaker: (Self) -> ListCoordinator<AnySources>
 
@@ -22,7 +22,7 @@ public struct AnySources: DataSource {
         listDiffer = .init(dataSource.listDiffer) { (($0.source) as! Source).sourceBase }
         listOptions = dataSource.listOptions.union(options)
         listUpdate = .init(way: .subupdate)
-        coordinatorMaker = { WrapperCoordinator($0, toItem: { $0 }, toOther: { $0 as? Source }) }
+        coordinatorMaker = { WrapperCoordinator($0, toModel: { $0 }, toOther: { $0 as? Source }) }
     }
 }
 

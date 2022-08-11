@@ -1,5 +1,5 @@
 //
-//  DataSource+ItemsCoordinator.swift
+//  DataSource+ModelsCoordinator.swift
 //  ListKit
 //
 //  Created by Frain on 2019/12/17.
@@ -8,16 +8,16 @@
 // swiftlint:disable opening_brace
 
 public extension DataSource
-where SourceBase.Source: Collection, SourceBase.Source.Element == Item {
+where SourceBase.Source: Collection, SourceBase.Source.Element == Model {
     var listCoordinator: ListCoordinator<SourceBase> {
-        ItemsCoordinator(sourceBase)
+        ModelsCoordinator(sourceBase)
     }
 }
 
 public extension DataSource
-where SourceBase.Source: RangeReplaceableCollection, SourceBase.Source.Element == Item {
+where SourceBase.Source: RangeReplaceableCollection, SourceBase.Source.Element == Model {
     var listCoordinator: ListCoordinator<SourceBase> {
-        RangeReplacableItemsCoordinator(sourceBase)
+        RangeReplacableModelsCoordinator(sourceBase)
     }
 }
 
@@ -25,10 +25,10 @@ public extension DataSource
 where
     SourceBase: UpdatableDataSource,
     SourceBase.Source: Collection,
-    SourceBase.Source.Element == Item
+    SourceBase.Source.Element == Model
 {
     var listCoordinator: ListCoordinator<SourceBase> {
-        sourceBase.coordinator(with: ItemsCoordinator(sourceBase))
+        sourceBase.coordinator(with: ModelsCoordinator(sourceBase))
     }
 }
 
@@ -36,10 +36,10 @@ public extension DataSource
 where
     SourceBase: UpdatableDataSource,
     SourceBase.Source: RangeReplaceableCollection,
-    SourceBase.Source.Element == Item
+    SourceBase.Source.Element == Model
 {
     var listCoordinator: ListCoordinator<SourceBase> {
-        sourceBase.coordinator(with: RangeReplacableItemsCoordinator(sourceBase))
+        sourceBase.coordinator(with: RangeReplacableModelsCoordinator(sourceBase))
     }
 }
 
@@ -47,9 +47,9 @@ public extension UpdatableDataSource
 where
     SourceBase: UpdatableDataSource,
     SourceBase.Source: Collection,
-    SourceBase.Source.Element == Item
+    SourceBase.Source.Element == Model
 {
-    func itemContext<List: ListView>(for listView: List, at index: Int) -> [ListItemContext<List>] {
-        _itemContext(for: listView, at: .init(item: index))
+    func modelContext<List: ListView>(for listView: List, at index: Int) -> [ListModelContext<List>] {
+        _modelContext(for: listView, at: .init(item: index))
     }
 }

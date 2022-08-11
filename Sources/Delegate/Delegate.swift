@@ -8,7 +8,7 @@
 import Foundation
 
 final class Delegate: NSObject, DataSource {
-    typealias Item = Never
+    typealias Model = Never
 
     unowned let listView: SetuptableListView
     var context: CoordinatorContext!

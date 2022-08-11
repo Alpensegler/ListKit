@@ -7,7 +7,7 @@
 
 @propertyWrapper
 @dynamicMemberLookup
-public struct Sources<Source, Item>: UpdatableDataSource {
+public struct Sources<Source, Model>: UpdatableDataSource {
     enum Value {
         case value(Source)
         case getter(() -> Source)
@@ -42,7 +42,7 @@ public struct Sources<Source, Item>: UpdatableDataSource {
         nonmutating set { source = newValue }
     }
 
-    public var projectedValue: Sources<Source, Item> {
+    public var projectedValue: Sources<Source, Model> {
         get { self }
         set { self = newValue }
     }
@@ -64,8 +64,8 @@ extension Sources: CustomStringConvertible, CustomDebugStringConvertible {
 
 extension Sources: ScrollListAdapter { }
 
-public typealias ItemSources<Item> = Sources<Item, Item>
-public typealias ItemsSources<Item> = Sources<[Item], Item>
-public typealias SectionsSources<Item> = Sources<[[Item]], Item>
-public typealias SourceSources<Source: DataSource> = Sources<Source, Source.Item>
-public typealias SourcesSources<Source: DataSource> = Sources<[Source], Source.Item>
+public typealias ModelSources<Model> = Sources<Model, Model>
+public typealias ModelsSources<Model> = Sources<[Model], Model>
+public typealias SectionsSources<Model> = Sources<[[Model]], Model>
+public typealias SourceSources<Source: DataSource> = Sources<Source, Source.Model>
+public typealias SourcesSources<Source: DataSource> = Sources<[Source], Source.Model>

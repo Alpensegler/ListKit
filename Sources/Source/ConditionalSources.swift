@@ -6,7 +6,7 @@
 //
 
 public enum ConditionalSources<TrueContent: DataSource, FalseContent: DataSource>: DataSource {
-    public typealias Item = Any
+    public typealias Model = Any
     public typealias SourceBase = Self
 
     case trueContent(TrueContent)

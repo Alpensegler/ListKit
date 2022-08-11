@@ -11,7 +11,7 @@ import UIKit
 extension Delegate: UITableViewDataSource {
     // MARK: - Providing the Number of Rows and Sections
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        context.numbersOfItems(in: section)
+        context.numbersOfModel(in: section)
     }
 
     func numberOfSections(in tableView: UITableView) -> Int {

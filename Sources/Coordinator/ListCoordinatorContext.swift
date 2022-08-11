@@ -9,13 +9,13 @@ import Foundation
 
 protocol CoordinatorContext: AnyObject {
     var valid: Bool { get }
-    var itemCaches: ContiguousArray<ContiguousArray<Any?>> { get set }
-    var itemNestedCache: ContiguousArray<ContiguousArray<((Any) -> Void)?>> { get set }
+    var modelCaches: ContiguousArray<ContiguousArray<Any?>> { get set }
+    var modelNestedCache: ContiguousArray<ContiguousArray<((Any) -> Void)?>> { get set }
 
     func isCoordinator(_ coordinator: AnyObject) -> Bool
 
     func numbersOfSections() -> Int
-    func numbersOfItems(in section: Int) -> Int
+    func numbersOfModel(in section: Int) -> Int
 
     func contain(selector: Selector) -> Bool
 
@@ -38,13 +38,13 @@ protocol CoordinatorContext: AnyObject {
 
 public final class ListCoordinatorContext<SourceBase: DataSource>: CoordinatorContext
 where SourceBase.SourceBase == SourceBase {
-    typealias Item = SourceBase.Item
+    typealias Model = SourceBase.Model
     typealias Caches<Cache> = ContiguousArray<ContiguousArray<Cache?>>
 
     let listCoordinator: ListCoordinator<SourceBase>
 
-    var _itemCaches: Caches<Any>?
-    var _itemNestedCache: Caches<((Any) -> Void)>?
+    var _modelCaches: Caches<Any>?
+    var _modelNestedCache: Caches<((Any) -> Void)>?
 
     var listDelegate = ListDelegate()
 
@@ -64,14 +64,14 @@ where SourceBase.SourceBase == SourceBase {
         return !storage.isObjectAssciated || storage.object != nil
     }
 
-    var itemCaches: Caches<Any> {
-        get { cachesOrCreate(&_itemCaches) }
-        set { _itemCaches = newValue }
+    var modelCaches: Caches<Any> {
+        get { cachesOrCreate(&_modelCaches) }
+        set { _modelCaches = newValue }
     }
 
-    var itemNestedCache: Caches<((Any) -> Void)> {
-        get { cachesOrCreate(&_itemNestedCache) }
-        set { _itemNestedCache = newValue }
+    var modelNestedCache: Caches<((Any) -> Void)> {
+        get { cachesOrCreate(&_modelNestedCache) }
+        set { _modelNestedCache = newValue }
     }
 
     init(_ coordinator: ListCoordinator<SourceBase>, listDelegate: ListDelegate = .init()) {
@@ -89,7 +89,7 @@ where SourceBase.SourceBase == SourceBase {
 
     func reconfig() { }
     func numbersOfSections() -> Int { listCoordinator.numbersOfSections() }
-    func numbersOfItems(in section: Int) -> Int { listCoordinator.numbersOfItems(in: section) }
+    func numbersOfModel(in section: Int) -> Int { listCoordinator.numbersOfModel(in: section) }
 
     // Selectors
     @discardableResult
@@ -118,7 +118,7 @@ where SourceBase.SourceBase == SourceBase {
 
     func cachesOrCreate<Cache>(_ caches: inout Caches<Cache>?) -> Caches<Cache> {
         caches.or((0..<numbersOfSections()).mapContiguous {
-            (0..<numbersOfItems(in: $0)).mapContiguous { _ in nil }
+            (0..<numbersOfModel(in: $0)).mapContiguous { _ in nil }
         })
     }
 
@@ -130,7 +130,7 @@ where SourceBase.SourceBase == SourceBase {
         }
         switch updates {
         case let .reload(change: change):
-            (_itemCaches, _itemNestedCache) = (nil, nil)
+            (_modelCaches, _modelNestedCache) = (nil, nil)
             change?()
             list.reloadSynchronously(animated: animated)
             completion?(list, true)
@@ -143,15 +143,15 @@ where SourceBase.SourceBase == SourceBase {
                     list.map { completion?($0, finish) }
                 } : nil
                 list.perform({
-                    switch (_itemCaches != nil, _itemNestedCache != nil) {
+                    switch (_modelCaches != nil, _modelNestedCache != nil) {
                     case (true, true):
-                        batchUpdate.apply(caches: &itemCaches, countIn: numbersOfItems(in:)) {
-                            $0.apply(caches: &itemNestedCache, countIn: numbersOfItems(in:))
+                        batchUpdate.apply(caches: &modelCaches, countIn: numbersOfModel(in:)) {
+                            $0.apply(caches: &modelNestedCache, countIn: numbersOfModel(in:))
                         }
                     case (true, false):
-                        batchUpdate.apply(caches: &itemCaches, countIn: numbersOfItems(in:))
+                        batchUpdate.apply(caches: &modelCaches, countIn: numbersOfModel(in:))
                     case (false, true):
-                        batchUpdate.apply(caches: &itemNestedCache, countIn: numbersOfItems(in:))
+                        batchUpdate.apply(caches: &modelNestedCache, countIn: numbersOfModel(in:))
                     case (false, false):
                         batchUpdate.applyData()
                     }

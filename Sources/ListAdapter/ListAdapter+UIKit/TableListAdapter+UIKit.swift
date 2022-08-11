@@ -12,18 +12,18 @@ import UIKit
 
 public extension DataSource {
     typealias TableContext = ListContext<UITableView, Self>
-    typealias TableItemContext = ListIndexContext<UITableView, Self, IndexPath>
+    typealias TableModelContext = ListIndexContext<UITableView, Self, IndexPath>
     typealias TableSectionContext = ListIndexContext<UITableView, Self, Int>
 
     typealias TableFunction<Input, Output, Closure> = ListDelegate.Function<UITableView, Self, TableList<AdapterBase>, Input, Output, Closure>
-    typealias TableItemFunction<Input, Output, Closure> = ListDelegate.IndexFunction<UITableView, Self, TableList<AdapterBase>, Input, Output, Closure, IndexPath>
+    typealias TableModelFunction<Input, Output, Closure> = ListDelegate.IndexFunction<UITableView, Self, TableList<AdapterBase>, Input, Output, Closure, IndexPath>
     typealias TableSectionFunction<Input, Output, Closure> = ListDelegate.IndexFunction<UITableView, Self, TableList<AdapterBase>, Input, Output, Closure, Int>
 }
 
 // MARK: - TableView DataSource
 public extension DataSource {
     // MARK: - Providing Cells, Headers, and Footers
-    var tableViewCellForRow: TableItemFunction<IndexPath, UITableViewCell, (TableItemContext, Item) -> UITableViewCell> {
+    var tableViewCellForRow: TableModelFunction<IndexPath, UITableViewCell, (TableModelContext, Model) -> UITableViewCell> {
         toFunction(#selector(UITableViewDataSource.tableView(_:cellForRowAt:)), toClosure())
     }
 
@@ -36,16 +36,16 @@ public extension DataSource {
     }
 
     // MARK: - Inserting or Deleting Table Rows
-    var tableViewCommitEdittingStyleForRow: TableItemFunction<(IndexPath, UITableViewCell.EditingStyle), Void, (TableItemContext, UITableViewCell.EditingStyle, Item) -> Void> {
+    var tableViewCommitEdittingStyleForRow: TableModelFunction<(IndexPath, UITableViewCell.EditingStyle), Void, (TableModelContext, UITableViewCell.EditingStyle, Model) -> Void> {
         toFunction(#selector(UITableViewDataSource.tableView(_:commit:forRowAt:)), \.0, toClosure())
     }
 
-    var tableViewCanEditRow: TableItemFunction<IndexPath, Bool, (TableItemContext, Item) -> Bool> {
+    var tableViewCanEditRow: TableModelFunction<IndexPath, Bool, (TableModelContext, Model) -> Bool> {
         toFunction(#selector(UITableViewDataSource.tableView(_:canEditRowAt:)), toClosure())
     }
 
     // MARK: - Reordering Table Rows
-    var tableViewCanMoveRow: TableItemFunction<IndexPath, Bool, (TableItemContext, Item) -> Bool> {
+    var tableViewCanMoveRow: TableModelFunction<IndexPath, Bool, (TableModelContext, Model) -> Bool> {
         toFunction(#selector(UITableViewDataSource.tableView(_:canMoveRowAt:)), toClosure())
     }
 
@@ -66,43 +66,43 @@ public extension DataSource {
 // MARK: - TableView Delegate
 public extension DataSource {
     // MARK: - Configuring Rows for the Table View
-    var tableViewWillDisplayRow: TableItemFunction<(IndexPath, UITableViewCell), Void, (TableItemContext, UITableViewCell, Item) -> Void> {
+    var tableViewWillDisplayRow: TableModelFunction<(IndexPath, UITableViewCell), Void, (TableModelContext, UITableViewCell, Model) -> Void> {
         toFunction(#selector(UITableViewDelegate.tableView(_:willDisplay:forRowAt:)), \.0, toClosure())
     }
 
-    var tableViewIndentationLevelForRow: TableItemFunction<IndexPath, Int, (TableItemContext, Item) -> Int> {
+    var tableViewIndentationLevelForRow: TableModelFunction<IndexPath, Int, (TableModelContext, Model) -> Int> {
         toFunction(#selector(UITableViewDelegate.tableView(_:indentationLevelForRowAt:)), toClosure())
     }
 
     @available(iOS 11.0, *)
-    var tableViewShouldSpringLoadRow: TableItemFunction<(IndexPath, UISpringLoadedInteractionContext), Bool, (TableItemContext, UISpringLoadedInteractionContext, Item) -> Bool> {
+    var tableViewShouldSpringLoadRow: TableModelFunction<(IndexPath, UISpringLoadedInteractionContext), Bool, (TableModelContext, UISpringLoadedInteractionContext, Model) -> Bool> {
         toFunction(#selector(UITableViewDelegate.tableView(_:shouldSpringLoadRowAt:with:)), \.0, toClosure())
     }
 
     // MARK: - Responding to Row Selections
-    var tableViewWillSelectRow: TableItemFunction<IndexPath, IndexPath?, (TableItemContext, Item) -> IndexPath?> {
+    var tableViewWillSelectRow: TableModelFunction<IndexPath, IndexPath?, (TableModelContext, Model) -> IndexPath?> {
         toFunction(#selector(UITableViewDelegate.tableView(_:willSelectRowAt:)), toClosure())
     }
 
-    var tableViewDidSelectRow: TableItemFunction<IndexPath, Void, (TableItemContext, Item) -> Void> {
+    var tableViewDidSelectRow: TableModelFunction<IndexPath, Void, (TableModelContext, Model) -> Void> {
         toFunction(#selector(UITableViewDelegate.tableView(_:didSelectRowAt:)), toClosure())
     }
 
-    var tableViewWillDeselectRow: TableItemFunction<IndexPath, IndexPath?, (TableItemContext, Item) -> IndexPath?> {
+    var tableViewWillDeselectRow: TableModelFunction<IndexPath, IndexPath?, (TableModelContext, Model) -> IndexPath?> {
         toFunction(#selector(UITableViewDelegate.tableView(_:willDeselectRowAt:)), toClosure())
     }
 
-    var tableViewDidDeselectRow: TableItemFunction<IndexPath, Void, (TableItemContext, Item) -> Void> {
+    var tableViewDidDeselectRow: TableModelFunction<IndexPath, Void, (TableModelContext, Model) -> Void> {
         toFunction(#selector(UITableViewDelegate.tableView(_:didDeselectRowAt:)), toClosure())
     }
 
     @available(iOS 13.0, *)
-    var tableViewShouldBeginMultipleSelectionInteraction: TableItemFunction<IndexPath, Bool, (TableItemContext, Item) -> Bool> {
+    var tableViewShouldBeginMultipleSelectionInteraction: TableModelFunction<IndexPath, Bool, (TableModelContext, Model) -> Bool> {
         toFunction(#selector(UITableViewDelegate.tableView(_:shouldBeginMultipleSelectionInteractionAt:)), toClosure())
     }
 
     @available(iOS 13.0, *)
-    var tableViewDidBeginMultipleSelectionInteraction: TableItemFunction<IndexPath, Void, (TableItemContext, Item) -> Void> {
+    var tableViewDidBeginMultipleSelectionInteraction: TableModelFunction<IndexPath, Void, (TableModelContext, Model) -> Void> {
         toFunction(#selector(UITableViewDelegate.tableViewDidEndMultipleSelectionInteraction(_:)), toClosure())
     }
 
@@ -129,7 +129,7 @@ public extension DataSource {
     }
 
     // MARK: - Providing Header, Footer, and Row Heights
-    var tableViewHeightForRow: TableItemFunction<IndexPath, CGFloat, (TableItemContext, Item) -> CGFloat> {
+    var tableViewHeightForRow: TableModelFunction<IndexPath, CGFloat, (TableModelContext, Model) -> CGFloat> {
         toFunction(#selector(UITableViewDelegate.tableView(_:heightForRowAt:)), toClosure())
     }
 
@@ -142,7 +142,7 @@ public extension DataSource {
     }
 
     // MARK: - Estimating Heights for the Table's Content
-    var tableViewEstimatedHeightForRow: TableItemFunction<IndexPath, CGFloat, (TableItemContext, Item) -> CGFloat> {
+    var tableViewEstimatedHeightForRow: TableModelFunction<IndexPath, CGFloat, (TableModelContext, Model) -> CGFloat> {
         toFunction(#selector(UITableViewDelegate.tableView(_:estimatedHeightForRowAt:)), toClosure())
     }
 
@@ -155,52 +155,52 @@ public extension DataSource {
     }
 
     // MARK: - Managing Accessory Views
-    var tableViewAccessoryButtonTapped: TableItemFunction<IndexPath, Void, (TableItemContext, Item) -> Void> {
+    var tableViewAccessoryButtonTapped: TableModelFunction<IndexPath, Void, (TableModelContext, Model) -> Void> {
         toFunction(#selector(UITableViewDelegate.tableView(_:accessoryButtonTappedForRowWith:)), toClosure())
     }
 
     // MARK: - Responding to Row Actions
     @available(iOS 11.0, *)
-    var tableViewLeadingSwipeActionsConfiguration: TableItemFunction<IndexPath, UISwipeActionsConfiguration?, (TableItemContext, Item) -> UISwipeActionsConfiguration?> {
+    var tableViewLeadingSwipeActionsConfiguration: TableModelFunction<IndexPath, UISwipeActionsConfiguration?, (TableModelContext, Model) -> UISwipeActionsConfiguration?> {
         toFunction(#selector(UITableViewDelegate.tableView(_:leadingSwipeActionsConfigurationForRowAt:)), toClosure())
     }
 
     @available(iOS 11.0, *)
-    var tableViewTrailingSwipeActionsConfiguration: TableItemFunction<IndexPath, UISwipeActionsConfiguration?, (TableItemContext, Item) -> UISwipeActionsConfiguration?> {
+    var tableViewTrailingSwipeActionsConfiguration: TableModelFunction<IndexPath, UISwipeActionsConfiguration?, (TableModelContext, Model) -> UISwipeActionsConfiguration?> {
         toFunction(#selector(UITableViewDelegate.tableView(_:trailingSwipeActionsConfigurationForRowAt:)), toClosure())
     }
 
-    var tableViewShouldShowMenuForRow: TableItemFunction<IndexPath, Bool, (TableItemContext, Item) -> Bool> {
+    var tableViewShouldShowMenuForRow: TableModelFunction<IndexPath, Bool, (TableModelContext, Model) -> Bool> {
         toFunction(#selector(UITableViewDelegate.tableView(_:shouldShowMenuForRowAt:)), toClosure())
     }
 
-    var tableViewCanPerformActionWithSender: TableItemFunction<(IndexPath, Selector, Any?), Bool, (TableItemContext, Selector, Any?, Item) -> Bool> {
+    var tableViewCanPerformActionWithSender: TableModelFunction<(IndexPath, Selector, Any?), Bool, (TableModelContext, Selector, Any?, Model) -> Bool> {
         toFunction(#selector(UITableViewDelegate.tableView(_:canPerformAction:forRowAt:withSender:)), \.0, toClosure())
     }
 
-    var tableViewPerformActionWithSender: TableItemFunction<(IndexPath, Selector, Any?), Void, (TableItemContext, Selector, Any?, Item) -> Void> {
+    var tableViewPerformActionWithSender: TableModelFunction<(IndexPath, Selector, Any?), Void, (TableModelContext, Selector, Any?, Model) -> Void> {
         toFunction(#selector(UITableViewDelegate.tableView(_:performAction:forRowAt:withSender:)), \.0, toClosure())
     }
 
-    var tableViewEditActionsForRow: TableItemFunction<IndexPath, [UITableViewRowAction]?, (TableItemContext, Item) -> [UITableViewRowAction]?> {
+    var tableViewEditActionsForRow: TableModelFunction<IndexPath, [UITableViewRowAction]?, (TableModelContext, Model) -> [UITableViewRowAction]?> {
         toFunction(#selector(UITableViewDelegate.tableView(_:editActionsForRowAt:)), toClosure())
     }
 
     // MARK: - Managing Table View Highlights
-    var tableViewShouldHighlight: TableItemFunction<IndexPath, Bool, (TableItemContext, Item) -> Bool> {
+    var tableViewShouldHighlight: TableModelFunction<IndexPath, Bool, (TableModelContext, Model) -> Bool> {
         toFunction(#selector(UITableViewDelegate.tableView(_:shouldHighlightRowAt:)), toClosure())
     }
 
-    var tableViewDidHighlight: TableItemFunction<IndexPath, Void, (TableItemContext, Item) -> Void> {
+    var tableViewDidHighlight: TableModelFunction<IndexPath, Void, (TableModelContext, Model) -> Void> {
         toFunction(#selector(UITableViewDelegate.tableView(_:didHighlightRowAt:)), toClosure())
     }
 
-    var tableViewDidUnhighlight: TableItemFunction<IndexPath, Void, (TableItemContext, Item) -> Void> {
+    var tableViewDidUnhighlight: TableModelFunction<IndexPath, Void, (TableModelContext, Model) -> Void> {
         toFunction(#selector(UITableViewDelegate.tableView(_:didUnhighlightRowAt:)), toClosure())
     }
 
     // MARK: - Editing Table Rows
-    var tableViewWillBeginEditing: TableItemFunction<IndexPath, Void, (TableItemContext, Item) -> Void> {
+    var tableViewWillBeginEditing: TableModelFunction<IndexPath, Void, (TableModelContext, Model) -> Void> {
         toFunction(#selector(UITableViewDelegate.tableView(_:willBeginEditingRowAt:)), toClosure())
     }
 
@@ -208,15 +208,15 @@ public extension DataSource {
         toFunction(#selector(UITableViewDelegate.tableView(_:didEndEditingRowAt:)), toClosure())
     }
 
-    var tableViewEditingStyle: TableItemFunction<IndexPath, UITableViewCell.EditingStyle, (TableItemContext, Item) -> UITableViewCell.EditingStyle> {
+    var tableViewEditingStyle: TableModelFunction<IndexPath, UITableViewCell.EditingStyle, (TableModelContext, Model) -> UITableViewCell.EditingStyle> {
         toFunction(#selector(UITableViewDelegate.tableView(_:editingStyleForRowAt:)), toClosure())
     }
 
-    var tableViewTitleForDeleteConfirmationButton: TableItemFunction<IndexPath, String?, (TableItemContext, Item) -> String?> {
+    var tableViewTitleForDeleteConfirmationButton: TableModelFunction<IndexPath, String?, (TableModelContext, Model) -> String?> {
         toFunction(#selector(UITableViewDelegate.tableView(_:titleForDeleteConfirmationButtonForRowAt:)), toClosure())
     }
 
-    var tableViewShouldIndentWhileEditing: TableItemFunction<IndexPath, Bool, (TableItemContext, Item) -> Bool> {
+    var tableViewShouldIndentWhileEditing: TableModelFunction<IndexPath, Bool, (TableModelContext, Model) -> Bool> {
         toFunction(#selector(UITableViewDelegate.tableView(_:shouldIndentWhileEditingRowAt:)), toClosure())
     }
 
@@ -239,7 +239,7 @@ public extension DataSource {
     }
 
     // MARK: - Managing Table View Focus
-    var tableViewCanFocusRow: TableItemFunction<IndexPath, Bool, (TableItemContext, Item) -> Bool> {
+    var tableViewCanFocusRow: TableModelFunction<IndexPath, Bool, (TableModelContext, Model) -> Bool> {
         toFunction(#selector(UITableViewDelegate.tableView(_:canFocusRowAt:)), toClosure())
     }
 
@@ -257,7 +257,7 @@ public extension DataSource {
 
     // MARK: - Instance Methods
     @available(iOS 13.0, *)
-    var tableViewContextMenuConfigurationForRow: TableItemFunction<(IndexPath, CGPoint), UIContextMenuConfiguration, (TableItemContext, CGPoint, Item) -> UIContextMenuConfiguration> {
+    var tableViewContextMenuConfigurationForRow: TableModelFunction<(IndexPath, CGPoint), UIContextMenuConfiguration, (TableModelContext, CGPoint, Model) -> UIContextMenuConfiguration> {
         toFunction(#selector(UITableViewDelegate.tableView(_:contextMenuConfigurationForRowAt:point:)), \.0, toClosure())
     }
 

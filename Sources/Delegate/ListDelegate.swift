@@ -125,16 +125,16 @@ extension DataSource {
         { closure in { context, input in closure(context, input.0, input.1) } }
     }
 
-    func toClosure<Output, Object>() -> (@escaping (ListIndexContext<Object, Self, IndexPath>, Item) -> Output) -> (ListIndexContext<Object, Self, IndexPath>, IndexPath) -> Output {
-        { closure in { context, _ in closure(context, context.itemValue) } }
+    func toClosure<Output, Object>() -> (@escaping (ListIndexContext<Object, Self, IndexPath>, Model) -> Output) -> (ListIndexContext<Object, Self, IndexPath>, IndexPath) -> Output {
+        { closure in { context, _ in closure(context, context.model) } }
     }
 
-    func toClosure<Input, Output, Object>() -> (@escaping (ListIndexContext<Object, Self, IndexPath>, Input, Item) -> Output) -> (ListIndexContext<Object, Self, IndexPath>, (IndexPath, Input)) -> Output {
-        { closure in { context, input in closure(context, input.1, context.itemValue) } }
+    func toClosure<Input, Output, Object>() -> (@escaping (ListIndexContext<Object, Self, IndexPath>, Input, Model) -> Output) -> (ListIndexContext<Object, Self, IndexPath>, (IndexPath, Input)) -> Output {
+        { closure in { context, input in closure(context, input.1, context.model) } }
     }
 
-    func toClosure<Input1, Input2, Output, Object>() -> (@escaping (ListIndexContext<Object, Self, IndexPath>, Input1, Input2, Item) -> Output) -> (ListIndexContext<Object, Self, IndexPath>, (IndexPath, Input1, Input2)) -> Output {
-        { closure in { context, input in closure(context, input.1, input.2, context.itemValue) } }
+    func toClosure<Input1, Input2, Output, Object>() -> (@escaping (ListIndexContext<Object, Self, IndexPath>, Input1, Input2, Model) -> Output) -> (ListIndexContext<Object, Self, IndexPath>, (IndexPath, Input1, Input2)) -> Output {
+        { closure in { context, input in closure(context, input.1, input.2, context.model) } }
     }
 
     func toClosure<Input, Output, Object>() -> (@escaping (ListIndexContext<Object, Self, Int>, Input) -> Output) -> (ListIndexContext<Object, Self, Int>, (Int, Input)) -> Output {

@@ -11,22 +11,22 @@ import Foundation
 
 class SectionsCoordinatorUpdate<SourceBase>: ContainerCoordinatorUpdate<
     SourceBase,
-    ContiguousArray<Sources<SourceBase.Source.Element, SourceBase.Item>>,
-    Sources<SourceBase.Source.Element, SourceBase.Item>
+    ContiguousArray<Sources<SourceBase.Source.Element, SourceBase.Model>>,
+    Sources<SourceBase.Source.Element, SourceBase.Model>
 >
 where
     SourceBase: DataSource,
     SourceBase.SourceBase == SourceBase,
     SourceBase.Source: Collection,
     SourceBase.Source.Element: Collection,
-    SourceBase.Source.Element.Element == SourceBase.Item
+    SourceBase.Source.Element.Element == SourceBase.Model
 {
-    typealias Value = ListKit.Sources<SourceBase.Source.Element, SourceBase.Item>
+    typealias Value = ListKit.Sources<SourceBase.Source.Element, SourceBase.Model>
     typealias Sections = ContiguousArray<Value>
 
     weak var coordinator: SectionsCoordinator<SourceBase>?
 
-    var updateType: ItemsCoordinatorUpdate<Value>.Type { ItemsCoordinatorUpdate<Value>.self }
+    var updateType: ModelsCoordinatorUpdate<Value>.Type { ModelsCoordinatorUpdate<Value>.self }
 
     override var identifiable: Bool { false }
 
@@ -115,12 +115,12 @@ where
     SourceBase.SourceBase == SourceBase,
     SourceBase.Source: RangeReplaceableCollection,
     SourceBase.Source.Element: RangeReplaceableCollection,
-    SourceBase.Source.Element.Element == SourceBase.Item
+    SourceBase.Source.Element.Element == SourceBase.Model
 {
     override var moveAndReloadable: Bool { !noneDiffUpdate }
 
-    override var updateType: ItemsCoordinatorUpdate<Value>.Type {
-        RangeReplacableItemsCoordinatorUpdate<Value>.self
+    override var updateType: ModelsCoordinatorUpdate<Value>.Type {
+        RangeReplacableModelsCoordinatorUpdate<Value>.self
     }
 
     override func toSource(_ values: ContiguousArray<Value>) -> SourceBase.Source? {

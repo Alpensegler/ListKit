@@ -2,8 +2,8 @@ import ListKit
 import UIKit
 
 public class ContentsViewController: UIViewController, UpdatableTableListAdapter {
-    public typealias Item = (title: String, viewController: UIViewController.Type)
-    public var source = [Item]()
+    public typealias Model = (title: String, viewController: UIViewController.Type)
+    public var source = [Model]()
 
     public var tableList: TableList<ContentsViewController> {
         tableViewCellForRow { (context, item) -> UITableViewCell in
@@ -12,7 +12,7 @@ public class ContentsViewController: UIViewController, UpdatableTableListAdapter
             return labelCell
         }
         .tableViewDidSelectRow { [unowned navigationController] (context, item) in
-            context.deselectItem(animated: true)
+            context.deselect(animated: true)
             let viewController = item.viewController.init()
             viewController.title = item.title
             navigationController?.pushViewController(viewController, animated: true)

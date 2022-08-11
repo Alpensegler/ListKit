@@ -47,7 +47,7 @@ where SourceBase.SourceBase == SourceBase {
     }
 
     override func configMaxOrderForContext(_ ids: [AnyHashable]) -> Order? {
-        if _item != nil && sourceType.isItems { return .second }
+        if _item != nil && sourceType.isModels { return .second }
         if _section != nil { return .first }
         return super.configMaxOrderForContext(ids)
     }

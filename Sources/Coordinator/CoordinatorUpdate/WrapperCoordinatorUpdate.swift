@@ -37,7 +37,7 @@ where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSo
     }
 
     override func configMaxOrderForContext(_ ids: [AnyHashable]) -> Order? {
-        guard isSectionItems && targetHasSection != sourceHasSection else {
+        guard isSectionModels && targetHasSection != sourceHasSection else {
             return subupdate?.maxOrder(ids)
         }
 
@@ -53,14 +53,14 @@ where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSo
 
     override func customUpdateWay() -> UpdateWay? { subupdate?.changeType }
     override func configUpdateWay() -> UpdateWay? {
-        isSectionItems ? super.configUpdateWay() : subupdate?.changeType
+        isSectionModels ? super.configUpdateWay() : subupdate?.changeType
     }
 
     override func generateSourceUpdate(
         order: Order,
         context: UpdateContext<Int> = (nil, false, [])
     ) -> UpdateSource<BatchUpdates.ListSource> {
-        if isSectionItems { return super.generateSourceUpdate(order: order, context: context) }
+        if isSectionModels { return super.generateSourceUpdate(order: order, context: context) }
         guard let subupdate = subupdate else { return (0, nil) }
         return subupdate.generateSourceUpdate(order: order, context: context)
     }
@@ -69,7 +69,7 @@ where SourceBase: DataSource, SourceBase.SourceBase == SourceBase, Other: DataSo
         order: Order,
         context: UpdateContext<Offset<Int>> = (nil, false, [])
     ) -> UpdateTarget<BatchUpdates.ListTarget> {
-        if isSectionItems { return super.generateTargetUpdate(order: order, context: context) }
+        if isSectionModels { return super.generateTargetUpdate(order: order, context: context) }
         guard let subupdate = subupdate else { return ([], nil, nil) }
         var update = subupdate.generateTargetUpdate(order: order, context: context)
         if subupdate.hasNext(order, context) {

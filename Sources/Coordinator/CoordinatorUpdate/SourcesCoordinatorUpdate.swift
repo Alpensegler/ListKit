@@ -13,7 +13,7 @@ class SourcesCoordinatorUpdate<SourceBase: DataSource, Source: RangeReplaceableC
 where
     SourceBase.SourceBase == SourceBase,
     Source.Element: DataSource,
-    Source.Element.SourceBase.Item == SourceBase.Item
+    Source.Element.SourceBase.Model == SourceBase.Model
 {
     typealias Value = SourceElement<Source.Element>
     typealias Subcoordinator = ListCoordinator<Element.SourceBase>
@@ -72,7 +72,7 @@ where
         switch (lhs.element, rhs.element) {
         case let (.element(lhs), .element(rhs)):
             return related.listCoordinator.equal(lhs: lhs.sourceBase, rhs: rhs.sourceBase)
-        case let (.items(lhs, _), .items(rhs, _)):
+        case let (.models(lhs, _), .models(rhs, _)):
             return lhs == rhs
         default:
             return false
@@ -83,7 +83,7 @@ where
         switch value.element {
         case .element(let element):
             return [0, value.coordinator.identifier(for: element.sourceBase)] as [AnyHashable]
-        case .items(let id, _):
+        case .models(let id, _):
             return [1, id] as [AnyHashable]
         }
     }
@@ -103,9 +103,9 @@ where
 
     override func toValue(_ element: Element) -> Value {
         let context = element.listCoordinatorContext, coordinator = element.listCoordinator
-        if coordinator.sourceType == .items, sourceType == .section {
-            let itemCount = context.numbersOfItems(in: 0)
-            let source = Value(element: .element(element), context: context, offset: 0, count: itemCount)
+        if coordinator.sourceType == .models, sourceType == .section {
+            let modelCount = context.numbersOfModel(in: 0)
+            let source = Value(element: .element(element), context: context, offset: 0, count: modelCount)
             let coordinator = SourcesCoordinator<Source.Element.SourceBase, [Source.Element]>(
                 elements: [source],
                 update: .init(way: updateWay)
@@ -114,12 +114,12 @@ where
             source.context.isSectioned = false
             coordinator.addContext(to: source.context)
             self.coordinator.map { $0.addContext(to: context) }
-            let item = Value.Subelement.items(id: coordinator.id) { coordinator.subsourcesArray }
+            let item = Value.Subelement.models(id: coordinator.id) { coordinator.subsourcesArray }
             let sectionCount = context.numbersOfSections()
             coordinator.id += 1
             return .init(element: item, context: context, offset: 0, count: sectionCount)
         } else {
-            let count = sourceType.isSection ? context.numbersOfSections() : context.numbersOfItems(in: 0)
+            let count = sourceType.isSection ? context.numbersOfSections() : context.numbersOfModel(in: 0)
             self.coordinator.map { $0.addContext(to: context) }
             return .init(element: .element(element), context: context, offset: 0, count: count)
         }
@@ -137,7 +137,7 @@ where
         guard case let .fromSourceBase(_, map) = subsourceType else { return nil }
         return map(.init(values.flatMap { subsource -> ContiguousArray<Element> in
             switch subsource.element {
-            case let .items(_, items): return items()
+            case let .models(_, items): return items()
             case let .element(element): return [element]
             }
         }))
@@ -190,7 +190,7 @@ where
     SourceBase.SourceBase == SourceBase,
     SourceBase.Source: RangeReplaceableCollection,
     SourceBase.Source.Element: DataSource,
-    SourceBase.Source.Element.Item == SourceBase.Item
+    SourceBase.Source.Element.Model == SourceBase.Model
 {
 
     override func insert(_ element: SourceBase.Source.Element, at index: Int)

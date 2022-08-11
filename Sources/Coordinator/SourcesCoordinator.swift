@@ -11,7 +11,7 @@ import Foundation
 
 struct SourceElement<Element> where Element: DataSource {
     enum Subelement {
-        case items(id: Int, () -> ContiguousArray<Element>)
+        case models(id: Int, () -> ContiguousArray<Element>)
         case element(Element)
     }
 
@@ -30,7 +30,7 @@ struct SourceElement<Element> where Element: DataSource {
 extension SourceElement: CustomStringConvertible, CustomDebugStringConvertible {
     var description: String {
         switch element {
-        case let .items(id: id, items):
+        case let .models(id: id, items):
             return "Items(\(id), \(items().map { $0 }))"
         case let .element(element):
             return "Element(\(element))"
@@ -45,7 +45,7 @@ where
     SourceBase.SourceBase == SourceBase,
     Source: RangeReplaceableCollection,
     Source.Element: DataSource,
-    Source.Element.SourceBase.Item == SourceBase.Item
+    Source.Element.SourceBase.Model == SourceBase.Model
 {
     enum SubsourceType {
         case fromSourceBase((SourceBase.Source) -> Source, (Source) -> SourceBase.Source)
@@ -72,13 +72,13 @@ where
         set { subsourcesAndSubsectioned.subsources = newValue }
     }
 
-    var notItems: Bool { subsourcesAndSubsectioned.sectioned }
+    var notModels: Bool { subsourcesAndSubsectioned.sectioned }
 
     var subsourcesArray: ContiguousArray<Source.Element> {
         var sources = ContiguousArray<Source.Element>(capacity: subsources.count)
         for element in subsources {
             switch element.element {
-            case .items(_, let items): sources += items()
+            case .models(_, let items): sources += items()
             case .element(let element): sources.append(element)
             }
         }
@@ -111,7 +111,7 @@ where
         subsourceType = .values
         super.init(source: nil, update: update, options: .removeEmptySection)
         subsourcesAndSubsectioned = (elements, false)
-        sourceType = .sectionItems
+        sourceType = .sectionModels
     }
 
     func settingIndex(_ values: ContiguousArray<Subsource>) -> ContiguousArray<Subsource> {
@@ -120,7 +120,7 @@ where
     }
 
     func sourceIndex<Index: ListIndex>(for listIndex: Index) -> Int {
-        indices[notItems ? listIndex.section : listIndex.item].index
+        indices[notModels ? listIndex.section : listIndex.item].index
     }
 
     // swiftlint:disable function_body_length
@@ -130,24 +130,24 @@ where
     ) -> (subsources: ContiguousArray<Subsource>, sectioned: Bool) {
         var sectioned = sectioned ?? super.isSectioned
         var (id, offset, itemOffset) = (0, 0, 0)
-        var itemSources = ContiguousArray<Subsource>(capacity: source.count)
+        var modelSources = ContiguousArray<Subsource>(capacity: source.count)
         var subsources = ContiguousArray<Subsource>(capacity: source.count)
 
-        func addItemSources() {
+        func addModelSources() {
             let coordinator = SourcesCoordinator<Source.Element.SourceBase, [Source.Element]>(
-                elements: settingIndex(itemSources),
+                elements: settingIndex(modelSources),
                 update: .init(way: update.way)
             )
             let context = ListCoordinatorContext(coordinator)
-            itemSources.forEach {
+            modelSources.forEach {
                 $0.context.isSectioned = false
                 coordinator.addContext(to: $0.context)
             }
             addContext(to: context)
-            let item = Subsource.Subelement.items(id: id) { coordinator.subsourcesArray }
+            let item = Subsource.Subelement.models(id: id) { coordinator.subsourcesArray }
             let count = context.numbersOfSections()
             subsources.append(.init(element: item, context: context, offset: offset, count: count))
-            itemSources.removeAll()
+            modelSources.removeAll()
             id += 1
             self.id = id + 1
             itemOffset = 0
@@ -158,25 +158,25 @@ where
             let context = element.listCoordinatorContext, coordinator = context.listCoordinator
             if coordinator.sourceType.isSection {
                 addContext(to: context)
-                if !itemSources.isEmpty { addItemSources() }
+                if !modelSources.isEmpty { addModelSources() }
                 let count = context.numbersOfSections()
                 let element = Subsource.Subelement.element(element)
                 subsources.append(.init(element: element, context: context, offset: offset, count: count))
                 sectioned = true
                 offset += count
             } else {
-                let count = context.numbersOfItems(in: 0)
-                itemSources.append(.init(element: .element(element), context: context, offset: itemOffset, count: count))
+                let count = context.numbersOfModel(in: 0)
+                modelSources.append(.init(element: .element(element), context: context, offset: itemOffset, count: count))
                 itemOffset += count
             }
         }
 
-        switch (sectioned, itemSources.isEmpty) {
+        switch (sectioned, modelSources.isEmpty) {
         case (true, false):
-            addItemSources()
+            addModelSources()
         case (false, false):
-            itemSources.forEach { addContext(to: $0.context) }
-            subsources = itemSources
+            modelSources.forEach { addContext(to: $0.context) }
+            subsources = modelSources
         default:
             break
         }
@@ -207,46 +207,46 @@ where
 
         context.contextAtIndex = { [weak self] (index, offset, listView) in
             guard let self = self else { return [] }
-            let offset = offset.offseted(self.subsources[index].offset, isSection: self.notItems)
+            let offset = offset.offseted(self.subsources[index].offset, isSection: self.notModels)
             return self.offsetAndRoot(offset: offset, list: listView)
         }
     }
 
     func subContextIndex(at indexPath: IndexPath) -> (SourceElement<Source.Element>, IndexPath) {
         let index = sourceIndex(for: indexPath), context = subsources[index]
-        return (context, indexPath.offseted(-context.offset, isSection: notItems))
+        return (context, indexPath.offseted(-context.offset, isSection: notModels))
     }
 
     override func numbersOfSections() -> Int {
-        notItems ? indices.count : indices.isEmpty && options.removeEmptySection ? 0 : 1
+        notModels ? indices.count : indices.isEmpty && options.removeEmptySection ? 0 : 1
     }
 
-    override func numbersOfItems(in section: Int) -> Int {
-        guard notItems else { return indices.count }
+    override func numbersOfModel(in section: Int) -> Int {
+        guard notModels else { return indices.count }
         let index = indices[section]
         if index.isFake { return 0 }
         let context = subsources[index.index]
-        let count = context.coordinator.numbersOfItems(in: section - context.offset)
+        let count = context.coordinator.numbersOfModel(in: section - context.offset)
         return count
     }
 
-    override func item(at indexPath: IndexPath) -> Item {
+    override func model(at indexPath: IndexPath) -> Model {
         let (context, indexPath) = subContextIndex(at: indexPath)
-        return context.coordinator.item(at: indexPath)
+        return context.coordinator.model(at: indexPath)
     }
 
-    override func cache<ItemCache>(
+    override func cache<ModelCache>(
         for cached: inout Any?,
         at indexPath: IndexPath,
         in delegate: ListDelegate
-    ) -> ItemCache {
+    ) -> ModelCache {
         guard delegate.getCache == nil else { return super.cache(for: &cached, at: indexPath, in: delegate) }
         let (context, indexPath) = subContextIndex(at: indexPath)
         return context.coordinator.cache(for: &cached, at: indexPath, in: context.context.listDelegate)
     }
 
     override func configSourceType() -> SourceType {
-        subsourcesAndSubsectioned.sectioned ? .section : .items
+        subsourcesAndSubsectioned.sectioned ? .section : .models
     }
 
     // Selectors
@@ -311,7 +311,7 @@ where
 
     override func update(
         from coordinator: ListCoordinator<SourceBase>,
-        updateWay: ListUpdateWay<Item>?
+        updateWay: ListUpdateWay<Model>?
     ) -> ListCoordinatorUpdate<SourceBase> {
         let coordinator = coordinator as! SourcesCoordinator<SourceBase, Source>
         return updateType.init(
@@ -329,7 +329,7 @@ where
         options: ListOptions? = nil
     ) -> ListCoordinatorUpdate<SourceBase> {
         let subsourcesAfter = update.source.flatMap { value in
-            subsourceType.from.map { toSubsources($0(value), sectioned: notItems).subsources }
+            subsourceType.from.map { toSubsources($0(value), sectioned: notModels).subsources }
         }
         return updateType.init(
             coordinator: self,
@@ -350,7 +350,7 @@ where
     SourceBase.SourceBase == SourceBase,
     SourceBase.Source: RangeReplaceableCollection,
     SourceBase.Source.Element: DataSource,
-    SourceBase.Source.Element.Item == SourceBase.Item
+    SourceBase.Source.Element.Model == SourceBase.Model
 {
     override var updateType: SourcesCoordinatorUpdate<SourceBase, SourceBase.Source>.Type {
         DataSourcesCoordinatorUpdate<SourceBase>.self

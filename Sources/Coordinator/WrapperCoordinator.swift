@@ -114,44 +114,45 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
         return selectors
     }
 
-    override func apply<Object: AnyObject, Target, Input, Output, Closure>(
-        _ function: ListDelegate.Function<Object, Delegate, Target, Input, Output, Closure>,
+    override func apply<V: AnyObject, Input, Output>(
+        _ selector: Selector,
         for context: Context,
         root: CoordinatorContext,
-        object: Object,
+        view: V,
         with input: Input
     ) -> Output? {
-        guard context.extraSelectors.contains(function.selector) else {
-            return super.apply(function, for: context, root: root, object: object, with: input)
+        guard context.extraSelectors.contains(selector) else {
+            return super.apply(selector, for: context, root: root, view: view, with: input)
         }
-        let output = wrapped.flatMap {
-            $0.context.apply(function, root: root, object: object, with: input)
+        let output: Output? = wrapped.flatMap {
+            $0.context.apply(selector, root: root, view: view, with: input)
         }
-        if function.noOutput {
-            return super.apply(function, for: context, root: root, object: object, with: input) ?? output
+        if Output.self == Void.self {
+            return super.apply(selector, for: context, root: root, view: view, with: input) ?? output
         } else {
-            return output ?? super.apply(function, for: context, root: root, object: object, with: input)
+            return output ?? super.apply(selector, for: context, root: root, view: view, with: input)
         }
     }
 
-    override func apply<Object: AnyObject, Target, Input, Output, Closure, Index: ListIndex>(
-        _ function: ListDelegate.IndexFunction<Object, Delegate, Target, Input, Output, Closure, Index>,
+    override func apply<V: AnyObject, Input, Output, Index: ListIndex>(
+        _ selector: Selector,
         for context: Context,
         root: CoordinatorContext,
-        object: Object,
+        view: V,
         with input: Input,
+        index: Index,
         _ offset: Index
     ) -> Output? {
-        guard context.extraSelectors.contains(function.selector) else {
-            return super.apply(function, for: context, root: root, object: object, with: input, offset)
+        guard context.extraSelectors.contains(selector) else {
+            return super.apply(selector, for: context, root: root, view: view, with: input, index: index, offset)
         }
-        let output = wrapped.flatMap {
-            $0.coordinator.apply(function, for: $0.context, root: root, object: object, with: input, offset)
+        let output: Output? = wrapped.flatMap {
+            $0.coordinator.apply(selector, for: $0.context, root: root, view: view, with: input, index: index, offset)
         }
-        if function.noOutput {
-            return super.apply(function, for: context, root: root, object: object, with: input, offset) ?? output
+        if Output.self == Void.self {
+            return super.apply(selector, for: context, root: root, view: view, with: input, index: index, offset) ?? output
         } else {
-            return output ?? super.apply(function, for: context, root: root, object: object, with: input, offset)
+            return output ?? super.apply(selector, for: context, root: root, view: view, with: input, index: index, offset)
         }
     }
 

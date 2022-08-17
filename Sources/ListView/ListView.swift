@@ -22,10 +22,14 @@ public protocol ListView: NSObject {
     func moveSection(_ section: Int, toSection newSection: Int)
 }
 
-protocol SetuptableListView: ListView {
+protocol DelegateSetuptable {
+    var listDelegate: Delegate { get }
     func setup(with listDelegate: Delegate)
     func isDelegate(_ listDelegate: Delegate) -> Bool
+    func isCoordinator(_ coordinator: AnyObject) -> Bool
 }
+
+protocol SetuptableListView: ListView, DelegateSetuptable { }
 
 private var listDelegateKey: Void?
 

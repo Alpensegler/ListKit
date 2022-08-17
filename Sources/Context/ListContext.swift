@@ -10,22 +10,31 @@ import Foundation
 @dynamicMemberLookup
 public protocol Context {
     associatedtype Base: DataSource
-    associatedtype List
+    associatedtype View
 
     var source: Base.SourceBase.Source { get }
-    var listView: List { get }
+    var listView: View { get }
 }
 
-public struct ListContext<List, Base: DataSource>: Context {
-    public let listView: List
+public struct ListContext<View, Base: DataSource>: Context {
+    public let listView: View
     let context: ListCoordinatorContext<Base.SourceBase>
     let root: CoordinatorContext
 
     public var source: Base.SourceBase.Source { context.listCoordinator.source }
 }
 
-public struct ListIndexContext<List, Base: DataSource, Index>: Context {
-    public let listView: List
+extension ListContext {
+    init(view: AnyObject,
+         context: ListCoordinatorContext<Base.SourceBase>,
+         root: CoordinatorContext
+    ) {
+        self.init(listView: view as! View, context: context, root: root)
+    }
+}
+
+public struct ListIndexContext<View, Base: DataSource, Index>: Context {
+    public let listView: View
     public let index: Index
     public let offset: Index
     let context: ListCoordinatorContext<Base.SourceBase>
@@ -34,9 +43,31 @@ public struct ListIndexContext<List, Base: DataSource, Index>: Context {
     public var source: Base.SourceBase.Source { context.listCoordinator.source }
 }
 
-public extension DataSource {
-    typealias ListSectionContext<List: ListView> = ListIndexContext<List, Self, Int>
-    typealias ListModelContext<List: ListView> = ListIndexContext<List, Self, IndexPath>
+extension ListIndexContext {
+    init(view: AnyObject,
+         index: Index,
+         offset: Index,
+         context: ListCoordinatorContext<Base.SourceBase>,
+         root: CoordinatorContext
+    ) {
+        self.init(
+            listView: view as! View,
+            index: index,
+            offset: offset,
+            context: context,
+            root: root
+        )
+    }
+}
+
+public extension ListAdapter {
+    typealias ListContext = ListKit.ListContext<View, Self>
+    typealias ListModelContext = ListIndexContext<View, Self, IndexPath>
+    typealias ListSectionContext = ListIndexContext<View, Self, Int>
+
+    typealias Function<Input, Output, Closure> = ListDelegate.Function<View, Self, Input, Output, Closure>
+    typealias ModelFunction<Input, Output, Closure> = ListDelegate.IndexFunction<View, Self, Input, Output, Closure, IndexPath>
+    typealias SectionFunction<Input, Output, Closure> = ListDelegate.IndexFunction<View, Self, Input, Output, Closure, Int>
 }
 
 public extension Context {

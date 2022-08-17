@@ -7,12 +7,9 @@
 
 import Foundation
 
-final class Delegate: NSObject, DataSource {
-    typealias Model = Never
-
+final class Delegate: NSObject {
     unowned let listView: SetuptableListView
     var context: CoordinatorContext!
-    var source: Never { fatalError() }
 
     init(_ listView: SetuptableListView) {
         self.listView = listView
@@ -45,30 +42,31 @@ final class Delegate: NSObject, DataSource {
         completion?(true)
     }
 
-    func apply<Object: AnyObject, Target, Input, Output, Closure>(
-        _ function: ListDelegate.Function<Object, Delegate, Target, Input, Output, Closure>,
-        object: Object,
+    func apply<View: AnyObject, Input, Output>(
+        _ selector: Selector,
+        view: View,
         with input: Input
     ) -> Output? {
         guard context.valid else { return nil }
-        return context.apply(function, root: context, object: object, with: input)
+        return context.apply(selector, root: context, view: view, with: input)
     }
 
-    func apply<Object: AnyObject, Target, Output, Closure>(
-        _ function: ListDelegate.Function<Object, Delegate, Target, Void, Output, Closure>,
-        object: Object
+    func apply<View: AnyObject, Output>(
+        _ selector: Selector,
+        view: View
     ) -> Output? {
         guard context.valid else { return nil }
-        return context.apply(function, root: context, object: object, with: ())
+        return context.apply(selector, root: context, view: view, with: ())
     }
 
-    func apply<Object: AnyObject, Target, Input, Output, Closure, Index: ListIndex>(
-        _ function: ListDelegate.IndexFunction<Object, Delegate, Target, Input, Output, Closure, Index>,
-        object: Object,
-        with input: Input
+    func apply<View: AnyObject, Input, Output, Index: ListIndex>(
+        _ selector: Selector,
+        view: View,
+        with input: Input,
+        index: Index
     ) -> Output? {
         guard context.valid else { return nil }
-        return context.apply(function, root: context, object: object, with: input)
+        return context.apply(selector, root: context, view: view, with: input, index: index)
     }
 
     override func responds(to aSelector: Selector!) -> Bool {

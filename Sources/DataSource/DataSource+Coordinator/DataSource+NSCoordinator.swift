@@ -11,18 +11,20 @@ public extension NSDataSource where SourceBase: NSDataSource {
     var listCoordinator: ListCoordinator<SourceBase> {
         sourceBase.coordinator(with: NSCoordinator(sourceBase))
     }
+}
 
-    func modelContext<List: ListView>(
-        for listView: List,
+public extension NSDataSource where SourceBase: NSDataSource, Self: ListAdapter {
+    func modelContext(
+        for listView: View,
         at indexPath: IndexPath
-    ) -> [ListModelContext<List>] {
+    ) -> [ListModelContext] {
         _modelContext(for: listView, at: indexPath)
     }
 
-    func modelContext<List: ListView>(
-        for listView: List,
+    func modelContext(
+        for listView: View,
         at index: Int
-    ) -> [ListModelContext<List>] {
+    ) -> [ListModelContext] {
         _modelContext(for: listView, at: .init(item: index))
     }
 }

@@ -17,8 +17,8 @@ public extension DataSource where SourceBase.Source == Model, SourceBase: Updata
     }
 }
 
-public extension UpdatableDataSource where SourceBase.Source == Model {
-    func modelContext<List: ListView>(for listView: List) -> [ListModelContext<List>] {
+public extension UpdatableDataSource where SourceBase.Source == Model, Self: ListAdapter {
+    func modelContext(for listView: View) -> [ListModelContext] {
         _modelContext(for: listView, at: .init(item: 0))
     }
 }

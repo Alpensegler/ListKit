@@ -77,33 +77,34 @@ public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase
     func configExtraSelector(delegate: ListDelegate) -> Set<Selector>? { nil }
 
     @discardableResult
-    func apply<Object: AnyObject, Target, Input, Output, Closure>(
-        _ function: ListDelegate.Function<Object, Delegate, Target, Input, Output, Closure>,
+    func apply<V: AnyObject, Input, Output>(
+        _ selector: Selector,
         for context: Context,
         root: CoordinatorContext,
-        object: Object,
+        view: V,
         with input: Input
     ) -> Output? {
-        guard let rawClosure = context.listDelegate.functions[function.selector],
-              let closure = rawClosure as? (Object, Context, CoordinatorContext, Input) -> Output
+        guard let rawClosure = context.listDelegate.functions[selector],
+              let closure = rawClosure as? (AnyObject, Context, CoordinatorContext, Input) -> Output
         else { return nil }
-        return closure(object, context, root, input)
+        return closure(view, context, root, input)
     }
 
     // swiftlint:disable function_parameter_count
     @discardableResult
-    func apply<Object: AnyObject, Target, Input, Output, Closure, Index: ListIndex>(
-        _ function: ListDelegate.IndexFunction<Object, Delegate, Target, Input, Output, Closure, Index>,
+    func apply<V: AnyObject, Input, Output, Index: ListIndex>(
+        _ selector: Selector,
         for context: Context,
         root: CoordinatorContext,
-        object: Object,
+        view: V,
         with input: Input,
+        index: Index,
         _ offset: Index
     ) -> Output? {
-        guard let rawClosure = context.listDelegate.functions[function.selector],
-              let closure = rawClosure as? (Object, Context, CoordinatorContext, Input, Index, Index) -> Output
+        guard let rawClosure = context.listDelegate.functions[selector],
+              let closure = rawClosure as? (AnyObject, Context, CoordinatorContext, Input, Index, Index) -> Output
         else { return nil }
-        return closure(object, context, root, input, function.indexForInput(input), offset)
+        return closure(view, context, root, input, index, offset)
     }
     // swiftlint:enable function_parameter_count
 

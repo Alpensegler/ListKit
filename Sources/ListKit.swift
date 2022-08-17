@@ -1,5 +1,4 @@
-public typealias UpdatableTableListAdapter = TableListAdapter & UpdatableDataSource
-public typealias UpdatableCollectionListAdapter = CollectionListAdapter & UpdatableDataSource
+public typealias UpdatableListAdapter = ListAdapter & UpdatableDataSource
 
 public enum Log {
     public static var logger: ((String) -> Void)?

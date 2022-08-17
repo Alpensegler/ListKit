@@ -31,9 +31,10 @@ public extension UpdatableDataSource
 where
     SourceBase.Source: DataSource,
     SourceBase.Source.SourceBase == AnySources,
-    SourceBase.Model == Any
+    SourceBase.Model == Any,
+    Self: ListAdapter
 {
-    func modelContext<List: ListView>(for listView: List, at index: IndexPath) -> [ListModelContext<List>] {
+    func modelContext(for listView: View, at index: IndexPath) -> [ListModelContext] {
         _modelContext(for: listView, at: index)
     }
 }

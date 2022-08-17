@@ -263,49 +263,49 @@ where
         return results
     }
 
-    override func apply<Object: AnyObject, Target, Input, Output, Closure>(
-        _ function: ListDelegate.Function<Object, Delegate, Target, Input, Output, Closure>,
+    override func apply<V: AnyObject, Input, Output>(
+        _ selector: Selector,
         for context: Context,
         root: CoordinatorContext,
-        object: Object,
+        view: V,
         with input: Input
     ) -> Output? {
-        guard context.extraSelectors.contains(function.selector) else {
-            return super.apply(function, for: context, root: root, object: object, with: input)
+        guard context.extraSelectors.contains(selector) else {
+            return super.apply(selector, for: context, root: root, view: view, with: input)
         }
-        if function.noOutput {
-            let output = subsources.compactMap { (element) in
-                element.coordinator.apply(function, for: element.context, root: root, object: object, with: input)
+        if Output.self == Void.self {
+            let output: Output? = subsources.compactMap { (element) in
+                element.coordinator.apply(selector, for: element.context, root: root, view: view, with: input)
             }.first
-            return super.apply(function, for: context, root: root, object: object, with: input) ?? output
+            return super.apply(selector, for: context, root: root, view: view, with: input) ?? output
         } else {
-            let output = subsources.lazy.compactMap { (element) in
-                element.coordinator.apply(function, for: element.context, root: root, object: object, with: input)
+            let output: Output? = subsources.lazy.compactMap { (element) in
+                element.coordinator.apply(selector, for: element.context, root: root, view: view, with: input)
             }.first
-            return output ?? super.apply(function, for: context, root: root, object: object, with: input)
+            return output ?? super.apply(selector, for: context, root: root, view: view, with: input)
         }
     }
 
-    override func apply<Object: AnyObject, Target, Input, Output, Closure, Index: ListIndex>(
-        _ function: ListDelegate.IndexFunction<Object, Delegate, Target, Input, Output, Closure, Index>,
+    override func apply<V: AnyObject, Input, Output, Index: ListIndex>(
+        _ selector: Selector,
         for context: Context,
         root: CoordinatorContext,
-        object: Object,
+        view: V,
         with input: Input,
+        index: Index,
         _ offset: Index
     ) -> Output? {
-        guard context.extraSelectors.contains(function.selector) else {
-            return super.apply(function, for: context, root: root, object: object, with: input, offset)
+        guard context.extraSelectors.contains(selector) else {
+            return super.apply(selector, for: context, root: root, view: view, with: input, index: index, offset)
         }
-        let path = function.indexForInput(input)
-        let index = sourceIndex(for: path.offseted(offset, plus: false))
-        let subsource = subsources[index], subcontext = subsource.context, subcoordinator = subsource.coordinator
+        let sourceIndex = sourceIndex(for: index.offseted(offset, plus: false))
+        let subsource = subsources[sourceIndex], subcontext = subsource.context, subcoordinator = subsource.coordinator
         let offset = offset.offseted(subsource.offset, isSection: sourceType == .section)
-        let output = subcoordinator.apply(function, for: subcontext, root: root, object: object, with: input, offset)
-        if function.noOutput {
-            return super.apply(function, for: context, root: root, object: object, with: input, offset) ?? output
+        let output: Output? = subcoordinator.apply(selector, for: subcontext, root: root, view: view, with: input, index: index, offset)
+        if Output.self == Void.self {
+            return super.apply(selector, for: context, root: root, view: view, with: input, index: index, offset) ?? output
         } else {
-            return output ?? super.apply(function, for: context, root: root, object: object, with: input, offset)
+            return output ?? super.apply(selector, for: context, root: root, view: view, with: input, index: index, offset)
         }
     }
 

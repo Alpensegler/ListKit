@@ -19,18 +19,19 @@ protocol CoordinatorContext: AnyObject {
 
     func contain(selector: Selector) -> Bool
 
-    func apply<Object: AnyObject, Target, Input, Output, Closure>(
-        _ function: ListDelegate.Function<Object, Delegate, Target, Input, Output, Closure>,
+    func apply<View: AnyObject, Input, Output>(
+        _ selector: Selector,
         root: CoordinatorContext,
-        object: Object,
+        view: View,
         with input: Input
     ) -> Output?
 
-    func apply<Object: AnyObject, Target, Input, Output, Closure, Index: ListIndex>(
-        _ function: ListDelegate.IndexFunction<Object, Delegate, Target, Input, Output, Closure, Index>,
+    func apply<View: AnyObject, Input, Output, Index: ListIndex>(
+        _ selector: Selector,
         root: CoordinatorContext,
-        object: Object,
-        with input: Input
+        view: View,
+        with input: Input,
+        index: Index
     ) -> Output?
 
     func perform(updates: BatchUpdates?, animated: Bool, completion: ((ListView, Bool) -> Void)?)
@@ -93,23 +94,24 @@ where SourceBase.SourceBase == SourceBase {
 
     // Selectors
     @discardableResult
-    func apply<Object: AnyObject, Target, Input, Output, Closure>(
-        _ function: ListDelegate.Function<Object, Delegate, Target, Input, Output, Closure>,
+    func apply<View: AnyObject, Input, Output>(
+        _ selector: Selector,
         root: CoordinatorContext,
-        object: Object,
+        view: View,
         with input: Input
     ) -> Output? {
-        listCoordinator.apply(function, for: self, root: root, object: object, with: input)
+        listCoordinator.apply(selector, for: self, root: root, view: view, with: input)
     }
 
     @discardableResult
-    func apply<Object: AnyObject, Target, Input, Output, Closure, Index: ListIndex>(
-        _ function: ListDelegate.IndexFunction<Object, Delegate, Target, Input, Output, Closure, Index>,
+    func apply<View: AnyObject, Input, Output, Index: ListIndex>(
+        _ selector: Selector,
         root: CoordinatorContext,
-        object: Object,
-        with input: Input
+        view: View,
+        with input: Input,
+        index: Index
     ) -> Output? {
-        listCoordinator.apply(function, for: self, root: root, object: object, with: input, .zero)
+        listCoordinator.apply(selector, for: self, root: root, view: view, with: input, index: index, .zero)
     }
 
     func contain(selector: Selector) -> Bool {

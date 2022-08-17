@@ -45,19 +45,11 @@ public enum ConditionalSources<TrueContent: DataSource, FalseContent: DataSource
     }
 }
 
-extension ConditionalSources: ScrollListAdapter
-where TrueContent: ScrollListAdapter, FalseContent: ScrollListAdapter { }
+extension ConditionalSources: ListAdapter
+where TrueContent: ListAdapter, FalseContent: ListAdapter, TrueContent.View == FalseContent.View {
+    public typealias View = TrueContent.View
 
-extension ConditionalSources: TableListAdapter
-where TrueContent: TableListAdapter, FalseContent: TableListAdapter {
-    public var tableList: TableList<ConditionalSources<TrueContent, FalseContent>> {
-        .init(self)
-    }
-}
-
-extension ConditionalSources: CollectionListAdapter
-where TrueContent: CollectionListAdapter, FalseContent: CollectionListAdapter {
-    public var collectionList: CollectionList<ConditionalSources<TrueContent, FalseContent>> {
-        .init(self)
+    public var list: ListAdaptation<ConditionalSources<TrueContent, FalseContent>, View> {
+        ListAdaptation<AdapterBase, View>(self)
     }
 }

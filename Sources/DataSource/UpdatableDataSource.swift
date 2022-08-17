@@ -111,12 +111,12 @@ extension UpdatableDataSource where SourceBase == Self {
     }
 }
 
-extension UpdatableDataSource {
-    func _modelContext<List: ListView>(
-        for listView: List,
+extension UpdatableDataSource where Self: ListAdapter {
+    func _modelContext(
+        for listView: View,
         at indexPath: IndexPath
-    ) -> [ListModelContext<List>] {
-        var results = [ListModelContext<List>]()
+    ) -> [ListModelContext] {
+        var results = [ListModelContext]()
         for context in listCoordinator.listContexts {
             guard let context = context.context else { continue }
             if context.listView === listView {

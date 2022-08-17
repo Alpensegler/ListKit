@@ -37,9 +37,10 @@ where
     SourceBase: UpdatableDataSource,
     SourceBase.Source: RangeReplaceableCollection,
     SourceBase.Source.Element: DataSource,
-    SourceBase.Source.Element.SourceBase.Model == Model
+    SourceBase.Source.Element.SourceBase.Model == Model,
+    Self: ListAdapter
 {
-    func modelContext<List: ListView>(for listView: List, at index: IndexPath) -> [ListModelContext<List>] {
+    func modelContext(for listView: View, at index: IndexPath) -> [ListModelContext] {
         _modelContext(for: listView, at: index)
     }
 }

@@ -8,8 +8,8 @@
 #if os(iOS) || os(tvOS)
 import UIKit
 
-public extension ListIndexContext where Index == IndexPath, List: UIListView {
-    func select(animated: Bool, scrollPosition: List.ScrollPosition) {
+public extension ListIndexContext where Index == IndexPath, View: UIListView {
+    func select(animated: Bool, scrollPosition: View.ScrollPosition) {
         listView.selectItem(at: index, animated: animated, scrollPosition: scrollPosition)
     }
 
@@ -17,7 +17,7 @@ public extension ListIndexContext where Index == IndexPath, List: UIListView {
         listView.deselectItem(at: index, animated: animated)
     }
 
-    var cell: List.Cell? {
+    var cell: View.Cell? {
         listView.cellForItem(at: index)
     }
 
@@ -57,7 +57,7 @@ public extension ListIndexContext where Index == IndexPath, List: UIListView {
     }
 }
 
-public extension ListIndexContext where Index == IndexPath, List: UICollectionView {
+public extension ListIndexContext where Index == IndexPath, View: UICollectionView {
     func dequeueReusableSupplementaryView<SupplementaryView: UICollectionReusableView>(
         type: UICollectionView.SupplementaryViewType,
         _ supplementaryClass: SupplementaryView.Type,
@@ -87,7 +87,7 @@ public extension ListIndexContext where Index == IndexPath, List: UICollectionVi
     }
 }
 
-public extension Context where List: UITableView {
+public extension Context where View: UITableView {
     func dequeueReusableSupplementaryView<SupplementaryView: UITableViewHeaderFooterView>(
         type: UITableView.SupplementaryViewType,
         _ supplementaryClass: SupplementaryView.Type,

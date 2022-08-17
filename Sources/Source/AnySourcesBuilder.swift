@@ -25,14 +25,14 @@ public struct AnySourcesBuilder {
     public static func buildEither<TrueContent, FalseContent>(
         trueContent: TrueContent
     ) -> ConditionalSources<TrueContent, FalseContent>
-    where TrueContent: TableListAdapter, FalseContent: TableListAdapter {
+    where TrueContent: DataSource, FalseContent: DataSource {
         .trueContent(trueContent)
     }
 
     public static func buildEither<TrueContent, FalseContent>(
         falseContent: FalseContent
     ) -> ConditionalSources<TrueContent, FalseContent>
-    where TrueContent: TableListAdapter, FalseContent: TableListAdapter {
+    where TrueContent: DataSource, FalseContent: DataSource {
         .falseContent(falseContent)
     }
 

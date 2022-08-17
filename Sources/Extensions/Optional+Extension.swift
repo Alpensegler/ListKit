@@ -27,13 +27,9 @@ extension Optional: DataSource where Wrapped: DataSource {
     }
 }
 
-extension Optional: ScrollListAdapter where Wrapped: ScrollListAdapter { }
-extension Optional: TableListAdapter where Wrapped: TableListAdapter {
-    public var tableList: TableList<Self> { .init(self) }
-}
-
-extension Optional: CollectionListAdapter where Wrapped: CollectionListAdapter {
-    public var collectionList: CollectionList<Self> { .init(self) }
+extension Optional: ListAdapter where Wrapped: ListAdapter {
+    public typealias View = Wrapped.View
+    public var list: ListAdaptation<Self, View> { ListAdaptation<AdapterBase, View>(self) }
 }
 
 extension Optional {

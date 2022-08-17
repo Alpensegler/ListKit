@@ -1,21 +1,20 @@
 //
-//  ScrollListAdapter.swift
+//  ListAdapter.swift
 //  ListKit
 //
-//  Created by Frain on 2019/12/5.
+//  Created by Frain on 2022/8/12.
 //
 
-public protocol ScrollListAdapter: DataSource {
-    var scrollList: ScrollList<AdapterBase> { get }
-}
+public protocol ListAdapter: DataSource {
+    associatedtype View: ListView = TableView
 
-public extension ScrollListAdapter {
-    var scrollList: ScrollList<AdapterBase> { ScrollList(adapterBase) }
+    @ListBuilder<AdapterBase, View>
+    var list: ListAdaptation<AdapterBase, View> { get }
 }
 
 @propertyWrapper
 @dynamicMemberLookup
-public class ScrollList<Source: DataSource>: ScrollListAdapter, UpdatableDataSource
+public struct ListAdaptation<Source: DataSource, View: ListView>: ListAdapter
 where Source.AdapterBase == Source {
     public typealias Model = Source.Model
     public typealias SourceBase = Source.SourceBase
@@ -41,7 +40,8 @@ where Source.AdapterBase == Source {
         return storage
     }())
 
-    public var scrollList: ScrollList<Source> { self }
+    public var list: ListAdaptation<Source, View> { self }
+
     public var wrappedValue: Source {
         get { source }
         set { source = newValue }
@@ -56,7 +56,7 @@ where Source.AdapterBase == Source {
         set { source[keyPath: path] = newValue }
     }
 
-    required init<OtherSource: DataSource>(
+    init<OtherSource: DataSource>(
         _ source: OtherSource,
         options: ListOptions = .init()
     ) where Source == AnySources {
@@ -64,19 +64,50 @@ where Source.AdapterBase == Source {
         self.listDelegate = .init()
     }
 
-    required init(_ source: Source) {
+    init(_ source: Source) {
         self.source = source
         self.listDelegate = source.listDelegate
     }
 
-    required init(_ source: Source, listDelegate: ListDelegate) {
+    init(_ source: Source, listDelegate: ListDelegate) {
         self.source = source
         self.listDelegate = listDelegate
     }
 }
 
-extension ScrollList: ModelCachedDataSource where Source: ModelCachedDataSource {
+public extension ListAdapter {
+    @discardableResult
+    func apply(
+        by listView: View,
+        update: ListUpdate<SourceBase>.Whole?,
+        animated: Bool = true,
+        completion: ((Bool) -> Void)? = nil
+    ) -> ListAdaptation<AdapterBase, View> {
+        let list = self.list
+        (listView as? DelegateSetuptable)?.listDelegate.setCoordinator(
+            context: listCoordinatorContext,
+            update: update,
+            animated: animated,
+            completion: completion
+        )
+        return list
+    }
+
+    @discardableResult
+    func apply(
+        by listView: View,
+        animated: Bool = true,
+        completion: ((Bool) -> Void)? = nil
+    ) -> ListAdaptation<AdapterBase, View> {
+        apply(by: listView, update: listUpdate, animated: animated, completion: completion)
+    }
+}
+
+extension ListAdaptation: ModelCachedDataSource where Source: ModelCachedDataSource {
     public typealias ModelCache = Source.ModelCache
 
     public var modelCached: ModelCached<Source.SourceBase, Source.ModelCache> { source.modelCached }
+    public var base: ListAdaptation<Source.SourceBase.AdapterBase, View> {
+        .init(source.sourceBase.adapterBase, listDelegate: listDelegate)
+    }
 }

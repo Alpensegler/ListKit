@@ -3,7 +3,7 @@
 import ListKit
 import UIKit
 
-public class DoubleListViewController: UIViewController, TableListAdapter, CollectionListAdapter, UpdatableDataSource {
+public class DoubleListViewController: UIViewController, UpdatableListAdapter {
     private let _models = ["Roy", "Pinlin", "Zhiyi", "Frain", "Jack", "Cookie", "Kubrick", "Jeremy", "Juhao", "Herry"]
 
     public typealias Model = String
@@ -17,37 +17,34 @@ public class DoubleListViewController: UIViewController, TableListAdapter, Colle
         shuffledModels.removeLast()
         return shuffledModels.shuffled()
     }
-
-    public var scrollList: ScrollList<DoubleListViewController> {
+    
+    public var list: ListAdaptation<DoubleListViewController, UITableView> {
         scrollViewDidEndDragging { _, _ in
             print("didEndDragging")
         }
-        .scrollViewWillBeginDragging { (context) in
+        scrollViewWillBeginDragging { (context) in
             print("didDrag")
         }
-    }
-
-    public var tableList: TableList<DoubleListViewController> {
         tableViewCellForRow()
-        .tableViewDidSelectRow { [unowned self] (context, item) in
+        tableViewDidSelectRow { [unowned self] (context, item) in
             perform(.remove(at: context.item))
         }
     }
 
-    public var collectionList: CollectionList<DoubleListViewController> {
-        collectionViewCellForItem(CenterLabelCell.self) { (cell, _, item) in
-            cell.text = "\(item)"
-        }
-        .collectionViewLayoutSizeForItem { (item) -> CGSize in
-            print("fake calculating size for \(item)")
-            return CGSize(width: 75, height: 75)
-        }
-        .collectionViewLayoutInsetForSection(UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10))
-    }
+//    public var collectionList: CollectionList<DoubleListViewController> {
+//        collectionViewCellForItem(CenterLabelCell.self) { (cell, _, item) in
+//            cell.text = "\(item)"
+//        }
+//        .collectionViewLayoutSizeForItem { (item) -> CGSize in
+//            print("fake calculating size for \(item)")
+//            return CGSize(width: 75, height: 75)
+//        }
+//        .collectionViewLayoutInsetForSection(UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10))
+//    }
 
     public override func viewDidLoad() {
         super.viewDidLoad()
-        apply(by: collectionView)
+//        apply(by: collectionView)
         apply(by: tableView)
 
         navigationItem.rightBarButtonItems = [

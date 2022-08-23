@@ -3,7 +3,7 @@ import UIKit
 
 // swiftlint:disable comment_spacing
 
-public class TestListViewController: UIViewController, UpdatableTableListAdapter {
+public class TestListViewController: UIViewController, UpdatableListAdapter {
     public var toggle = true
 
     lazy var itemSource = ItemSource()
@@ -14,7 +14,7 @@ public class TestListViewController: UIViewController, UpdatableTableListAdapter
         }
         .tableViewHeaderTitleForSection("items")
 
-    final class ItemSource: UpdatableTableListAdapter {
+    final class ItemSource: UpdatableListAdapter {
         // swiftlint: disable nesting
         public typealias Model = Any
         // swiftlint: enable nesting
@@ -47,27 +47,27 @@ public class TestListViewController: UIViewController, UpdatableTableListAdapter
     public typealias Model = Any
     public var source: AnyTableSources {
         AnyTableSources {
-            if toggle {
-                itemSource
-                itemsSource
-            }
+//            if toggle {
+//                itemSource
+//                itemsSource
+//            }
             Sources(sections: [[1, 2, 3], [1, 2, 3]])
                 .tableViewCellForRow()
                 .tableViewHeaderTitleForSection("sections")
-            AnyTableSources {
-                Sources(model: 2)
-                    .tableViewCellForRow()
-                    .tableViewDidSelectRow { (context, item) in
-                        context.deselect(animated: false)
-                        print(item)
-                    }
-                Sources(models: ["a", "b", "c"])
-                    .tableViewCellForRow()
-                    .tableViewDidSelectRow { (context, item) in
-                        context.deselect(animated: false)
-                        print(item)
-                    }
-            }.tableViewHeaderTitleForSection("sources")
+//            AnyTableSources {
+//                Sources(model: 2)
+//                    .tableViewCellForRow()
+//                    .tableViewDidSelectRow { (context, item) in
+//                        context.deselect(animated: false)
+//                        print(item)
+//                    }
+//                Sources(models: ["a", "b", "c"])
+//                    .tableViewCellForRow()
+//                    .tableViewDidSelectRow { (context, item) in
+//                        context.deselect(animated: false)
+//                        print(item)
+//                    }
+//            }.tableViewHeaderTitleForSection("sources")
         }
     }
 
@@ -90,7 +90,7 @@ public class TestListViewController: UIViewController, UpdatableTableListAdapter
     }
 
     func batchRemove(at item: Int) {
-        itemsSource.perform(.remove(at: item))
+//        itemsSource.perform(.remove(at: item))
     }
 }
 

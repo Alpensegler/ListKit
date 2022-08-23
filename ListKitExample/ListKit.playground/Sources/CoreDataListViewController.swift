@@ -11,7 +11,7 @@ import UIKit
 
 // swiftlint: disable unused_closure_parameter comment_spacing
 
-public class CoreDataListViewController: UIViewController, UpdatableTableListAdapter {
+public class CoreDataListViewController: UIViewController, UpdatableListAdapter {
     var fetchLimit = 3
 
     public var toggle = true
@@ -53,12 +53,12 @@ public class CoreDataListViewController: UIViewController, UpdatableTableListAda
             managedObjectContext: Self.managedObjectContext,
             sectionNameKeyPath: "done"
         )
-        controller.shouldMoveItem = { [unowned tableView] (controller, todo, indexPath, _) in
-            controller.modelContext(for: tableView, at: indexPath).forEach {
-                $0.cell?.configUI(with: todo)
-            }
-            return true
-        }
+//        controller.shouldMoveItem = { [unowned tableView] (controller, todo, indexPath, _) in
+//            controller.modelContext(for: tableView, at: indexPath).forEach {
+//                $0.cell?.configUI(with: todo)
+//            }
+//            return true
+//        }
         try? controller.performFetch()
         return controller
     }
@@ -75,7 +75,7 @@ public class CoreDataListViewController: UIViewController, UpdatableTableListAda
         return controller
     }
 
-    func configLoadMore() -> TableList<ModelSources<String>> {
+    func configLoadMore() -> ListAdaptation<ModelSources<String>, UITableView> {
         Sources(model: "loadmore")
             .tableViewCellForRow(UITableViewCell.self) { (cell, context, item) in
                 cell.textLabel?.text = item
@@ -88,7 +88,7 @@ public class CoreDataListViewController: UIViewController, UpdatableTableListAda
                 try? self.recent.performFetch()
                 self.recent.perform(.appendOrRemoveLast)
                 if self.recent.fetchedObjects.count <= self.fetchLimit {
-                    self.loadMore.perform(.remove)
+//                    self.loadMore.perform(.remove)
                 }
             }
     }
@@ -170,7 +170,7 @@ extension NSManagedObject {
 #endif
 
 extension DataSource where Model == ToDo {
-    func tableConfig() -> TableList<AdapterBase> {
+    func tableConfig() -> ListAdaptation<AdapterBase, UITableView> {
         tableViewCellForRow(UITableViewCell.self) { (cell, context, todo) in
             cell.configUI(with: todo)
         }

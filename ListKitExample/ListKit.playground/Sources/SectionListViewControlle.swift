@@ -3,7 +3,7 @@ import UIKit
 
 // swiftlint:disable comment_spacing
 
-public class SectionListViewControlle: UIViewController, UpdatableCollectionListAdapter {
+public class SectionListViewControlle: UIViewController, UpdatableListAdapter {
     static let emojis = (0x1F600...0x1F647).compactMap { UnicodeScalar($0) }
 
     public typealias Model = UnicodeScalar
@@ -12,13 +12,13 @@ public class SectionListViewControlle: UIViewController, UpdatableCollectionList
             Array(Self.emojis.shuffled()[0..<Int.random(in: 20...30)])
         }
     }
-
-    public var collectionList: CollectionList<SectionListViewControlle> {
+    
+    public var list: ListAdaptation<SectionListViewControlle, UICollectionView> {
         collectionViewCellForItem(CenterLabelCell.self) { (cell, _, item) in
             cell.text = "\(item)"
         }
-        .collectionViewLayoutSizeForItem(CGSize(width: 30, height: 30))
-        .collectionViewLayoutInsetForSection(UIEdgeInsets(top: 20, left: 10, bottom: 20, right: 10))
+        collectionViewLayoutSizeForItem(CGSize(width: 30, height: 30))
+        collectionViewLayoutInsetForSection(UIEdgeInsets(top: 20, left: 10, bottom: 20, right: 10))
     }
 
     public override func viewDidLoad() {

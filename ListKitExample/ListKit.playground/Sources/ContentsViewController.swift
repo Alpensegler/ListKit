@@ -1,22 +1,23 @@
 import ListKit
 import UIKit
 
-public class ContentsViewController: UIViewController, UpdatableTableListAdapter {
+public class ContentsViewController: UIViewController, UpdatableListAdapter {
     public typealias Model = (title: String, viewController: UIViewController.Type)
     public var source = [Model]()
-
-    public var tableList: TableList<ContentsViewController> {
+    
+    public var list: ListAdaptation<ContentsViewController, UITableView> {
         tableViewCellForRow { (context, item) -> UITableViewCell in
             let labelCell = context.dequeueReusableCell(UITableViewCell.self)
             labelCell.textLabel?.text = item.title
             return labelCell
         }
-        .tableViewDidSelectRow { [unowned navigationController] (context, item) in
+        tableViewDidSelectRow { [unowned navigationController] (context, item) in
             context.deselect(animated: true)
             let viewController = item.viewController.init()
             viewController.title = item.title
             navigationController?.pushViewController(viewController, animated: true)
         }
+        tableViewHeaderTitleForSection("sections")
     }
 
     public override func viewDidLoad() {

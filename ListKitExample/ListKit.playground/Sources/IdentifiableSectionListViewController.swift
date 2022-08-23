@@ -9,7 +9,7 @@ public struct Room: UpdatableDataSource {
     let people: [String]
 }
 
-extension Room: CollectionListAdapter, ModelCachedDataSource {
+extension Room: ListAdapter, ModelCachedDataSource {
     public typealias Model = String
     public typealias ModelCache = String
 
@@ -17,20 +17,20 @@ extension Room: CollectionListAdapter, ModelCachedDataSource {
     public var listDiffer: ListDiffer<Room> { .diff(id: \.name) }
     public var listOptions: ListOptions { .removeEmptySection }
     public var modelCached: ModelCached<Room, String> { withModelCached { $0 } }
-
-    public var collectionList: CollectionList<Room> {
+    
+    public var list: ListAdaptation<Room, UICollectionView> {
         collectionViewCellForItem(CenterLabelCell.self) { (cell, context, item) in
             cell.text = item
         }
-        .collectionViewDidSelectItem { (context, item) in
+        collectionViewDidSelectItem { (context, item) in
             perform(.remove(at: context.item))
         }
-        .collectionViewLayoutSizeForItem(CGSize(width: 70, height: 70))
-        .collectionViewLayoutInsetForSection(UIEdgeInsets(top: 10, left: 10, bottom: 30, right: 10))
-        .collectionViewLayoutMinimumLineSpacingForSection(50)
-        .collectionViewLayoutMinimumInteritemSpacingForSection(5)
-        .collectionViewLayoutReferenceSizeForHeaderInSection(CGSize(width: UIScreen.main.bounds.width, height: 30))
-        .collectionViewSupplementaryViewForItem {
+        collectionViewLayoutSizeForItem(CGSize(width: 70, height: 70))
+        collectionViewLayoutInsetForSection(UIEdgeInsets(top: 10, left: 10, bottom: 30, right: 10))
+        collectionViewLayoutMinimumLineSpacingForSection(50)
+        collectionViewLayoutMinimumInteritemSpacingForSection(5)
+        collectionViewLayoutReferenceSizeForHeaderInSection(CGSize(width: UIScreen.main.bounds.width, height: 30))
+        collectionViewSupplementaryViewForItem { [name] in
             let header = $0.dequeueReusableSupplementaryView(type: $1, TitleHeader.self)
             header.text = name
             return header
@@ -38,9 +38,10 @@ extension Room: CollectionListAdapter, ModelCachedDataSource {
     }
 }
 
-public class IdentifiableSectionListViewController: UIViewController, UpdatableCollectionListAdapter, ModelCachedDataSource {
+public class IdentifiableSectionListViewController: UIViewController, UpdatableListAdapter, ModelCachedDataSource {
     public typealias Model = String
     public typealias ModelCache = String
+    public typealias View = UICollectionView
 
     public var source: [Room] {
         Room.random

@@ -3,7 +3,7 @@
 import ListKit
 import UIKit
 
-public class NestedListViewController: UIViewController, UpdatableTableListAdapter {
+public class NestedListViewController: UIViewController, UpdatableListAdapter {
     public typealias Model = Any
 
     let nestedSources = Sources(models: 0..<10)

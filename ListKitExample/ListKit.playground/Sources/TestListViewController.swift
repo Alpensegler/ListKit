@@ -47,27 +47,27 @@ public class TestListViewController: UIViewController, UpdatableListAdapter {
     public typealias Model = Any
     public var source: AnyTableSources {
         AnyTableSources {
-//            if toggle {
-//                itemSource
-//                itemsSource
-//            }
+            if toggle {
+                itemSource
+                itemsSource
+            }
             Sources(sections: [[1, 2, 3], [1, 2, 3]])
                 .tableViewCellForRow()
                 .tableViewHeaderTitleForSection("sections")
-//            AnyTableSources {
-//                Sources(model: 2)
-//                    .tableViewCellForRow()
-//                    .tableViewDidSelectRow { (context, item) in
-//                        context.deselect(animated: false)
-//                        print(item)
-//                    }
-//                Sources(models: ["a", "b", "c"])
-//                    .tableViewCellForRow()
-//                    .tableViewDidSelectRow { (context, item) in
-//                        context.deselect(animated: false)
-//                        print(item)
-//                    }
-//            }.tableViewHeaderTitleForSection("sources")
+            AnyTableSources {
+                Sources(model: 2)
+                    .tableViewCellForRow()
+                    .tableViewDidSelectRow { (context, item) in
+                        context.deselect(animated: false)
+                        print(item)
+                    }
+                Sources(models: ["a", "b", "c"])
+                    .tableViewCellForRow()
+                    .tableViewDidSelectRow { (context, item) in
+                        context.deselect(animated: false)
+                        print(item)
+                    }
+            }.tableViewHeaderTitleForSection("sources")
         }
     }
 

@@ -4,7 +4,7 @@ import UIKit
 public class ContentsViewController: UIViewController, UpdatableListAdapter {
     public typealias Model = (title: String, viewController: UIViewController.Type)
     public var source = [Model]()
-    
+
     public var list: ListAdaptation<ContentsViewController, UITableView> {
         tableViewCellForRow { (context, item) -> UITableViewCell in
             let labelCell = context.dequeueReusableCell(UITableViewCell.self)
@@ -17,7 +17,6 @@ public class ContentsViewController: UIViewController, UpdatableListAdapter {
             viewController.title = item.title
             navigationController?.pushViewController(viewController, animated: true)
         }
-        tableViewHeaderTitleForSection("sections")
     }
 
     public override func viewDidLoad() {

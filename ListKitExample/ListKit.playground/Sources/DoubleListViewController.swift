@@ -17,7 +17,7 @@ public class DoubleListViewController: UIViewController, UpdatableListAdapter {
         shuffledModels.removeLast()
         return shuffledModels.shuffled()
     }
-    
+
     public var list: ListAdaptation<DoubleListViewController, UITableView> {
         scrollViewDidEndDragging { _, _ in
             print("didEndDragging")

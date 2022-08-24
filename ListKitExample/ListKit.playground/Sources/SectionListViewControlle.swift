@@ -12,7 +12,7 @@ public class SectionListViewControlle: UIViewController, UpdatableListAdapter {
             Array(Self.emojis.shuffled()[0..<Int.random(in: 20...30)])
         }
     }
-    
+
     public var list: ListAdaptation<SectionListViewControlle, UICollectionView> {
         collectionViewCellForItem(CenterLabelCell.self) { (cell, _, item) in
             cell.text = "\(item)"

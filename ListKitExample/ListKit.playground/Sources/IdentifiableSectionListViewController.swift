@@ -17,7 +17,7 @@ extension Room: ListAdapter, ModelCachedDataSource {
     public var listDiffer: ListDiffer<Room> { .diff(id: \.name) }
     public var listOptions: ListOptions { .removeEmptySection }
     public var modelCached: ModelCached<Room, String> { withModelCached { $0 } }
-    
+
     public var list: ListAdaptation<Room, UICollectionView> {
         collectionViewCellForItem(CenterLabelCell.self) { (cell, context, item) in
             cell.text = item

@@ -45,28 +45,31 @@ final class Delegate: NSObject {
     func apply<View: AnyObject, Input, Output>(
         _ selector: Selector,
         view: View,
-        with input: Input
-    ) -> Output? {
-        guard context.valid else { return nil }
-        return context.apply(selector, root: context, view: view, with: input)
+        with input: Input,
+        default: @autoclosure () -> Output
+    ) -> Output {
+        guard context.valid else { return `default`() }
+        return context.apply(selector, root: context, view: view, with: input) ?? `default`()
     }
 
     func apply<View: AnyObject, Output>(
         _ selector: Selector,
-        view: View
-    ) -> Output? {
-        guard context.valid else { return nil }
-        return context.apply(selector, root: context, view: view, with: ())
+        view: View,
+        default: @autoclosure () -> Output
+    ) -> Output {
+        guard context.valid else { return `default`() }
+        return context.apply(selector, root: context, view: view, with: ()) ?? `default`()
     }
 
     func apply<View: AnyObject, Input, Output, Index: ListIndex>(
         _ selector: Selector,
         view: View,
         with input: Input,
-        index: Index
-    ) -> Output? {
-        guard context.valid else { return nil }
-        return context.apply(selector, root: context, view: view, with: input, index: index)
+        index: Index,
+        default: @autoclosure () -> Output
+    ) -> Output {
+        guard context.valid else { return `default`() }
+        return context.apply(selector, root: context, view: view, with: input, index: index) ?? `default`()
     }
 
     override func responds(to aSelector: Selector!) -> Bool {

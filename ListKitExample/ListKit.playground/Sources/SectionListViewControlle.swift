@@ -14,11 +14,11 @@ public class SectionListViewControlle: UIViewController, UpdatableListAdapter {
     }
 
     public var list: ListAdaptation<SectionListViewControlle, UICollectionView> {
-        collectionViewCellForItem(CenterLabelCell.self) { (cell, _, item) in
-            cell.text = "\(item)"
+        cellForItem(CenterLabelCell.self) { (cell, _, model) in
+            cell.text = "\(model)"
         }
-        collectionViewLayoutSizeForItem(CGSize(width: 30, height: 30))
-        collectionViewLayoutInsetForSection(UIEdgeInsets(top: 20, left: 10, bottom: 20, right: 10))
+        layoutSizeForItem(CGSize(width: 30, height: 30))
+        layoutInsetForSection(UIEdgeInsets(top: 20, left: 10, bottom: 20, right: 10))
     }
 
     public override func viewDidLoad() {

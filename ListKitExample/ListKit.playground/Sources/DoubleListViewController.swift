@@ -7,7 +7,6 @@ public class DoubleListViewController: UIViewController, UpdatableListAdapter {
     private let _models = ["Roy", "Pinlin", "Zhiyi", "Frain", "Jack", "Cookie", "Kubrick", "Jeremy", "Juhao", "Herry"]
 
     public typealias Model = String
-    public typealias ModelCache = CGSize
 
     var toggle = false
 
@@ -19,14 +18,14 @@ public class DoubleListViewController: UIViewController, UpdatableListAdapter {
     }
 
     public var list: ListAdaptation<DoubleListViewController, UITableView> {
-        scrollViewDidEndDragging { _, _ in
+        didEndDragging { _, _ in
             print("didEndDragging")
         }
-        scrollViewWillBeginDragging { (context) in
+        willBeginDragging { (context) in
             print("didDrag")
         }
-        tableViewCellForRow()
-        tableViewDidSelectRow { [unowned self] (context, item) in
+        cellForRow()
+        didSelectRow { [unowned self] (context, model) in
             perform(.remove(at: context.item))
         }
     }

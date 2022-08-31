@@ -5,6 +5,8 @@
 //  Created by Frain on 2019/12/8.
 //
 
+// swiftlint:disable line_length
+
 #if os(iOS) || os(tvOS)
 import UIKit
 

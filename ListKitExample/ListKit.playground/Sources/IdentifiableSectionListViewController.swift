@@ -19,18 +19,18 @@ extension Room: ListAdapter, ModelCachedDataSource {
     public var modelCached: ModelCached<Room, String> { withModelCached { $0 } }
 
     public var list: ListAdaptation<Room, UICollectionView> {
-        collectionViewCellForItem(CenterLabelCell.self) { (cell, context, item) in
-            cell.text = item
+        cellForItem(CenterLabelCell.self) { (cell, context, model) in
+            cell.text = model
         }
-        collectionViewDidSelectItem { (context, item) in
+        didSelectItem { (context, model) in
             perform(.remove(at: context.item))
         }
-        collectionViewLayoutSizeForItem(CGSize(width: 70, height: 70))
-        collectionViewLayoutInsetForSection(UIEdgeInsets(top: 10, left: 10, bottom: 30, right: 10))
-        collectionViewLayoutMinimumLineSpacingForSection(50)
-        collectionViewLayoutMinimumInteritemSpacingForSection(5)
-        collectionViewLayoutReferenceSizeForHeaderInSection(CGSize(width: UIScreen.main.bounds.width, height: 30))
-        collectionViewSupplementaryViewForItem { [name] in
+        layoutSizeForItem(CGSize(width: 70, height: 70))
+        layoutInsetForSection(UIEdgeInsets(top: 10, left: 10, bottom: 30, right: 10))
+        layoutMinimumLineSpacingForSection(50)
+        layoutMinimumInteritemSpacingForSection(5)
+        layoutReferenceSizeForHeaderInSection(CGSize(width: UIScreen.main.bounds.width, height: 30))
+        supplementaryViewForItem { [name] in
             let header = $0.dequeueReusableSupplementaryView(type: $1, TitleHeader.self)
             header.text = name
             return header

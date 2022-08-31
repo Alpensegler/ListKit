@@ -25,8 +25,8 @@ public class CoreDataListViewController: UIViewController, UpdatableListAdapter 
         AnyTableSources {
             todosList
                 .tableConfig()
-                .tableViewHeaderTitleForSection { [unowned self] (context) -> String? in
-                    self.todosList.section(at: context.section).name == "0" ? "TODO" : "Done"
+                .headerTitleForSection { [unowned self] (context) -> String? in
+                    todosList.section(at: context.section).name == "0" ? "TODO" : "Done"
                 }
             AnyTableSources(options: .removeEmptySection) {
                 recent
@@ -35,9 +35,7 @@ public class CoreDataListViewController: UIViewController, UpdatableListAdapter 
                     loadMore
                 }
             }
-            .tableViewHeaderTitleForSection { (context) -> String? in
-                "Recent"
-            }
+            .headerTitleForSection("Recent")
         }
     }
 
@@ -77,11 +75,11 @@ public class CoreDataListViewController: UIViewController, UpdatableListAdapter 
 
     func configLoadMore() -> ListAdaptation<ModelSources<String>, UITableView> {
         Sources(model: "loadmore")
-            .tableViewCellForRow(UITableViewCell.self) { (cell, context, item) in
-                cell.textLabel?.text = item
+            .cellForRow(UITableViewCell.self) { (cell, context, model) in
+                cell.textLabel?.text = model
                 cell.textLabel?.textAlignment = .center
             }
-            .tableViewDidSelectRow { [unowned self] (context, _) in
+            .didSelectRow { [unowned self] (context, _) in
                 context.deselect(animated: true)
                 self.fetchLimit += 3
                 self.recent.fetchedResultController.fetchRequest.fetchLimit = self.fetchLimit
@@ -171,15 +169,15 @@ extension NSManagedObject {
 
 extension DataSource where Model == ToDo {
     func tableConfig() -> ListAdaptation<AdapterBase, UITableView> {
-        tableViewCellForRow(UITableViewCell.self) { (cell, context, todo) in
+        cellForRow(UITableViewCell.self) { (cell, context, todo) in
             cell.configUI(with: todo)
         }
-        .tableViewDidSelectRow { (context, todo) in
+        .didSelectRow { (context, todo) in
             context.deselect(animated: true)
             todo.toggle()
         }
-        .tableViewCanEditRow(true)
-        .tableViewCommitEdittingStyleForRow { (context, style, todo) in
+        .canEditRow(true)
+        .commitEdittingStyleForRow { (context, style, todo) in
             guard style == .delete else { return }
             todo.delete()
         }

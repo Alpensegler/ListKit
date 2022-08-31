@@ -7,20 +7,20 @@ public class NestedListViewController: UIViewController, UpdatableListAdapter {
     public typealias Model = Any
 
     let nestedSources = Sources(models: 0..<10)
-        .collectionViewCellForItem(CenterLabelCell.self) { (cell, context, item) in
-            cell.text = "\(item)"
+        .cellForItem(CenterLabelCell.self) { (cell, context, model) in
+            cell.text = "\(model)"
         }
 
     public var source: AnyTableSources {
         AnyTableSources {
             Sources(model: nestedSources)
-                .tableViewCellForRow(EmbeddedCell.self) { (cell, context, item) in
+                .cellForRow(EmbeddedCell.self) { (cell, context, _) in
                     context.nestedAdapter(applyBy: cell.collectionView)
                 }
-                .tableViewHeightForRow(100)
+                .heightForRow(100)
             Sources(models: ["a", "b", "c"])
-                .tableViewCellForRow()
-                .tableViewHeightForRow(50)
+                .cellForRow()
+                .heightForRow(50)
         }
     }
 

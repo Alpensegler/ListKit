@@ -6,15 +6,15 @@ public class ContentsViewController: UIViewController, UpdatableListAdapter {
     public var source = [Model]()
 
     public var list: ListAdaptation<ContentsViewController, UITableView> {
-        tableViewCellForRow { (context, item) -> UITableViewCell in
+        cellForRow { (context, model) -> UITableViewCell in
             let labelCell = context.dequeueReusableCell(UITableViewCell.self)
-            labelCell.textLabel?.text = item.title
+            labelCell.textLabel?.text = model.title
             return labelCell
         }
-        tableViewDidSelectRow { [unowned navigationController] (context, item) in
+        didSelectRow { [unowned navigationController] (context, model) in
             context.deselect(animated: true)
-            let viewController = item.viewController.init()
-            viewController.title = item.title
+            let viewController = model.viewController.init()
+            viewController.title = model.title
             navigationController?.pushViewController(viewController, animated: true)
         }
     }

@@ -8,11 +8,11 @@ public class TestListViewController: UIViewController, UpdatableListAdapter {
 
     lazy var itemSource = ItemSource()
     lazy var itemsSource = Sources(models: [1.0, 2.0, 3.0], options: .removeEmptySection)
-        .tableViewCellForRow()
-        .tableViewDidSelectRow { [unowned self] (context, item) in
-            self.batchRemove(at: context.item)
+        .cellForRow()
+        .didSelectRow { [unowned self] (context, _) in
+            batchRemove(at: context.item)
         }
-        .tableViewHeaderTitleForSection("items")
+        .headerTitleForSection("items")
 
     final class ItemSource: UpdatableListAdapter {
         // swiftlint: disable nesting
@@ -24,23 +24,23 @@ public class TestListViewController: UIViewController, UpdatableListAdapter {
             AnyTableSources {
                 if toggle {
                     Sources(model: true)
-                        .tableViewCellForRow()
-                        .tableViewDidSelectRow { [unowned self] (context, _) in
+                        .cellForRow()
+                        .didSelectRow { [unowned self] (context, _) in
                             context.deselect(animated: false)
-                            self.toggle.toggle()
-                            self.performUpdate()
+                            toggle.toggle()
+                            performUpdate()
                         }
                 } else {
                     Sources(models: [false, false, false])
-                        .tableViewCellForRow()
-                        .tableViewDidSelectRow { (context, _) in
+                        .cellForRow()
+                        .didSelectRow { [unowned self] (context, _) in
                             context.deselect(animated: false)
-                            self.toggle.toggle()
-                            self.performUpdate()
+                            toggle.toggle()
+                            performUpdate()
                         }
                 }
             }
-            .tableViewHeaderTitleForSection("item")
+            .headerTitleForSection("item")
         }
     }
 
@@ -52,22 +52,22 @@ public class TestListViewController: UIViewController, UpdatableListAdapter {
                 itemsSource
             }
             Sources(sections: [[1, 2, 3], [1, 2, 3]])
-                .tableViewCellForRow()
-                .tableViewHeaderTitleForSection("sections")
+                .cellForRow()
+                .headerTitleForSection("sections")
             AnyTableSources {
                 Sources(model: 2)
-                    .tableViewCellForRow()
-                    .tableViewDidSelectRow { (context, item) in
+                    .cellForRow()
+                    .didSelectRow { (context, model) in
                         context.deselect(animated: false)
-                        print(item)
+                        print(model)
                     }
                 Sources(models: ["a", "b", "c"])
-                    .tableViewCellForRow()
-                    .tableViewDidSelectRow { (context, item) in
+                    .cellForRow()
+                    .didSelectRow { (context, model) in
                         context.deselect(animated: false)
-                        print(item)
+                        print(model)
                     }
-            }.tableViewHeaderTitleForSection("sources")
+            }.headerTitleForSection("sources")
         }
     }
 
@@ -128,14 +128,14 @@ struct TestList_Preview: UIViewControllerRepresentable, PreviewProvider {
 //            if toggle {
 //                Sources(model: "b")
 //                    .tableViewCellForRow()
-//                    .tableViewDidSelectRow { (context, item) in
+//                    .tableViewDidSelectRow { (context, model) in
 //                        context.deselectItem(animated: false)
 //                        print(item)
 //                    }
 //            }
 //            Sources(id: 1, items: ["a", "b", "c"])
 //                .tableViewCellForRow()
-//                .tableViewDidSelectRow { (context, item) in
+//                .tableViewDidSelectRow { (context, model) in
 //                    context.deselectItem(animated: false)
 //                    print(item)
 //                }

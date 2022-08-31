@@ -9,35 +9,35 @@
 import UIKit
 
 public extension ListAdapter where View: UIScrollView {
-    var scrollViewDidScroll: Function<Void, Void, (ListContext) -> Void> {
+    var didScroll: Function<Void, Void, (ListContext) -> Void> {
         toFunction(#selector(UIScrollViewDelegate.scrollViewDidScroll), toClosure())
     }
 
-    var scrollViewDidZoom: Function<Void, Void, (ListContext) -> Void> {
+    var didZoom: Function<Void, Void, (ListContext) -> Void> {
         toFunction(#selector(UIScrollViewDelegate.scrollViewDidZoom), toClosure())
     }
 
-    var scrollViewWillBeginDragging: Function<Void, Void, (ListContext) -> Void> {
+    var willBeginDragging: Function<Void, Void, (ListContext) -> Void> {
         toFunction(#selector(UIScrollViewDelegate.scrollViewWillBeginDragging), toClosure())
     }
 
-    var scrollViewWillEndDragging: Function<(CGPoint, UnsafeMutablePointer<CGPoint>), Void, (ListContext, CGPoint, UnsafeMutablePointer<CGPoint>) -> Void> {
+    var willEndDragging: Function<(CGPoint, UnsafeMutablePointer<CGPoint>), Void, (ListContext, CGPoint, UnsafeMutablePointer<CGPoint>) -> Void> {
         toFunction(#selector(UIScrollViewDelegate.scrollViewWillEndDragging), toClosure())
     }
 
-    var scrollViewDidEndDragging: Function<Bool, Void, (ListContext, Bool) -> Void> {
+    var didEndDragging: Function<Bool, Void, (ListContext, Bool) -> Void> {
         toFunction(#selector(UIScrollViewDelegate.scrollViewDidEndDragging), toClosure())
     }
 
-    var scrollViewWillBeginDecelerating: Function<Void, Void, (ListContext) -> Void> {
+    var willBeginDecelerating: Function<Void, Void, (ListContext) -> Void> {
         toFunction(#selector(UIScrollViewDelegate.scrollViewWillBeginDecelerating), toClosure())
     }
 
-    var scrollViewDidEndDecelerating: Function<Void, Void, (ListContext) -> Void> {
+    var didEndDecelerating: Function<Void, Void, (ListContext) -> Void> {
         toFunction(#selector(UIScrollViewDelegate.scrollViewDidEndDecelerating), toClosure())
     }
 
-    var scrollViewDidEndScrollingAnimation: Function<Void, Void, (ListContext) -> Void> {
+    var didEndScrollingAnimation: Function<Void, Void, (ListContext) -> Void> {
         toFunction(#selector(UIScrollViewDelegate.scrollViewDidEndScrollingAnimation), toClosure())
     }
 
@@ -45,24 +45,24 @@ public extension ListAdapter where View: UIScrollView {
         toFunction(#selector(UIScrollViewDelegate.viewForZooming), toClosure())
     }
 
-    var scrollViewWillBeginZooming: Function<UIView?, Void, (ListContext, UIView?) -> Void> {
+    var willBeginZooming: Function<UIView?, Void, (ListContext, UIView?) -> Void> {
         toFunction(#selector(UIScrollViewDelegate.scrollViewWillBeginZooming), toClosure())
     }
 
-    var scrollViewDidEndZooming: Function<(UIView?, CGFloat), Void, (ListContext, UIView?, CGFloat) -> Void> {
+    var didEndZooming: Function<(UIView?, CGFloat), Void, (ListContext, UIView?, CGFloat) -> Void> {
         toFunction(#selector(UIScrollViewDelegate.scrollViewDidEndZooming), toClosure())
     }
 
-    var scrollViewShouldScrollToTop: Function<Void, Bool, (ListContext) -> Bool> {
+    var shouldScrollToTop: Function<Void, Bool, (ListContext) -> Bool> {
         toFunction(#selector(UIScrollViewDelegate.scrollViewShouldScrollToTop), toClosure())
     }
 
-    var scrollViewDidScrollToTop: Function<Void, Void, (ListContext) -> Void> {
+    var didScrollToTop: Function<Void, Void, (ListContext) -> Void> {
         toFunction(#selector(UIScrollViewDelegate.scrollViewDidScrollToTop), toClosure())
     }
 
     @available(iOS 11.0, *)
-    var scrollViewDidChangeAdjustedContentInset: Function<Void, Void, (ListContext) -> Void> {
+    var didChangeAdjustedContentInset: Function<Void, Void, (ListContext) -> Void> {
         toFunction(#selector(UIScrollViewDelegate.scrollViewDidChangeAdjustedContentInset), toClosure())
     }
 }

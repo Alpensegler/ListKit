@@ -114,11 +114,11 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
         return selectors
     }
 
-    override func apply<V: AnyObject, Input, Output>(
+    override func apply<Input, Output>(
         _ selector: Selector,
         for context: Context,
         root: CoordinatorContext,
-        view: V,
+        view: AnyObject,
         with input: Input
     ) -> Output? {
         guard context.extraSelectors.contains(selector) else {
@@ -134,11 +134,11 @@ where SourceBase.SourceBase == SourceBase, Other: DataSource {
         }
     }
 
-    override func apply<V: AnyObject, Input, Output, Index: ListIndex>(
+    override func apply<Input, Output, Index: ListIndex>(
         _ selector: Selector,
         for context: Context,
         root: CoordinatorContext,
-        view: V,
+        view: AnyObject,
         with input: Input,
         index: Index,
         _ offset: Index

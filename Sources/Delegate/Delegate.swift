@@ -42,9 +42,9 @@ final class Delegate: NSObject {
         completion?(true)
     }
 
-    func apply<View: AnyObject, Input, Output>(
+    func apply<Input, Output>(
         _ selector: Selector,
-        view: View,
+        view: AnyObject,
         with input: Input,
         default: @autoclosure () -> Output
     ) -> Output {
@@ -52,18 +52,18 @@ final class Delegate: NSObject {
         return context.apply(selector, root: context, view: view, with: input) ?? `default`()
     }
 
-    func apply<View: AnyObject, Output>(
+    func apply<Output>(
         _ selector: Selector,
-        view: View,
+        view: AnyObject,
         default: @autoclosure () -> Output
     ) -> Output {
         guard context.valid else { return `default`() }
         return context.apply(selector, root: context, view: view, with: ()) ?? `default`()
     }
 
-    func apply<View: AnyObject, Input, Output, Index: ListIndex>(
+    func apply<Input, Output, Index: ListIndex>(
         _ selector: Selector,
-        view: View,
+        view: AnyObject,
         with input: Input,
         index: Index,
         default: @autoclosure () -> Output

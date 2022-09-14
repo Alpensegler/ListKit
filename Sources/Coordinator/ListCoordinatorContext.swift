@@ -19,17 +19,17 @@ protocol CoordinatorContext: AnyObject {
 
     func contain(selector: Selector) -> Bool
 
-    func apply<View: AnyObject, Input, Output>(
+    func apply<Input, Output>(
         _ selector: Selector,
         root: CoordinatorContext,
-        view: View,
+        view: AnyObject,
         with input: Input
     ) -> Output?
 
-    func apply<View: AnyObject, Input, Output, Index: ListIndex>(
+    func apply<Input, Output, Index: ListIndex>(
         _ selector: Selector,
         root: CoordinatorContext,
-        view: View,
+        view: AnyObject,
         with input: Input,
         index: Index
     ) -> Output?
@@ -94,20 +94,20 @@ where SourceBase.SourceBase == SourceBase {
 
     // Selectors
     @discardableResult
-    func apply<View: AnyObject, Input, Output>(
+    func apply<Input, Output>(
         _ selector: Selector,
         root: CoordinatorContext,
-        view: View,
+        view: AnyObject,
         with input: Input
     ) -> Output? {
         listCoordinator.apply(selector, for: self, root: root, view: view, with: input)
     }
 
     @discardableResult
-    func apply<View: AnyObject, Input, Output, Index: ListIndex>(
+    func apply<Input, Output, Index: ListIndex>(
         _ selector: Selector,
         root: CoordinatorContext,
-        view: View,
+        view: AnyObject,
         with input: Input,
         index: Index
     ) -> Output? {

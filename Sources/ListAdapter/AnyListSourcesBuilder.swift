@@ -26,17 +26,17 @@ public struct AnyListSourcesBuilder<View: ListView> {
         content
     }
 
-    public static func buildEither<TrueContent, FalseContent>(
+    public static func buildEither<TrueContent: ListAdapter, FalseContent: ListAdapter>(
         first: TrueContent
     ) -> ConditionalSources<TrueContent, FalseContent>
-    where TrueContent: ListAdapter, FalseContent: ListAdapter, TrueContent.View == View, FalseContent.View == View {
+    where TrueContent.View == View, FalseContent.View == View {
         .trueContent(first)
     }
 
-    public static func buildEither<TrueContent, FalseContent>(
+    public static func buildEither<TrueContent: ListAdapter, FalseContent: ListAdapter>(
         second: FalseContent
     ) -> ConditionalSources<TrueContent, FalseContent>
-    where TrueContent: ListAdapter, FalseContent: ListAdapter, TrueContent.View == View, FalseContent.View == View {
+    where TrueContent.View == View, FalseContent.View == View {
         .falseContent(second)
     }
 

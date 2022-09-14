@@ -14,8 +14,8 @@ public class NestedListViewController: UIViewController, UpdatableListAdapter {
     public var source: AnyTableSources {
         AnyTableSources {
             Sources(model: nestedSources)
-                .cellForRow(EmbeddedCell.self) { (cell, context, _) in
-                    context.nestedAdapter(applyBy: cell.collectionView)
+                .cellForRow(EmbeddedCell.self) { (cell, context, model) in
+                    model.apply(by: cell.collectionView)
                 }
                 .heightForRow(100)
             Sources(models: ["a", "b", "c"])

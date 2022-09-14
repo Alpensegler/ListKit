@@ -77,11 +77,11 @@ public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase
     func configExtraSelector(delegate: ListDelegate) -> Set<Selector>? { nil }
 
     @discardableResult
-    func apply<V: AnyObject, Input, Output>(
+    func apply<Input, Output>(
         _ selector: Selector,
         for context: Context,
         root: CoordinatorContext,
-        view: V,
+        view: AnyObject,
         with input: Input
     ) -> Output? {
         guard let rawClosure = context.listDelegate.functions[selector],
@@ -92,11 +92,11 @@ public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase
 
     // swiftlint:disable function_parameter_count
     @discardableResult
-    func apply<V: AnyObject, Input, Output, Index: ListIndex>(
+    func apply<Input, Output, Index: ListIndex>(
         _ selector: Selector,
         for context: Context,
         root: CoordinatorContext,
-        view: V,
+        view: AnyObject,
         with input: Input,
         index: Index,
         _ offset: Index

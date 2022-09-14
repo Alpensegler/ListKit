@@ -83,7 +83,6 @@ public extension ListAdapter {
         animated: Bool = true,
         completion: ((Bool) -> Void)? = nil
     ) -> ListAdaptation<AdapterBase, View> {
-        let list = self.list
         (listView as? DelegateSetuptable)?.listDelegate.setCoordinator(
             context: listCoordinatorContext,
             update: update,

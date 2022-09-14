@@ -25,9 +25,10 @@ public struct ListContext<View, Base: DataSource>: Context {
 }
 
 extension ListContext {
-    init(view: AnyObject,
-         context: ListCoordinatorContext<Base.SourceBase>,
-         root: CoordinatorContext
+    init(
+        view: AnyObject,
+        context: ListCoordinatorContext<Base.SourceBase>,
+        root: CoordinatorContext
     ) {
         self.init(listView: view as! View, context: context, root: root)
     }
@@ -44,11 +45,12 @@ public struct ListIndexContext<View, Base: DataSource, Index>: Context {
 }
 
 extension ListIndexContext {
-    init(view: AnyObject,
-         index: Index,
-         offset: Index,
-         context: ListCoordinatorContext<Base.SourceBase>,
-         root: CoordinatorContext
+    init(
+        view: AnyObject,
+        index: Index,
+        offset: Index,
+        context: ListCoordinatorContext<Base.SourceBase>,
+        root: CoordinatorContext
     ) {
         self.init(
             listView: view as! View,

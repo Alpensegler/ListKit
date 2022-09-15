@@ -35,7 +35,7 @@ public class ContentsViewController: UIViewController, UpdatableListAdapter {
 //            ("CoreDataListViewController", CoreDataListViewController.self),
 //            ("TestList", TestListViewController.self),
         ]
-        
+
     }
     #endif
 }

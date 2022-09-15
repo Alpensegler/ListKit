@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name = "ListKit"
-  spec.version = "0.10.0"
+  spec.version = "0.10.1"
   spec.summary = "A faster, swift-er data-driven UICollectionView/UITableView framework for building flexible lists."
   spec.homepage = "https://github.com/Alpensegler/ListKit"
   spec.license = "MIT"

@@ -56,13 +56,13 @@ where Source.AdapterBase == Source {
         set { source[keyPath: path] = newValue }
     }
 
-    init<OtherSource: DataSource>(
-        _ source: OtherSource,
-        options: ListOptions = .init()
-    ) where Source == AnySources {
-        self.source = AnySources(source, options: options)
-        self.listDelegate = .init()
-    }
+//    init<OtherSource: DataSource>(
+//        _ source: OtherSource,
+//        options: ListOptions = .init()
+//    ) where Source == AnySources {
+//        self.source = AnySources(source, options: options)
+//        self.listDelegate = .init()
+//    }
 
     init(_ source: Source) {
         self.source = source

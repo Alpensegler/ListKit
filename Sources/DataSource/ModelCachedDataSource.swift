@@ -60,14 +60,14 @@ where Base.SourceBase == Base {
     }
 }
 
-public extension ModelCachedDataSource
-where
-    SourceBase.Source: DataSource,
-    SourceBase.Source.SourceBase == AnySources,
-    SourceBase.Model == Any
-{
-    var modelCached: ModelCached<SourceBase, ModelCache> { .init(sourceBase) }
-}
+//public extension ModelCachedDataSource
+//where
+//    SourceBase.Source: DataSource,
+//    SourceBase.Source.SourceBase == AnySources,
+//    SourceBase.Model == Any
+//{
+//    var modelCached: ModelCached<SourceBase, ModelCache> { .init(sourceBase) }
+//}
 
 public extension ModelCachedDataSource
 where

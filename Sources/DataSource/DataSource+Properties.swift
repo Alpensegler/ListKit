@@ -80,14 +80,14 @@ public extension DataSource where SourceBase: AnyObject, SourceBase: Hashable {
 }
 
 // MARK: - Subupdate
-public extension DataSource
-where
-    SourceBase.Source: DataSource,
-    SourceBase.Source.SourceBase == AnySources,
-    SourceBase.Model == Any
-{
-    var listUpdate: ListUpdate<SourceBase>.Whole { .subupdate }
-}
+//public extension DataSource
+//where
+//    SourceBase.Source: DataSource,
+//    SourceBase.Source.SourceBase == AnySources,
+//    SourceBase.Model == Any
+//{
+//    var listUpdate: ListUpdate<SourceBase>.Whole { .subupdate }
+//}
 
 public extension DataSource
 where

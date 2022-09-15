@@ -142,83 +142,83 @@ where
     }
 }
 
-public extension BatchInitializable where SourceBase: NSDataSource {
-    static func insertSection(_ section: Int) -> Self {
-        .init(needSource: true) { $0.section.insert(section) }
-    }
-
-    static func insertSections(_ sections: IndexSet) -> Self {
-        .init(needSource: true) { $0.section.insert(sections) }
-    }
-
-    static func deleteSection(_ section: Int) -> Self {
-        .init(needSource: true) { $0.section.delete(section) }
-    }
-
-    static func deleteSections(_ sections: IndexSet) -> Self {
-        .init(needSource: true) { $0.section.delete(sections) }
-    }
-
-    static func reloadSection(_ section: Int, newSection: Int? = nil) -> Self {
-        .init(needSource: true) { $0.section.reload(section, newIndex: newSection ?? section) }
-    }
-
-    static func reloadSections(_ sections: IndexSet, newSections: IndexSet? = nil) -> Self {
-        .init(needSource: true) { $0.section.reload(sections, newIndices: newSections ?? sections) }
-    }
-
-    static func moveSection(_ section: Int, toSection newSection: Int) -> Self {
-        .init(needSource: true) { $0.section.move(section, to: newSection) }
-    }
-
-    static func insertModel(at indexPath: IndexPath) -> Self {
-        .init(needSource: true) { $0.item.insert(indexPath) }
-    }
-
-    static func insertModels(at indexPaths: [IndexPath]) -> Self {
-        .init(needSource: true) { $0.item.insert(indexPaths) }
-    }
-
-    static func deleteModel(at indexPath: IndexPath) -> Self {
-        .init(needSource: true) { $0.item.delete(indexPath) }
-    }
-
-    static func deleteModels(at indexPaths: [IndexPath]) -> Self {
-        .init(needSource: true) { $0.item.delete(indexPaths) }
-    }
-
-    static func reloadModel(at indexPath: IndexPath, newIndexPath: IndexPath? = nil) -> Self {
-        .init(needSource: true) { $0.item.reload(indexPath, newIndex: newIndexPath ?? indexPath) }
-    }
-
-    static func reloadModels(at indexPaths: [IndexPath], newIndexPaths: [IndexPath]? = nil) -> Self {
-        .init(needSource: true) { $0.item.reload(indexPaths, newIndices: newIndexPaths ?? indexPaths) }
-    }
-
-    static func moveModel(at indexPath: IndexPath, to newIndexPath: IndexPath) -> Self {
-        .init(needSource: true) { $0.item.move(indexPath, to: newIndexPath) }
-    }
-}
-
-public extension BatchInitializable
-where
-    Source: DataSource,
-    Source.SourceBase == AnySources,
-    Model == Any
-{
-    static func subsource<Subsource: UpdatableDataSource>(
-        _ source: Subsource,
-        update: ListUpdate<Subsource.SourceBase>,
-        animatedForOtherContext: Bool? = nil,
-        completionForOtherContext: ((ListView, Bool) -> Void)? = nil
-    ) -> Self {
-        .init {
-            $0.subsource(
-                source,
-                update: update,
-                animated: animatedForOtherContext,
-                completion: completionForOtherContext
-            )
-        }
-    }
-}
+//public extension BatchInitializable where SourceBase: NSDataSource {
+//    static func insertSection(_ section: Int) -> Self {
+//        .init(needSource: true) { $0.section.insert(section) }
+//    }
+//
+//    static func insertSections(_ sections: IndexSet) -> Self {
+//        .init(needSource: true) { $0.section.insert(sections) }
+//    }
+//
+//    static func deleteSection(_ section: Int) -> Self {
+//        .init(needSource: true) { $0.section.delete(section) }
+//    }
+//
+//    static func deleteSections(_ sections: IndexSet) -> Self {
+//        .init(needSource: true) { $0.section.delete(sections) }
+//    }
+//
+//    static func reloadSection(_ section: Int, newSection: Int? = nil) -> Self {
+//        .init(needSource: true) { $0.section.reload(section, newIndex: newSection ?? section) }
+//    }
+//
+//    static func reloadSections(_ sections: IndexSet, newSections: IndexSet? = nil) -> Self {
+//        .init(needSource: true) { $0.section.reload(sections, newIndices: newSections ?? sections) }
+//    }
+//
+//    static func moveSection(_ section: Int, toSection newSection: Int) -> Self {
+//        .init(needSource: true) { $0.section.move(section, to: newSection) }
+//    }
+//
+//    static func insertModel(at indexPath: IndexPath) -> Self {
+//        .init(needSource: true) { $0.item.insert(indexPath) }
+//    }
+//
+//    static func insertModels(at indexPaths: [IndexPath]) -> Self {
+//        .init(needSource: true) { $0.item.insert(indexPaths) }
+//    }
+//
+//    static func deleteModel(at indexPath: IndexPath) -> Self {
+//        .init(needSource: true) { $0.item.delete(indexPath) }
+//    }
+//
+//    static func deleteModels(at indexPaths: [IndexPath]) -> Self {
+//        .init(needSource: true) { $0.item.delete(indexPaths) }
+//    }
+//
+//    static func reloadModel(at indexPath: IndexPath, newIndexPath: IndexPath? = nil) -> Self {
+//        .init(needSource: true) { $0.item.reload(indexPath, newIndex: newIndexPath ?? indexPath) }
+//    }
+//
+//    static func reloadModels(at indexPaths: [IndexPath], newIndexPaths: [IndexPath]? = nil) -> Self {
+//        .init(needSource: true) { $0.item.reload(indexPaths, newIndices: newIndexPaths ?? indexPaths) }
+//    }
+//
+//    static func moveModel(at indexPath: IndexPath, to newIndexPath: IndexPath) -> Self {
+//        .init(needSource: true) { $0.item.move(indexPath, to: newIndexPath) }
+//    }
+//}
+//
+//public extension BatchInitializable
+//where
+//    Source: DataSource,
+//    Source.SourceBase == AnySources,
+//    Model == Any
+//{
+//    static func subsource<Subsource: UpdatableDataSource>(
+//        _ source: Subsource,
+//        update: ListUpdate<Subsource.SourceBase>,
+//        animatedForOtherContext: Bool? = nil,
+//        completionForOtherContext: ((ListView, Bool) -> Void)? = nil
+//    ) -> Self {
+//        .init {
+//            $0.subsource(
+//                source,
+//                update: update,
+//                animated: animatedForOtherContext,
+//                completion: completionForOtherContext
+//            )
+//        }
+//    }
+//}

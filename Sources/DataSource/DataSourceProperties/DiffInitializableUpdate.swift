@@ -35,7 +35,7 @@ public extension DiffInitializableUpdate where SourceBase.Source: Collection {
     static var prependOrRemoveFirst: Self { .init(.init(way: .other(.prependOrRemoveFirst))) }
 }
 
-public extension DiffInitializableUpdate where SourceBase: NSDataSource {
-    static var appendOrRemoveLast: Self { .init(.init(way: .other(.appendOrRemoveLast))) }
-    static var prependOrRemoveFirst: Self { .init(.init(way: .other(.prependOrRemoveFirst))) }
-}
+//public extension DiffInitializableUpdate where SourceBase: NSDataSource {
+//    static var appendOrRemoveLast: Self { .init(.init(way: .other(.appendOrRemoveLast))) }
+//    static var prependOrRemoveFirst: Self { .init(.init(way: .other(.prependOrRemoveFirst))) }
+//}

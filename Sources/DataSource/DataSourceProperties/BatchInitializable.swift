@@ -84,64 +84,64 @@ where Source: RangeReplaceableCollection, Source.Element == SourceBase.Model {
     }
 }
 
-public extension BatchInitializable
-where
-    Source: RangeReplaceableCollection,
-    Source.Element: DataSource,
-    Source.Element.SourceBase.Model == SourceBase.Model
-{
-    typealias Element = SourceBase.Source.Element
-
-    static func subsource<Subsource: UpdatableDataSource>(
-        _ source: Subsource,
-        update: ListUpdate<Subsource.SourceBase>,
-        animatedForOtherContext: Bool? = nil,
-        completionForOtherContext: ((ListView, Bool) -> Void)? = nil
-    ) -> Self {
-        .init {
-            $0.subsource(
-                source,
-                update: update,
-                animated: animatedForOtherContext,
-                completion: completionForOtherContext
-            )
-        }
-    }
-
-    static func insert(_ element: Element, at index: Int) -> Self {
-        .init { $0.insert(element, at: index) }
-    }
-
-    static func insert<C: Collection>(contentsOf elements: C, at index: Int) -> Self
-    where Element == C.Element {
-        .init { $0.insert(contentsOf: elements, at: index) }
-    }
-
-    static func append(_ element: Element) -> Self {
-        .init { $0.append(element) }
-    }
-
-    static func append<S: Sequence>(contentsOf elements: S) -> Self where Element == S.Element {
-        .init { $0.append(contentsOf: elements) }
-    }
-
-    static func remove(at index: Int) -> Self {
-        .init { $0.remove(at: index) }
-    }
-
-    static func remove(at indexSet: IndexSet) -> Self {
-        .init { $0.remove(at: indexSet) }
-    }
-
-    static func update(_ element: Element, at index: Int) -> Self {
-        .init { $0.update(element, at: index) }
-    }
-
-    static func move(at index: Int, to newIndex: Int) -> Self {
-        .init { $0.move(at: index, to: newIndex) }
-    }
-}
-
+//public extension BatchInitializable
+//where
+//    Source: RangeReplaceableCollection,
+//    Source.Element: DataSource,
+//    Source.Element.SourceBase.Model == SourceBase.Model
+//{
+//    typealias Element = SourceBase.Source.Element
+//
+//    static func subsource<Subsource: UpdatableDataSource>(
+//        _ source: Subsource,
+//        update: ListUpdate<Subsource.SourceBase>,
+//        animatedForOtherContext: Bool? = nil,
+//        completionForOtherContext: ((ListView, Bool) -> Void)? = nil
+//    ) -> Self {
+//        .init {
+//            $0.subsource(
+//                source,
+//                update: update,
+//                animated: animatedForOtherContext,
+//                completion: completionForOtherContext
+//            )
+//        }
+//    }
+//
+//    static func insert(_ element: Element, at index: Int) -> Self {
+//        .init { $0.insert(element, at: index) }
+//    }
+//
+//    static func insert<C: Collection>(contentsOf elements: C, at index: Int) -> Self
+//    where Element == C.Element {
+//        .init { $0.insert(contentsOf: elements, at: index) }
+//    }
+//
+//    static func append(_ element: Element) -> Self {
+//        .init { $0.append(element) }
+//    }
+//
+//    static func append<S: Sequence>(contentsOf elements: S) -> Self where Element == S.Element {
+//        .init { $0.append(contentsOf: elements) }
+//    }
+//
+//    static func remove(at index: Int) -> Self {
+//        .init { $0.remove(at: index) }
+//    }
+//
+//    static func remove(at indexSet: IndexSet) -> Self {
+//        .init { $0.remove(at: indexSet) }
+//    }
+//
+//    static func update(_ element: Element, at index: Int) -> Self {
+//        .init { $0.update(element, at: index) }
+//    }
+//
+//    static func move(at index: Int, to newIndex: Int) -> Self {
+//        .init { $0.move(at: index, to: newIndex) }
+//    }
+//}
+//
 //public extension BatchInitializable where SourceBase: NSDataSource {
 //    static func insertSection(_ section: Int) -> Self {
 //        .init(needSource: true) { $0.section.insert(section) }

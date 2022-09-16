@@ -94,18 +94,18 @@ public extension ListIndexContext where Index == IndexPath {
 //public extension ListIndexContext where Base: ModelCachedDataSource, Index == IndexPath {
 //    var modelCache: Base.ModelCache { cache() }
 //}
-
-extension ListIndexContext where Index == IndexPath {
-    func setNestedCache(update: @escaping (Any) -> Void) {
-        root.modelNestedCache[index.section][index.item] = update
-    }
-
-    func cache<Cache>() -> Cache {
-        if let cache = root.modelCaches[index.section][index.item] as? Cache { return cache }
-        return context.listCoordinator.cache(
-            for: &root.modelCaches[index.section][index.item],
-            at: index,
-            in: context.listDelegate
-        )
-    }
-}
+//
+//extension ListIndexContext where Index == IndexPath {
+//    func setNestedCache(update: @escaping (Any) -> Void) {
+//        root.modelNestedCache[index.section][index.item] = update
+//    }
+//
+//    func cache<Cache>() -> Cache {
+//        if let cache = root.modelCaches[index.section][index.item] as? Cache { return cache }
+//        return context.listCoordinator.cache(
+//            for: &root.modelCaches[index.section][index.item],
+//            at: index,
+//            in: context.listDelegate
+//        )
+//    }
+//}

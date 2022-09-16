@@ -31,15 +31,15 @@ public extension ListAdapter where View: UITableView {
         toFunction(#selector(UITableViewDataSource.tableView(_:titleForFooterInSection:)), toClosure())
     }
 
-    // MARK: - Inserting or Deleting Table Rows
-    var commitEdittingStyleForRow: ModelFunction<(IndexPath, UITableViewCell.EditingStyle), Void, (ListModelContext, UITableViewCell.EditingStyle, Model) -> Void> {
-        toFunction(#selector(UITableViewDataSource.tableView(_:commit:forRowAt:)), \.0, toClosure())
-    }
-
-    var canEditRow: ModelFunction<IndexPath, Bool, (ListModelContext, Model) -> Bool> {
-        toFunction(#selector(UITableViewDataSource.tableView(_:canEditRowAt:)), toClosure())
-    }
-
+//    // MARK: - Inserting or Deleting Table Rows
+//    var commitEdittingStyleForRow: ModelFunction<(IndexPath, UITableViewCell.EditingStyle), Void, (ListModelContext, UITableViewCell.EditingStyle, Model) -> Void> {
+//        toFunction(#selector(UITableViewDataSource.tableView(_:commit:forRowAt:)), \.0, toClosure())
+//    }
+//
+//    var canEditRow: ModelFunction<IndexPath, Bool, (ListModelContext, Model) -> Bool> {
+//        toFunction(#selector(UITableViewDataSource.tableView(_:canEditRowAt:)), toClosure())
+//    }
+//
 //    // MARK: - Reordering Table Rows
 //    var canMoveRow: ModelFunction<IndexPath, Bool, (ListModelContext, Model) -> Bool> {
 //        toFunction(#selector(UITableViewDataSource.tableView(_:canMoveRowAt:)), toClosure())
@@ -48,15 +48,15 @@ public extension ListAdapter where View: UITableView {
 //    var moveRow: Function<(IndexPath, IndexPath), Void, (ListContext, IndexPath, IndexPath) -> Void> {
 //        toFunction(#selector(UITableViewDataSource.tableView(_:moveRowAt:to:)), toClosure())
 //    }
-
-    // MARK: - Configuring an Index
-    var sectionIndexTitles: Function<Void, [String]?, (ListContext) -> [String]?> {
-        toFunction(#selector(UITableViewDataSource.sectionIndexTitles(for:)), toClosure())
-    }
-
-    var sectionForSectionIndexTitle: Function<(String, Int), Int, (ListContext, String, Int) -> Int> {
-        toFunction(#selector(UITableViewDataSource.tableView(_:sectionForSectionIndexTitle:at:)), toClosure())
-    }
+//
+//    // MARK: - Configuring an Index
+//    var sectionIndexTitles: Function<Void, [String]?, (ListContext) -> [String]?> {
+//        toFunction(#selector(UITableViewDataSource.sectionIndexTitles(for:)), toClosure())
+//    }
+//
+//    var sectionForSectionIndexTitle: Function<(String, Int), Int, (ListContext, String, Int) -> Int> {
+//        toFunction(#selector(UITableViewDataSource.tableView(_:sectionForSectionIndexTitle:at:)), toClosure())
+//    }
 }
 
 // MARK: - TableView Delegate
@@ -150,11 +150,11 @@ public extension ListAdapter where View: UITableView {
         toFunction(#selector(UITableViewDelegate.tableView(_:estimatedHeightForFooterInSection:)), toClosure())
     }
 
-    // MARK: - Managing Accessory Views
-    var accessoryButtonTapped: ModelFunction<IndexPath, Void, (ListModelContext, Model) -> Void> {
-        toFunction(#selector(UITableViewDelegate.tableView(_:accessoryButtonTappedForRowWith:)), toClosure())
-    }
-
+//    // MARK: - Managing Accessory Views
+//    var accessoryButtonTapped: ModelFunction<IndexPath, Void, (ListModelContext, Model) -> Void> {
+//        toFunction(#selector(UITableViewDelegate.tableView(_:accessoryButtonTappedForRowWith:)), toClosure())
+//    }
+//
 //    // MARK: - Responding to Row Actions
 //    @available(iOS 11.0, *)
 //    var leadingSwipeActionsConfiguration: ModelFunction<IndexPath, UISwipeActionsConfiguration?, (ListModelContext, Model) -> UISwipeActionsConfiguration?> {

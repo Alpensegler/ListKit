@@ -7,11 +7,11 @@
 
 import Foundation
 
-public extension ListDelegate.IndexFunction where Index == IndexPath, Output: FunctionOutput {
-    func callAsFunction(outputWithModelCached: @escaping (Source.Model) -> Output) -> ListAdaptation<Source.AdapterBase, View> {
-        toTarget(getCache: outputWithModelCached) { context, _ in context.cache() }
-    }
-}
+//public extension ListDelegate.IndexFunction where Index == IndexPath, Output: FunctionOutput {
+//    func callAsFunction(outputWithModelCached: @escaping (Source.Model) -> Output) -> ListAdaptation<Source.AdapterBase, View> {
+//        toTarget(getCache: outputWithModelCached) { context, _ in context.cache() }
+//    }
+//}
 
 #if canImport(UIKit)
 import UIKit

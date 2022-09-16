@@ -153,29 +153,29 @@ public extension ListUpdate where Value: Hashable {
     static func diff(to source: Source) -> Self { .init(.diff(id: { $0 }), source) }
 }
 
-// MARK: - Value Identifiable
-@available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
-public extension ListUpdate where Value: Identifiable {
-    static func diff(to source: Source) -> Self { .init(.diff(id: \.id), source) }
-    static func diff(
-        to source: Source,
-        by areEquivalent: @escaping (Value, Value) -> Bool
-    ) -> Self {
-        .init(.diff(id: \.id, by: areEquivalent), source)
-    }
-}
-
-// MARK: - Value Identifiable + Equatable
-@available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
-public extension ListUpdate where Value: Identifiable, Value: Equatable {
-    static func diff(to source: Source) -> Self { .init(.diff(id: \.id, by: ==), source) }
-}
-
-// MARK: - Value Identifiable + Hashable
-@available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
-public extension ListUpdate where Value: Identifiable, Value: Hashable {
-    static func diff(to source: Source) -> Self { .init(.diff(id: \.id, by: ==), source) }
-}
+//// MARK: - Value Identifiable
+//@available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
+//public extension ListUpdate where Value: Identifiable {
+//    static func diff(to source: Source) -> Self { .init(.diff(id: \.id), source) }
+//    static func diff(
+//        to source: Source,
+//        by areEquivalent: @escaping (Value, Value) -> Bool
+//    ) -> Self {
+//        .init(.diff(id: \.id, by: areEquivalent), source)
+//    }
+//}
+//
+//// MARK: - Value Identifiable + Equatable
+//@available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
+//public extension ListUpdate where Value: Identifiable, Value: Equatable {
+//    static func diff(to source: Source) -> Self { .init(.diff(id: \.id, by: ==), source) }
+//}
+//
+//// MARK: - Value Identifiable + Hashable
+//@available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
+//public extension ListUpdate where Value: Identifiable, Value: Hashable {
+//    static func diff(to source: Source) -> Self { .init(.diff(id: \.id, by: ==), source) }
+//}
 
 // MARK: - Subupdate
 public extension DiffInitializableUpdate where SourceBase.Source: DataSource {

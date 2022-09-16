@@ -9,8 +9,8 @@ import Foundation
 
 protocol CoordinatorContext: AnyObject {
     var valid: Bool { get }
-    var modelCaches: ContiguousArray<ContiguousArray<Any?>> { get set }
-    var modelNestedCache: ContiguousArray<ContiguousArray<((Any) -> Void)?>> { get set }
+//    var modelCaches: ContiguousArray<ContiguousArray<Any?>> { get set }
+//    var modelNestedCache: ContiguousArray<ContiguousArray<((Any) -> Void)?>> { get set }
 
     func isCoordinator(_ coordinator: AnyObject) -> Bool
 
@@ -44,8 +44,8 @@ where SourceBase.SourceBase == SourceBase {
 
     let listCoordinator: ListCoordinator<SourceBase>
 
-    var _modelCaches: Caches<Any>?
-    var _modelNestedCache: Caches<((Any) -> Void)>?
+//    var _modelCaches: Caches<Any>?
+//    var _modelNestedCache: Caches<((Any) -> Void)>?
 
     var listDelegate = ListDelegate()
 
@@ -65,15 +65,15 @@ where SourceBase.SourceBase == SourceBase {
         return !storage.isObjectAssciated || storage.object != nil
     }
 
-    var modelCaches: Caches<Any> {
-        get { cachesOrCreate(&_modelCaches) }
-        set { _modelCaches = newValue }
-    }
-
-    var modelNestedCache: Caches<((Any) -> Void)> {
-        get { cachesOrCreate(&_modelNestedCache) }
-        set { _modelNestedCache = newValue }
-    }
+//    var modelCaches: Caches<Any> {
+//        get { cachesOrCreate(&_modelCaches) }
+//        set { _modelCaches = newValue }
+//    }
+//
+//    var modelNestedCache: Caches<((Any) -> Void)> {
+//        get { cachesOrCreate(&_modelNestedCache) }
+//        set { _modelNestedCache = newValue }
+//    }
 
     init(_ coordinator: ListCoordinator<SourceBase>, listDelegate: ListDelegate = .init()) {
         self.listCoordinator = coordinator
@@ -118,11 +118,11 @@ where SourceBase.SourceBase == SourceBase {
         listDelegate.contains(selector) || extraSelectors.contains(selector)
     }
 
-    func cachesOrCreate<Cache>(_ caches: inout Caches<Cache>?) -> Caches<Cache> {
-        caches.or((0..<numbersOfSections()).mapContiguous {
-            (0..<numbersOfModel(in: $0)).mapContiguous { _ in nil }
-        })
-    }
+//    func cachesOrCreate<Cache>(_ caches: inout Caches<Cache>?) -> Caches<Cache> {
+//        caches.or((0..<numbersOfSections()).mapContiguous {
+//            (0..<numbersOfModel(in: $0)).mapContiguous { _ in nil }
+//        })
+//    }
 
     func perform(updates: BatchUpdates?, animated: Bool, completion: ((ListView, Bool) -> Void)?) {
         guard let list = listView else { return }
@@ -132,7 +132,7 @@ where SourceBase.SourceBase == SourceBase {
         }
         switch updates {
         case let .reload(change: change):
-            (_modelCaches, _modelNestedCache) = (nil, nil)
+//            (_modelCaches, _modelNestedCache) = (nil, nil)
             change?()
             list.reloadSynchronously(animated: animated)
             completion?(list, true)
@@ -145,18 +145,18 @@ where SourceBase.SourceBase == SourceBase {
                     list.map { completion?($0, finish) }
                 } : nil
                 list.perform({
-                    switch (_modelCaches != nil, _modelNestedCache != nil) {
-                    case (true, true):
-                        batchUpdate.apply(caches: &modelCaches, countIn: numbersOfModel(in:)) {
-                            $0.apply(caches: &modelNestedCache, countIn: numbersOfModel(in:))
-                        }
-                    case (true, false):
-                        batchUpdate.apply(caches: &modelCaches, countIn: numbersOfModel(in:))
-                    case (false, true):
-                        batchUpdate.apply(caches: &modelNestedCache, countIn: numbersOfModel(in:))
-                    case (false, false):
-                        batchUpdate.applyData()
-                    }
+//                    switch (_modelCaches != nil, _modelNestedCache != nil) {
+//                    case (true, true):
+//                        batchUpdate.apply(caches: &modelCaches, countIn: numbersOfModel(in:)) {
+//                            $0.apply(caches: &modelNestedCache, countIn: numbersOfModel(in:))
+//                        }
+//                    case (true, false):
+//                        batchUpdate.apply(caches: &modelCaches, countIn: numbersOfModel(in:))
+//                    case (false, true):
+//                        batchUpdate.apply(caches: &modelNestedCache, countIn: numbersOfModel(in:))
+//                    case (false, false):
+//                        batchUpdate.applyData()
+//                    }
                     if let selectors = listCoordinator.configExtraSelector(delegate: listDelegate) {
                         extraSelectors = selectors
                         listView?.resetDelegates(toNil: false)

@@ -31,15 +31,15 @@ extension Delegate: UITableViewDataSource {
         apply(#selector(UITableViewDataSource.tableView(_:titleForFooterInSection:)), view: tableView, with: section, index: section, default: nil)
     }
 
-    // MARK: - Inserting or DeletingTable Rows
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        apply(#selector(UITableViewDataSource.tableView(_:commit:forRowAt:)), view: tableView, with: (indexPath, editingStyle), index: indexPath, default: ())
-    }
-
-    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        apply(#selector(UITableViewDataSource.tableView(_:canEditRowAt:)), view: tableView, with: indexPath, index: indexPath, default: true)
-    }
-
+//    // MARK: - Inserting or DeletingTable Rows
+//    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+//        apply(#selector(UITableViewDataSource.tableView(_:commit:forRowAt:)), view: tableView, with: (indexPath, editingStyle), index: indexPath, default: ())
+//    }
+//
+//    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+//        apply(#selector(UITableViewDataSource.tableView(_:canEditRowAt:)), view: tableView, with: indexPath, index: indexPath, default: true)
+//    }
+//
 //    // MARK: - ReorderingTable Rows
 //    func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
 //        apply(#selector(UITableViewDataSource.tableView(_:canMoveRowAt:)), view: tableView, with: indexPath, index: indexPath, default: true)
@@ -48,15 +48,15 @@ extension Delegate: UITableViewDataSource {
 //    func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
 //        apply(#selector(UITableViewDataSource.tableView(_:moveRowAt:to:)), view: tableView, with: (sourceIndexPath, destinationIndexPath), default: ())
 //    }
-
-    // MARK: - Configuring an Index
-    func sectionIndexTitles(for tableView: UITableView) -> [String]? {
-        apply(#selector(UITableViewDataSource.sectionIndexTitles(for:)), view: (tableView), default: nil)
-    }
-
-    func tableView(_ tableView: UITableView, sectionForSectionIndexTitle title: String, at index: Int) -> Int {
-        apply(#selector(UITableViewDataSource.tableView(_:sectionForSectionIndexTitle:at:)), view: tableView, with: (title, index), index: index, default: index)
-    }
+//
+//    // MARK: - Configuring an Index
+//    func sectionIndexTitles(for tableView: UITableView) -> [String]? {
+//        apply(#selector(UITableViewDataSource.sectionIndexTitles(for:)), view: (tableView), default: nil)
+//    }
+//
+//    func tableView(_ tableView: UITableView, sectionForSectionIndexTitle title: String, at index: Int) -> Int {
+//        apply(#selector(UITableViewDataSource.tableView(_:sectionForSectionIndexTitle:at:)), view: tableView, with: (title, index), index: index, default: index)
+//    }
 }
 
 extension Delegate: UITableViewDelegate {
@@ -176,10 +176,10 @@ extension Delegate: UITableViewDelegate {
 //    func tableView(_ tableView: UITableView, performAction action: Selector, forRowAt indexPath: IndexPath, withSender sender: Any?) {
 //        apply(#selector(UITableViewDelegate.tableView(_:performAction:forRowAt:withSender:)), view: tableView, with: (indexPath, action, sender), index: indexPath, default: ())
 //    }
-
-    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
-        apply(#selector(UITableViewDelegate.tableView(_:editActionsForRowAt:)), view: tableView, with: indexPath, index: indexPath, default: nil)
-    }
+//
+//    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
+//        apply(#selector(UITableViewDelegate.tableView(_:editActionsForRowAt:)), view: tableView, with: indexPath, index: indexPath, default: nil)
+//    }
 
     // MARK: - ManagingTable View Highlights
 

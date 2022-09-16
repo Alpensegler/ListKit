@@ -31,38 +31,38 @@ public extension DataSource where SourceBase.Model: Hashable {
     var listUpdate: ListUpdate<SourceBase>.Whole { .diff }
 }
 
-// MARK: - Identifiable
-@available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
-public extension DataSource where SourceBase: Identifiable {
-    var listDiffer: ListDiffer<SourceBase> { .diff }
-}
-
-@available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
-public extension DataSource where SourceBase.Model: Identifiable {
-    var listUpdate: ListUpdate<SourceBase>.Whole { .diff }
-}
-
-// MARK: - Identifiable + Equatable
-@available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
-public extension DataSource where SourceBase: Identifiable, SourceBase: Equatable {
-    var listDiffer: ListDiffer<SourceBase> { .diff }
-}
-
-@available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
-public extension DataSource where SourceBase.Model: Identifiable, SourceBase.Model: Equatable {
-    var listUpdate: ListUpdate<SourceBase>.Whole { .diff }
-}
-
-// MARK: - Identifiable + Hashable
-@available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
-public extension DataSource where SourceBase: Identifiable, SourceBase: Hashable {
-    var listDiffer: ListDiffer<SourceBase> { .diff }
-}
-
-@available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
-public extension DataSource where SourceBase.Model: Identifiable, SourceBase.Model: Hashable {
-    var listUpdate: ListUpdate<SourceBase>.Whole { .diff }
-}
+//// MARK: - Identifiable
+//@available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
+//public extension DataSource where SourceBase: Identifiable {
+//    var listDiffer: ListDiffer<SourceBase> { .diff }
+//}
+//
+//@available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
+//public extension DataSource where SourceBase.Model: Identifiable {
+//    var listUpdate: ListUpdate<SourceBase>.Whole { .diff }
+//}
+//
+//// MARK: - Identifiable + Equatable
+//@available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
+//public extension DataSource where SourceBase: Identifiable, SourceBase: Equatable {
+//    var listDiffer: ListDiffer<SourceBase> { .diff }
+//}
+//
+//@available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
+//public extension DataSource where SourceBase.Model: Identifiable, SourceBase.Model: Equatable {
+//    var listUpdate: ListUpdate<SourceBase>.Whole { .diff }
+//}
+//
+//// MARK: - Identifiable + Hashable
+//@available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
+//public extension DataSource where SourceBase: Identifiable, SourceBase: Hashable {
+//    var listDiffer: ListDiffer<SourceBase> { .diff }
+//}
+//
+//@available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
+//public extension DataSource where SourceBase.Model: Identifiable, SourceBase.Model: Hashable {
+//    var listUpdate: ListUpdate<SourceBase>.Whole { .diff }
+//}
 
 // MARK: - Object
 public extension DataSource where SourceBase: AnyObject {

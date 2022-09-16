@@ -31,7 +31,7 @@ public class ContentsViewController: UIViewController, UpdatableListAdapter {
             ("DoubleList", DoubleListViewController.self),
             ("SectionList", SectionListViewControlle.self),
 //            ("NestedList", NestedListViewController.self),
-            ("IdentifiableSectionList", IdentifiableSectionListViewController.self),
+//            ("IdentifiableSectionList", IdentifiableSectionListViewController.self),
 //            ("CoreDataListViewController", CoreDataListViewController.self),
 //            ("TestList", TestListViewController.self),
         ]

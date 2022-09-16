@@ -27,14 +27,14 @@ public extension ListAdapter where View: UICollectionView {
         toFunction(#selector(UICollectionViewDataSource.collectionView(_:viewForSupplementaryElementOfKind:at:)), \.0) { closure in { context, input in closure(context, .init(rawValue: input.1)) } }
     }
 
-    // MARK: - Reordering Items
-    var canMoveItem: ModelFunction<IndexPath, Bool, (ListModelContext, Model) -> Bool> {
-        toFunction(#selector(UICollectionViewDataSource.collectionView(_:canMoveItemAt:)), toClosure())
-    }
-
-    var moveItem: Function<(IndexPath, IndexPath), Void, (ListContext, IndexPath, IndexPath) -> Void> {
-        toFunction(#selector(UICollectionViewDataSource.collectionView(_:moveItemAt:to:)), toClosure())
-    }
+//    // MARK: - Reordering Items
+//    var canMoveItem: ModelFunction<IndexPath, Bool, (ListModelContext, Model) -> Bool> {
+//        toFunction(#selector(UICollectionViewDataSource.collectionView(_:canMoveItemAt:)), toClosure())
+//    }
+//
+//    var moveItem: Function<(IndexPath, IndexPath), Void, (ListContext, IndexPath, IndexPath) -> Void> {
+//        toFunction(#selector(UICollectionViewDataSource.collectionView(_:moveItemAt:to:)), toClosure())
+//    }
 }
 
 // MARK: - Collection View Delegate
@@ -56,20 +56,20 @@ public extension ListAdapter where View: UICollectionView {
         toFunction(#selector(UICollectionViewDelegate.collectionView(_:didDeselectItemAt:)), toClosure())
     }
 
-    @available(iOS 13.0, *)
-    var shouldBeginMultipleSelectionInteractionForItem: ModelFunction<IndexPath, Bool, (ListModelContext, Model) -> Bool> {
-        toFunction(#selector(UICollectionViewDelegate.collectionView(_:shouldBeginMultipleSelectionInteractionAt:)), toClosure())
-    }
-
-    @available(iOS 13.0, *)
-    var didBeginMultipleSelectionInteractionAtForItem: ModelFunction<IndexPath, Void, (ListModelContext, Model) -> Void> {
-        toFunction(#selector(UICollectionViewDelegate.collectionView(_:didBeginMultipleSelectionInteractionAt:)), toClosure())
-    }
-
-    @available(iOS 13.0, *)
-    var didEndMultipleSelectionInteraction: Function<Void, Void, (ListContext) -> Void> {
-        toFunction(#selector(UICollectionViewDelegate.collectionViewDidEndMultipleSelectionInteraction(_:)), toClosure())
-    }
+//    @available(iOS 13.0, *)
+//    var shouldBeginMultipleSelectionInteractionForItem: ModelFunction<IndexPath, Bool, (ListModelContext, Model) -> Bool> {
+//        toFunction(#selector(UICollectionViewDelegate.collectionView(_:shouldBeginMultipleSelectionInteractionAt:)), toClosure())
+//    }
+//
+//    @available(iOS 13.0, *)
+//    var didBeginMultipleSelectionInteractionAtForItem: ModelFunction<IndexPath, Void, (ListModelContext, Model) -> Void> {
+//        toFunction(#selector(UICollectionViewDelegate.collectionView(_:didBeginMultipleSelectionInteractionAt:)), toClosure())
+//    }
+//
+//    @available(iOS 13.0, *)
+//    var didEndMultipleSelectionInteraction: Function<Void, Void, (ListContext) -> Void> {
+//        toFunction(#selector(UICollectionViewDelegate.collectionViewDidEndMultipleSelectionInteraction(_:)), toClosure())
+//    }
 
     // MARK: - Managing Cell Highlighting
     var shouldHighlightItem: ModelFunction<IndexPath, Bool, (ListModelContext, Model) -> Bool> {
@@ -101,75 +101,75 @@ public extension ListAdapter where View: UICollectionView {
         toFunction(#selector(UICollectionViewDelegate.collectionView(_:didEndDisplayingSupplementaryView:forElementOfKind:at:))) { closure in { context, input in closure(context, input.0, .init(rawValue: input.1), input.2) } }
     }
 
-    // MARK: - Handling Layout Changes
-    var transitionLayoutForOldLayoutNewLayout: Function<(UICollectionViewLayout, UICollectionViewLayout), UICollectionViewTransitionLayout, (ListContext, UICollectionViewLayout, UICollectionViewLayout) -> UICollectionViewTransitionLayout> {
-        toFunction(#selector(UICollectionViewDelegate.collectionView(_:transitionLayoutForOldLayout:newLayout:)), toClosure())
-    }
-
-    var targetContentOffset: Function<CGPoint, CGPoint, (ListContext, CGPoint) -> CGPoint> {
-        toFunction(#selector(UICollectionViewDelegate.collectionView(_:targetContentOffsetForProposedContentOffset:)), toClosure())
-    }
-
-    var targetIndexPathForMoveFromItem: Function<(IndexPath, IndexPath), IndexPath, (ListContext, IndexPath, IndexPath) -> IndexPath> {
-        toFunction(#selector(UICollectionViewDelegate.collectionView(_:targetIndexPathForMoveFromItemAt:toProposedIndexPath:)), toClosure())
-    }
-
-    // MARK: - Managing Actions for Cells
-    var shouldShowMenuForItem: ModelFunction<IndexPath, Bool, (ListModelContext, Model) -> Bool> {
-        toFunction(#selector(UICollectionViewDelegate.collectionView(_:shouldShowMenuForItemAt:)), toClosure())
-    }
-
-    var canPerformActionWithSender: ModelFunction<(IndexPath, Selector, Any?), Bool, (ListModelContext, Selector, Any?, Model) -> Bool> {
-        toFunction(#selector(UICollectionViewDelegate.collectionView(_:canPerformAction:forItemAt:withSender:)), \.0, toClosure())
-    }
-
-    var performActionWithSender: ModelFunction<(IndexPath, Selector, Any?), Void, (ListModelContext, Selector, Any?, Model) -> Void> {
-        toFunction(#selector(UICollectionViewDelegate.collectionView(_:performAction:forItemAt:withSender:)), \.0, toClosure())
-    }
-
-    // MARK: - Managing Focus in a Collection View
-    var canFocusItem: ModelFunction<IndexPath, Bool, (ListModelContext, Model) -> Bool> {
-        toFunction(#selector(UICollectionViewDelegate.collectionView(_:canFocusItemAt:)), toClosure())
-    }
-
-    var indexPathForPreferredFocusedView: Function<Void, IndexPath?, (ListContext) -> IndexPath?> {
-        toFunction(#selector(UICollectionViewDelegate.indexPathForPreferredFocusedView(in:)), toClosure())
-    }
-
-    var shouldUpdateFocusIn: Function<UICollectionViewFocusUpdateContext, Bool, (ListContext, UICollectionViewFocusUpdateContext) -> Bool> {
-        toFunction(#selector(UICollectionViewDelegate.collectionView(_:shouldUpdateFocusIn:)), toClosure())
-    }
-
-    var didUpdateFocusInWith: Function<(UICollectionViewFocusUpdateContext, UIFocusAnimationCoordinator), Void, (ListContext, UICollectionViewFocusUpdateContext, UIFocusAnimationCoordinator) -> Void> {
-        toFunction(#selector(UICollectionViewDelegate.collectionView(_:didUpdateFocusIn:with:)), toClosure())
-    }
-
-    // MARK: - Controlling the Spring-Loading Behavior
-    @available(iOS 11.0, *)
-    var shouldSpringLoadItemAtWith: ModelFunction<(IndexPath, UISpringLoadedInteractionContext), Bool, (ListModelContext, UISpringLoadedInteractionContext, Model) -> Bool> {
-        toFunction(#selector(UICollectionViewDelegate.collectionView(_:shouldSpringLoadItemAt:with:)), \.0, toClosure())
-    }
-
-    // MARK: - Instance Methods
-    @available(iOS 13.0, *)
-    var contextMenuConfigurationForItem: ModelFunction<(IndexPath, CGPoint), UIContextMenuConfiguration?, (ListModelContext, CGPoint, Model) -> UIContextMenuConfiguration> {
-        toFunction(#selector(UICollectionViewDelegate.collectionView(_:contextMenuConfigurationForItemAt:point:)), \.0, toClosure())
-    }
-
-    @available(iOS 13.0, *)
-    var previewForDismissingContextMenuWithConfiguration: Function<UIContextMenuConfiguration, UITargetedPreview, (ListContext, UIContextMenuConfiguration) -> UITargetedPreview> {
-        toFunction(#selector(UICollectionViewDelegate.collectionView(_:previewForDismissingContextMenuWithConfiguration:)), toClosure())
-    }
-
-    @available(iOS 13.0, *)
-    var previewForHighlightingContextMenuWithConfiguration: Function<UIContextMenuConfiguration, UITargetedPreview, (ListContext, UIContextMenuConfiguration) -> UITargetedPreview> {
-        toFunction(#selector(UICollectionViewDelegate.collectionView(_:previewForHighlightingContextMenuWithConfiguration:)), toClosure())
-    }
-
-    @available(iOS 13.0, *)
-    var willPerformPreviewActionForMenuWithAnimator: Function<(UIContextMenuConfiguration, UIContextMenuInteractionCommitAnimating), Void, (ListContext, UIContextMenuConfiguration, UIContextMenuInteractionCommitAnimating) -> Void> {
-        toFunction(#selector(UICollectionViewDelegate.collectionView(_:willPerformPreviewActionForMenuWith:animator:)), toClosure())
-    }
+//    // MARK: - Handling Layout Changes
+//    var transitionLayoutForOldLayoutNewLayout: Function<(UICollectionViewLayout, UICollectionViewLayout), UICollectionViewTransitionLayout, (ListContext, UICollectionViewLayout, UICollectionViewLayout) -> UICollectionViewTransitionLayout> {
+//        toFunction(#selector(UICollectionViewDelegate.collectionView(_:transitionLayoutForOldLayout:newLayout:)), toClosure())
+//    }
+//
+//    var targetContentOffset: Function<CGPoint, CGPoint, (ListContext, CGPoint) -> CGPoint> {
+//        toFunction(#selector(UICollectionViewDelegate.collectionView(_:targetContentOffsetForProposedContentOffset:)), toClosure())
+//    }
+//
+//    var targetIndexPathForMoveFromItem: Function<(IndexPath, IndexPath), IndexPath, (ListContext, IndexPath, IndexPath) -> IndexPath> {
+//        toFunction(#selector(UICollectionViewDelegate.collectionView(_:targetIndexPathForMoveFromItemAt:toProposedIndexPath:)), toClosure())
+//    }
+//
+//    // MARK: - Managing Actions for Cells
+//    var shouldShowMenuForItem: ModelFunction<IndexPath, Bool, (ListModelContext, Model) -> Bool> {
+//        toFunction(#selector(UICollectionViewDelegate.collectionView(_:shouldShowMenuForItemAt:)), toClosure())
+//    }
+//
+//    var canPerformActionWithSender: ModelFunction<(IndexPath, Selector, Any?), Bool, (ListModelContext, Selector, Any?, Model) -> Bool> {
+//        toFunction(#selector(UICollectionViewDelegate.collectionView(_:canPerformAction:forItemAt:withSender:)), \.0, toClosure())
+//    }
+//
+//    var performActionWithSender: ModelFunction<(IndexPath, Selector, Any?), Void, (ListModelContext, Selector, Any?, Model) -> Void> {
+//        toFunction(#selector(UICollectionViewDelegate.collectionView(_:performAction:forItemAt:withSender:)), \.0, toClosure())
+//    }
+//
+//    // MARK: - Managing Focus in a Collection View
+//    var canFocusItem: ModelFunction<IndexPath, Bool, (ListModelContext, Model) -> Bool> {
+//        toFunction(#selector(UICollectionViewDelegate.collectionView(_:canFocusItemAt:)), toClosure())
+//    }
+//
+//    var indexPathForPreferredFocusedView: Function<Void, IndexPath?, (ListContext) -> IndexPath?> {
+//        toFunction(#selector(UICollectionViewDelegate.indexPathForPreferredFocusedView(in:)), toClosure())
+//    }
+//
+//    var shouldUpdateFocusIn: Function<UICollectionViewFocusUpdateContext, Bool, (ListContext, UICollectionViewFocusUpdateContext) -> Bool> {
+//        toFunction(#selector(UICollectionViewDelegate.collectionView(_:shouldUpdateFocusIn:)), toClosure())
+//    }
+//
+//    var didUpdateFocusInWith: Function<(UICollectionViewFocusUpdateContext, UIFocusAnimationCoordinator), Void, (ListContext, UICollectionViewFocusUpdateContext, UIFocusAnimationCoordinator) -> Void> {
+//        toFunction(#selector(UICollectionViewDelegate.collectionView(_:didUpdateFocusIn:with:)), toClosure())
+//    }
+//
+//    // MARK: - Controlling the Spring-Loading Behavior
+//    @available(iOS 11.0, *)
+//    var shouldSpringLoadItemAtWith: ModelFunction<(IndexPath, UISpringLoadedInteractionContext), Bool, (ListModelContext, UISpringLoadedInteractionContext, Model) -> Bool> {
+//        toFunction(#selector(UICollectionViewDelegate.collectionView(_:shouldSpringLoadItemAt:with:)), \.0, toClosure())
+//    }
+//
+//    // MARK: - Instance Methods
+//    @available(iOS 13.0, *)
+//    var contextMenuConfigurationForItem: ModelFunction<(IndexPath, CGPoint), UIContextMenuConfiguration?, (ListModelContext, CGPoint, Model) -> UIContextMenuConfiguration> {
+//        toFunction(#selector(UICollectionViewDelegate.collectionView(_:contextMenuConfigurationForItemAt:point:)), \.0, toClosure())
+//    }
+//
+//    @available(iOS 13.0, *)
+//    var previewForDismissingContextMenuWithConfiguration: Function<UIContextMenuConfiguration, UITargetedPreview, (ListContext, UIContextMenuConfiguration) -> UITargetedPreview> {
+//        toFunction(#selector(UICollectionViewDelegate.collectionView(_:previewForDismissingContextMenuWithConfiguration:)), toClosure())
+//    }
+//
+//    @available(iOS 13.0, *)
+//    var previewForHighlightingContextMenuWithConfiguration: Function<UIContextMenuConfiguration, UITargetedPreview, (ListContext, UIContextMenuConfiguration) -> UITargetedPreview> {
+//        toFunction(#selector(UICollectionViewDelegate.collectionView(_:previewForHighlightingContextMenuWithConfiguration:)), toClosure())
+//    }
+//
+//    @available(iOS 13.0, *)
+//    var willPerformPreviewActionForMenuWithAnimator: Function<(UIContextMenuConfiguration, UIContextMenuInteractionCommitAnimating), Void, (ListContext, UIContextMenuConfiguration, UIContextMenuInteractionCommitAnimating) -> Void> {
+//        toFunction(#selector(UICollectionViewDelegate.collectionView(_:willPerformPreviewActionForMenuWith:animator:)), toClosure())
+//    }
 }
 
 // MARK: - Collection View Delegate Flow Layout

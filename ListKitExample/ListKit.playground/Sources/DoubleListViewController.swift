@@ -18,12 +18,12 @@ public class DoubleListViewController: UIViewController, UpdatableListAdapter {
     }
 
     public var list: ListAdaptation<DoubleListViewController, UITableView> {
-        didEndDragging { _, _ in
-            print("didEndDragging")
-        }
-        willBeginDragging { (context) in
-            print("didDrag")
-        }
+//        didEndDragging { _, _ in
+//            print("didEndDragging")
+//        }
+//        willBeginDragging { (context) in
+//            print("didDrag")
+//        }
         cellForRow()
         didSelectRow { [unowned self] (context, model) in
             perform(.remove(at: context.item))

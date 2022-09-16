@@ -40,14 +40,14 @@ public extension ListAdapter where View: UITableView {
         toFunction(#selector(UITableViewDataSource.tableView(_:canEditRowAt:)), toClosure())
     }
 
-    // MARK: - Reordering Table Rows
-    var canMoveRow: ModelFunction<IndexPath, Bool, (ListModelContext, Model) -> Bool> {
-        toFunction(#selector(UITableViewDataSource.tableView(_:canMoveRowAt:)), toClosure())
-    }
-
-    var moveRow: Function<(IndexPath, IndexPath), Void, (ListContext, IndexPath, IndexPath) -> Void> {
-        toFunction(#selector(UITableViewDataSource.tableView(_:moveRowAt:to:)), toClosure())
-    }
+//    // MARK: - Reordering Table Rows
+//    var canMoveRow: ModelFunction<IndexPath, Bool, (ListModelContext, Model) -> Bool> {
+//        toFunction(#selector(UITableViewDataSource.tableView(_:canMoveRowAt:)), toClosure())
+//    }
+//
+//    var moveRow: Function<(IndexPath, IndexPath), Void, (ListContext, IndexPath, IndexPath) -> Void> {
+//        toFunction(#selector(UITableViewDataSource.tableView(_:moveRowAt:to:)), toClosure())
+//    }
 
     // MARK: - Configuring an Index
     var sectionIndexTitles: Function<Void, [String]?, (ListContext) -> [String]?> {
@@ -66,14 +66,14 @@ public extension ListAdapter where View: UITableView {
         toFunction(#selector(UITableViewDelegate.tableView(_:willDisplay:forRowAt:)), \.0, toClosure())
     }
 
-    var indentationLevelForRow: ModelFunction<IndexPath, Int, (ListModelContext, Model) -> Int> {
-        toFunction(#selector(UITableViewDelegate.tableView(_:indentationLevelForRowAt:)), toClosure())
-    }
-
-    @available(iOS 11.0, *)
-    var shouldSpringLoadRow: ModelFunction<(IndexPath, UISpringLoadedInteractionContext), Bool, (ListModelContext, UISpringLoadedInteractionContext, Model) -> Bool> {
-        toFunction(#selector(UITableViewDelegate.tableView(_:shouldSpringLoadRowAt:with:)), \.0, toClosure())
-    }
+//    var indentationLevelForRow: ModelFunction<IndexPath, Int, (ListModelContext, Model) -> Int> {
+//        toFunction(#selector(UITableViewDelegate.tableView(_:indentationLevelForRowAt:)), toClosure())
+//    }
+//
+//    @available(iOS 11.0, *)
+//    var shouldSpringLoadRow: ModelFunction<(IndexPath, UISpringLoadedInteractionContext), Bool, (ListModelContext, UISpringLoadedInteractionContext, Model) -> Bool> {
+//        toFunction(#selector(UITableViewDelegate.tableView(_:shouldSpringLoadRowAt:with:)), \.0, toClosure())
+//    }
 
     // MARK: - Responding to Row Selections
     var willSelectRow: ModelFunction<IndexPath, IndexPath?, (ListModelContext, Model) -> IndexPath?> {
@@ -92,20 +92,20 @@ public extension ListAdapter where View: UITableView {
         toFunction(#selector(UITableViewDelegate.tableView(_:didDeselectRowAt:)), toClosure())
     }
 
-    @available(iOS 13.0, *)
-    var shouldBeginMultipleSelectionInteraction: ModelFunction<IndexPath, Bool, (ListModelContext, Model) -> Bool> {
-        toFunction(#selector(UITableViewDelegate.tableView(_:shouldBeginMultipleSelectionInteractionAt:)), toClosure())
-    }
-
-    @available(iOS 13.0, *)
-    var didBeginMultipleSelectionInteraction: ModelFunction<IndexPath, Void, (ListModelContext, Model) -> Void> {
-        toFunction(#selector(UITableViewDelegate.tableView(_:didBeginMultipleSelectionInteractionAt:)), toClosure())
-    }
-
-    @available(iOS 13.0, *)
-    var didEndMultipleSelectionInteraction: Function<Void, Void, (ListContext) -> Void> {
-        toFunction(#selector(UITableViewDelegate.tableViewDidEndMultipleSelectionInteraction(_:)), toClosure())
-    }
+//    @available(iOS 13.0, *)
+//    var shouldBeginMultipleSelectionInteraction: ModelFunction<IndexPath, Bool, (ListModelContext, Model) -> Bool> {
+//        toFunction(#selector(UITableViewDelegate.tableView(_:shouldBeginMultipleSelectionInteractionAt:)), toClosure())
+//    }
+//
+//    @available(iOS 13.0, *)
+//    var didBeginMultipleSelectionInteraction: ModelFunction<IndexPath, Void, (ListModelContext, Model) -> Void> {
+//        toFunction(#selector(UITableViewDelegate.tableView(_:didBeginMultipleSelectionInteractionAt:)), toClosure())
+//    }
+//
+//    @available(iOS 13.0, *)
+//    var didEndMultipleSelectionInteraction: Function<Void, Void, (ListContext) -> Void> {
+//        toFunction(#selector(UITableViewDelegate.tableViewDidEndMultipleSelectionInteraction(_:)), toClosure())
+//    }
 
     // MARK: - Providing Custom Header and Footer Views
     var viewHeaderForSection: SectionFunction<Int, UIView?, (ListSectionContext) -> UIView?> {
@@ -155,32 +155,32 @@ public extension ListAdapter where View: UITableView {
         toFunction(#selector(UITableViewDelegate.tableView(_:accessoryButtonTappedForRowWith:)), toClosure())
     }
 
-    // MARK: - Responding to Row Actions
-    @available(iOS 11.0, *)
-    var leadingSwipeActionsConfiguration: ModelFunction<IndexPath, UISwipeActionsConfiguration?, (ListModelContext, Model) -> UISwipeActionsConfiguration?> {
-        toFunction(#selector(UITableViewDelegate.tableView(_:leadingSwipeActionsConfigurationForRowAt:)), toClosure())
-    }
-
-    @available(iOS 11.0, *)
-    var trailingSwipeActionsConfiguration: ModelFunction<IndexPath, UISwipeActionsConfiguration?, (ListModelContext, Model) -> UISwipeActionsConfiguration?> {
-        toFunction(#selector(UITableViewDelegate.tableView(_:trailingSwipeActionsConfigurationForRowAt:)), toClosure())
-    }
-
-    var shouldShowMenuForRow: ModelFunction<IndexPath, Bool, (ListModelContext, Model) -> Bool> {
-        toFunction(#selector(UITableViewDelegate.tableView(_:shouldShowMenuForRowAt:)), toClosure())
-    }
-
-    var canPerformActionWithSender: ModelFunction<(IndexPath, Selector, Any?), Bool, (ListModelContext, Selector, Any?, Model) -> Bool> {
-        toFunction(#selector(UITableViewDelegate.tableView(_:canPerformAction:forRowAt:withSender:)), \.0, toClosure())
-    }
-
-    var performActionWithSender: ModelFunction<(IndexPath, Selector, Any?), Void, (ListModelContext, Selector, Any?, Model) -> Void> {
-        toFunction(#selector(UITableViewDelegate.tableView(_:performAction:forRowAt:withSender:)), \.0, toClosure())
-    }
-
-    var editActionsForRow: ModelFunction<IndexPath, [UITableViewRowAction]?, (ListModelContext, Model) -> [UITableViewRowAction]?> {
-        toFunction(#selector(UITableViewDelegate.tableView(_:editActionsForRowAt:)), toClosure())
-    }
+//    // MARK: - Responding to Row Actions
+//    @available(iOS 11.0, *)
+//    var leadingSwipeActionsConfiguration: ModelFunction<IndexPath, UISwipeActionsConfiguration?, (ListModelContext, Model) -> UISwipeActionsConfiguration?> {
+//        toFunction(#selector(UITableViewDelegate.tableView(_:leadingSwipeActionsConfigurationForRowAt:)), toClosure())
+//    }
+//
+//    @available(iOS 11.0, *)
+//    var trailingSwipeActionsConfiguration: ModelFunction<IndexPath, UISwipeActionsConfiguration?, (ListModelContext, Model) -> UISwipeActionsConfiguration?> {
+//        toFunction(#selector(UITableViewDelegate.tableView(_:trailingSwipeActionsConfigurationForRowAt:)), toClosure())
+//    }
+//
+//    var shouldShowMenuForRow: ModelFunction<IndexPath, Bool, (ListModelContext, Model) -> Bool> {
+//        toFunction(#selector(UITableViewDelegate.tableView(_:shouldShowMenuForRowAt:)), toClosure())
+//    }
+//
+//    var canPerformActionWithSender: ModelFunction<(IndexPath, Selector, Any?), Bool, (ListModelContext, Selector, Any?, Model) -> Bool> {
+//        toFunction(#selector(UITableViewDelegate.tableView(_:canPerformAction:forRowAt:withSender:)), \.0, toClosure())
+//    }
+//
+//    var performActionWithSender: ModelFunction<(IndexPath, Selector, Any?), Void, (ListModelContext, Selector, Any?, Model) -> Void> {
+//        toFunction(#selector(UITableViewDelegate.tableView(_:performAction:forRowAt:withSender:)), \.0, toClosure())
+//    }
+//
+//    var editActionsForRow: ModelFunction<IndexPath, [UITableViewRowAction]?, (ListModelContext, Model) -> [UITableViewRowAction]?> {
+//        toFunction(#selector(UITableViewDelegate.tableView(_:editActionsForRowAt:)), toClosure())
+//    }
 
     // MARK: - Managing Table View Highlights
     var shouldHighlight: ModelFunction<IndexPath, Bool, (ListModelContext, Model) -> Bool> {
@@ -195,31 +195,31 @@ public extension ListAdapter where View: UITableView {
         toFunction(#selector(UITableViewDelegate.tableView(_:didUnhighlightRowAt:)), toClosure())
     }
 
-    // MARK: - Editing Table Rows
-    var willBeginEditing: ModelFunction<IndexPath, Void, (ListModelContext, Model) -> Void> {
-        toFunction(#selector(UITableViewDelegate.tableView(_:willBeginEditingRowAt:)), toClosure())
-    }
-
-    var didEndEditing: Function<IndexPath?, Void, (ListContext, IndexPath?) -> Void> {
-        toFunction(#selector(UITableViewDelegate.tableView(_:didEndEditingRowAt:)), toClosure())
-    }
-
-    var editingStyle: ModelFunction<IndexPath, UITableViewCell.EditingStyle, (ListModelContext, Model) -> UITableViewCell.EditingStyle> {
-        toFunction(#selector(UITableViewDelegate.tableView(_:editingStyleForRowAt:)), toClosure())
-    }
-
-    var titleForDeleteConfirmationButton: ModelFunction<IndexPath, String?, (ListModelContext, Model) -> String?> {
-        toFunction(#selector(UITableViewDelegate.tableView(_:titleForDeleteConfirmationButtonForRowAt:)), toClosure())
-    }
-
-    var shouldIndentWhileEditing: ModelFunction<IndexPath, Bool, (ListModelContext, Model) -> Bool> {
-        toFunction(#selector(UITableViewDelegate.tableView(_:shouldIndentWhileEditingRowAt:)), toClosure())
-    }
-
-    // MARK: - Reordering Table Rows
-    var targetIndexPathForMoveFromRowAtToProposedIndexPath: Function<(IndexPath, IndexPath), IndexPath, (ListContext, IndexPath, IndexPath) -> IndexPath> {
-        toFunction(#selector(UITableViewDelegate.tableView(_:targetIndexPathForMoveFromRowAt:toProposedIndexPath:)), toClosure())
-    }
+//    // MARK: - Editing Table Rows
+//    var willBeginEditing: ModelFunction<IndexPath, Void, (ListModelContext, Model) -> Void> {
+//        toFunction(#selector(UITableViewDelegate.tableView(_:willBeginEditingRowAt:)), toClosure())
+//    }
+//
+//    var didEndEditing: Function<IndexPath?, Void, (ListContext, IndexPath?) -> Void> {
+//        toFunction(#selector(UITableViewDelegate.tableView(_:didEndEditingRowAt:)), toClosure())
+//    }
+//
+//    var editingStyle: ModelFunction<IndexPath, UITableViewCell.EditingStyle, (ListModelContext, Model) -> UITableViewCell.EditingStyle> {
+//        toFunction(#selector(UITableViewDelegate.tableView(_:editingStyleForRowAt:)), toClosure())
+//    }
+//
+//    var titleForDeleteConfirmationButton: ModelFunction<IndexPath, String?, (ListModelContext, Model) -> String?> {
+//        toFunction(#selector(UITableViewDelegate.tableView(_:titleForDeleteConfirmationButtonForRowAt:)), toClosure())
+//    }
+//
+//    var shouldIndentWhileEditing: ModelFunction<IndexPath, Bool, (ListModelContext, Model) -> Bool> {
+//        toFunction(#selector(UITableViewDelegate.tableView(_:shouldIndentWhileEditingRowAt:)), toClosure())
+//    }
+//
+//    // MARK: - Reordering Table Rows
+//    var targetIndexPathForMoveFromRowAtToProposedIndexPath: Function<(IndexPath, IndexPath), IndexPath, (ListContext, IndexPath, IndexPath) -> IndexPath> {
+//        toFunction(#selector(UITableViewDelegate.tableView(_:targetIndexPathForMoveFromRowAt:toProposedIndexPath:)), toClosure())
+//    }
 
     // MARK: - Tracking the Removal of Views
     var didEndDisplayingForRowAt: Function<(UITableViewCell, IndexPath), Void, (ListContext, UITableViewCell, IndexPath) -> Void> {
@@ -234,43 +234,43 @@ public extension ListAdapter where View: UITableView {
         toFunction(#selector(UITableViewDelegate.tableView(_:didEndDisplayingFooterView:forSection:)), toClosure())
     }
 
-    // MARK: - Managing Table View Focus
-    var canFocusRow: ModelFunction<IndexPath, Bool, (ListModelContext, Model) -> Bool> {
-        toFunction(#selector(UITableViewDelegate.tableView(_:canFocusRowAt:)), toClosure())
-    }
-
-    var shouldUpdateFocusIn: Function<UITableViewFocusUpdateContext, Bool, (ListContext, UITableViewFocusUpdateContext) -> Bool> {
-        toFunction(#selector(UITableViewDelegate.tableView(_:shouldUpdateFocusIn:)), toClosure())
-    }
-
-    var didUpdateFocusInWith: Function<(UITableViewFocusUpdateContext, UIFocusAnimationCoordinator), Void, (ListContext, UITableViewFocusUpdateContext, UIFocusAnimationCoordinator) -> Void> {
-        toFunction(#selector(UITableViewDelegate.tableView(_:didUpdateFocusIn:with:)), toClosure())
-    }
-
-    var indexPathForPreferredFocusedView: Function<Void, IndexPath?, (ListContext) -> IndexPath?> {
-        toFunction(#selector(UITableViewDelegate.indexPathForPreferredFocusedView(in:)), toClosure())
-    }
-
-    // MARK: - Instance Methods
-    @available(iOS 13.0, *)
-    var contextMenuConfigurationForRow: ModelFunction<(IndexPath, CGPoint), UIContextMenuConfiguration, (ListModelContext, CGPoint, Model) -> UIContextMenuConfiguration> {
-        toFunction(#selector(UITableViewDelegate.tableView(_:contextMenuConfigurationForRowAt:point:)), \.0, toClosure())
-    }
-
-    @available(iOS 13.0, *)
-    var previewForDismissingContextMenuWithConfiguration: Function<UIContextMenuConfiguration, UITargetedPreview, (ListContext, UIContextMenuConfiguration) -> UITargetedPreview> {
-        toFunction(#selector(UITableViewDelegate.tableView(_:previewForDismissingContextMenuWithConfiguration:)), toClosure())
-    }
-
-    @available(iOS 13.0, *)
-    var previewForHighlightingContextMenuWithConfiguration: Function<UIContextMenuConfiguration, UITargetedPreview, (ListContext, UIContextMenuConfiguration) -> UITargetedPreview> {
-        toFunction(#selector(UITableViewDelegate.tableView(_:previewForHighlightingContextMenuWithConfiguration:)), toClosure())
-    }
-
-    @available(iOS 13.0, *)
-    var willPerformPreviewActionForMenuWithAnimator: Function<(UIContextMenuConfiguration, UIContextMenuInteractionCommitAnimating), Void, (ListContext, UIContextMenuConfiguration, UIContextMenuInteractionCommitAnimating) -> Void> {
-        toFunction(#selector(UITableViewDelegate.tableView(_:willPerformPreviewActionForMenuWith:animator:)), toClosure())
-    }
+//    // MARK: - Managing Table View Focus
+//    var canFocusRow: ModelFunction<IndexPath, Bool, (ListModelContext, Model) -> Bool> {
+//        toFunction(#selector(UITableViewDelegate.tableView(_:canFocusRowAt:)), toClosure())
+//    }
+//
+//    var shouldUpdateFocusIn: Function<UITableViewFocusUpdateContext, Bool, (ListContext, UITableViewFocusUpdateContext) -> Bool> {
+//        toFunction(#selector(UITableViewDelegate.tableView(_:shouldUpdateFocusIn:)), toClosure())
+//    }
+//
+//    var didUpdateFocusInWith: Function<(UITableViewFocusUpdateContext, UIFocusAnimationCoordinator), Void, (ListContext, UITableViewFocusUpdateContext, UIFocusAnimationCoordinator) -> Void> {
+//        toFunction(#selector(UITableViewDelegate.tableView(_:didUpdateFocusIn:with:)), toClosure())
+//    }
+//
+//    var indexPathForPreferredFocusedView: Function<Void, IndexPath?, (ListContext) -> IndexPath?> {
+//        toFunction(#selector(UITableViewDelegate.indexPathForPreferredFocusedView(in:)), toClosure())
+//    }
+//
+//    // MARK: - Instance Methods
+//    @available(iOS 13.0, *)
+//    var contextMenuConfigurationForRow: ModelFunction<(IndexPath, CGPoint), UIContextMenuConfiguration, (ListModelContext, CGPoint, Model) -> UIContextMenuConfiguration> {
+//        toFunction(#selector(UITableViewDelegate.tableView(_:contextMenuConfigurationForRowAt:point:)), \.0, toClosure())
+//    }
+//
+//    @available(iOS 13.0, *)
+//    var previewForDismissingContextMenuWithConfiguration: Function<UIContextMenuConfiguration, UITargetedPreview, (ListContext, UIContextMenuConfiguration) -> UITargetedPreview> {
+//        toFunction(#selector(UITableViewDelegate.tableView(_:previewForDismissingContextMenuWithConfiguration:)), toClosure())
+//    }
+//
+//    @available(iOS 13.0, *)
+//    var previewForHighlightingContextMenuWithConfiguration: Function<UIContextMenuConfiguration, UITargetedPreview, (ListContext, UIContextMenuConfiguration) -> UITargetedPreview> {
+//        toFunction(#selector(UITableViewDelegate.tableView(_:previewForHighlightingContextMenuWithConfiguration:)), toClosure())
+//    }
+//
+//    @available(iOS 13.0, *)
+//    var willPerformPreviewActionForMenuWithAnimator: Function<(UIContextMenuConfiguration, UIContextMenuInteractionCommitAnimating), Void, (ListContext, UIContextMenuConfiguration, UIContextMenuInteractionCommitAnimating) -> Void> {
+//        toFunction(#selector(UITableViewDelegate.tableView(_:willPerformPreviewActionForMenuWith:animator:)), toClosure())
+//    }
 }
 
 #endif

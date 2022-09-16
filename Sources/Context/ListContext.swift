@@ -91,9 +91,9 @@ public extension ListIndexContext where Index == IndexPath {
     }
 }
 
-public extension ListIndexContext where Base: ModelCachedDataSource, Index == IndexPath {
-    var modelCache: Base.ModelCache { cache() }
-}
+//public extension ListIndexContext where Base: ModelCachedDataSource, Index == IndexPath {
+//    var modelCache: Base.ModelCache { cache() }
+//}
 
 extension ListIndexContext where Index == IndexPath {
     func setNestedCache(update: @escaping (Any) -> Void) {

@@ -102,11 +102,11 @@ public extension ListAdapter {
     }
 }
 
-extension ListAdaptation: ModelCachedDataSource where Source: ModelCachedDataSource {
-    public typealias ModelCache = Source.ModelCache
-
-    public var modelCached: ModelCached<Source.SourceBase, Source.ModelCache> { source.modelCached }
-    public var base: ListAdaptation<Source.SourceBase.AdapterBase, View> {
-        .init(source.sourceBase.adapterBase, listDelegate: listDelegate)
-    }
-}
+//extension ListAdaptation: ModelCachedDataSource where Source: ModelCachedDataSource {
+//    public typealias ModelCache = Source.ModelCache
+//
+//    public var modelCached: ModelCached<Source.SourceBase, Source.ModelCache> { source.modelCached }
+//    public var base: ListAdaptation<Source.SourceBase.AdapterBase, View> {
+//        .init(source.sourceBase.adapterBase, listDelegate: listDelegate)
+//    }
+//}

@@ -92,7 +92,7 @@ where
     init(
         _ sourceBase: SourceBase,
         toSource: @escaping (SourceBase.Source) -> (Source),
-        fromSource:  @escaping (Source) -> SourceBase.Source
+        fromSource: @escaping (Source) -> SourceBase.Source
     ) {
         let source = sourceBase.source
         subsourceType = .fromSourceBase(toSource, fromSource)

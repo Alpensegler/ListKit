@@ -1,7 +1,7 @@
 import ListKit
 import UIKit
 
-// swiftlint:disable comment_spacing
+// swiftlint:disable comment_spacing orphaned_doc_comment
 
 //public class TestListViewController: UIViewController, UpdatableListAdapter {
 //    public var toggle = true

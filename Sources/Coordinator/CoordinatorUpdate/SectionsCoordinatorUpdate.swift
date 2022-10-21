@@ -5,7 +5,7 @@
 //  Created by Frain on 2020/7/15.
 //
 
-// swiftlint:disable opening_brace
+// swiftlint:disable comment_spacing
 
 //import Foundation
 //

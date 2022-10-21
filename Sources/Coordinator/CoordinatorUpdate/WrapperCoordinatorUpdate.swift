@@ -5,7 +5,7 @@
 //  Created by Frain on 2020/8/25.
 //
 
-// swiftlint:disable shorthand_operator
+// swiftlint:disable comment_spacing
 
 import Foundation
 

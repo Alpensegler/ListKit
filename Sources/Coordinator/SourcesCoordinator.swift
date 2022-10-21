@@ -5,7 +5,7 @@
 //  Created by Frain on 2019/11/28.
 //
 
-// swiftlint:disable opening_brace type_body_length
+// swiftlint:disable comment_spacing
 
 //import Foundation
 
@@ -123,7 +123,6 @@
 //        indices[notModels ? listIndex.section : listIndex.item].index
 //    }
 //
-//    // swiftlint:disable function_body_length
 //    func toSubsources(
 //        _ source: Source,
 //        sectioned: Bool? = nil

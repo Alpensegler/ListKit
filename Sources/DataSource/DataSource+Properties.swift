@@ -5,7 +5,7 @@
 //  Created by Frain on 2020/2/22.
 //
 
-// swiftlint:disable opening_brace
+// swiftlint:disable opening_brace orphaned_doc_comment comment_spacing mark
 
 public extension DataSource {
     var listDiffer: ListDiffer<SourceBase> { .none }

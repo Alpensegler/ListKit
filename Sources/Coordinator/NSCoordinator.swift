@@ -5,6 +5,8 @@
 //  Created by Frain on 2019/12/3.
 //
 
+// swiftlint:disable comment_spacing
+
 //import Foundation
 //
 //final class NSCoordinator<SourceBase: NSDataSource>: ListCoordinator<SourceBase>

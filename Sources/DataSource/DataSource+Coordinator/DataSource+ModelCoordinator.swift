@@ -5,6 +5,8 @@
 //  Created by Frain on 2019/12/17.
 //
 
+// swiftlint:disable comment_spacing
+
 //public extension DataSource where SourceBase.Source == Model {
 //    var listCoordinator: ListCoordinator<SourceBase> {
 //        ModelCoordinator(sourceBase)

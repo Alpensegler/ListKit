@@ -5,6 +5,8 @@
 //  Created by Frain on 2021/1/19.
 //
 
+// swiftlint:disable comment_spacing
+
 import Foundation
 
 //public extension ListDelegate.IndexFunction where Index == IndexPath, Output: FunctionOutput {

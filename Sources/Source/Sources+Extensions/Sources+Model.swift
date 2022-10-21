@@ -5,6 +5,8 @@
 //  Created by Frain on 2020/1/16.
 //
 
+// swiftlint:disable comment_spacing mark orphaned_doc_comment
+
 //extension Sources where Source == Model {
 //    init(_ id: AnyHashable?, model: Source, update: ListUpdate<SourceBase>.Whole, options: ListOptions) {
 //        self.sourceValue = .value(model)

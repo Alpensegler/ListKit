@@ -5,6 +5,8 @@
 //  Created by Frain on 2020/7/7.
 //
 
+// swiftlint:disable comment_spacing
+
 public protocol DiffInitializableUpdate: DiffInitializable where Value == SourceBase.Model {
     associatedtype SourceBase: DataSource where SourceBase.SourceBase == SourceBase
 

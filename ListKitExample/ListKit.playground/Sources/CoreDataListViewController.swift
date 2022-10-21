@@ -9,7 +9,7 @@ import CoreData
 import ListKit
 import UIKit
 
-// swiftlint: disable unused_closure_parameter comment_spacing
+// swiftlint: disable comment_spacing todo orphaned_doc_comment
 
 //public class CoreDataListViewController: UIViewController, UpdatableListAdapter {
 //    var fetchLimit = 3

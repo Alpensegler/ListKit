@@ -5,6 +5,8 @@
 //  Created by Frain on 2019/12/10.
 //
 
+// swiftlint:disable comment_spacing
+
 #if os(iOS) || os(tvOS)
 import UIKit
 

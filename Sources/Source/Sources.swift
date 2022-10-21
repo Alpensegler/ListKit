@@ -5,6 +5,8 @@
 //  Created by Frain on 2019/10/10.
 //
 
+// swiftlint:disable comment_spacing
+
 //@propertyWrapper
 //@dynamicMemberLookup
 //public struct Sources<Source, Model>: UpdatableDataSource {

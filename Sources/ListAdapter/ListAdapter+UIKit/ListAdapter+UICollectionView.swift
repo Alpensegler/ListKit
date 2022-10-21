@@ -5,7 +5,7 @@
 //  Created by Frain on 2019/12/10.
 //
 
-// swiftlint:disable identifier_name large_tuple
+// swiftlint:disable large_tuple
 
 #if os(iOS) || os(tvOS)
 import UIKit

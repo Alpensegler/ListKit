@@ -5,7 +5,7 @@
 //  Created by Frain on 2020/8/21.
 //
 
-// swiftlint:disable shorthand_operator opening_brace
+// swiftlint:disable comment_spacing
 
 //import Foundation
 //
@@ -142,7 +142,6 @@
 //    }
 //}
 //
-//// swiftlint:disable function_body_length
 //extension ContainerCoordinatorUpdate {
 //    func enumerateDifferences(ids: [AnyHashable], closure: (Subupdate, [AnyHashable]) -> Void) {
 //        for source in differences.source {
@@ -257,7 +256,7 @@
 //            case let .change(.update(_, value, update)):
 //                add(value: value.target, update, isMoved: false)
 //            case let .unchanged(from: from, to: to):
-//                guard !context.isMoved else { fatalError("TODO") }
+//                guard !context.isMoved else { fatalError() }
 //                (from.source..<to.source).forEach { add(value: sourceValues[$0]) }
 //            }
 //        }
@@ -383,7 +382,7 @@
 //            case let .change(.update(_, value, update)):
 //                add(value: value.target, update: update, isMoved: false)
 //            case let .unchanged(from: from, to: to):
-//                guard !context.isMoved else { fatalError("TODO") }
+//                guard !context.isMoved else { fatalError() }
 //                (from.target..<to.target).forEach { add(value: targetValues[$0]) }
 //            }
 //        }
@@ -399,7 +398,6 @@
 //        return (toIndices(indices, context), result, change)
 //    }
 //}
-//// swiftlint:enable function_body_length
 //
 //extension ContainerCoordinatorUpdate {
 //    func add(subupdate: Subupdate, at index: Int) {

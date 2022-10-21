@@ -5,7 +5,7 @@
 //  Created by Frain on 2022/8/17.
 //
 
-// swiftlint:disable line_length function_parameter_count
+// swiftlint:disable line_length comment_spacing
 
 //public typealias AnyListSources<View: ListView> = ListAdaptation<AnySources, View>
 //public typealias AnyTableSources = AnyListSources<TableView>

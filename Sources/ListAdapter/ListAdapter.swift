@@ -5,6 +5,8 @@
 //  Created by Frain on 2022/8/12.
 //
 
+// swiftlint:disable comment_spacing
+
 public protocol ListAdapter: DataSource {
     associatedtype View: ListView = TableView
 

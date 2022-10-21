@@ -5,6 +5,8 @@
 //  Created by Frain on 2019/12/12.
 //
 
+// swiftlint:disable comment_spacing
+
 //#if canImport(CoreData)
 //import CoreData
 //import Foundation

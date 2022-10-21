@@ -5,6 +5,8 @@
 //  Created by Frain on 2019/12/17.
 //
 
+// swiftlint:disable comment_spacing
+
 //import Foundation
 //
 //public extension NSDataSource where SourceBase: NSDataSource {

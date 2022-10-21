@@ -5,6 +5,8 @@
 //  Created by Frain on 2019/12/13.
 //
 
+// swiftlint:disable comment_spacing
+
 //extension Optional: DataSource where Wrapped: DataSource {
 //    public typealias Model = Wrapped.Model
 //    public typealias Source = Self

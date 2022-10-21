@@ -5,6 +5,8 @@
 //  Created by Frain on 2019/12/11.
 //
 
+// swiftlint:disable comment_spacing
+
 //public struct AnySources: DataSource {
 //    public typealias Model = Any
 //    public typealias SourceBase = Self

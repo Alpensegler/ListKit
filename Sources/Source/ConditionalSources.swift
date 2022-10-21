@@ -5,6 +5,8 @@
 //  Created by Frain on 2020/9/3.
 //
 
+// swiftlint:disable comment_spacing
+
 //public enum ConditionalSources<TrueContent: DataSource, FalseContent: DataSource>: DataSource {
 //    public typealias Model = Any
 //    public typealias SourceBase = Self

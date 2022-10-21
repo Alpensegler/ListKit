@@ -5,7 +5,7 @@
 //  Created by Frain on 2019/12/17.
 //
 
-// swiftlint:disable opening_brace
+// swiftlint:disable comment_spacing
 
 //public extension DataSource
 //where

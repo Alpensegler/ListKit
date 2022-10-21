@@ -5,7 +5,7 @@
 //  Created by Frain on 2019/12/11.
 //
 
-// swiftlint:disable line_length function_parameter_count
+// swiftlint:disable line_length comment_spacing
 
 //public extension AnySources {
 //    init<Source: DataSource>(

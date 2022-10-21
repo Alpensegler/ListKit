@@ -5,6 +5,8 @@
 //  Created by Frain on 2020/8/2.
 //
 
+// swiftlint:disable comment_spacing
+
 import Foundation
 
 @dynamicMemberLookup

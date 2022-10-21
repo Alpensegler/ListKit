@@ -5,7 +5,7 @@
 //  Created by Frain on 2020/6/7.
 //
 
-// swiftlint:disable opening_brace
+// swiftlint:disable opening_brace mark comment_spacing orphaned_doc_comment
 
 enum UpdateWay {
     case reload

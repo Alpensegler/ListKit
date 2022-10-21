@@ -5,7 +5,7 @@
 //  Created by Frain on 2021/1/5.
 //
 
-// swiftlint:disable opening_brace
+// swiftlint:disable comment_spacing
 
 //public extension DataSource where SourceBase == Self {
 //    func withModelCached<ModelCache>(

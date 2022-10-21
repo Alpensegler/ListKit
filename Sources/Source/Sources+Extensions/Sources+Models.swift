@@ -5,7 +5,7 @@
 //  Created by Frain on 2020/1/16.
 //
 
-// swiftlint:disable opening_brace
+// swiftlint:disable comment_spacing mark orphaned_doc_comment
 
 //extension Sources where Source: Collection, Source.Element == Model {
 //    init(_ id: AnyHashable?, models: Source, update: ListUpdate<SourceBase>.Whole, options: ListOptions) {

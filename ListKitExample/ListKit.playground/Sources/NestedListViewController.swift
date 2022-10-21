@@ -1,4 +1,4 @@
-// swiftlint:disable unused_closure_parameter
+// swiftlint:disable comment_spacing
 
 import ListKit
 import UIKit

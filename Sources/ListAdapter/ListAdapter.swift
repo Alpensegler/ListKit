@@ -7,56 +7,43 @@
 
 // swiftlint:disable comment_spacing
 
-public protocol ListAdapter: DataSource {
+public protocol ListAdapter<Model, View>: DataSource {
     associatedtype View: ListView = TableView
 
-    @ListBuilder<AdapterBase, View>
-    var list: ListAdaptation<AdapterBase, View> { get }
+    @ListBuilder<Model, View>
+    var list: ListAdaptation<Model, View> { get }
 }
 
-@propertyWrapper
-@dynamicMemberLookup
-public struct ListAdaptation<Source: DataSource, View: ListView>: ListAdapter
-where Source.AdapterBase == Source {
-    public typealias Model = Source.Model
-    public typealias SourceBase = Source.SourceBase
-    public typealias AdapterBase = Source
+public extension ListAdapter {
+    var source: any DataSource<Model> { return list }
+    var listCoordinatorContext: ListCoordinatorContext<Model> { list.listCoordinatorContext }
+}
 
-    public var source: Source
-    public var sourceBase: SourceBase { source.sourceBase }
-    public var adapterBase: Source { source }
+public extension ListAdapter where Self: UpdatableDataSource {
+    var listCoordinatorContext: ListCoordinatorContext<Model> {
+        ListCoordinatorContext(listCoordinator).context(with: listDelegate)
+    }
+}
 
-    public var listUpdate: ListUpdate<SourceBase>.Whole { source.listUpdate }
-    public var listDiffer: ListDiffer<SourceBase> { source.listDiffer }
-    public var listOptions: ListOptions { source.listOptions }
+extension ListAdapter {
+    var listGetter: ListAdaptation<Model, View> { return list }
+    var listDelegate: ListDelegate { list.listDelegate }
+}
+
+public struct ListAdaptation<Model, View: ListView>: ListAdapter {
+    public var source: any DataSource<Model>
+
+//    public var listUpdate: ListUpdate<SourceBase>.Whole { source.listUpdate }
+//    public var listDiffer: ListDiffer<SourceBase> { source.listDiffer }
+//    public var listOptions: ListOptions { source.listOptions }
 
     public var listDelegate: ListDelegate
-    public var listCoordinatorContext: ListCoordinatorContext<SourceBase> {
+    public var listCoordinatorContext: ListCoordinatorContext<Model> {
         source.listCoordinatorContext.context(with: listDelegate)
     }
 
-    public lazy var listCoordinator = source.listCoordinator
-    public lazy var coordinatorStorage = listCoordinator.storage.or({
-        let storage = CoordinatorStorage<SourceBase>()
-        listCoordinator.storage = storage
-        return storage
-    }())
-
-    public var list: ListAdaptation<Source, View> { self }
-
-    public var wrappedValue: Source {
-        get { source }
-        set { source = newValue }
-    }
-
-    public subscript<Value>(dynamicMember path: KeyPath<Source, Value>) -> Value {
-        source[keyPath: path]
-    }
-
-    public subscript<Value>(dynamicMember path: WritableKeyPath<Source, Value>) -> Value {
-        get { source[keyPath: path] }
-        set { source[keyPath: path] = newValue }
-    }
+    public var listCoordinator: ListCoordinator<Model> { source.listCoordinator }
+    public var list: ListAdaptation<Model, View> { return self }
 
 //    init<OtherSource: DataSource>(
 //        _ source: OtherSource,
@@ -66,42 +53,43 @@ where Source.AdapterBase == Source {
 //        self.listDelegate = .init()
 //    }
 
-    init(_ source: Source) {
+    init(_ source: any DataSource<Model>) {
         self.source = source
-        self.listDelegate = source.listDelegate
+        self.listDelegate = .init()
     }
 
-    init(_ source: Source, listDelegate: ListDelegate) {
+    init(_ source: any DataSource<Model>, listDelegate: ListDelegate) {
         self.source = source
         self.listDelegate = listDelegate
     }
 }
 
 public extension ListAdapter {
-    @discardableResult
+//    @discardableResult
     func apply(
         by listView: View,
-        update: ListUpdate<SourceBase>.Whole?,
+//        update: ListUpdate<SourceBase>.Whole?,
         animated: Bool = true,
         completion: ((Bool) -> Void)? = nil
-    ) -> ListAdaptation<AdapterBase, View> {
+//    ) -> ListAdaptation<AdapterBase, View> {
+    ) {
         (listView as? DelegateSetuptable)?.listDelegate.setCoordinator(
             context: listCoordinatorContext,
-            update: update,
+//            update: update,
             animated: animated,
             completion: completion
         )
-        return list
+//        return list
     }
 
-    @discardableResult
-    func apply(
-        by listView: View,
-        animated: Bool = true,
-        completion: ((Bool) -> Void)? = nil
-    ) -> ListAdaptation<AdapterBase, View> {
-        apply(by: listView, update: listUpdate, animated: animated, completion: completion)
-    }
+//    @discardableResult
+//    func apply(
+//        by listView: View,
+//        animated: Bool = true,
+//        completion: ((Bool) -> Void)? = nil
+//    ) -> ListAdaptation<Model, View> {
+//        apply(by: listView, update: listUpdate, animated: animated, completion: completion)
+//    }
 }
 
 //extension ListAdaptation: ModelCachedDataSource where Source: ModelCachedDataSource {

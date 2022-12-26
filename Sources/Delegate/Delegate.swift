@@ -15,9 +15,9 @@ final class Delegate: NSObject {
         self.listView = listView
     }
 
-    func setCoordinator<SourceBase: DataSource>(
-        context: ListCoordinatorContext<SourceBase>,
-        update: ListUpdate<SourceBase>.Whole?,
+    func setCoordinator<Model>(
+        context: ListCoordinatorContext<Model>,
+//        update: ListUpdate<SourceBase>.Whole?,
         animated: Bool,
         completion: ((Bool) -> Void)?
     ) {
@@ -38,7 +38,9 @@ final class Delegate: NSObject {
 //            coordinator.update(from: $0, animated: animated, completion: completion)
 //        } ?? false
 //        if updatable { return }
-        if update != nil { listView.reloadSynchronously(animated: animated) }
+//        if update != nil {
+            listView.reloadSynchronously(animated: animated)
+//        }
         completion?(true)
     }
 

@@ -7,83 +7,83 @@
 
 // swiftlint:disable comment_spacing
 
-import Foundation
-
-public protocol BatchInitializable: ExpressibleByArrayLiteral
-where ArrayLiteralElement == ListUpdate<SourceBase>.Batch {
-    associatedtype SourceBase: DataSource where SourceBase.SourceBase == SourceBase
-    typealias Model = SourceBase.Model
-    typealias Value = SourceBase.Model
-    typealias Source = SourceBase.Source
-
-    var batch: ListUpdate<SourceBase>.Batch? { get }
-
-    init(_ batch: ListUpdate<SourceBase>.Batch)
-}
-
-public extension BatchInitializable {
-    init(arrayLiteral elements: ListUpdate<SourceBase>.Batch...) {
-        let operations = elements.flatMap { $0.operations }
-        self = .init(.init(operations: operations, needSource: elements.contains { $0.needSource }))
-    }
-
-    mutating func add(_ other: ListUpdate<SourceBase>.Batch) {
-        self = .init(.init(
-            operations: (batch?.operations ?? []) + other.operations,
-            needSource: (batch?.needSource ?? false) || other.needSource
-        ))
-    }
-}
-
-extension BatchInitializable {
-    init(needSource: Bool = false, closure: @escaping (ListCoordinatorUpdate<SourceBase>) -> Void) {
-        self.init(.init(operations: [closure], needSource: needSource))
-    }
-
-    init(section: ChangeSets<IndexSet>?, model: ChangeSets<IndexPathSet>?) {
-        self.init(needSource: true) { update in
-            section.map { update.section = $0 }
-            model.map { update.item = $0 }
-        }
-    }
-}
-
-public extension BatchInitializable
-where Source: RangeReplaceableCollection, Source.Element == SourceBase.Model {
-    static func insert(_ model: Model, at index: Int) -> Self {
-        .init { $0.insert(model, at: index) }
-    }
-
-    static func insert<C: Collection>(contentsOf elements: C, at index: Int) -> Self
-    where C.Element == Model {
-        .init { $0.insert(contentsOf: elements, at: index) }
-    }
-
-    static func append(_ element: Model) -> Self {
-        .init { $0.append(element) }
-    }
-
-    static func append<S: Sequence>(contentsOf items: S) -> Self where S.Element == Model {
-        .init { $0.append(contentsOf: items) }
-    }
-
-    static func remove(at index: Int) -> Self {
-        .init { $0.remove(at: index) }
-    }
-
-    static func remove(at indexSet: IndexSet) -> Self {
-        .init { $0.remove(at: indexSet) }
-    }
-
-    static func update(_ model: Model, at index: Int) -> Self {
-        .init { $0.update(model, at: index) }
-    }
-
-    static func move(at index: Int, to newIndex: Int) -> Self {
-        .init { $0.move(at: index, to: newIndex) }
-    }
-}
-
+//import Foundation
+//
+//public protocol BatchInitializable: ExpressibleByArrayLiteral
+//where ArrayLiteralElement == ListUpdate<SourceBase>.Batch {
+//    associatedtype SourceBase: DataSource where SourceBase.SourceBase == SourceBase
+//    typealias Model = SourceBase.Model
+//    typealias Value = SourceBase.Model
+//    typealias Source = SourceBase.Source
+//
+//    var batch: ListUpdate<SourceBase>.Batch? { get }
+//
+//    init(_ batch: ListUpdate<SourceBase>.Batch)
+//}
+//
+//public extension BatchInitializable {
+//    init(arrayLiteral elements: ListUpdate<SourceBase>.Batch...) {
+//        let operations = elements.flatMap { $0.operations }
+//        self = .init(.init(operations: operations, needSource: elements.contains { $0.needSource }))
+//    }
+//
+//    mutating func add(_ other: ListUpdate<SourceBase>.Batch) {
+//        self = .init(.init(
+//            operations: (batch?.operations ?? []) + other.operations,
+//            needSource: (batch?.needSource ?? false) || other.needSource
+//        ))
+//    }
+//}
+//
+//extension BatchInitializable {
+//    init(needSource: Bool = false, closure: @escaping (ListCoordinatorUpdate<SourceBase>) -> Void) {
+//        self.init(.init(operations: [closure], needSource: needSource))
+//    }
+//
+//    init(section: ChangeSets<IndexSet>?, model: ChangeSets<IndexPathSet>?) {
+//        self.init(needSource: true) { update in
+//            section.map { update.section = $0 }
+//            model.map { update.item = $0 }
+//        }
+//    }
+//}
+//
+//public extension BatchInitializable
+//where Source: RangeReplaceableCollection, Source.Element == SourceBase.Model {
+//    static func insert(_ model: Model, at index: Int) -> Self {
+//        .init { $0.insert(model, at: index) }
+//    }
+//
+//    static func insert<C: Collection>(contentsOf elements: C, at index: Int) -> Self
+//    where C.Element == Model {
+//        .init { $0.insert(contentsOf: elements, at: index) }
+//    }
+//
+//    static func append(_ element: Model) -> Self {
+//        .init { $0.append(element) }
+//    }
+//
+//    static func append<S: Sequence>(contentsOf items: S) -> Self where S.Element == Model {
+//        .init { $0.append(contentsOf: items) }
+//    }
+//
+//    static func remove(at index: Int) -> Self {
+//        .init { $0.remove(at: index) }
+//    }
+//
+//    static func remove(at indexSet: IndexSet) -> Self {
+//        .init { $0.remove(at: indexSet) }
+//    }
+//
+//    static func update(_ model: Model, at index: Int) -> Self {
+//        .init { $0.update(model, at: index) }
+//    }
+//
+//    static func move(at index: Int, to newIndex: Int) -> Self {
+//        .init { $0.move(at: index, to: newIndex) }
+//    }
+//}
+//
 //public extension BatchInitializable
 //where
 //    Source: RangeReplaceableCollection,

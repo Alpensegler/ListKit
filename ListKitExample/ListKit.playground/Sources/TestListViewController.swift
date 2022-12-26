@@ -3,9 +3,9 @@ import UIKit
 
 // swiftlint:disable comment_spacing orphaned_doc_comment
 
-//public class TestListViewController: UIViewController, UpdatableListAdapter {
-//    public var toggle = true
-//
+public class TestListViewController: UIViewController, UpdatableListAdapter {
+    public var toggle = true
+
 //    lazy var itemSource = ItemSource()
 //    lazy var itemsSource = Sources(models: [1.0, 2.0, 3.0], options: .removeEmptySection)
 //        .cellForRow()
@@ -43,8 +43,22 @@ import UIKit
 //            .headerTitleForSection("item")
 //        }
 //    }
-//
-//    public typealias Model = Any
+
+    public var list: ListAdaptation<Model, UITableView> {
+        Models([1, 2, 3])
+            .cellForRow()
+            .headerTitleForSection("sections")
+        if toggle {
+            AnyListAdapter {
+                Models([1, 2, 3])
+                    .cellForRow()
+                Single(toggle)
+                    .cellForRow()
+            }
+            .headerTitleForSection("sections")
+        }
+    }
+
 //    public var source: AnyTableSources {
 //        AnyTableSources {
 //            if toggle {
@@ -70,39 +84,39 @@ import UIKit
 //            }.headerTitleForSection("sources")
 //        }
 //    }
-//
-//    public override func viewDidLoad() {
-//        apply(by: tableView)
-//        configActions()
-//    }
-//
-//    func configActions() {
-//        navigationItem.rightBarButtonItem = UIBarButtonItem(
-//            barButtonSystemItem: .refresh,
-//            target: self,
-//            action: #selector(refresh)
-//        )
-//    }
-//
-//    @objc func refresh() {
-//        toggle.toggle()
-//        performUpdate()
-//    }
-//
-//    func batchRemove(at item: Int) {
-////        itemsSource.perform(.remove(at: item))
-//    }
-//}
-//
-//extension TestListViewController {
-//    var tableView: UITableView {
-//        let tableView = UITableView(frame: view.bounds)
-//        view.addSubview(tableView)
-//        tableView.autoresizingMask = [.flexibleHeight, .flexibleWidth]
-//        return tableView
-//    }
-//}
-//
+
+    public override func viewDidLoad() {
+        apply(by: tableView)
+        configActions()
+    }
+
+    func configActions() {
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            barButtonSystemItem: .refresh,
+            target: self,
+            action: #selector(refresh)
+        )
+    }
+
+    @objc func refresh() {
+        toggle.toggle()
+        performUpdate()
+    }
+
+    func batchRemove(at item: Int) {
+//        itemsSource.perform(.remove(at: item))
+    }
+}
+
+extension TestListViewController {
+    var tableView: UITableView {
+        let tableView = UITableView(frame: view.bounds)
+        view.addSubview(tableView)
+        tableView.autoresizingMask = [.flexibleHeight, .flexibleWidth]
+        return tableView
+    }
+}
+
 //#if canImport(SwiftUI) && EXAMPLE
 //
 //import SwiftUI

@@ -9,41 +9,34 @@
 
 import Foundation
 
-@dynamicMemberLookup
 public protocol Context {
-    associatedtype Base: DataSource
     associatedtype View
 
-    var source: Base.SourceBase.Source { get }
     var listView: View { get }
 }
 
-public struct ListContext<View, Base: DataSource>: Context {
+public struct ListContext<View, Model>: Context {
     public let listView: View
-    let context: ListCoordinatorContext<Base.SourceBase>
+    let context: ListCoordinatorContext<Model>
     let root: CoordinatorContext
-
-    public var source: Base.SourceBase.Source { context.listCoordinator.source }
 }
 
 extension ListContext {
     init(
         view: AnyObject,
-        context: ListCoordinatorContext<Base.SourceBase>,
+        context: ListCoordinatorContext<Model>,
         root: CoordinatorContext
     ) {
         self.init(listView: view as! View, context: context, root: root)
     }
 }
 
-public struct ListIndexContext<View, Base: DataSource, Index>: Context {
+public struct ListIndexContext<View, Model, Index>: Context {
     public let listView: View
     public let index: Index
     public let offset: Index
-    let context: ListCoordinatorContext<Base.SourceBase>
+    let context: ListCoordinatorContext<Model>
     let root: CoordinatorContext
-
-    public var source: Base.SourceBase.Source { context.listCoordinator.source }
 }
 
 extension ListIndexContext {
@@ -51,7 +44,7 @@ extension ListIndexContext {
         view: AnyObject,
         index: Index,
         offset: Index,
-        context: ListCoordinatorContext<Base.SourceBase>,
+        context: ListCoordinatorContext<Model>,
         root: CoordinatorContext
     ) {
         self.init(
@@ -65,19 +58,13 @@ extension ListIndexContext {
 }
 
 public extension ListAdapter {
-    typealias ListContext = ListKit.ListContext<View, Self>
-    typealias ListModelContext = ListIndexContext<View, Self, IndexPath>
-    typealias ListSectionContext = ListIndexContext<View, Self, Int>
+    typealias ListContext = ListKit.ListContext<View, Model>
+    typealias ListModelContext = ListIndexContext<View, Model, IndexPath>
+    typealias ListSectionContext = ListIndexContext<View, Model, Int>
 
-    typealias Function<Input, Output, Closure> = ListDelegate.Function<View, Self, Input, Output, Closure>
-    typealias ModelFunction<Input, Output, Closure> = ListDelegate.IndexFunction<View, Self, Input, Output, Closure, IndexPath>
-    typealias SectionFunction<Input, Output, Closure> = ListDelegate.IndexFunction<View, Self, Input, Output, Closure, Int>
-}
-
-public extension Context {
-    subscript<Value>(dynamicMember keyPath: KeyPath<Base.SourceBase.Source, Value>) -> Value {
-        source[keyPath: keyPath]
-    }
+    typealias Function<Input, Output, Closure> = ListDelegate.Function<View, Model, Input, Output, Closure>
+    typealias ModelFunction<Input, Output, Closure> = ListDelegate.IndexFunction<View, Model, Input, Output, Closure, IndexPath>
+    typealias SectionFunction<Input, Output, Closure> = ListDelegate.IndexFunction<View, Model, Input, Output, Closure, Int>
 }
 
 public extension ListIndexContext where Index == Int {
@@ -88,7 +75,7 @@ public extension ListIndexContext where Index == IndexPath {
     var section: Int { index.section - offset.section }
     var item: Int { index.item - offset.item }
 
-    var model: Base.SourceBase.Model {
+    var model: Model {
         context.listCoordinator.model(at: index.offseted(offset, plus: false))
     }
 }

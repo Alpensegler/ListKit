@@ -6,16 +6,30 @@
 //
 
 @resultBuilder
-public struct ListBuilder<Source: DataSource, View: ListView> where Source.AdapterBase == Source {
-    public static func buildBlock(_ component: ListAdaptation<Source, View>) -> ListAdaptation<Source, View> {
-        component
+public struct ListBuilder<Model, View: ListView> { }
+
+public extension ListBuilder where Model == Any {
+    static func buildPartialBlock<Other>(first: some ListAdapter<Other, View>) -> ListAdaptation<Model, View> {
+        ListAdaptation(first.pullback { $0 })
     }
 
-    public static func buildBlock(_ components: ListAdaptation<Source, View>...) -> ListAdaptation<Source, View> {
-        var base = components[0]
-        for list in components.dropFirst() {
-            base.listDelegate.formUnion(delegate: list.listDelegate)
-        }
-        return base
+    static func buildPartialBlock<Other, OtherNext>(accumulated: some ListAdapter<Other, View>, next: some ListAdapter<OtherNext, View>) -> ListAdaptation<Model, View> {
+        ListAdaptation(DataSources([accumulated.toAnyModel, next.toAnyModel]))
+    }
+
+    static func buildEither<Other>(first component: some ListAdapter<Other, View>) -> ListAdaptation<Model, View> {
+        ListAdaptation(component.pullback { $0 })
+    }
+
+    static func buildEither<Other>(second component: some ListAdapter<Other, View>) -> ListAdaptation<Model, View> {
+        ListAdaptation(component.pullback { $0 })
+    }
+
+    static func buildArray<Other>(_ components: [some ListAdapter<Other, View>]) -> ListAdaptation<Model, View> {
+        ListAdaptation(DataSources(components.map { WrapperDataSource(otherSource: $0) { $0 as Any } }))
+    }
+
+    static func buildOptional<Other, S: ListAdapter<Other, View>>(_ component: S?) -> S? {
+        component
     }
 }

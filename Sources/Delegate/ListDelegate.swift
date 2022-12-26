@@ -15,56 +15,56 @@ public protocol ListFunction {
 }
 
 public struct ListDelegate: ExpressibleByArrayLiteral {
-    public struct Function<View: ListView, Source: DataSource, Input, Output, Closure>: ListFunction {
-        typealias Context = ListContext<View, Source>
-        typealias ToOutput = (ListContext<View, Source>, Input) -> Output
+    public struct Function<View: ListView, Model, Input, Output, Closure>: ListFunction {
+        typealias Context = ListContext<View, Model>
+        typealias ToOutput = (ListContext<View, Model>, Input) -> Output
 
         public let selector: Selector
         public var hasSectionIndex: Bool { false }
-        let sourceBase: Source
+        let source: ListAdaptation<Model, View>
         let toClosure: (Closure) -> (Context, Input) -> Output
 
-        public func callAsFunction(closure: Closure) -> ListAdaptation<Source.AdapterBase, View> {
+        public func callAsFunction(closure: Closure) -> ListAdaptation<Model, View> {
             toTarget(closure: toClosure(closure))
         }
 
-        public func callAsFunction(_ output: Output) -> ListAdaptation<Source.AdapterBase, View> where Output: FunctionOutput {
+        public func callAsFunction(_ output: Output) -> ListAdaptation<Model, View> where Output: FunctionOutput {
             toTarget { _, _ in output }
         }
 
-        func toTarget(closure: @escaping ToOutput) -> ListAdaptation<Source.AdapterBase, View> {
-            var delegate = sourceBase.listDelegate
-            delegate.functions[selector] = { closure(.init(view: $0, context: $1, root: $2), $3) }
-            return .init(sourceBase.adapterBase, listDelegate: delegate)
+        func toTarget(closure: @escaping ToOutput) -> ListAdaptation<Model, View> {
+            var list = source
+            list.listDelegate.functions[selector] = { closure(.init(view: $0, context: $1, root: $2), $3) }
+            return list
         }
     }
 
-    public struct IndexFunction<View: ListView, Source: DataSource, Input, Output, Closure, Index>: ListFunction {
-        typealias Context = ListIndexContext<View, Source, Index>
-        typealias ToOutput = (ListIndexContext<View, Source, Index>, Input) -> Output
+    public struct IndexFunction<View: ListView, Model, Input, Output, Closure, Index>: ListFunction {
+        typealias Context = ListIndexContext<View, Model, Index>
+        typealias ToOutput = (ListIndexContext<View, Model, Index>, Input) -> Output
 
         public let selector: Selector
         public let hasSectionIndex: Bool
-        let sourceBase: Source
+        let source: ListAdaptation<Model, View>
         let indexForInput: (Input) -> Index
         let toClosure: (Closure) -> (Context, Input) -> Output
 
-        public func callAsFunction(closure: Closure) -> ListAdaptation<Source.AdapterBase, View> {
+        public func callAsFunction(closure: Closure) -> ListAdaptation<Model, View> {
             toTarget(closure: toClosure(closure))
         }
 
-        public func callAsFunction(_ output: Output) -> ListAdaptation<Source.AdapterBase, View> where Output: FunctionOutput {
+        public func callAsFunction(_ output: Output) -> ListAdaptation<Model, View> where Output: FunctionOutput {
             toTarget { _, _ in output }
         }
 
-        func toTarget(getCache: Any? = nil, closure: @escaping ToOutput) -> ListAdaptation<Source.AdapterBase, View> {
-            var delegate = sourceBase.listDelegate
-            delegate.getCache = getCache ?? delegate.getCache
-            delegate.functions[selector] = {
+        func toTarget(getCache: Any? = nil, closure: @escaping ToOutput) -> ListAdaptation<Model, View> {
+            var list = source
+            list.listDelegate.getCache = getCache ?? list.listDelegate.getCache
+            list.listDelegate.functions[selector] = {
                 closure(.init(view: $0, index: $4, offset: $5, context: $1, root: $2), $3)
             }
-            delegate.hasSectionIndex = delegate.hasSectionIndex || hasSectionIndex
-            return .init(sourceBase.adapterBase, listDelegate: delegate)
+            list.listDelegate.hasSectionIndex = list.listDelegate.hasSectionIndex || hasSectionIndex
+            return list
         }
     }
 
@@ -108,7 +108,7 @@ extension UITableViewCell.EditingStyle: FunctionOutput { }
 #endif
 
 // swiftlint:disable large_tuple
-extension DataSource {
+extension ListAdapter {
     func toClosure<Input, Output, Context>() -> (@escaping (Context) -> Output) -> (Context, Input) -> Output {
         { closure in { context, _ in closure(context) } }
     }
@@ -121,42 +121,42 @@ extension DataSource {
         { closure in { context, input in closure(context, input.0, input.1) } }
     }
 
-    func toClosure<Output, View>() -> (@escaping (ListIndexContext<View, Self, IndexPath>, Model) -> Output) -> (ListIndexContext<View, Self, IndexPath>, IndexPath) -> Output {
+    func toClosure<Output, View>() -> (@escaping (ListIndexContext<View, Model, IndexPath>, Model) -> Output) -> (ListIndexContext<View, Model, IndexPath>, IndexPath) -> Output {
         { closure in { context, _ in closure(context, context.model) } }
     }
 
-    func toClosure<Input, Output, View>() -> (@escaping (ListIndexContext<View, Self, IndexPath>, Input, Model) -> Output) -> (ListIndexContext<View, Self, IndexPath>, (IndexPath, Input)) -> Output {
+    func toClosure<Input, Output, View>() -> (@escaping (ListIndexContext<View, Model, IndexPath>, Input, Model) -> Output) -> (ListIndexContext<View, Model, IndexPath>, (IndexPath, Input)) -> Output {
         { closure in { context, input in closure(context, input.1, context.model) } }
     }
 
-    func toClosure<Input1, Input2, Output, View>() -> (@escaping (ListIndexContext<View, Self, IndexPath>, Input1, Input2, Model) -> Output) -> (ListIndexContext<View, Self, IndexPath>, (IndexPath, Input1, Input2)) -> Output {
+    func toClosure<Input1, Input2, Output, View>() -> (@escaping (ListIndexContext<View, Model, IndexPath>, Input1, Input2, Model) -> Output) -> (ListIndexContext<View, Model, IndexPath>, (IndexPath, Input1, Input2)) -> Output {
         { closure in { context, input in closure(context, input.1, input.2, context.model) } }
     }
 
-    func toClosure<Input, Output, View>() -> (@escaping (ListIndexContext<View, Self, Int>, Input) -> Output) -> (ListIndexContext<View, Self, Int>, (Int, Input)) -> Output {
+    func toClosure<Input, Output, View>() -> (@escaping (ListIndexContext<View, Model, Int>, Input) -> Output) -> (ListIndexContext<View, Model, Int>, (Int, Input)) -> Output {
         { closure in { context, input in closure(context, input.1) } }
     }
-
-    func toFunction<View, Input, Output, Closure>(
+    
+    func toFunction<Input, Output, Closure>(
         _ selector: Selector,
-        _ toClosure: @escaping (Closure) -> (ListContext<View, Self>, Input) -> Output
-    ) -> ListDelegate.Function<View, Self, Input, Output, Closure> {
-        .init(selector: selector, sourceBase: self, toClosure: toClosure)
+        _ toClosure: @escaping (Closure) -> (ListKit.ListContext<View, Model>, Input) -> Output
+    ) -> ListDelegate.Function<View, Model, Input, Output, Closure> {
+        .init(selector: selector, source: list, toClosure: toClosure)
     }
 
-    func toFunction<View, Input, Output, Closure, Index: ListIndex>(
+    func toFunction<Input, Output, Closure, Index: ListIndex>(
         _ selector: Selector,
         _ indexForInput: @escaping (Input) -> Index,
-        _ toClosure: @escaping (Closure) -> (ListIndexContext<View, Self, Index>, Input) -> Output
-    ) -> ListDelegate.IndexFunction<View, Self, Input, Output, Closure, Index> {
-        .init(selector: selector, hasSectionIndex: Index.isSection, sourceBase: self, indexForInput: indexForInput, toClosure: toClosure)
+        _ toClosure: @escaping (Closure) -> (ListIndexContext<View, Model, Index>, Input) -> Output
+    ) -> ListDelegate.IndexFunction<View, Model, Input, Output, Closure, Index> {
+        .init(selector: selector, hasSectionIndex: Index.isSection, source: list, indexForInput: indexForInput, toClosure: toClosure)
     }
 
-    func toFunction<View, Output, Closure, Index: ListIndex>(
+    func toFunction<Output, Closure, Index: ListIndex>(
         _ selector: Selector,
-        _ toClosure: @escaping (Closure) -> (ListIndexContext<View, Self, Index>, Index) -> Output
-    ) -> ListDelegate.IndexFunction<View, Self, Index, Output, Closure, Index> {
-        .init(selector: selector, hasSectionIndex: Index.isSection, sourceBase: self, indexForInput: { $0 }, toClosure: toClosure)
+        _ toClosure: @escaping (Closure) -> (ListIndexContext<View, Model, Index>, Index) -> Output
+    ) -> ListDelegate.IndexFunction<View, Model, Index, Output, Closure, Index> {
+        .init(selector: selector, hasSectionIndex: Index.isSection, source: list, indexForInput: { $0 }, toClosure: toClosure)
     }
 }
 // swiftlint:enable large_tuple

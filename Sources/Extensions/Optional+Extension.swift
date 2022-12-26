@@ -5,15 +5,9 @@
 //  Created by Frain on 2019/12/13.
 //
 
-// swiftlint:disable comment_spacing
+extension Optional: DataSource where Wrapped: DataSource {
+    public typealias Model = Wrapped.Model
 
-//extension Optional: DataSource where Wrapped: DataSource {
-//    public typealias Model = Wrapped.Model
-//    public typealias Source = Self
-//    public typealias SourceBase = Self
-//
-//    public var source: Source { self }
-//
 //    public var listDiffer: ListDiffer<SourceBase> {
 //        (source?.listDiffer).map { .init($0) } ?? .none
 //    }
@@ -23,16 +17,21 @@
 //    }
 //
 //    public var listOptions: ListOptions { source?.listOptions ?? .none }
-//
-//    public var listCoordinator: ListCoordinator<SourceBase> {
-//        WrapperCoordinator(self, toModel: { $0 }, toOther: { $0 })
-//    }
-//}
-//
-//extension Optional: ListAdapter where Wrapped: ListAdapter {
-//    public typealias View = Wrapped.View
-//    public var list: ListAdaptation<Self, View> { ListAdaptation<AdapterBase, View>(self) }
-//}
+
+    public var source: any DataSource<Model> { return self }
+
+    public var listCoordinator: ListCoordinator<Model> {
+        WrapperCoordinator(options: .init(), toModel: { $0 }, otherContext: self?.listCoordinatorContext)
+    }
+    public var listCoordinatorContext: ListCoordinatorContext<Model> {
+        .init(listCoordinator)
+    }
+}
+
+extension Optional: ListAdapter where Wrapped: ListAdapter {
+    public typealias View = Wrapped.View
+    public var list: ListAdaptation<Model, View> { return ListAdaptation<Model, View>(self) }
+}
 
 extension Optional {
     mutating func or(_ wrapped: @autoclosure () -> Wrapped) -> Wrapped {

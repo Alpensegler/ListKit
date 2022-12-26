@@ -7,27 +7,26 @@
 
 import Foundation
 
-public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase == SourceBase {
-    typealias Model = SourceBase.Model
+public class ListCoordinator<Model> {
     typealias Indices = ContiguousArray<(index: Int, isFake: Bool)>
-    typealias Context = ListCoordinatorContext<SourceBase>
+    typealias Context = ListCoordinatorContext<Model>
 
     struct WeakContext {
-        weak var context: ListCoordinatorContext<SourceBase>?
+        weak var context: ListCoordinatorContext<Model>?
     }
 
-    let update: ListUpdate<SourceBase>.Whole
-    let differ: ListDiffer<SourceBase>
+//    let update: ListUpdate<SourceBase>.Whole
+//    let differ: ListDiffer<SourceBase>
     var options: ListOptions
-    var source: SourceBase.Source!
+//    var source: Any!
 
-    weak var storage: CoordinatorStorage<SourceBase>?
-    weak var currentCoordinatorUpdate: ListCoordinatorUpdate<SourceBase>?
+    weak var storage: CoordinatorStorage<Model>?
+    weak var currentCoordinatorUpdate: ListCoordinatorUpdate<Model>?
     var listContexts = [WeakContext]()
 
     lazy var sourceType = configSourceType()
 
-    var sourceBaseType: Any.Type { SourceBase.self }
+//    var sourceBaseType: Any.Type { SourceBase.self }
     var isSectioned: Bool {
         options.preferSection || listContexts.contains {
             $0.context?.listDelegate.hasSectionIndex == true
@@ -35,41 +34,41 @@ public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase
     }
 
     init(
-        source: SourceBase.Source!,
-        update: ListUpdate<SourceBase>.Whole,
-        differ: ListDiffer<SourceBase> = .none,
+//        source: SourceBase.Source!
+//        update: ListUpdate<SourceBase>.Whole,
+//        differ: ListDiffer<SourceBase> = .none,
         options: ListOptions = .none
     ) {
-        self.update = update
-        self.differ = differ
+//        self.update = update
+//        self.differ = differ
         self.options = options
-        self.source = source
+//        self.source = source
     }
 
-    init(_ sourceBase: SourceBase) {
-        self.differ = sourceBase.listDiffer
-        self.update = sourceBase.listUpdate
-        self.options = sourceBase.listOptions
-        self.source = sourceBase.source
-    }
+//    init(_ sourceBase: SourceBase) {
+//        self.differ = sourceBase.listDiffer
+//        self.update = sourceBase.listUpdate
+//        self.options = sourceBase.listOptions
+//        self.source = sourceBase.source
+//    }
 
     func numbersOfSections() -> Int { notImplemented() }
     func numbersOfModel(in section: Int) -> Int { notImplemented() }
 
     func model(at indexPath: IndexPath) -> Model { notImplemented() }
 
-    func cache<ModelCache>(
-        for cached: inout Any?,
-        at indexPath: IndexPath,
-        in delegate: ListDelegate
-    ) -> ModelCache {
-        guard let getCache = delegate.getCache as? (Model) -> ModelCache else {
-            fatalError("\(SourceBase.self) no cache with \(ModelCache.self)")
-        }
-        let cache = getCache(model(at: indexPath))
-        cached = cache
-        return cache
-    }
+//    func cache<ModelCache>(
+//        for cached: inout Any?,
+//        at indexPath: IndexPath,
+//        in delegate: ListDelegate
+//    ) -> ModelCache {
+//        guard let getCache = delegate.getCache as? (Model) -> ModelCache else {
+//            fatalError("\(SourceBase.self) no cache with \(ModelCache.self)")
+//        }
+//        let cache = getCache(model(at: indexPath))
+//        cached = cache
+//        return cache
+//    }
 
     func configSourceType() -> SourceType { notImplemented() }
 
@@ -109,28 +108,28 @@ public class ListCoordinator<SourceBase: DataSource> where SourceBase.SourceBase
     // swiftlint:enable function_parameter_count
 
     // Updates:
-    func identifier(for sourceBase: SourceBase) -> [AnyHashable] {
-        let id = ObjectIdentifier(sourceBaseType)
-        guard let identifier = differ.identifier else { return [id, sourceType] }
-        return [id, sourceType, identifier(sourceBase)]
-    }
-
-    func equal(lhs: SourceBase, rhs: SourceBase) -> Bool {
-        differ.areEquivalent?(lhs, rhs) ?? true
-    }
+//    func identifier(for sourceBase: SourceBase) -> [AnyHashable] {
+//        let id = ObjectIdentifier(sourceBaseType)
+//        guard let identifier = differ.identifier else { return [id, sourceType] }
+//        return [id, sourceType, identifier(sourceBase)]
+//    }
+//
+//    func equal(lhs: SourceBase, rhs: SourceBase) -> Bool {
+//        differ.areEquivalent?(lhs, rhs) ?? true
+//    }
+//
+//    func update(
+//        update: ListUpdate<SourceBase>,
+//        options: ListOptions? = nil
+//    ) -> ListCoordinatorUpdate<SourceBase> {
+//        notImplemented()
+//    }
 
     func update(
-        update: ListUpdate<SourceBase>,
-        options: ListOptions? = nil
-    ) -> ListCoordinatorUpdate<SourceBase> {
-        notImplemented()
-    }
-
-    func update(
-        from coordinator: ListCoordinator<SourceBase>,
-        updateWay: ListUpdateWay<Model>?
-    ) -> ListCoordinatorUpdate<SourceBase> {
-        notImplemented()
+        from coordinator: ListCoordinator<Model>
+//        updateWay: ListUpdateWay<Model>?
+    ) -> ListCoordinatorUpdate<Model> {
+        .init(self, options: (coordinator.options, options))
     }
 }
 

@@ -34,15 +34,13 @@ protocol CoordinatorContext: AnyObject {
         index: Index
     ) -> Output?
 
-    func perform(updates: BatchUpdates?, animated: Bool, completion: ((ListView, Bool) -> Void)?)
+    func perform<Model>(to coordinator: ListCoordinator<Model>, updates: BatchUpdates?, animated: Bool, completion: ((ListView, Bool) -> Void)?)
 }
 
-public final class ListCoordinatorContext<SourceBase: DataSource>: CoordinatorContext
-where SourceBase.SourceBase == SourceBase {
-    typealias Model = SourceBase.Model
-    typealias Caches<Cache> = ContiguousArray<ContiguousArray<Cache?>>
+public final class ListCoordinatorContext<Model>: CoordinatorContext {
+//    typealias Caches<Cache> = ContiguousArray<ContiguousArray<Cache?>>
 
-    let listCoordinator: ListCoordinator<SourceBase>
+    var listCoordinator: ListCoordinator<Model>
 
 //    var _modelCaches: Caches<Any>?
 //    var _modelNestedCache: Caches<((Any) -> Void)>?
@@ -75,7 +73,7 @@ where SourceBase.SourceBase == SourceBase {
 //        set { _modelNestedCache = newValue }
 //    }
 
-    init(_ coordinator: ListCoordinator<SourceBase>, listDelegate: ListDelegate = .init()) {
+    init(_ coordinator: ListCoordinator<Model>, listDelegate: ListDelegate = .init()) {
         self.listCoordinator = coordinator
         self.listDelegate = listDelegate
         coordinator.listContexts.append(.init(context: self))
@@ -124,7 +122,7 @@ where SourceBase.SourceBase == SourceBase {
 //        })
 //    }
 
-    func perform(updates: BatchUpdates?, animated: Bool, completion: ((ListView, Bool) -> Void)?) {
+    func perform<M>(to coordinator: ListCoordinator<M>, updates: BatchUpdates?, animated: Bool, completion: ((ListView, Bool) -> Void)?) {
         guard let list = listView else { return }
         guard let updates = updates else {
             completion?(list, false)
@@ -133,6 +131,8 @@ where SourceBase.SourceBase == SourceBase {
         switch updates {
         case let .reload(change: change):
 //            (_modelCaches, _modelNestedCache) = (nil, nil)
+            self.listCoordinator = coordinator as! ListCoordinator<Model>
+            self.listCoordinator.listContexts.append(.init(context: self))
             change?()
             list.reloadSynchronously(animated: animated)
             completion?(list, true)

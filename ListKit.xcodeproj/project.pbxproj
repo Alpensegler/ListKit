@@ -3,13 +3,17 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		3C275A5D28A6562600975E07 /* ListAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C275A5C28A6562600975E07 /* ListAdapter.swift */; };
 		3C27649528ACDC1200975E07 /* ListBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C27649428ACDC1200975E07 /* ListBuilder.swift */; };
 		3C27649728ACDC4900975E07 /* AnyListSourcesBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C27649628ACDC4900975E07 /* AnyListSourcesBuilder.swift */; };
+		3CF4BA682958E29300FDF11A /* Single.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF4BA672958E29300FDF11A /* Single.swift */; };
+		3CF4BA6A2958EAE100FDF11A /* DataSources.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF4BA692958EAE100FDF11A /* DataSources.swift */; };
+		3CF4BA6C2958EB6200FDF11A /* AnyDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF4BA6B2958EB6200FDF11A /* AnyDataSource.swift */; };
+		3CF56CCB290BB58C00785F80 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF56CCA290BB58C00785F80 /* Models.swift */; };
 		F3040D81238B21560055E6E7 /* ListCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3040D80238B21560055E6E7 /* ListCoordinator.swift */; };
 		F304A6DF239E94CC00133D14 /* Context+UIKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = F304A6DE239E94CC00133D14 /* Context+UIKit.swift */; };
 		F304A6E1239E95DC00133D14 /* ListView+NSCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F304A6E0239E95DB00133D14 /* ListView+NSCollectionView.swift */; };
@@ -135,6 +139,10 @@
 		3C275A5C28A6562600975E07 /* ListAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListAdapter.swift; sourceTree = "<group>"; };
 		3C27649428ACDC1200975E07 /* ListBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListBuilder.swift; sourceTree = "<group>"; };
 		3C27649628ACDC4900975E07 /* AnyListSourcesBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnyListSourcesBuilder.swift; sourceTree = "<group>"; };
+		3CF4BA672958E29300FDF11A /* Single.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Single.swift; sourceTree = "<group>"; };
+		3CF4BA692958EAE100FDF11A /* DataSources.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSources.swift; sourceTree = "<group>"; };
+		3CF4BA6B2958EB6200FDF11A /* AnyDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyDataSource.swift; sourceTree = "<group>"; };
+		3CF56CCA290BB58C00785F80 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		F3040D80238B21560055E6E7 /* ListCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListCoordinator.swift; sourceTree = "<group>"; };
 		F304A6DE239E94CC00133D14 /* Context+UIKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Context+UIKit.swift"; sourceTree = "<group>"; };
 		F304A6E0239E95DB00133D14 /* ListView+NSCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ListView+NSCollectionView.swift"; sourceTree = "<group>"; };
@@ -343,6 +351,10 @@
 				F3C9537F23A0F7A10015049A /* AnySources.swift */,
 				F3C9537D23A0F1440015049A /* AnySourcesBuilder.swift */,
 				F36E6015250AC69700F2D441 /* ConditionalSources.swift */,
+				3CF56CCA290BB58C00785F80 /* Models.swift */,
+				3CF4BA672958E29300FDF11A /* Single.swift */,
+				3CF4BA692958EAE100FDF11A /* DataSources.swift */,
+				3CF4BA6B2958EB6200FDF11A /* AnyDataSource.swift */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -712,12 +724,14 @@
 				F304A6E1239E95DC00133D14 /* ListView+NSCollectionView.swift in Sources */,
 				F3C9538023A0F7A10015049A /* AnySources.swift in Sources */,
 				F3841D5D2355E0DA006386E3 /* Collection+Extension.swift in Sources */,
+				3CF4BA6A2958EAE100FDF11A /* DataSources.swift in Sources */,
 				F34E7F3C24D6D3B600DE3844 /* ListContext.swift in Sources */,
 				F3D785C82398FC5B00D7A5CD /* UpdatableDataSource.swift in Sources */,
 				F354B6F624C38A0C00E9D19B /* BatchUpdate.swift in Sources */,
 				F3A4941023A8E68900809E7F /* DataSource+SourcesCoordinator.swift in Sources */,
 				F3AC673C23D057580070B991 /* Sources+Sections.swift in Sources */,
 				F36E6016250AC69700F2D441 /* ConditionalSources.swift in Sources */,
+				3CF4BA682958E29300FDF11A /* Single.swift in Sources */,
 				F398E1BF24008714000A5637 /* DiffInitializable.swift in Sources */,
 				F32E6CC724906D33008D6D97 /* NSCoordinatorUpdate.swift in Sources */,
 				F32F922B25B6FAAC00C55F7A /* ListDelegate+IndexFunction+CallAsFunction.swift in Sources */,
@@ -740,6 +754,7 @@
 				F383064323506BAC00AE8B97 /* CollectionDifference.swift in Sources */,
 				F3A4940E23A8E67200809E7F /* DataSource+SourceCoordinator.swift in Sources */,
 				F331623824B467D20086B7CE /* DiffInitializableUpdate.swift in Sources */,
+				3CF4BA6C2958EB6200FDF11A /* AnyDataSource.swift in Sources */,
 				F3C2049024BAF1DE001E82C5 /* SourcesCoordinatorUpdate.swift in Sources */,
 				F30CF60A24E7D2440078720C /* ModelsCoordinator.swift in Sources */,
 				F31250E9239C545200E77969 /* ListView.swift in Sources */,
@@ -770,6 +785,7 @@
 				F3D787032399327200D7A5CD /* ListViewStorage.swift in Sources */,
 				F3A4A2EC2463AD22007FAB3B /* ListIndex.swift in Sources */,
 				F39E089F24F527C1006FC50E /* WrapperCoordinatorUpdate.swift in Sources */,
+				3CF56CCB290BB58C00785F80 /* Models.swift in Sources */,
 				F3F349E824BC6A4700D38D16 /* CollectionCoordinatorUpdate.swift in Sources */,
 				F3FAECCB24FFE0C3001CBA34 /* IndexPathSet.swift in Sources */,
 				F344B9472517F47800F9E499 /* ContainerCoordinatorUpdate.swift in Sources */,
@@ -875,7 +891,10 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = ListKitExample/SupportFiles/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				OTHER_SWIFT_FLAGS = "$(inherited) -DXcode -DEXAMPLE";
@@ -935,7 +954,10 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = ListKitExample/SupportFiles/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				OTHER_SWIFT_FLAGS = "$(inherited) -DXcode -DEXAMPLE";
@@ -960,7 +982,10 @@
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = ListKit.xcodeproj/ListKit_Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) $(TOOLCHAIN_DIR)/usr/lib/swift/macosx";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(TOOLCHAIN_DIR)/usr/lib/swift/macosx",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_LDFLAGS = "$(inherited)";
@@ -987,7 +1012,10 @@
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = ListKit.xcodeproj/ListKit_Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) $(TOOLCHAIN_DIR)/usr/lib/swift/macosx";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(TOOLCHAIN_DIR)/usr/lib/swift/macosx",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_LDFLAGS = "$(inherited)";
@@ -1127,7 +1155,8 @@
 				SDKROOT = macosx;
 				SUPPORTED_PLATFORMS = "macosx iphoneos iphonesimulator";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) SWIFT_PACKAGE";
-				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				USE_HEADERMAP = NO;
 			};
 			name = Release;

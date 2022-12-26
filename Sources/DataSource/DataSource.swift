@@ -5,41 +5,45 @@
 //  Created by Frain on 2019/4/8.
 //
 
-public protocol DataSource {
-    associatedtype Model
-    associatedtype Source = [Model]
-    associatedtype SourceBase: DataSource = Self
-        where SourceBase.Model == Model, SourceBase.SourceBase == SourceBase
-    associatedtype AdapterBase: DataSource = Self
-        where AdapterBase.Model == Model, AdapterBase.AdapterBase == AdapterBase
+public protocol DataSource<Model> {
+    associatedtype Model = Any
 
-    var source: Source { get }
-    var sourceBase: SourceBase { get }
-    var adapterBase: AdapterBase { get }
-
-    var listOptions: ListOptions { get }
-    var listUpdate: ListUpdate<SourceBase>.Whole { get }
-    var listDiffer: ListDiffer<SourceBase> { get }
-
-    var listDelegate: ListDelegate { get }
-    var listCoordinator: ListCoordinator<SourceBase> { get }
-    var listCoordinatorContext: ListCoordinatorContext<SourceBase> { get }
+    @SourceBuilder<Model>
+    var source: any DataSource<Model> { get }
+    var listCoordinator: ListCoordinator<Model> { get }
+    var listCoordinatorContext: ListCoordinatorContext<Model> { get }
 }
 
 public extension DataSource {
-    var listDelegate: ListDelegate { .init() }
-    var listCoordinator: ListCoordinator<SourceBase> {
-        fatalError("unsupported source \(Source.self) model \(Model.self)")
-    }
-    var listCoordinatorContext: ListCoordinatorContext<SourceBase> {
-        ListCoordinatorContext(listCoordinator, listDelegate: listDelegate)
-    }
+    var listCoordinator: ListCoordinator<Model> { source.listCoordinator }
+    var listCoordinatorContext: ListCoordinatorContext<Model> { source.listCoordinatorContext }
 }
 
-public extension DataSource where SourceBase == Self {
-    var sourceBase: SourceBase { self }
-}
+@resultBuilder
+public struct SourceBuilder<Model> { }
 
-public extension DataSource where AdapterBase == Self {
-    var adapterBase: AdapterBase { self }
+public extension SourceBuilder where Model == Any {
+    static func buildPartialBlock(first: any DataSource) -> any DataSource<Model> {
+        first.pullback { $0 }
+    }
+
+    static func buildPartialBlock(accumulated: any DataSource, next: any DataSource) -> any DataSource<Model> {
+        DataSources([accumulated.toAnyModel, next.toAnyModel])
+    }
+
+    static func buildEither(first component: any DataSource) -> any DataSource<Model> {
+        component.pullback { $0 }
+    }
+
+    static func buildEither(second component: any DataSource) -> any DataSource<Model> {
+        component.pullback { $0 }
+    }
+
+    static func buildArray(_ components: [some DataSource]) -> any DataSource<Model> {
+        DataSources(components.map { WrapperDataSource(otherSource: $0) { $0 as Any } })
+    }
+
+    static func buildOptional<S: DataSource>(_ content: S?) -> any DataSource<Model> {
+        content.pullback { $0 }
+    }
 }

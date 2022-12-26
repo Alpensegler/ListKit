@@ -23,8 +23,8 @@ public extension ListDelegate.IndexFunction where View: UICollectionView, Index 
     func callAsFunction<Cell: UICollectionViewCell>(
         _ cellClass: Cell.Type,
         identifier: String = "",
-        configCell: @escaping (Cell, ListIndexContext<View, Source, Index>, Source.Model) -> Void = { _, _, _ in }
-    ) -> ListAdaptation<Source.AdapterBase, View> where Output == UICollectionViewCell {
+        configCell: @escaping (Cell, ListIndexContext<View, Model, Index>, Model) -> Void = { _, _, _ in }
+    ) -> ListAdaptation<Model, View> where Output == UICollectionViewCell {
         toTarget { (context, _) in
             let cell = context.dequeueReusableCell(cellClass, identifier: identifier)
             configCell(cell, context, context.model)
@@ -35,8 +35,8 @@ public extension ListDelegate.IndexFunction where View: UICollectionView, Index 
     func callAsFunction<Cell: UICollectionViewCell>(
         _ cellClass: Cell.Type,
         storyBoardIdentifier: String,
-        configCell: @escaping (Cell, ListIndexContext<View, Source, Index>, Source.Model) -> Void = { _, _, _ in }
-    ) -> ListAdaptation<Source.AdapterBase, View> where Output == UICollectionViewCell {
+        configCell: @escaping (Cell, ListIndexContext<View, Model, Index>, Model) -> Void = { _, _, _ in }
+    ) -> ListAdaptation<Model, View> where Output == UICollectionViewCell {
         toTarget { (context, _) in
             let cell = context.dequeueReusableCell(cellClass, storyBoardIdentifier: storyBoardIdentifier)
             configCell(cell, context, context.model)
@@ -105,7 +105,7 @@ public extension ListDelegate.IndexFunction where View: UICollectionView, Index 
 
 // MARK: - TableView Related Functions
 public extension ListDelegate.IndexFunction where View: UITableView, Index == IndexPath {
-    func callAsFunction() -> ListAdaptation<Source.AdapterBase, View> where Output == UITableViewCell {
+    func callAsFunction() -> ListAdaptation<Model, View> where Output == UITableViewCell {
         toTarget { context, _ in
             let cell = context.dequeueReusableCell(UITableViewCell.self)
             cell.textLabel?.text = "\(context.model)"
@@ -116,8 +116,8 @@ public extension ListDelegate.IndexFunction where View: UITableView, Index == In
     func callAsFunction<Cell: UITableViewCell>(
         _ cellClass: Cell.Type,
         identifier: String = "",
-        configCell: @escaping (Cell, ListIndexContext<View, Source, Index>, Source.Model) -> Void = { _, _, _ in }
-    ) -> ListAdaptation<Source.AdapterBase, View> where Output == UITableViewCell {
+        configCell: @escaping (Cell, ListIndexContext<View, Model, Index>, Model) -> Void = { _, _, _ in }
+    ) -> ListAdaptation<Model, View> where Output == UITableViewCell {
         toTarget { (context, _) in
             let cell = context.dequeueReusableCell(cellClass, identifier: identifier)
             configCell(cell, context, context.model)
@@ -128,8 +128,8 @@ public extension ListDelegate.IndexFunction where View: UITableView, Index == In
     func callAsFunction<Cell: UITableViewCell>(
         _ cellClass: Cell.Type,
         storyBoardIdentifier: String,
-        configCell: @escaping (Cell, ListIndexContext<View, Source, Index>, Source.Model) -> Void = { _, _, _ in }
-    ) -> ListAdaptation<Source.AdapterBase, View> where Output == UITableViewCell {
+        configCell: @escaping (Cell, ListIndexContext<View, Model, Index>, Model) -> Void = { _, _, _ in }
+    ) -> ListAdaptation<Model, View> where Output == UITableViewCell {
         toTarget { (context, _) in
             let cell = context.dequeueReusableCell(cellClass, storyBoardIdentifier: storyBoardIdentifier)
             configCell(cell, context, context.model)

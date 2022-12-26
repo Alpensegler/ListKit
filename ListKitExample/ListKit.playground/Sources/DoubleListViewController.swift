@@ -4,30 +4,30 @@ import ListKit
 import UIKit
 
 public class DoubleListViewController: UIViewController, UpdatableListAdapter {
-    private let _models = ["Roy", "Pinlin", "Zhiyi", "Frain", "Jack", "Cookie", "Kubrick", "Jeremy", "Juhao", "Herry"]
 
-    public typealias Model = String
+    private let _models = ["Roy", "Pinlin", "Zhiyi", "Frain", "Jack", "Cookie", "Kubrick", "Jeremy", "Juhao", "Herry"]
 
     var toggle = false
 
-    public var source: [String] {
+    public var models: [String] {
         var shuffledModels = _models.shuffled()
         shuffledModels.removeFirst()
         shuffledModels.removeLast()
         return shuffledModels.shuffled()
     }
 
-    public var list: ListAdaptation<DoubleListViewController, UITableView> {
+    public var list: ListAdaptation<Any, UITableView> {
 //        didEndDragging { _, _ in
 //            print("didEndDragging")
 //        }
 //        willBeginDragging { (context) in
 //            print("didDrag")
 //        }
-        cellForRow()
-        didSelectRow { [unowned self] (context, model) in
-            perform(.remove(at: context.item))
-        }
+        Models(models)
+            .cellForRow()
+            .didSelectRow { [unowned self] (context, model) in
+//                performUpdate(.remove(at: context.item))
+            }
     }
 
 //    public var collectionList: CollectionList<DoubleListViewController> {

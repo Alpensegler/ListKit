@@ -7,39 +7,39 @@
 
 // swiftlint:disable comment_spacing
 
-//import Foundation
+import Foundation
 
-//final class WrapperCoordinator<SourceBase: DataSource, Other>: ListCoordinator<SourceBase>
-//where SourceBase.SourceBase == SourceBase, Other: DataSource {
-//    typealias Subupdate = ListCoordinatorUpdate<Other.SourceBase>
-//    struct Wrapped {
+final class WrapperCoordinator<Model, Other>: ListCoordinator<Model> {
+    typealias Subupdate = ListCoordinatorUpdate<Other>
+    struct Wrapped {
 //        var value: Other
-//        var context: ListCoordinatorContext<Other.SourceBase>
-//        var coordinator: ListCoordinator<Other.SourceBase> { context.listCoordinator }
-//    }
-//
-//    let toModel: (Other.Model) -> SourceBase.Model
-//    let toOther: (SourceBase.Source) -> Other?
-//
-//    var rawOptions = ListOptions()
-//    var wrapped: Wrapped?
-//
+        var context: ListCoordinatorContext<Other>
+        var coordinator: ListCoordinator<Other> { context.listCoordinator }
+    }
+
+    let toModel: (Other) -> Model
+
+    var rawOptions = ListOptions()
+    var wrapped: Wrapped?
+
 //    override var sourceBaseType: Any.Type { Other.SourceBase.self }
-//
-//    init(
+
+    init(
 //        _ sourceBase: SourceBase,
-//        toModel: @escaping (Other.Model) -> SourceBase.Model,
+        options: ListOptions,
+        toModel: @escaping (Other) -> Model,
+        otherContext: ListCoordinatorContext<Other>?
 //        toOther: @escaping (SourceBase.Source) -> Other?
-//    ) {
-//        self.toModel = toModel
+    ) {
+        self.toModel = toModel
 //        self.toOther = toOther
-//
-//        super.init(sourceBase)
-//        self.rawOptions = options
-//        self.wrapped = toOther(source).map(toWrapped)
-//        self.wrapped.map { options.formUnion($0.coordinator.options) }
-//    }
-//
+
+        super.init(options: options)
+        self.rawOptions = options
+        self.wrapped = otherContext.map { .init(context: $0) } //toOther(source).map(toWrapped)
+        self.wrapped.map { self.options.formUnion($0.coordinator.options) }
+    }
+
 //    func toWrapped(_ other: Other) -> Wrapped {
 //        let context = other.listCoordinatorContext
 //        context.update = { [weak self] (_, subupdate) in
@@ -68,29 +68,29 @@
 //        case (nil, let to?):
 //            return to.coordinator.update(update: .insert)
 //        case (let from?, nil):
-//            return  from.coordinator.update(update: .remove)
+//            return from.coordinator.update(update: .remove)
 //        case (let from?, let to?):
 //            let updateWay =  way.map { ListUpdateWay($0, cast: toModel) }
 //            return to.coordinator.update(from: from.coordinator, updateWay: updateWay)
 //        }
 //    }
-//
-//    override func numbersOfSections() -> Int {
-//        if sourceType == .models, wrapped == nil { return 1 }
-//        if sourceType == .sectionModels, wrapped?.coordinator.numbersOfModel(in: 0) == 0 {
-//            return options.removeEmptySection ? 0 : 1
-//        }
-//        return wrapped?.coordinator.numbersOfSections() ?? 0
-//    }
-//
-//    override func numbersOfModel(in section: Int) -> Int {
-//        wrapped?.coordinator.numbersOfModel(in: section) ?? 0
-//    }
-//
-//    override func model(at indexPath: IndexPath) -> Model {
-//        toModel(wrapped!.coordinator.model(at: indexPath))
-//    }
-//
+
+    override func numbersOfSections() -> Int {
+        if sourceType == .models, wrapped == nil { return 1 }
+        if sourceType == .sectionModels, wrapped?.coordinator.numbersOfModel(in: 0) == 0 {
+            return options.removeEmptySection ? 0 : 1
+        }
+        return wrapped?.coordinator.numbersOfSections() ?? 0
+    }
+
+    override func numbersOfModel(in section: Int) -> Int {
+        wrapped?.coordinator.numbersOfModel(in: section) ?? 0
+    }
+
+    override func model(at indexPath: IndexPath) -> Model {
+        toModel(wrapped!.coordinator.model(at: indexPath))
+    }
+
 //    override func cache<ModelCache>(
 //        for cached: inout Any?,
 //        at indexPath: IndexPath,
@@ -101,64 +101,64 @@
 //        }
 //        return wrapped.coordinator.cache(for: &cached, at: indexPath, in: wrapped.context.listDelegate)
 //    }
-//
-//    override func configSourceType() -> SourceType {
-//        if wrapped?.coordinator.sourceType == .models, isSectioned { return .sectionModels }
-//        return wrapped?.coordinator.sourceType ?? .models
-//    }
-//
-//    // Selectors
-//    override func configExtraSelector(delegate: ListDelegate) -> Set<Selector>? {
-//        guard let wrapped = wrapped, delegate.extraSelectors.isEmpty else { return nil }
-//        let subdelegate = wrapped.context.listDelegate
-//        var selectors = wrapped.coordinator.configExtraSelector(delegate: subdelegate) ?? []
-//        subdelegate.functions.keys.forEach { selectors.insert($0) }
-//        return selectors
-//    }
-//
-//    override func apply<Input, Output>(
-//        _ selector: Selector,
-//        for context: Context,
-//        root: CoordinatorContext,
-//        view: AnyObject,
-//        with input: Input
-//    ) -> Output? {
-//        guard context.extraSelectors.contains(selector) else {
-//            return super.apply(selector, for: context, root: root, view: view, with: input)
-//        }
-//        let output: Output? = wrapped.flatMap {
-//            $0.context.apply(selector, root: root, view: view, with: input)
-//        }
-//        if Output.self == Void.self {
-//            return super.apply(selector, for: context, root: root, view: view, with: input) ?? output
-//        } else {
-//            return output ?? super.apply(selector, for: context, root: root, view: view, with: input)
-//        }
-//    }
-//
-//    override func apply<Input, Output, Index: ListIndex>(
-//        _ selector: Selector,
-//        for context: Context,
-//        root: CoordinatorContext,
-//        view: AnyObject,
-//        with input: Input,
-//        index: Index,
-//        _ offset: Index
-//    ) -> Output? {
-//        guard context.extraSelectors.contains(selector) else {
-//            return super.apply(selector, for: context, root: root, view: view, with: input, index: index, offset)
-//        }
-//        let output: Output? = wrapped.flatMap {
-//            $0.coordinator.apply(selector, for: $0.context, root: root, view: view, with: input, index: index, offset)
-//        }
-//        if Output.self == Void.self {
-//            return super.apply(selector, for: context, root: root, view: view, with: input, index: index, offset) ?? output
-//        } else {
-//            return output ?? super.apply(selector, for: context, root: root, view: view, with: input, index: index, offset)
-//        }
-//    }
-//
-//    // Updates:
+
+    override func configSourceType() -> SourceType {
+        if wrapped?.coordinator.sourceType == .models, isSectioned { return .sectionModels }
+        return wrapped?.coordinator.sourceType ?? .models
+    }
+
+    // Selectors
+    override func configExtraSelector(delegate: ListDelegate) -> Set<Selector>? {
+        guard let wrapped = wrapped, delegate.extraSelectors.isEmpty else { return nil }
+        let subdelegate = wrapped.context.listDelegate
+        var selectors = wrapped.coordinator.configExtraSelector(delegate: subdelegate) ?? []
+        subdelegate.functions.keys.forEach { selectors.insert($0) }
+        return selectors
+    }
+
+    override func apply<Input, Output>(
+        _ selector: Selector,
+        for context: Context,
+        root: CoordinatorContext,
+        view: AnyObject,
+        with input: Input
+    ) -> Output? {
+        guard context.extraSelectors.contains(selector) else {
+            return super.apply(selector, for: context, root: root, view: view, with: input)
+        }
+        let output: Output? = wrapped.flatMap {
+            $0.context.apply(selector, root: root, view: view, with: input)
+        }
+        if Output.self == Void.self {
+            return super.apply(selector, for: context, root: root, view: view, with: input) ?? output
+        } else {
+            return output ?? super.apply(selector, for: context, root: root, view: view, with: input)
+        }
+    }
+
+    override func apply<Input, Output, Index: ListIndex>(
+        _ selector: Selector,
+        for context: Context,
+        root: CoordinatorContext,
+        view: AnyObject,
+        with input: Input,
+        index: Index,
+        _ offset: Index
+    ) -> Output? {
+        guard context.extraSelectors.contains(selector) else {
+            return super.apply(selector, for: context, root: root, view: view, with: input, index: index, offset)
+        }
+        let output: Output? = wrapped.flatMap {
+            $0.coordinator.apply(selector, for: $0.context, root: root, view: view, with: input, index: index, offset)
+        }
+        if Output.self == Void.self {
+            return super.apply(selector, for: context, root: root, view: view, with: input, index: index, offset) ?? output
+        } else {
+            return output ?? super.apply(selector, for: context, root: root, view: view, with: input, index: index, offset)
+        }
+    }
+
+    // Updates:
 //    override func identifier(for sourceBase: SourceBase) -> [AnyHashable] {
 //        let id = ObjectIdentifier(sourceBaseType)
 //        guard let identifier = differ.identifier else { return [id, sourceType] }
@@ -211,8 +211,8 @@
 //            options: (self.options, options ?? self.options)
 //        )
 //    }
-//}
-//
+}
+
 //extension WrapperCoordinator where SourceBase.Source == Other, SourceBase.Model == Other.Model {
 //    convenience init(wrapper sourceBase: SourceBase) {
 //        self.init(sourceBase, toModel: { $0 }, toOther: { $0 })

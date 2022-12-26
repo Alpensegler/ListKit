@@ -10,8 +10,8 @@ import UIKit
 
 // MARK: - TableView DataSource
 public extension DataSource {
-    var cellForRow: ListDelegate.IndexFunction<UITableView, Self, IndexPath, UITableViewCell, (ListIndexContext<UITableView, Self, IndexPath>, Model) -> UITableViewCell, IndexPath> {
-        toFunction(#selector(UITableViewDataSource.tableView(_:cellForRowAt:)), toClosure())
+    var cellForRow: ListDelegate.IndexFunction<UITableView, Model, IndexPath, UITableViewCell, (ListIndexContext<UITableView, Model, IndexPath>, Model) -> UITableViewCell, IndexPath> {
+        .init(selector: #selector(UITableViewDataSource.tableView(_:cellForRowAt:)), hasSectionIndex: false, source: .init(self), indexForInput: { $0 }, toClosure: { closure in { context, _ in closure(context, context.model) } })
     }
 }
 

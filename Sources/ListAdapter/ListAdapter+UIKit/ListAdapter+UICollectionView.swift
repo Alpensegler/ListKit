@@ -12,8 +12,8 @@ import UIKit
 
 // MARK: - Collection View Data Source
 public extension DataSource {
-    var cellForItem: ListDelegate.IndexFunction<UICollectionView, Self, IndexPath, UICollectionViewCell, (ListIndexContext<UICollectionView, Self, IndexPath>, Model) -> UICollectionViewCell, IndexPath> {
-        toFunction(#selector(UICollectionViewDataSource.collectionView(_:cellForItemAt:)), toClosure())
+    var cellForItem: ListDelegate.IndexFunction<UICollectionView, Model, IndexPath, UICollectionViewCell, (ListIndexContext<UICollectionView, Model, IndexPath>, Model) -> UICollectionViewCell, IndexPath> {
+        .init(selector: #selector(UICollectionViewDataSource.collectionView(_:cellForItemAt:)), hasSectionIndex: false, source: .init(self), indexForInput: { $0 }, toClosure: { closure in { context, _ in closure(context, context.model) } })
     }
 }
 

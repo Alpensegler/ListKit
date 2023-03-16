@@ -11,11 +11,11 @@ import UIKit
 extension Delegate: UITableViewDataSource {
     // MARK: - Providing the Number of Rows and Sections
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        context.numbersOfModel(in: section)
+        numberOfItemsInSection(section)
     }
 
     func numberOfSections(in tableView: UITableView) -> Int {
-        context.numbersOfSections()
+        numbersOfSections()
     }
 
     // MARK: - Providing Cells, Headers, and Footers

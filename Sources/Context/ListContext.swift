@@ -15,28 +15,25 @@ public protocol Context {
     var listView: View { get }
 }
 
-public struct ListContext<View, Model>: Context {
+public struct ListContext<View>: Context {
     public let listView: View
-    let context: ListCoordinatorContext<Model>
-    let root: CoordinatorContext
+    let context: ListCoordinatorContext
 }
 
 extension ListContext {
     init(
         view: AnyObject,
-        context: ListCoordinatorContext<Model>,
-        root: CoordinatorContext
+        context: ListCoordinatorContext
     ) {
-        self.init(listView: view as! View, context: context, root: root)
+        self.init(listView: view as! View, context: context)
     }
 }
 
-public struct ListIndexContext<View, Model, Index>: Context {
+public struct ListIndexContext<View, Index>: Context {
     public let listView: View
     public let index: Index
     public let offset: Index
-    let context: ListCoordinatorContext<Model>
-    let root: CoordinatorContext
+    let context: ListCoordinatorContext
 }
 
 extension ListIndexContext {
@@ -44,27 +41,25 @@ extension ListIndexContext {
         view: AnyObject,
         index: Index,
         offset: Index,
-        context: ListCoordinatorContext<Model>,
-        root: CoordinatorContext
+        context: ListCoordinatorContext
     ) {
         self.init(
             listView: view as! View,
             index: index,
             offset: offset,
-            context: context,
-            root: root
+            context: context
         )
     }
 }
 
 public extension ListAdapter {
-    typealias ListContext = ListKit.ListContext<View, Model>
-    typealias ListModelContext = ListIndexContext<View, Model, IndexPath>
-    typealias ListSectionContext = ListIndexContext<View, Model, Int>
+    typealias ListContext = ListKit.ListContext<View>
+    typealias ListModelContext = ListIndexContext<View, IndexPath>
+    typealias ListSectionContext = ListIndexContext<View, Int>
 
-    typealias Function<Input, Output, Closure> = ListDelegate.Function<View, Model, Input, Output, Closure>
-    typealias ModelFunction<Input, Output, Closure> = ListDelegate.IndexFunction<View, Model, Input, Output, Closure, IndexPath>
-    typealias SectionFunction<Input, Output, Closure> = ListDelegate.IndexFunction<View, Model, Input, Output, Closure, Int>
+    typealias Function<Input, Output, Closure> = ListDelegate.Function<Self, View, Input, Output, Closure>
+    typealias ModelFunction<Input, Output, Closure> = ListDelegate.IndexFunction<Self, View, Input, Output, Closure, IndexPath>
+    typealias SectionFunction<Input, Output, Closure> = ListDelegate.IndexFunction<Self, View, Input, Output, Closure, Int>
 }
 
 public extension ListIndexContext where Index == Int {
@@ -75,8 +70,8 @@ public extension ListIndexContext where Index == IndexPath {
     var section: Int { index.section - offset.section }
     var item: Int { index.item - offset.item }
 
-    var model: Model {
-        context.listCoordinator.model(at: index.offseted(offset, plus: false))
+    var containedType: Any {
+        context.coordinator.model(at: index.offseted(offset, plus: false))
     }
 }
 

@@ -12,14 +12,14 @@ import UIKit
 
 // MARK: - Collection View Data Source
 public extension DataSource {
-    var cellForItem: ListDelegate.IndexFunction<UICollectionView, Model, IndexPath, UICollectionViewCell, (ListIndexContext<UICollectionView, Model, IndexPath>, Model) -> UICollectionViewCell, IndexPath> {
-        .init(selector: #selector(UICollectionViewDataSource.collectionView(_:cellForItemAt:)), hasSectionIndex: false, source: .init(self), indexForInput: { $0 }, toClosure: { closure in { context, _ in closure(context, context.model) } })
+    var cellForItem: ListDelegate.IndexFunction<Self, UICollectionView, IndexPath, UICollectionViewCell, (ListIndexContext<UICollectionView, IndexPath>) -> UICollectionViewCell, IndexPath> {
+        toFunction(#selector(UICollectionViewDataSource.collectionView(_:cellForItemAt:)), toClosure())
     }
 }
 
 public extension ListAdapter where View: UICollectionView {
     // MARK: - Getting Views for Items
-    var cellForItem: ModelFunction<IndexPath, UICollectionViewCell, (ListModelContext, Model) -> UICollectionViewCell> {
+    var cellForItem: ModelFunction<IndexPath, UICollectionViewCell, (ListModelContext) -> UICollectionViewCell> {
         toFunction(#selector(UICollectionViewDataSource.collectionView(_:cellForItemAt:)), toClosure())
     }
 
@@ -28,7 +28,7 @@ public extension ListAdapter where View: UICollectionView {
     }
 
 //    // MARK: - Reordering Items
-//    var canMoveItem: ModelFunction<IndexPath, Bool, (ListModelContext, Model) -> Bool> {
+//    var canMoveItem: ModelFunction<IndexPath, Bool, (ListModelContext) -> Bool> {
 //        toFunction(#selector(UICollectionViewDataSource.collectionView(_:canMoveItemAt:)), toClosure())
 //    }
 //
@@ -40,29 +40,29 @@ public extension ListAdapter where View: UICollectionView {
 // MARK: - Collection View Delegate
 public extension ListAdapter where View: UICollectionView {
     // MARK: - Managing the Selected Cells
-    var shouldSelectItem: ModelFunction<IndexPath, Bool, (ListModelContext, Model) -> Bool> {
+    var shouldSelectItem: ModelFunction<IndexPath, Bool, (ListModelContext) -> Bool> {
         toFunction(#selector(UICollectionViewDelegate.collectionView(_:shouldSelectItemAt:)), toClosure())
     }
 
-    var didSelectItem: ModelFunction<IndexPath, Void, (ListModelContext, Model) -> Void> {
+    var didSelectItem: ModelFunction<IndexPath, Void, (ListModelContext) -> Void> {
         toFunction(#selector(UICollectionViewDelegate.collectionView(_:didSelectItemAt:)), toClosure())
     }
 
-    var shouldDeselectItem: ModelFunction<IndexPath, Bool, (ListModelContext, Model) -> Bool> {
+    var shouldDeselectItem: ModelFunction<IndexPath, Bool, (ListModelContext) -> Bool> {
         toFunction(#selector(UICollectionViewDelegate.collectionView(_:shouldDeselectItemAt:)), toClosure())
     }
 
-    var didDeselectItem: ModelFunction<IndexPath, Void, (ListModelContext, Model) -> Void> {
+    var didDeselectItem: ModelFunction<IndexPath, Void, (ListModelContext) -> Void> {
         toFunction(#selector(UICollectionViewDelegate.collectionView(_:didDeselectItemAt:)), toClosure())
     }
 
 //    @available(iOS 13.0, *)
-//    var shouldBeginMultipleSelectionInteractionForItem: ModelFunction<IndexPath, Bool, (ListModelContext, Model) -> Bool> {
+//    var shouldBeginMultipleSelectionInteractionForItem: ModelFunction<IndexPath, Bool, (ListModelContext) -> Bool> {
 //        toFunction(#selector(UICollectionViewDelegate.collectionView(_:shouldBeginMultipleSelectionInteractionAt:)), toClosure())
 //    }
 //
 //    @available(iOS 13.0, *)
-//    var didBeginMultipleSelectionInteractionAtForItem: ModelFunction<IndexPath, Void, (ListModelContext, Model) -> Void> {
+//    var didBeginMultipleSelectionInteractionAtForItem: ModelFunction<IndexPath, Void, (ListModelContext) -> Void> {
 //        toFunction(#selector(UICollectionViewDelegate.collectionView(_:didBeginMultipleSelectionInteractionAt:)), toClosure())
 //    }
 //
@@ -72,25 +72,25 @@ public extension ListAdapter where View: UICollectionView {
 //    }
 
     // MARK: - Managing Cell Highlighting
-    var shouldHighlightItem: ModelFunction<IndexPath, Bool, (ListModelContext, Model) -> Bool> {
+    var shouldHighlightItem: ModelFunction<IndexPath, Bool, (ListModelContext) -> Bool> {
         toFunction(#selector(UICollectionViewDelegate.collectionView(_:shouldHighlightItemAt:)), toClosure())
     }
 
-    var didHighlightItem: ModelFunction<IndexPath, Void, (ListModelContext, Model) -> Void> {
+    var didHighlightItem: ModelFunction<IndexPath, Void, (ListModelContext) -> Void> {
         toFunction(#selector(UICollectionViewDelegate.collectionView(_:didHighlightItemAt:)), toClosure())
     }
 
-    var didUnhighlightItem: ModelFunction<IndexPath, Void, (ListModelContext, Model) -> Void> {
+    var didUnhighlightItem: ModelFunction<IndexPath, Void, (ListModelContext) -> Void> {
         toFunction(#selector(UICollectionViewDelegate.collectionView(_:didUnhighlightItemAt:)), toClosure())
     }
 
     // MARK: - Tracking the Addition and Removal of Views
-    var willDisplayForItem: ModelFunction<(IndexPath, UICollectionViewCell), Void, (ListModelContext, UICollectionViewCell, Model) -> Void> {
+    var willDisplayForItem: ModelFunction<(IndexPath, UICollectionViewCell), Void, (ListModelContext, UICollectionViewCell) -> Void> {
         toFunction(#selector(UICollectionViewDelegate.collectionView(_:willDisplay:forItemAt:)), \.0, toClosure())
     }
 
-    var willDisplaySupplementaryView: ModelFunction<(IndexPath, UICollectionReusableView, String), Void, (ListModelContext, UICollectionReusableView, CollectionView.SupplementaryViewType, Model) -> Void> {
-        toFunction(#selector(UICollectionViewDelegate.collectionView(_:willDisplaySupplementaryView:forElementKind:at:)), \.0) { closure in { context, input in closure(context, input.1, .init(rawValue: input.2), context.model) } }
+    var willDisplaySupplementaryView: ModelFunction<(IndexPath, UICollectionReusableView, String), Void, (ListModelContext, UICollectionReusableView, CollectionView.SupplementaryViewType) -> Void> {
+        toFunction(#selector(UICollectionViewDelegate.collectionView(_:willDisplaySupplementaryView:forElementKind:at:)), \.0) { closure in { context, input in closure(context, input.1, .init(rawValue: input.2)) } }
     }
 
     var didEndDisplayingItem: Function<(IndexPath, UICollectionViewCell), Void, (ListContext, IndexPath, UICollectionViewCell) -> Void> {
@@ -115,20 +115,20 @@ public extension ListAdapter where View: UICollectionView {
 //    }
 //
 //    // MARK: - Managing Actions for Cells
-//    var shouldShowMenuForItem: ModelFunction<IndexPath, Bool, (ListModelContext, Model) -> Bool> {
+//    var shouldShowMenuForItem: ModelFunction<IndexPath, Bool, (ListModelContext) -> Bool> {
 //        toFunction(#selector(UICollectionViewDelegate.collectionView(_:shouldShowMenuForItemAt:)), toClosure())
 //    }
 //
-//    var canPerformActionWithSender: ModelFunction<(IndexPath, Selector, Any?), Bool, (ListModelContext, Selector, Any?, Model) -> Bool> {
+//    var canPerformActionWithSender: ModelFunction<(IndexPath, Selector, Any?), Bool, (ListModelContext, Selector, Any?) -> Bool> {
 //        toFunction(#selector(UICollectionViewDelegate.collectionView(_:canPerformAction:forItemAt:withSender:)), \.0, toClosure())
 //    }
 //
-//    var performActionWithSender: ModelFunction<(IndexPath, Selector, Any?), Void, (ListModelContext, Selector, Any?, Model) -> Void> {
+//    var performActionWithSender: ModelFunction<(IndexPath, Selector, Any?), Void, (ListModelContext, Selector, Any?) -> Void> {
 //        toFunction(#selector(UICollectionViewDelegate.collectionView(_:performAction:forItemAt:withSender:)), \.0, toClosure())
 //    }
 //
 //    // MARK: - Managing Focus in a Collection View
-//    var canFocusItem: ModelFunction<IndexPath, Bool, (ListModelContext, Model) -> Bool> {
+//    var canFocusItem: ModelFunction<IndexPath, Bool, (ListModelContext) -> Bool> {
 //        toFunction(#selector(UICollectionViewDelegate.collectionView(_:canFocusItemAt:)), toClosure())
 //    }
 //
@@ -146,13 +146,13 @@ public extension ListAdapter where View: UICollectionView {
 //
 //    // MARK: - Controlling the Spring-Loading Behavior
 //    @available(iOS 11.0, *)
-//    var shouldSpringLoadItemAtWith: ModelFunction<(IndexPath, UISpringLoadedInteractionContext), Bool, (ListModelContext, UISpringLoadedInteractionContext, Model) -> Bool> {
+//    var shouldSpringLoadItemAtWith: ModelFunction<(IndexPath, UISpringLoadedInteractionContext), Bool, (ListModelContext, UISpringLoadedInteractionContext) -> Bool> {
 //        toFunction(#selector(UICollectionViewDelegate.collectionView(_:shouldSpringLoadItemAt:with:)), \.0, toClosure())
 //    }
 //
 //    // MARK: - Instance Methods
 //    @available(iOS 13.0, *)
-//    var contextMenuConfigurationForItem: ModelFunction<(IndexPath, CGPoint), UIContextMenuConfiguration?, (ListModelContext, CGPoint, Model) -> UIContextMenuConfiguration> {
+//    var contextMenuConfigurationForItem: ModelFunction<(IndexPath, CGPoint), UIContextMenuConfiguration?, (ListModelContext, CGPoint) -> UIContextMenuConfiguration> {
 //        toFunction(#selector(UICollectionViewDelegate.collectionView(_:contextMenuConfigurationForItemAt:point:)), \.0, toClosure())
 //    }
 //
@@ -175,7 +175,7 @@ public extension ListAdapter where View: UICollectionView {
 // MARK: - Collection View Delegate Flow Layout
 public extension ListAdapter where View: UICollectionView {
     // MARK: - Getting the Size of Items
-    var layoutSizeForItem: ModelFunction<(IndexPath, UICollectionViewLayout), CGSize, (ListModelContext, UICollectionViewLayout, Model) -> CGSize> {
+    var layoutSizeForItem: ModelFunction<(IndexPath, UICollectionViewLayout), CGSize, (ListModelContext, UICollectionViewLayout) -> CGSize> {
         toFunction(#selector(UICollectionViewDelegateFlowLayout.collectionView(_:layout:sizeForItemAt:)), \.0, toClosure())
     }
 

@@ -7,64 +7,20 @@
 
 // swiftlint:disable comment_spacing
 
-public protocol ListAdapter<Model, View>: DataSource {
-    associatedtype View: ListView = TableView
+public protocol ListAdapter: DataSource {
+    associatedtype View = Never
+    associatedtype List = DataSource
 
-    @ListBuilder<Model, View>
-    var list: ListAdaptation<Model, View> { get }
+    @ListBuilder
+    var list: List { get }
 }
 
-public extension ListAdapter {
-    var source: any DataSource<Model> { return list }
-    var listCoordinatorContext: ListCoordinatorContext<Model> { list.listCoordinatorContext }
+public extension ListAdapter where List == DataSource {
+    var listCoordinator: ListCoordinator { list.listCoordinator }
+    var listCoordinatorContext: ListCoordinatorContext { list.listCoordinatorContext }
 }
 
-public extension ListAdapter where Self: UpdatableDataSource {
-    var listCoordinatorContext: ListCoordinatorContext<Model> {
-        ListCoordinatorContext(listCoordinator).context(with: listDelegate)
-    }
-}
-
-extension ListAdapter {
-    var listGetter: ListAdaptation<Model, View> { return list }
-    var listDelegate: ListDelegate { list.listDelegate }
-}
-
-public struct ListAdaptation<Model, View: ListView>: ListAdapter {
-    public var source: any DataSource<Model>
-
-//    public var listUpdate: ListUpdate<SourceBase>.Whole { source.listUpdate }
-//    public var listDiffer: ListDiffer<SourceBase> { source.listDiffer }
-//    public var listOptions: ListOptions { source.listOptions }
-
-    public var listDelegate: ListDelegate
-    public var listCoordinatorContext: ListCoordinatorContext<Model> {
-        source.listCoordinatorContext.context(with: listDelegate)
-    }
-
-    public var listCoordinator: ListCoordinator<Model> { source.listCoordinator }
-    public var list: ListAdaptation<Model, View> { return self }
-
-//    init<OtherSource: DataSource>(
-//        _ source: OtherSource,
-//        options: ListOptions = .init()
-//    ) where Source == AnySources {
-//        self.source = AnySources(source, options: options)
-//        self.listDelegate = .init()
-//    }
-
-    init(_ source: any DataSource<Model>) {
-        self.source = source
-        self.listDelegate = .init()
-    }
-
-    init(_ source: any DataSource<Model>, listDelegate: ListDelegate) {
-        self.source = source
-        self.listDelegate = listDelegate
-    }
-}
-
-public extension ListAdapter {
+public extension ListAdapter where View: ListView {
 //    @discardableResult
     func apply(
         by listView: View,
@@ -87,9 +43,40 @@ public extension ListAdapter {
 //        by listView: View,
 //        animated: Bool = true,
 //        completion: ((Bool) -> Void)? = nil
-//    ) -> ListAdaptation<Model, View> {
+//    ) -> any ListAdapter<List> {
 //        apply(by: listView, update: listUpdate, animated: animated, completion: completion)
 //    }
+}
+
+@resultBuilder
+public struct ListBuilder {
+    static func buildPartialBlock<D: DataSource>(first: D) -> D {
+        first
+    }
+
+    static func buildPartialBlock<F: DataSource, S: DataSource>(accumulated: F, next: S) -> TupleSources<F, S> {
+        .init(list: [accumulated.listCoordinatorContext, next.listCoordinatorContext])
+    }
+
+    static func buildPartialBlock<F: DataSource, S: DataSource, N: DataSource>(accumulated: TupleSources<F, S>, next: N) -> TupleSources<TupleSources<F, S>, N> {
+        .init(list: accumulated.list + [next.listCoordinatorContext])
+    }
+
+    static func buildEither<T: DataSource, F: DataSource>(first component: T) -> ConditionalSources<T, F> {
+        .init(list: .first(component))
+    }
+
+    static func buildEither<T: DataSource, F: DataSource>(second component: F) -> ConditionalSources<T, F> {
+        .init(list: .second(component))
+    }
+
+    static func buildArray<D: DataSource>(_ components: [D]) -> DataSources<[D], D> {
+        .init(components)
+    }
+
+    static func buildOptional<S: DataSource>(_ content: S?) -> S? {
+        content
+    }
 }
 
 //extension ListAdaptation: ModelCachedDataSource where Source: ModelCachedDataSource {

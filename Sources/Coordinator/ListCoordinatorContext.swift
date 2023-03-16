@@ -7,163 +7,49 @@
 
 import Foundation
 
-protocol CoordinatorContext: AnyObject {
-    var valid: Bool { get }
-//    var modelCaches: ContiguousArray<ContiguousArray<Any?>> { get set }
-//    var modelNestedCache: ContiguousArray<ContiguousArray<((Any) -> Void)?>> { get set }
+public struct ListCoordinatorContext {
+    weak var storage: CoordinatorStorage?
+    var coordinator: ListCoordinator
+    var count: Count
 
-    func isCoordinator(_ coordinator: AnyObject) -> Bool
+    var selectors = Set<Selector>()
+    var functions = [Selector: Any]()
 
-    func numbersOfSections() -> Int
-    func numbersOfModel(in section: Int) -> Int
-
-    func contain(selector: Selector) -> Bool
-
-    func apply<Input, Output>(
-        _ selector: Selector,
-        root: CoordinatorContext,
-        view: AnyObject,
-        with input: Input
-    ) -> Output?
-
-    func apply<Input, Output, Index: ListIndex>(
-        _ selector: Selector,
-        root: CoordinatorContext,
-        view: AnyObject,
-        with input: Input,
-        index: Index
-    ) -> Output?
-
-    func perform<Model>(to coordinator: ListCoordinator<Model>, updates: BatchUpdates?, animated: Bool, completion: ((ListView, Bool) -> Void)?)
-}
-
-public final class ListCoordinatorContext<Model>: CoordinatorContext {
-//    typealias Caches<Cache> = ContiguousArray<ContiguousArray<Cache?>>
-
-    var listCoordinator: ListCoordinator<Model>
-
-//    var _modelCaches: Caches<Any>?
-//    var _modelNestedCache: Caches<((Any) -> Void)>?
-
-    var listDelegate = ListDelegate()
+    var section = (sectioned: false, removeEmpty: false) {
+        didSet {
+            if section == oldValue { return }
+            count = reconfigCount()
+        }
+    }
 
     var index = 0
-    var isSectioned = true
-    var listViewGetter: (() -> ListView?)?
-    var resetDelegates: (() -> Void)?
-    var update: ((Int, CoordinatorUpdate) -> [(CoordinatorContext, CoordinatorUpdate)]?)?
-    var contextAtIndex: ((Int, IndexPath, ListView) -> [(IndexPath, CoordinatorContext)])?
 
-    lazy var extraSelectors = listCoordinator.configExtraSelector(delegate: listDelegate)
-        ?? listDelegate.extraSelectors
-
-    var listView: ListView? { listViewGetter?() }
-    var valid: Bool {
-        guard let storage = listCoordinator.storage else { return true }
-        return !storage.isObjectAssciated || storage.object != nil
+    init(coordinator: ListCoordinator) {
+        self.coordinator = coordinator
+        selectors = coordinator.selectors ?? .init()
+        count = coordinator.count
     }
 
-//    var modelCaches: Caches<Any> {
-//        get { cachesOrCreate(&_modelCaches) }
-//        set { _modelCaches = newValue }
-//    }
-//
-//    var modelNestedCache: Caches<((Any) -> Void)> {
-//        get { cachesOrCreate(&_modelNestedCache) }
-//        set { _modelNestedCache = newValue }
-//    }
-
-    init(_ coordinator: ListCoordinator<Model>, listDelegate: ListDelegate = .init()) {
-        self.listCoordinator = coordinator
-        self.listDelegate = listDelegate
-        coordinator.listContexts.append(.init(context: self))
-    }
-
-    func context(with listDelegate: ListDelegate) -> Self {
-        self.listDelegate.formUnion(delegate: listDelegate)
-        return self
-    }
-
-    func isCoordinator(_ coordinator: AnyObject) -> Bool { self.listCoordinator === coordinator }
-
-    func reconfig() { }
-    func numbersOfSections() -> Int { listCoordinator.numbersOfSections() }
-    func numbersOfModel(in section: Int) -> Int { listCoordinator.numbersOfModel(in: section) }
-
-    // Selectors
-    @discardableResult
-    func apply<Input, Output>(
-        _ selector: Selector,
-        root: CoordinatorContext,
-        view: AnyObject,
-        with input: Input
-    ) -> Output? {
-        listCoordinator.apply(selector, for: self, root: root, view: view, with: input)
-    }
-
-    @discardableResult
-    func apply<Input, Output, Index: ListIndex>(
-        _ selector: Selector,
-        root: CoordinatorContext,
-        view: AnyObject,
-        with input: Input,
-        index: Index
-    ) -> Output? {
-        listCoordinator.apply(selector, for: self, root: root, view: view, with: input, index: index, .zero)
-    }
-
-    func contain(selector: Selector) -> Bool {
-        listDelegate.contains(selector) || extraSelectors.contains(selector)
-    }
-
-//    func cachesOrCreate<Cache>(_ caches: inout Caches<Cache>?) -> Caches<Cache> {
-//        caches.or((0..<numbersOfSections()).mapContiguous {
-//            (0..<numbersOfModel(in: $0)).mapContiguous { _ in nil }
-//        })
-//    }
-
-    func perform<M>(to coordinator: ListCoordinator<M>, updates: BatchUpdates?, animated: Bool, completion: ((ListView, Bool) -> Void)?) {
-        guard let list = listView else { return }
-        guard let updates = updates else {
-            completion?(list, false)
-            return
+    func reconfigCount() -> Count {
+        var count = coordinator.count
+        switch (count, section.sectioned) {
+        case (let .items(itemCount), true):
+            count = .sections(nil, itemCount == 0 && section.removeEmpty ? [] : [itemCount ?? 0], nil)
+        case (let .items(itemCount), false):
+            count = .items(itemCount == 0 && section.removeEmpty ? nil : itemCount)
+        case (.sections(let pre, var sections, let next), true):
+            if section.removeEmpty { sections = sections.filter { $0 == 0 } }
+            pre.map { count in if count != 0 || !section.removeEmpty { sections.insert(count, at: 0) } }
+            next.map { count in if count != 0 || !section.removeEmpty { sections.append(count) } }
+            count = .sections(nil, sections, nil)
+        case (var .sections(pre, sections, next), false) where section.removeEmpty:
+            sections = sections.filter { $0 == 0 }
+            if pre == 0 { pre = nil }
+            if next == 0 { next = nil }
+            count = .sections(pre, sections, next)
+        default:
+            break
         }
-        switch updates {
-        case let .reload(change: change):
-//            (_modelCaches, _modelNestedCache) = (nil, nil)
-            self.listCoordinator = coordinator as! ListCoordinator<Model>
-            self.listCoordinator.listContexts.append(.init(context: self))
-            change?()
-            list.reloadSynchronously(animated: animated)
-            completion?(list, true)
-        case let .batch(batchUpdates):
-            for (offset, batchUpdate) in batchUpdates.enumerated() {
-                let isLast = offset == batchUpdates.count - 1
-                Log.log("---batch-update-isLast: \(isLast)---")
-                Log.log(batchUpdate.description)
-                let completion: ((Bool) -> Void)? = isLast ? { [weak list] finish in
-                    list.map { completion?($0, finish) }
-                } : nil
-                list.perform({
-//                    switch (_modelCaches != nil, _modelNestedCache != nil) {
-//                    case (true, true):
-//                        batchUpdate.apply(caches: &modelCaches, countIn: numbersOfModel(in:)) {
-//                            $0.apply(caches: &modelNestedCache, countIn: numbersOfModel(in:))
-//                        }
-//                    case (true, false):
-//                        batchUpdate.apply(caches: &modelCaches, countIn: numbersOfModel(in:))
-//                    case (false, true):
-//                        batchUpdate.apply(caches: &modelNestedCache, countIn: numbersOfModel(in:))
-//                    case (false, false):
-//                        batchUpdate.applyData()
-//                    }
-                    if let selectors = listCoordinator.configExtraSelector(delegate: listDelegate) {
-                        extraSelectors = selectors
-                        listView?.resetDelegates(toNil: false)
-                    }
-                    batchUpdate.apply(by: list)
-                }, animated: animated, completion: completion)
-            }
-        }
+        return count
     }
 }

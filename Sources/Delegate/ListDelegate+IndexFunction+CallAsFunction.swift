@@ -23,11 +23,11 @@ public extension ListDelegate.IndexFunction where View: UICollectionView, Index 
     func callAsFunction<Cell: UICollectionViewCell>(
         _ cellClass: Cell.Type,
         identifier: String = "",
-        configCell: @escaping (Cell, ListIndexContext<View, Model, Index>, Model) -> Void = { _, _, _ in }
-    ) -> ListAdaptation<Model, View> where Output == UICollectionViewCell {
+        configCell: @escaping (Cell, ListIndexContext<View, Index>) -> Void = { _, _ in }
+    ) -> Self where Output == UICollectionViewCell {
         toTarget { (context, _) in
             let cell = context.dequeueReusableCell(cellClass, identifier: identifier)
-            configCell(cell, context, context.model)
+            configCell(cell, context)
             return cell
         }
     }
@@ -35,11 +35,35 @@ public extension ListDelegate.IndexFunction where View: UICollectionView, Index 
     func callAsFunction<Cell: UICollectionViewCell>(
         _ cellClass: Cell.Type,
         storyBoardIdentifier: String,
-        configCell: @escaping (Cell, ListIndexContext<View, Model, Index>, Model) -> Void = { _, _, _ in }
-    ) -> ListAdaptation<Model, View> where Output == UICollectionViewCell {
+        configCell: @escaping (Cell, ListIndexContext<View, Index>) -> Void = { _, _ in }
+    ) -> Self where Output == UICollectionViewCell {
         toTarget { (context, _) in
             let cell = context.dequeueReusableCell(cellClass, storyBoardIdentifier: storyBoardIdentifier)
-            configCell(cell, context, context.model)
+            configCell(cell, context)
+            return cell
+        }
+    }
+
+    func callAsFunction<Cell: UICollectionViewCell>(
+        _ cellClass: Cell.Type,
+        identifier: String = "",
+        configCell: @escaping (Cell, ListIndexContext<View, Index>, List.ContainType) -> Void
+    ) -> Self where Output == UICollectionViewCell, List: ContainerDataSource {
+        toTarget { (context, _) in
+            let cell = context.dequeueReusableCell(cellClass, identifier: identifier)
+            configCell(cell, context, context.containedType as! List.ContainType)
+            return cell
+        }
+    }
+
+    func callAsFunction<Cell: UICollectionViewCell>(
+        _ cellClass: Cell.Type,
+        storyBoardIdentifier: String,
+        configCell: @escaping (Cell, ListIndexContext<View, Index>, List.ContainType) -> Void = { _, _, _ in }
+    ) -> Self where Output == UICollectionViewCell, List: ContainerDataSource {
+        toTarget { (context, _) in
+            let cell = context.dequeueReusableCell(cellClass, storyBoardIdentifier: storyBoardIdentifier)
+            configCell(cell, context, context.containedType as! List.ContainType)
             return cell
         }
     }
@@ -57,9 +81,9 @@ public extension ListDelegate.IndexFunction where View: UICollectionView, Index 
 //        identifier: String = "",
 //        configCellWithCache: @escaping (Cell, ListIndexContext<View, Source, Index>, Source.Model, Source.ModelCache) -> Void
 //    ) -> ListAdaptation<Source.AdapterBase, View> where Output == UICollectionViewCell {
-//        callAsFunction { (context, model, cache) in
+//        callAsFunction { (context, cache) in
 //            let cell = context.dequeueReusableCell(cellClass, identifier: identifier)
-//            configCellWithCache(cell, context, model, cache)
+//            configCellWithCache(cell, context, cache)
 //            return cell
 //        }
 //    }
@@ -69,9 +93,9 @@ public extension ListDelegate.IndexFunction where View: UICollectionView, Index 
 //        storyBoardIdentifier: String,
 //        configCellWithCache: @escaping (Cell, ListIndexContext<View, Source, Index>, Source.Model, Source.ModelCache) -> Void
 //    ) -> ListAdaptation<Source.AdapterBase, View> where Output == UICollectionViewCell {
-//        callAsFunction { (context, model, cache) in
+//        callAsFunction { (context, cache) in
 //            let cell = context.dequeueReusableCell(cellClass, storyBoardIdentifier: storyBoardIdentifier)
-//            configCellWithCache(cell, context, model, cache)
+//            configCellWithCache(cell, context, cache)
 //            return cell
 //        }
 //    }
@@ -105,10 +129,10 @@ public extension ListDelegate.IndexFunction where View: UICollectionView, Index 
 
 // MARK: - TableView Related Functions
 public extension ListDelegate.IndexFunction where View: UITableView, Index == IndexPath {
-    func callAsFunction() -> ListAdaptation<Model, View> where Output == UITableViewCell {
+    func callAsFunction() -> Self where Output == UITableViewCell {
         toTarget { context, _ in
             let cell = context.dequeueReusableCell(UITableViewCell.self)
-            cell.textLabel?.text = "\(context.model)"
+            cell.textLabel?.text = "\(context.containedType)"
             return cell
         }
     }
@@ -116,11 +140,11 @@ public extension ListDelegate.IndexFunction where View: UITableView, Index == In
     func callAsFunction<Cell: UITableViewCell>(
         _ cellClass: Cell.Type,
         identifier: String = "",
-        configCell: @escaping (Cell, ListIndexContext<View, Model, Index>, Model) -> Void = { _, _, _ in }
-    ) -> ListAdaptation<Model, View> where Output == UITableViewCell {
+        configCell: @escaping (Cell, ListIndexContext<View, Index>) -> Void = { _, _ in }
+    ) -> Self where Output == UITableViewCell {
         toTarget { (context, _) in
             let cell = context.dequeueReusableCell(cellClass, identifier: identifier)
-            configCell(cell, context, context.model)
+            configCell(cell, context)
             return cell
         }
     }
@@ -128,11 +152,35 @@ public extension ListDelegate.IndexFunction where View: UITableView, Index == In
     func callAsFunction<Cell: UITableViewCell>(
         _ cellClass: Cell.Type,
         storyBoardIdentifier: String,
-        configCell: @escaping (Cell, ListIndexContext<View, Model, Index>, Model) -> Void = { _, _, _ in }
-    ) -> ListAdaptation<Model, View> where Output == UITableViewCell {
+        configCell: @escaping (Cell, ListIndexContext<View, Index>) -> Void = { _, _ in }
+    ) -> Self where Output == UITableViewCell {
         toTarget { (context, _) in
             let cell = context.dequeueReusableCell(cellClass, storyBoardIdentifier: storyBoardIdentifier)
-            configCell(cell, context, context.model)
+            configCell(cell, context)
+            return cell
+        }
+    }
+
+    func callAsFunction<Cell: UITableViewCell>(
+        _ cellClass: Cell.Type,
+        identifier: String = "",
+        configCell: @escaping (Cell, ListIndexContext<View, Index>, List.ContainType) -> Void
+    ) -> Self where Output == UITableViewCell, List: ContainerDataSource {
+        toTarget { (context, _) in
+            let cell = context.dequeueReusableCell(cellClass, identifier: identifier)
+            configCell(cell, context, context.containedType as! List.ContainType)
+            return cell
+        }
+    }
+
+    func callAsFunction<Cell: UITableViewCell>(
+        _ cellClass: Cell.Type,
+        storyBoardIdentifier: String,
+        configCell: @escaping (Cell, ListIndexContext<View, Index>, List.ContainType) -> Void
+    ) -> Self where Output == UITableViewCell, List: ContainerDataSource {
+        toTarget { (context, _) in
+            let cell = context.dequeueReusableCell(cellClass, storyBoardIdentifier: storyBoardIdentifier)
+            configCell(cell, context, context.containedType as! List.ContainType)
             return cell
         }
     }
@@ -150,9 +198,9 @@ public extension ListDelegate.IndexFunction where View: UITableView, Index == In
 //        identifier: String = "",
 //        configCellWithCache: @escaping (Cell, ListIndexContext<View, Source, Index>, Source.Model, Source.ModelCache) -> Void
 //    ) -> ListAdaptation<Source.AdapterBase, View> where Output == UITableViewCell {
-//        callAsFunction { (context, model, cache) in
+//        callAsFunction { (context, cache) in
 //            let cell = context.dequeueReusableCell(cellClass, identifier: identifier)
-//            configCellWithCache(cell, context, model, cache)
+//            configCellWithCache(cell, context, cache)
 //            return cell
 //        }
 //    }
@@ -162,9 +210,9 @@ public extension ListDelegate.IndexFunction where View: UITableView, Index == In
 //        storyBoardIdentifier: String,
 //        configCellWithCache: @escaping (Cell, ListIndexContext<View, Source, Index>, Source.Model, Source.ModelCache) -> Void
 //    ) -> ListAdaptation<Source.AdapterBase, View> where Output == UITableViewCell {
-//        callAsFunction { (context, model, cache) in
+//        callAsFunction { (context, cache) in
 //            let cell = context.dequeueReusableCell(cellClass, storyBoardIdentifier: storyBoardIdentifier)
-//            configCellWithCache(cell, context, model, cache)
+//            configCellWithCache(cell, context, cache)
 //            return cell
 //        }
 //    }

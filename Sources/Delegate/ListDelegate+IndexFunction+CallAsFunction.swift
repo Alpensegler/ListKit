@@ -9,7 +9,7 @@
 
 import Foundation
 
-//public extension ListDelegate.IndexFunction where Index == IndexPath, Output: FunctionOutput {
+//public extension IndexFunction where Index == IndexPath, Output: FunctionOutput {
 //    func callAsFunction(outputWithModelCached: @escaping (Source.Model) -> Output) -> ListAdaptation<Source.AdapterBase, View> {
 //        toTarget(getCache: outputWithModelCached) { context, _ in context.cache() }
 //    }
@@ -19,7 +19,7 @@ import Foundation
 import UIKit
 
 // MARK: - CollectionView Related Functions
-public extension ListDelegate.IndexFunction where View: UICollectionView, Index == IndexPath {
+public extension IndexFunction where View: UICollectionView, Index == IndexPath {
     func callAsFunction<Cell: UICollectionViewCell>(
         _ cellClass: Cell.Type,
         identifier: String = "",
@@ -69,7 +69,7 @@ public extension ListDelegate.IndexFunction where View: UICollectionView, Index 
     }
 }
 
-//public extension ListDelegate.IndexFunction where View: UICollectionView, Index == IndexPath, Source: ModelCachedDataSource {
+//public extension IndexFunction where View: UICollectionView, Index == IndexPath, Source: ModelCachedDataSource {
 //    func callAsFunction(
 //        closureWithCache: @escaping (ListIndexContext<View, Source, Index>, Source.Model, Source.ModelCache) -> UICollectionViewCell
 //    ) -> ListAdaptation<Source.AdapterBase, View> where Output == UICollectionViewCell {
@@ -128,7 +128,7 @@ public extension ListDelegate.IndexFunction where View: UICollectionView, Index 
 //}
 
 // MARK: - TableView Related Functions
-public extension ListDelegate.IndexFunction where View: UITableView, Index == IndexPath {
+public extension IndexFunction where View: UITableView, Index == IndexPath {
     func callAsFunction() -> Self where Output == UITableViewCell {
         toTarget { context, _ in
             let cell = context.dequeueReusableCell(UITableViewCell.self)
@@ -186,7 +186,7 @@ public extension ListDelegate.IndexFunction where View: UITableView, Index == In
     }
 }
 
-//public extension ListDelegate.IndexFunction where View: UITableView, Index == IndexPath, Source: ModelCachedDataSource {
+//public extension IndexFunction where View: UITableView, Index == IndexPath, Source: ModelCachedDataSource {
 //    func callAsFunction(
 //        closureWithCache: @escaping (ListIndexContext<View, Source, Index>, Source.Model, Source.ModelCache) -> UITableViewCell
 //    ) -> ListAdaptation<Source.AdapterBase, View> where Output == UITableViewCell {

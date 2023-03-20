@@ -15,13 +15,12 @@ extension Optional: DataSource where Wrapped: DataSource {
     public var listCoordinator: ListCoordinator { Coordinator(context: self?.listCoordinatorContext) }
 }
 
+extension Optional: TableList where Wrapped: TableList { }
+extension Optional: CollectionList where Wrapped: CollectionList { }
 extension Optional: ListAdapter where Wrapped: ListAdapter {
     public typealias View = Wrapped.View
     public var list: Self { self }
 }
-
-extension Optional: TableList where Wrapped: TableList { }
-extension Optional: CollectionList where Wrapped: CollectionList { }
 
 extension Optional {
     mutating func or(_ wrapped: @autoclosure () -> Wrapped) -> Wrapped {

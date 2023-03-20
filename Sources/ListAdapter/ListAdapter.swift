@@ -21,31 +21,17 @@ public extension ListAdapter where List == DataSource {
 }
 
 public extension ListAdapter where View: ListView {
-//    @discardableResult
     func apply(
         by listView: View,
-//        update: ListUpdate<SourceBase>.Whole?,
         animated: Bool = true,
         completion: ((Bool) -> Void)? = nil
-//    ) -> ListAdaptation<AdapterBase, View> {
     ) {
         (listView as? DelegateSetuptable)?.listDelegate.setCoordinator(
             context: listCoordinatorContext,
-//            update: update,
             animated: animated,
             completion: completion
         )
-//        return list
     }
-
-//    @discardableResult
-//    func apply(
-//        by listView: View,
-//        animated: Bool = true,
-//        completion: ((Bool) -> Void)? = nil
-//    ) -> any ListAdapter<List> {
-//        apply(by: listView, update: listUpdate, animated: animated, completion: completion)
-//    }
 }
 
 @resultBuilder

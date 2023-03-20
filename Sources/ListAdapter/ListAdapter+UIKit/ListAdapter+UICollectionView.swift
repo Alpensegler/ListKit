@@ -12,7 +12,7 @@ import UIKit
 
 // MARK: - Collection View Data Source
 public extension DataSource {
-    var cellForItem: ListDelegate.IndexFunction<Self, UICollectionView, IndexPath, UICollectionViewCell, (ListIndexContext<UICollectionView, IndexPath>) -> UICollectionViewCell, IndexPath> {
+    var cellForItem: IndexFunction<Self, UICollectionView, IndexPath, UICollectionViewCell, (ListIndexContext<UICollectionView, IndexPath>) -> UICollectionViewCell, IndexPath> {
         toFunction(#selector(UICollectionViewDataSource.collectionView(_:cellForItemAt:)), toClosure())
     }
 }

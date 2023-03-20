@@ -10,7 +10,7 @@ import UIKit
 
 // MARK: - TableView DataSource
 public extension DataSource {
-    var cellForRow: ListDelegate.IndexFunction<Self, UITableView, IndexPath, UITableViewCell, (ListIndexContext<UITableView, IndexPath>) -> UITableViewCell, IndexPath> {
+    var cellForRow: IndexFunction<Self, UITableView, IndexPath, UITableViewCell, (ListIndexContext<UITableView, IndexPath>) -> UITableViewCell, IndexPath> {
         toFunction(#selector(UITableViewDataSource.tableView(_:cellForRowAt:)), toClosure())
     }
 }

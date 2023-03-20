@@ -57,9 +57,9 @@ public extension ListAdapter {
     typealias ListModelContext = ListIndexContext<View, IndexPath>
     typealias ListSectionContext = ListIndexContext<View, Int>
 
-    typealias Function<Input, Output, Closure> = ListDelegate.Function<Self, View, Input, Output, Closure>
-    typealias ModelFunction<Input, Output, Closure> = ListDelegate.IndexFunction<Self, View, Input, Output, Closure, IndexPath>
-    typealias SectionFunction<Input, Output, Closure> = ListDelegate.IndexFunction<Self, View, Input, Output, Closure, Int>
+    typealias Function<Input, Output, Closure> = ListKit.Function<Self, View, Input, Output, Closure>
+    typealias ModelFunction<Input, Output, Closure> = IndexFunction<Self, View, Input, Output, Closure, IndexPath>
+    typealias SectionFunction<Input, Output, Closure> = IndexFunction<Self, View, Input, Output, Closure, Int>
 }
 
 public extension ListIndexContext where Index == Int {

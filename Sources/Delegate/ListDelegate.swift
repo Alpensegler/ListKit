@@ -9,104 +9,102 @@ import Foundation
 
 public protocol FunctionOutput { }
 
-public struct ListDelegate {
-    public struct Function<List: DataSource, View, Input, Output, Closure> {
-        public let selector: Selector
-        public let list: List
-        public var listCoordinator: ListCoordinator
-        public var listCoordinatorContext: ListCoordinatorContext
-        let toClosure: (Closure) -> (ListContext<View>, Input) -> Output
+public struct Function<List: DataSource, View, Input, Output, Closure> {
+    public let selector: Selector
+    public let list: List
+    public var listCoordinator: ListCoordinator
+    public var listCoordinatorContext: ListCoordinatorContext
+    let toClosure: (Closure) -> (ListContext<View>, Input) -> Output
 
-        public func callAsFunction(closure: Closure) -> Self {
-            toTarget(closure: toClosure(closure))
-        }
-
-        public func callAsFunction(_ output: Output) -> Self where Output: FunctionOutput {
-            toTarget { _, _ in output }
-        }
-
-        func toTarget(closure: @escaping (ListContext<View>, Input) -> Output) -> Self {
-            var function = self
-            function.listCoordinatorContext.functions[selector] = { closure(.init(view: $0, context: $1), $2) }
-            return self
-        }
-
-        init(selector: Selector, list: List, toClosure: @escaping (Closure) -> (ListContext<View>, Input) -> Output) {
-            self.selector = selector
-            self.list = list
-            self.listCoordinator = list.listCoordinator
-            var context = list.listCoordinatorContext
-            context.selectors.insert(selector)
-            self.listCoordinatorContext = context
-            self.toClosure = toClosure
-        }
+    public func callAsFunction(closure: Closure) -> Self {
+        toTarget(closure: toClosure(closure))
     }
 
-    public struct IndexFunction<List: DataSource, View, Input, Output, Closure, Index> {
-        public let selector: Selector
-        public let hasSectionIndex: Bool
-        public let list: List
-        public let listCoordinator: ListCoordinator
-        public var listCoordinatorContext: ListCoordinatorContext
-        let indexForInput: (Input) -> Index
-        let toClosure: (Closure) -> (ListIndexContext<View, Index>, Input) -> Output
+    public func callAsFunction(_ output: Output) -> Self where Output: FunctionOutput {
+        toTarget { _, _ in output }
+    }
 
-        public func callAsFunction(closure: Closure) -> Self {
-            toTarget(closure: toClosure(closure))
-        }
+    func toTarget(closure: @escaping (ListContext<View>, Input) -> Output) -> Self {
+        var function = self
+        function.listCoordinatorContext.functions[selector] = { closure(.init(view: $0, context: $1), $2) }
+        return self
+    }
 
-        public func callAsFunction(_ output: Output) -> Self where Output: FunctionOutput {
-            toTarget { _, _ in output }
-        }
-
-        public func callAsFunction(
-            closure: @escaping (ListIndexContext<View, Index>, List.ContainType) -> Output
-        ) -> Self where Closure == (ListIndexContext<View, Index>) -> Output, List: ContainerDataSource, Index == IndexPath {
-            toTarget { context, _ in
-                closure(context, context.containedType as! List.ContainType)
-            }
-        }
-
-        func toTarget(
-            closure: @escaping (ListIndexContext<View, Index>, Input) -> Output
-        ) -> Self {
-            var function = self
-            function.listCoordinatorContext.functions[selector] = {
-                closure(.init(view: $0, index: $3, offset: $4, context: $1), $2)
-            }
-            if hasSectionIndex {
-                function.listCoordinatorContext.section.sectioned = true
-            }
-            return function
-        }
-
-        init(
-            selector: Selector,
-            hasSectionIndex: Bool,
-            list: List,
-            indexForInput: @escaping (Input) -> Index,
-            toClosure: @escaping (Closure) -> (ListIndexContext<View, Index>, Input) -> Output
-        ) {
-            self.selector = selector
-            self.hasSectionIndex = hasSectionIndex
-            self.list = list
-            self.listCoordinator = list.listCoordinator
-            var context = list.listCoordinatorContext
-            context.selectors.insert(selector)
-            self.listCoordinatorContext = context
-            self.indexForInput = indexForInput
-            self.toClosure = toClosure
-        }
+    init(selector: Selector, list: List, toClosure: @escaping (Closure) -> (ListContext<View>, Input) -> Output) {
+        self.selector = selector
+        self.list = list
+        self.listCoordinator = list.listCoordinator
+        var context = list.listCoordinatorContext
+        context.selectors.insert(selector)
+        self.listCoordinatorContext = context
+        self.toClosure = toClosure
     }
 }
 
-extension ListDelegate.Function: ListAdapter { }
-extension ListDelegate.Function: TableList where View == TableView { }
-extension ListDelegate.Function: CollectionList where View == CollectionView { }
+public struct IndexFunction<List: DataSource, View, Input, Output, Closure, Index> {
+    public let selector: Selector
+    public let hasSectionIndex: Bool
+    public let list: List
+    public let listCoordinator: ListCoordinator
+    public var listCoordinatorContext: ListCoordinatorContext
+    let indexForInput: (Input) -> Index
+    let toClosure: (Closure) -> (ListIndexContext<View, Index>, Input) -> Output
 
-extension ListDelegate.IndexFunction: ListAdapter { }
-extension ListDelegate.IndexFunction: TableList where View == TableView { }
-extension ListDelegate.IndexFunction: CollectionList where View == CollectionView { }
+    public func callAsFunction(closure: Closure) -> Self {
+        toTarget(closure: toClosure(closure))
+    }
+
+    public func callAsFunction(_ output: Output) -> Self where Output: FunctionOutput {
+        toTarget { _, _ in output }
+    }
+
+    public func callAsFunction(
+        closure: @escaping (ListIndexContext<View, Index>, List.ContainType) -> Output
+    ) -> Self where Closure == (ListIndexContext<View, Index>) -> Output, List: ContainerDataSource, Index == IndexPath {
+        toTarget { context, _ in
+            closure(context, context.containedType as! List.ContainType)
+        }
+    }
+
+    func toTarget(
+        closure: @escaping (ListIndexContext<View, Index>, Input) -> Output
+    ) -> Self {
+        var function = self
+        function.listCoordinatorContext.functions[selector] = {
+            closure(.init(view: $0, index: $3, offset: $4, context: $1), $2)
+        }
+        if hasSectionIndex {
+            function.listCoordinatorContext.section.sectioned = true
+        }
+        return function
+    }
+
+    init(
+        selector: Selector,
+        hasSectionIndex: Bool,
+        list: List,
+        indexForInput: @escaping (Input) -> Index,
+        toClosure: @escaping (Closure) -> (ListIndexContext<View, Index>, Input) -> Output
+    ) {
+        self.selector = selector
+        self.hasSectionIndex = hasSectionIndex
+        self.list = list
+        self.listCoordinator = list.listCoordinator
+        var context = list.listCoordinatorContext
+        context.selectors.insert(selector)
+        self.listCoordinatorContext = context
+        self.indexForInput = indexForInput
+        self.toClosure = toClosure
+    }
+}
+
+extension Function: ListAdapter { }
+extension Function: TableList where View == TableView { }
+extension Function: CollectionList where View == CollectionView { }
+
+extension IndexFunction: ListAdapter { }
+extension IndexFunction: TableList where View == TableView { }
+extension IndexFunction: CollectionList where View == CollectionView { }
 
 extension String: FunctionOutput { }
 extension Bool: FunctionOutput { }
@@ -158,7 +156,7 @@ extension DataSource {
     func toFunction<Input, Output, Closure, View>(
         _ selector: Selector,
         _ toClosure: @escaping (Closure) -> (ListKit.ListContext<View>, Input) -> Output
-    ) -> ListDelegate.Function<Self, View, Input, Output, Closure> {
+    ) -> Function<Self, View, Input, Output, Closure> {
         .init(selector: selector, list: self, toClosure: toClosure)
     }
 
@@ -166,14 +164,14 @@ extension DataSource {
         _ selector: Selector,
         _ indexForInput: @escaping (Input) -> Index,
         _ toClosure: @escaping (Closure) -> (ListIndexContext<View, Index>, Input) -> Output
-    ) -> ListDelegate.IndexFunction<Self, View, Input, Output, Closure, Index> {
+    ) -> IndexFunction<Self, View, Input, Output, Closure, Index> {
         .init(selector: selector, hasSectionIndex: Index.isSection, list: self, indexForInput: indexForInput, toClosure: toClosure)
     }
 
     func toFunction<Output, Closure, View, Index: ListIndex>(
         _ selector: Selector,
         _ toClosure: @escaping (Closure) -> (ListIndexContext<View, Index>, Index) -> Output
-    ) -> ListDelegate.IndexFunction<Self, View, Index, Output, Closure, Index> {
+    ) -> IndexFunction<Self, View, Index, Output, Closure, Index> {
         .init(selector: selector, hasSectionIndex: Index.isSection, list: self, indexForInput: { $0 }, toClosure: toClosure)
     }
 }

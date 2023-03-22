@@ -1,18 +1,18 @@
 import ListKit
 import UIKit
 
-public class ContentsViewController: UIViewController, UpdatableListAdapter {
+public class ContentsViewController: UIViewController, TableListAdapter {
     public typealias Content = (title: String, viewController: UIViewController.Type)
     public var models = [Content]()
 
-    public var list: ListAdaptation<Model, UITableView> {
+    public var list: TableList {
         Models(models)
-            .cellForRow { (context, model) -> UITableViewCell in
+            .cellForRow { context, model -> UITableViewCell in
                 let labelCell = context.dequeueReusableCell(UITableViewCell.self)
                 labelCell.textLabel?.text = model.title
                 return labelCell
             }
-            .didSelectRow { [unowned navigationController] (context, model) in
+            .didSelectRow { [unowned navigationController] context, model in
                 context.deselect(animated: true)
                 let viewController = model.viewController.init()
                 viewController.title = model.title

@@ -3,8 +3,7 @@
 import ListKit
 import UIKit
 
-public class DoubleListViewController: UIViewController, UpdatableListAdapter {
-
+public class DoubleListViewController: UIViewController, UpdatableTableListAdapter {
     private let _models = ["Roy", "Pinlin", "Zhiyi", "Frain", "Jack", "Cookie", "Kubrick", "Jeremy", "Juhao", "Herry"]
 
     var toggle = false
@@ -16,17 +15,17 @@ public class DoubleListViewController: UIViewController, UpdatableListAdapter {
         return shuffledModels.shuffled()
     }
 
-    public var list: ListAdaptation<Any, UITableView> {
-//        didEndDragging { _, _ in
-//            print("didEndDragging")
-//        }
-//        willBeginDragging { (context) in
-//            print("didDrag")
-//        }
+    public var list: TableList {
         Models(models)
             .cellForRow()
-            .didSelectRow { [unowned self] (context, model) in
+            .didSelectRow { _, _ in //[unowned self] (context, model) in
 //                performUpdate(.remove(at: context.item))
+            }
+            .didEndDragging { _, bool in
+                print("didEndDragging \(bool)")
+            }
+            .willBeginDragging { _ in
+                print("didDrag")
             }
     }
 
@@ -105,7 +104,7 @@ extension DoubleListViewController {
     }
 
     @objc func refresh() {
-        performUpdate()
+//        performUpdate()
     }
 
     @objc func add() {

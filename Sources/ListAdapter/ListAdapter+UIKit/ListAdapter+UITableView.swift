@@ -17,10 +17,6 @@ public extension DataSource {
 
 public extension ListAdapter where View: UITableView {
     // MARK: - Providing Cells, Headers, and Footers
-    var cellForRow: ModelFunction<IndexPath, UITableViewCell, (ListModelContext) -> UITableViewCell> {
-        toFunction(#selector(UITableViewDataSource.tableView(_:cellForRowAt:)), toClosure())
-    }
-
     var headerTitleForSection: SectionFunction<Int, String?, (ListSectionContext) -> String?> {
         toFunction(#selector(UITableViewDataSource.tableView(_:titleForHeaderInSection:)), toClosure())
     }

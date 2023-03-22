@@ -3,7 +3,7 @@ import UIKit
 
 // swiftlint:disable comment_spacing orphaned_doc_comment
 
-public class TestListViewController: UIViewController, UpdatableListAdapter {
+public class TestListViewController: UIViewController, UpdatableTableListAdapter {
     public var toggle = true
 
 //    lazy var itemSource = ItemSource()
@@ -44,19 +44,19 @@ public class TestListViewController: UIViewController, UpdatableListAdapter {
 //        }
 //    }
 
-    public var list: ListAdaptation<Model, UITableView> {
+    public var list: TableList {
         Models([1, 2, 3])
             .cellForRow()
             .headerTitleForSection("sections")
-        if toggle {
-            AnyListAdapter {
-                Models([1, 2, 3])
-                    .cellForRow()
-                Single(toggle)
-                    .cellForRow()
-            }
-            .headerTitleForSection("sections")
-        }
+//        if toggle {
+//            AnyListAdapter {
+//                Models([1, 2, 3])
+//                    .cellForRow()
+//                Single(toggle)
+//                    .cellForRow()
+//            }
+//            .headerTitleForSection("sections")
+//        }
     }
 
 //    public var source: AnyTableSources {
@@ -100,7 +100,7 @@ public class TestListViewController: UIViewController, UpdatableListAdapter {
 
     @objc func refresh() {
         toggle.toggle()
-        performUpdate()
+//        performUpdate()
     }
 
     func batchRemove(at item: Int) {

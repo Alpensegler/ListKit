@@ -19,10 +19,6 @@ public extension DataSource {
 
 public extension ListAdapter where View: UICollectionView {
     // MARK: - Getting Views for Items
-    var cellForItem: ModelFunction<IndexPath, UICollectionViewCell, (ListModelContext) -> UICollectionViewCell> {
-        toFunction(#selector(UICollectionViewDataSource.collectionView(_:cellForItemAt:)), toClosure())
-    }
-
     var supplementaryViewForItem: ModelFunction<(IndexPath, String), UICollectionReusableView, (ListModelContext, CollectionView.SupplementaryViewType) -> UICollectionReusableView> {
         toFunction(#selector(UICollectionViewDataSource.collectionView(_:viewForSupplementaryElementOfKind:at:)), \.0) { closure in { context, input in closure(context, .init(rawValue: input.1)) } }
     }

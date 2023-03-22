@@ -9,12 +9,13 @@ import Foundation
 
 public protocol FunctionOutput { }
 
-public struct Function<List: DataSource, View, Input, Output, Closure> {
+public struct Function<List: DataSource, V, Input, Output, Closure>: ListAdapter {
+    public typealias View = V
     public let selector: Selector
     public let list: List
     public var listCoordinator: ListCoordinator
     public var listCoordinatorContext: ListCoordinatorContext
-    let toClosure: (Closure) -> (ListContext<View>, Input) -> Output
+    let toClosure: (Closure) -> (ListContext<V>, Input) -> Output
 
     public func callAsFunction(closure: Closure) -> Self {
         toTarget(closure: toClosure(closure))
@@ -24,13 +25,13 @@ public struct Function<List: DataSource, View, Input, Output, Closure> {
         toTarget { _, _ in output }
     }
 
-    func toTarget(closure: @escaping (ListContext<View>, Input) -> Output) -> Self {
+    func toTarget(closure: @escaping (ListContext<V>, Input) -> Output) -> Self {
         var function = self
         function.listCoordinatorContext.functions[selector] = { closure(.init(view: $0, context: $1), $2) }
         return self
     }
 
-    init(selector: Selector, list: List, toClosure: @escaping (Closure) -> (ListContext<View>, Input) -> Output) {
+    init(selector: Selector, list: List, toClosure: @escaping (Closure) -> (ListContext<V>, Input) -> Output) {
         self.selector = selector
         self.list = list
         self.listCoordinator = list.listCoordinator
@@ -41,14 +42,15 @@ public struct Function<List: DataSource, View, Input, Output, Closure> {
     }
 }
 
-public struct IndexFunction<List: DataSource, View, Input, Output, Closure, Index> {
+public struct IndexFunction<List: DataSource, V, Input, Output, Closure, Index>: ListAdapter {
+    public typealias View = V
     public let selector: Selector
     public let hasSectionIndex: Bool
     public let list: List
     public let listCoordinator: ListCoordinator
     public var listCoordinatorContext: ListCoordinatorContext
     let indexForInput: (Input) -> Index
-    let toClosure: (Closure) -> (ListIndexContext<View, Index>, Input) -> Output
+    let toClosure: (Closure) -> (ListIndexContext<V, Index>, Input) -> Output
 
     public func callAsFunction(closure: Closure) -> Self {
         toTarget(closure: toClosure(closure))
@@ -59,15 +61,15 @@ public struct IndexFunction<List: DataSource, View, Input, Output, Closure, Inde
     }
 
     public func callAsFunction(
-        closure: @escaping (ListIndexContext<View, Index>, List.ContainType) -> Output
-    ) -> Self where Closure == (ListIndexContext<View, Index>) -> Output, List: ContainerDataSource, Index == IndexPath {
+        closure: @escaping (ListIndexContext<V, Index>, List.ContainType) -> Output
+    ) -> Self where Closure == (ListIndexContext<V, Index>) -> Output, List: ContainerDataSource, Index == IndexPath {
         toTarget { context, _ in
             closure(context, context.containedType as! List.ContainType)
         }
     }
 
     func toTarget(
-        closure: @escaping (ListIndexContext<View, Index>, Input) -> Output
+        closure: @escaping (ListIndexContext<V, Index>, Input) -> Output
     ) -> Self {
         var function = self
         function.listCoordinatorContext.functions[selector] = {
@@ -84,7 +86,7 @@ public struct IndexFunction<List: DataSource, View, Input, Output, Closure, Inde
         hasSectionIndex: Bool,
         list: List,
         indexForInput: @escaping (Input) -> Index,
-        toClosure: @escaping (Closure) -> (ListIndexContext<View, Index>, Input) -> Output
+        toClosure: @escaping (Closure) -> (ListIndexContext<V, Index>, Input) -> Output
     ) {
         self.selector = selector
         self.hasSectionIndex = hasSectionIndex
@@ -98,13 +100,14 @@ public struct IndexFunction<List: DataSource, View, Input, Output, Closure, Inde
     }
 }
 
-extension Function: ListAdapter { }
 extension Function: TableList where View == TableView { }
 extension Function: CollectionList where View == CollectionView { }
 
-extension IndexFunction: ListAdapter { }
 extension IndexFunction: TableList where View == TableView { }
 extension IndexFunction: CollectionList where View == CollectionView { }
+extension IndexFunction: ContainerDataSource where List: ContainerDataSource {
+    public typealias ContainType = List.ContainType
+}
 
 extension String: FunctionOutput { }
 extension Bool: FunctionOutput { }

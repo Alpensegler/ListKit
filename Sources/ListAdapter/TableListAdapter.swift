@@ -14,8 +14,24 @@ public extension TableListAdapter where List == TableList {
     var listCoordinatorContext: ListCoordinatorContext { list.listCoordinatorContext }
 }
 
-public extension UpdatableListAdapter where List == TableList {
+public extension UpdatableListAdapter where Self: TableListAdapter, List == TableList {
+    var listCoordinator: ListCoordinator { list.listCoordinator }
     var listCoordinatorContext: ListCoordinatorContext {
         listCoordinatorContext(from: list)
     }
+    
+    func performReload(
+        animated: Bool = true,
+        completion: ((ListView, Bool) -> Void)? = nil
+    ) {
+        _perform(reload: true, animated: animated, coordinatorGetter: list.listCoordinatorContext, completion: completion)
+    }
+
+    func performUpdate(
+        animated: Bool = true,
+        completion: ((ListView, Bool) -> Void)? = nil
+    ) {
+        _perform(reload: false, animated: animated, coordinatorGetter: list.listCoordinatorContext, completion: completion)
+    }
+    
 }

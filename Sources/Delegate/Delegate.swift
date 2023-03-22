@@ -71,9 +71,9 @@ extension Delegate {
             next.map { sections.append($0) }
             counts = sections
         }
-        if coordinator.needSetupWithListView {
+        if context.coordinator.needSetupWithListView {
             var storages = [CoordinatorStorage: [IndexPath]]()
-            coordinator.setupWithListView(offset: .zero, storages: &storages)
+            context.coordinator.setupWithListView(offset: .zero, storages: &storages)
             if let storage = context.storage {
                 storages[storage, default: []].append(.init())
             }

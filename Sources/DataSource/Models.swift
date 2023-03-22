@@ -10,7 +10,7 @@
 import Foundation
 
 @propertyWrapper
-public struct Models<C: Collection, ContainType>: ContainerDataSource, ListAdapter where C.Element == ContainType {
+public struct Models<C: Collection, ContainType>: ContainerDataSource where C.Element == ContainType {
     struct Coordinator: ListCoordinator {
         var list: ContiguousArray<ContainType>
         init(list: C) {

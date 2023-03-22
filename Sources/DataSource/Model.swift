@@ -10,7 +10,7 @@
 import Foundation
 
 @propertyWrapper
-public struct Model<ContainType>: ContainerDataSource, ListAdapter {
+public struct Model<ContainType>: ContainerDataSource {
     struct Coordinator: ListCoordinator {
         var list: ContainType
     }

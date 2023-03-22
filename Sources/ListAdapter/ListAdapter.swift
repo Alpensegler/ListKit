@@ -35,7 +35,9 @@ public extension ListAdapter where View: ListView {
 }
 
 @resultBuilder
-public struct ListBuilder {
+public enum ListBuilder { }
+
+public extension ListBuilder {
     static func buildPartialBlock<D: DataSource>(first: D) -> D {
         first
     }

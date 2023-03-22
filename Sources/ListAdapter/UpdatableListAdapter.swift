@@ -49,11 +49,23 @@ public extension UpdatableListAdapter where List == DataSource {
         listCoordinatorContext(from: list)
     }
 
-//    var currentSource: SourceBase.Source { listCoordinator.source }
+    func performReload(
+        animated: Bool = true,
+        completion: ((ListView, Bool) -> Void)? = nil
+    ) {
+        _perform(reload: true, animated: animated, coordinatorGetter: list.listCoordinatorContext, completion: completion)
+    }
 
-    private func _perform(
+    func performUpdate(animated: Bool = true, completion: ((ListView, Bool) -> Void)? = nil) {
+        _perform(reload: false, animated: animated, coordinatorGetter: list.listCoordinatorContext, completion: completion)
+    }
+}
+
+extension UpdatableListAdapter {
+    func _perform(
         reload: Bool,
         animated: Bool,
+        coordinatorGetter: @autoclosure @escaping () -> ListCoordinatorContext,
         completion: ((ListView, Bool) -> Void)? = nil
     ) {
 //        if update.isEmpty { return }
@@ -62,9 +74,9 @@ public extension UpdatableListAdapter where List == DataSource {
         }
         let isMainThread = Thread.isMainThread
 //        var update = update
-        var context: ListCoordinatorContext!
+        var context = coordinatorGetter()
         let work = {
-            context = self.list.listCoordinatorContext
+            context = coordinatorGetter()
 //            Log.log("----start-update: \(update.updateType)----")
 //            if update.needSource, update.source == nil {
 //                update.source = self.sourceBase.source
@@ -82,17 +94,6 @@ public extension UpdatableListAdapter where List == DataSource {
             }
         }
         _ = isMainThread ? afterWork() : DispatchQueue.main.sync(execute: afterWork)
-    }
-
-    func performReload(
-        animated: Bool = true,
-        completion: ((ListView, Bool) -> Void)? = nil
-    ) {
-        _perform(reload: true, animated: animated, completion: completion)
-    }
-
-    func performUpdate(animated: Bool = true, completion: ((ListView, Bool) -> Void)? = nil) {
-        _perform(reload: false, animated: animated, completion: completion)
     }
 }
 

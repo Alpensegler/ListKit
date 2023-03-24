@@ -38,12 +38,12 @@ public struct ListCoordinatorContext {
         case (let .items(itemCount), false):
             count = .items(itemCount == 0 && section.removeEmpty ? nil : itemCount)
         case (.sections(let pre, var sections, let next), true):
-            if section.removeEmpty { sections = sections.filter { $0 == 0 } }
+            if section.removeEmpty { sections = sections.filter { $0 != 0 } }
             pre.map { count in if count != 0 || !section.removeEmpty { sections.insert(count, at: 0) } }
             next.map { count in if count != 0 || !section.removeEmpty { sections.append(count) } }
             count = .sections(nil, sections, nil)
         case (var .sections(pre, sections, next), false) where section.removeEmpty:
-            sections = sections.filter { $0 == 0 }
+            sections = sections.filter { $0 != 0 }
             if pre == 0 { pre = nil }
             if next == 0 { next = nil }
             count = .sections(pre, sections, next)

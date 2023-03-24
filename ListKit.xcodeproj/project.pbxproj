@@ -11,6 +11,10 @@
 		3CB1153029B75FAF00312263 /* TupleSources.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CB1152F29B75FAF00312263 /* TupleSources.swift */; };
 		3CB1153229B76CB500312263 /* TableListAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CB1153129B76CB500312263 /* TableListAdapter.swift */; };
 		3CB1153629B7770F00312263 /* CollectionListAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CB1153529B7770F00312263 /* CollectionListAdapter.swift */; };
+		3CD3EEC529CD4749003DE3CB /* ListKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "ListKit::ListKit::Product" /* ListKit.framework */; };
+		3CD3EECB29CD4762003DE3CB /* ListCoordinatorContextTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CD3EEBC29CD46E0003DE3CB /* ListCoordinatorContextTests.swift */; };
+		3CD3EECD29CD4775003DE3CB /* ListCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CD3EECC29CD4775003DE3CB /* ListCoordinatorTests.swift */; };
+		3CD3EED129CDB15E003DE3CB /* DataSourcesCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CD3EED029CDB15E003DE3CB /* DataSourcesCoordinator.swift */; };
 		F3040D81238B21560055E6E7 /* ListCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3040D80238B21560055E6E7 /* ListCoordinator.swift */; };
 		F304A6DF239E94CC00133D14 /* Context+UIKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = F304A6DE239E94CC00133D14 /* Context+UIKit.swift */; };
 		F304A6E1239E95DC00133D14 /* ListView+NSCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F304A6E0239E95DB00133D14 /* ListView+NSCollectionView.swift */; };
@@ -73,6 +77,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		3CD3EEC629CD4749003DE3CB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = OBJ_1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = "ListKit::ListKit";
+			remoteInfo = ListKit;
+		};
 		F36550362451B6910038172F /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = OBJ_1 /* Project object */;
@@ -101,6 +112,10 @@
 		3CB1152F29B75FAF00312263 /* TupleSources.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TupleSources.swift; sourceTree = "<group>"; };
 		3CB1153129B76CB500312263 /* TableListAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableListAdapter.swift; sourceTree = "<group>"; };
 		3CB1153529B7770F00312263 /* CollectionListAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionListAdapter.swift; sourceTree = "<group>"; };
+		3CD3EEBC29CD46E0003DE3CB /* ListCoordinatorContextTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListCoordinatorContextTests.swift; sourceTree = "<group>"; };
+		3CD3EEC129CD4749003DE3CB /* ListKitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ListKitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		3CD3EECC29CD4775003DE3CB /* ListCoordinatorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListCoordinatorTests.swift; sourceTree = "<group>"; };
+		3CD3EED029CDB15E003DE3CB /* DataSourcesCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSourcesCoordinator.swift; sourceTree = "<group>"; };
 		F3040D80238B21560055E6E7 /* ListCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListCoordinator.swift; sourceTree = "<group>"; };
 		F304A6DE239E94CC00133D14 /* Context+UIKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Context+UIKit.swift"; sourceTree = "<group>"; };
 		F304A6E0239E95DB00133D14 /* ListView+NSCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ListView+NSCollectionView.swift"; sourceTree = "<group>"; };
@@ -113,7 +128,6 @@
 		F314FAE123BC71EA0060985E /* Delegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Delegate.swift; sourceTree = "<group>"; };
 		F329598223A10B7D001D6063 /* ListViewStorage+UIKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ListViewStorage+UIKit.swift"; sourceTree = "<group>"; };
 		F32F922A25B6FAAC00C55F7A /* ListDelegate+IndexFunction+CallAsFunction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ListDelegate+IndexFunction+CallAsFunction.swift"; sourceTree = "<group>"; };
-		F33FBC3A234F26B60054BA38 /* ListKitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListKitTests.swift; sourceTree = "<group>"; };
 		F33FBC3C234F33A70054BA38 /* DataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSource.swift; sourceTree = "<group>"; };
 		F34E7F3B24D6D3B600DE3844 /* ListContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListContext.swift; sourceTree = "<group>"; };
 		F354B6F524C38A0C00E9D19B /* BatchUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatchUpdate.swift; sourceTree = "<group>"; };
@@ -167,6 +181,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		3CD3EEBE29CD4749003DE3CB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3CD3EEC529CD4749003DE3CB /* ListKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F36550142451B4050038172F /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -202,6 +224,7 @@
 			children = (
 				F372F6E5248E52E9001B42D5 /* ListCoordinatorContext.swift */,
 				F3040D80238B21560055E6E7 /* ListCoordinator.swift */,
+				3CD3EED029CDB15E003DE3CB /* DataSourcesCoordinator.swift */,
 			);
 			path = Coordinator;
 			sourceTree = "<group>";
@@ -239,7 +262,8 @@
 		F33FBC39234F26B60054BA38 /* ListKitTests */ = {
 			isa = PBXGroup;
 			children = (
-				F33FBC3A234F26B60054BA38 /* ListKitTests.swift */,
+				3CD3EECC29CD4775003DE3CB /* ListCoordinatorTests.swift */,
+				3CD3EEBC29CD46E0003DE3CB /* ListCoordinatorContextTests.swift */,
 			);
 			path = ListKitTests;
 			sourceTree = "<group>";
@@ -385,6 +409,7 @@
 			children = (
 				"ListKit::ListKit::Product" /* ListKit.framework */,
 				F36550172451B4060038172F /* ListKitExample.app */,
+				3CD3EEC129CD4749003DE3CB /* ListKitTests.xctest */,
 			);
 			name = Products;
 			sourceTree = BUILT_PRODUCTS_DIR;
@@ -421,6 +446,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		3CD3EEC029CD4749003DE3CB /* ListKitTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3CD3EEC829CD4749003DE3CB /* Build configuration list for PBXNativeTarget "ListKitTests" */;
+			buildPhases = (
+				3CD3EEBD29CD4749003DE3CB /* Sources */,
+				3CD3EEBE29CD4749003DE3CB /* Frameworks */,
+				3CD3EEBF29CD4749003DE3CB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				3CD3EEC729CD4749003DE3CB /* PBXTargetDependency */,
+			);
+			name = ListKitTests;
+			productName = ListKitTests;
+			productReference = 3CD3EEC129CD4749003DE3CB /* ListKitTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		F36550162451B4050038172F /* ListKitExample */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = F365502A2451B4070038172F /* Build configuration list for PBXNativeTarget "ListKitExample" */;
@@ -477,9 +520,13 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftMigration = 9999;
-				LastSwiftUpdateCheck = 1130;
+				LastSwiftUpdateCheck = 1420;
 				LastUpgradeCheck = 1400;
 				TargetAttributes = {
+					3CD3EEC029CD4749003DE3CB = {
+						CreatedOnToolsVersion = 14.2;
+						ProvisioningStyle = Automatic;
+					};
 					F36550162451B4050038172F = {
 						CreatedOnToolsVersion = 11.3.1;
 						ProvisioningStyle = Automatic;
@@ -502,11 +549,19 @@
 				"ListKit::ListKit" /* ListKit */,
 				"ListKit::SwiftPMPackageDescription" /* ListKitPackageDescription */,
 				F36550162451B4050038172F /* ListKitExample */,
+				3CD3EEC029CD4749003DE3CB /* ListKitTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		3CD3EEBF29CD4749003DE3CB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F36550152451B4050038172F /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -520,6 +575,15 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		3CD3EEBD29CD4749003DE3CB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3CD3EECD29CD4775003DE3CB /* ListCoordinatorTests.swift in Sources */,
+				3CD3EECB29CD4762003DE3CB /* ListCoordinatorContextTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F36550132451B4050038172F /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -566,6 +630,7 @@
 				F312515C239E352100E77969 /* ListDelegates+UITableView.swift in Sources */,
 				F33FBC3D234F33A70054BA38 /* DataSource.swift in Sources */,
 				3C275A5D28A6562600975E07 /* ListAdapter.swift in Sources */,
+				3CD3EED129CDB15E003DE3CB /* DataSourcesCoordinator.swift in Sources */,
 				F304A6DF239E94CC00133D14 /* Context+UIKit.swift in Sources */,
 				F37BF3CC23968B7E0095C419 /* Sections.swift in Sources */,
 				F372F6E6248E52E9001B42D5 /* ListCoordinatorContext.swift in Sources */,
@@ -602,6 +667,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		3CD3EEC729CD4749003DE3CB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = "ListKit::ListKit" /* ListKit */;
+			targetProxy = 3CD3EEC629CD4749003DE3CB /* PBXContainerItemProxy */;
+		};
 		F36550372451B6910038172F /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = "ListKit::ListKit" /* ListKit */;
@@ -621,6 +691,82 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		3CD3EEC929CD4749003DE3CB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				MACOSX_DEPLOYMENT_TARGET = 13.1;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.Alpensegler.ListKitTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		3CD3EECA29CD4749003DE3CB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				MACOSX_DEPLOYMENT_TARGET = 13.1;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.Alpensegler.ListKitTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		F36550282451B4070038172F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -932,6 +1078,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		3CD3EEC829CD4749003DE3CB /* Build configuration list for PBXNativeTarget "ListKitTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3CD3EEC929CD4749003DE3CB /* Debug */,
+				3CD3EECA29CD4749003DE3CB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		F365502A2451B4070038172F /* Build configuration list for PBXNativeTarget "ListKitExample" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

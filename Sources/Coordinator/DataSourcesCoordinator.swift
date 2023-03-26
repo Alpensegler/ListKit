@@ -139,13 +139,13 @@ extension DataSourcesCoordinator {
                 addIndices(pre: nil, next: next)
                 count = .sections(totalCount + pre, sections, next)
             case let (.sections(pre, sections, next), .items(elementCount)):
-                contextsOffsets.append((sectionOffset: sections.count, itemOffset: next ?? 0))
+                contextsOffsets.append((sectionOffset: sections.count + (pre == nil ? 0 : 1), itemOffset: next ?? 0))
                 addIndices(pre: next, next: elementCount)
                 count = .sections(pre, sections, next + elementCount)
             case let (.sections(pre, sections, next), .sections(elementPre, elementSections, elementNext)):
                 let sectionOffset = elementPre == nil ? (next == nil ? 0 : 1) : 0
                 let itemOffset = elementPre == nil ? 0 : (next ?? 0)
-                contextsOffsets.append((sectionOffset, itemOffset))
+                contextsOffsets.append((sectionOffset + sections.count + (pre == nil ? 0 : 1), itemOffset))
                 addIndices(pre: next, next: elementPre)
                 elementSections.forEach { indices.append((.init(repeating: index, count: $0), index)) }
                 addIndices(pre: nil, next: elementNext)

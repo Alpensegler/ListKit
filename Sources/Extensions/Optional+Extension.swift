@@ -81,7 +81,9 @@ extension Optional.Coordinator {
 }
 
 func +(lhs: Int?, rhs: Int?) -> Int? {
-    lhs.flatMap { count in rhs.map { $0 + count } }
+    guard let lhs = lhs else { return rhs }
+    guard let rhs = rhs else { return lhs }
+    return lhs + rhs
 }
 
 func + (lhs: (() -> Void)?, rhs: (() -> Void)?) -> (() -> Void)? {

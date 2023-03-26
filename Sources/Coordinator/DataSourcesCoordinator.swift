@@ -116,7 +116,7 @@ extension DataSourcesCoordinator {
             needSetupWithListView = needSetupWithListView || context.storage != nil || context.coordinator.needSetupWithListView
             subselectors.formUnion(context.selectors)
 
-            func addIndices(pre: Int?, next: Int?) {
+            func addIndices(pre: Int? = nil, next: Int?) {
                 guard let next = next else { return }
                 if pre == nil {
                     indices.append((.init(repeating: index, count: next), nil))
@@ -124,33 +124,35 @@ extension DataSourcesCoordinator {
                     indices[indices.count - 1].indices.append(repeatElement: index, count: next)
                 }
             }
+            
+            func appendIndices(sectionOffset: Int, itemOffset: Int, preNext: Int?, nextPre: Int?, sections: [Int]? = nil, nextNext: Int? = nil) {
+                contextsOffsets.append((sectionOffset, itemOffset))
+                addIndices(pre: preNext, next: nextPre)
+                sections?.forEach { indices.append((.init(repeating: index, count: $0), index)) }
+                addIndices(next: nextNext)
+            }
 
             switch (count, context.count) {
-            case let (.items(totalCount), .items(elementCount)):
-                contextsOffsets.append((sectionOffset: 0, itemOffset: totalCount ?? 0))
-                addIndices(pre: totalCount, next: elementCount)
-                count = .items(totalCount + elementCount)
-            case let (.items(totalCount), .sections(pre, sections, next)):
-                let sectionOffset = pre == nil ? (totalCount == nil ? 0 : 1) : 0
-                let itemOffset = pre == nil ? 0 : (totalCount ?? 0)
-                contextsOffsets.append((sectionOffset, itemOffset))
-                addIndices(pre: totalCount, next: pre)
-                sections.forEach { indices.append((.init(repeating: index, count: $0), index)) }
-                addIndices(pre: nil, next: next)
-                count = .sections(totalCount + pre, sections, next)
-            case let (.sections(pre, sections, next), .items(elementCount)):
-                contextsOffsets.append((sectionOffset: sections.count + (pre == nil ? 0 : 1), itemOffset: next ?? 0))
-                addIndices(pre: next, next: elementCount)
-                count = .sections(pre, sections, next + elementCount)
-            case let (.sections(pre, sections, next), .sections(elementPre, elementSections, elementNext)):
-                let sectionOffset = elementPre == nil ? (next == nil ? 0 : 1) : 0
-                let itemOffset = elementPre == nil ? 0 : (next ?? 0)
-                contextsOffsets.append((sectionOffset + sections.count + (pre == nil ? 0 : 1), itemOffset))
-                addIndices(pre: next, next: elementPre)
-                elementSections.forEach { indices.append((.init(repeating: index, count: $0), index)) }
-                addIndices(pre: nil, next: elementNext)
-                count = .sections(pre, sections + ((next + elementPre).map { [$0] } ?? []) + elementSections, elementNext)
+            case let (.items(preNext), .items(nextPre)):
+                appendIndices(sectionOffset: 0, itemOffset: preNext ?? 0, preNext: preNext, nextPre: nextPre)
+                count = .items(preNext + nextPre)
+            case let (.items(preNext), .sections(nextPre, sections, nextNext)):
+                let sectionOffset = nextPre == nil ? (preNext == nil ? 0 : 1) : 0
+                let itemOffset = nextPre == nil ? 0 : (preNext ?? 0)
+                appendIndices(sectionOffset: sectionOffset, itemOffset: itemOffset, preNext: preNext, nextPre: nextPre, sections: sections, nextNext: nextNext)
+                count = .sections(preNext + nextPre, sections, nextNext)
+            case let (.sections(prePre, sections, preNext), .items(nextPre)):
+                let sectionOffset = sections.count + (prePre == nil ? 0 : 1)
+                let itemOffset = preNext ?? 0
+                appendIndices(sectionOffset: sectionOffset, itemOffset: itemOffset, preNext: preNext, nextPre: nextPre)
+                count = .sections(prePre, sections, preNext + nextPre)
+            case let (.sections(prePre, preSections, preNext), .sections(nextPre, nextSections, nextNext)):
+                let sectionOffset = (nextPre == nil ? (preNext == nil ? 0 : 1) : 0) + preSections.count + (prePre == nil ? 0 : 1)
+                let itemOffset = nextPre == nil ? 0 : (preNext ?? 0)
+                appendIndices(sectionOffset: sectionOffset, itemOffset: itemOffset, preNext: preNext, nextPre: nextPre, sections: nextSections, nextNext: nextNext)
+                count = .sections(prePre, preSections + ((preNext + nextPre).map { [$0] } ?? []) + nextSections, nextNext)
             }
         }
     }
+
 }

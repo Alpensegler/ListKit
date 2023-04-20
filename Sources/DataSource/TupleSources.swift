@@ -18,7 +18,14 @@ public struct TupleSources<FirstSource: DataSource, SecondSource: DataSource>: D
     }
 
     public var list: ContiguousArray<ListCoordinatorContext>
-    public var listCoordinator: ListCoordinator { Coordinator(contexts: list) }
+    public var listCoordinator: ListCoordinator
+    public var listCoordinatorContext: ListCoordinatorContext
+
+    init(_ content: ContiguousArray<ListCoordinatorContext>) {
+        list = content
+        listCoordinator = Coordinator(contexts: content)
+        listCoordinatorContext = .init(coordinator: listCoordinator)
+    }
 }
 
 extension TupleSources: TableList where FirstSource: TableList, SecondSource: TableList { }
@@ -28,6 +35,11 @@ extension TupleSources: ListAdapter where FirstSource: ListAdapter, SecondSource
 }
 
 extension TupleSources.Coordinator {
+    init(contexts: ContiguousArray<ListCoordinatorContext>) {
+        self.contexts = contexts
+        configCount()
+    }
+
     func performUpdate(to coordinator: ListCoordinator) -> BatchUpdates {
         .reload(change: nil)
     }

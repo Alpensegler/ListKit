@@ -47,16 +47,15 @@ public class TestListViewController: UIViewController, UpdatableTableListAdapter
     public var list: TableList {
         Models([1, 2, 3])
             .cellForRow()
-            .headerTitleForSection("sections")
-//        if toggle {
-//            AnyListAdapter {
-//                Models([1, 2, 3])
-//                    .cellForRow()
-//                Single(toggle)
-//                    .cellForRow()
-//            }
-//            .headerTitleForSection("sections")
-//        }
+        if toggle {
+            buildList {
+                Models([4, 5, 6])
+                    .cellForRow()
+                Model(toggle)
+                    .cellForRow()
+            }
+            .headerTitleForSection("sections2")
+        }
     }
 
 //    public var source: AnyTableSources {
@@ -100,7 +99,7 @@ public class TestListViewController: UIViewController, UpdatableTableListAdapter
 
     @objc func refresh() {
         toggle.toggle()
-//        performUpdate()
+        performUpdate()
     }
 
     func batchRemove(at item: Int) {

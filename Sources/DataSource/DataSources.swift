@@ -23,36 +23,43 @@ where C.Element == ContainType, ContainType: DataSource {
     }
 
     public var list: C
-    public var listCoordinator: ListCoordinator { Coordinator(list) }
-    public var wrappedValue: C { list }
+    public let listCoordinator: ListCoordinator
+    public var listCoordinatorContext: ListCoordinatorContext
+    public var wrappedValue: C {
+        get { list }
+        _modify { yield &list }
+        set { list = newValue }
+    }
 
     public init(_ dataSources: C) {
-        self.list = dataSources
+        list = dataSources
+        listCoordinator = Coordinator(list: list)
+        listCoordinatorContext = .init(coordinator: listCoordinator)
     }
 
     public init(wrappedValue: C) {
-        self.list = wrappedValue
+        self.init(wrappedValue)
     }
-}
-
-extension DataSources: ListAdapter where ContainType: ListAdapter {
-    public typealias View = ContainType.View
 }
 
 extension DataSources: TableList where ContainType: TableList { }
 extension DataSources: CollectionList where ContainType: CollectionList { }
+extension DataSources: ListAdapter where ContainType: ListAdapter {
+    public typealias View = ContainType.View
+}
 
 extension DataSources.Coordinator {
-    init(_ list: C) {
+    init(list: C) {
         self.list = .init(list)
         self.contexts = list.mapContiguous { $0.listCoordinatorContext }
-    }
-
-    func performUpdate(to coordinator: ListCoordinator) -> BatchUpdates {
-        .reload(change: nil)
+        configCount()
     }
 
     func model(at indexPath: IndexPath) -> Any {
         list[indices[indexPath.section].indices[indexPath.item]]
+    }
+
+    func performUpdate(to coordinator: ListCoordinator) -> BatchUpdates {
+        .reload(change: nil)
     }
 }

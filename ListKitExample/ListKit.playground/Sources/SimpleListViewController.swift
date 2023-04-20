@@ -3,7 +3,7 @@
 import ListKit
 import UIKit
 
-public class DoubleListViewController: UIViewController, UpdatableTableListAdapter {
+public class SimpleListViewController: UIViewController, UpdatableTableListAdapter {
     private let _models = ["Roy", "Pinlin", "Zhiyi", "Frain", "Jack", "Cookie", "Kubrick", "Jeremy", "Juhao", "Herry"]
 
     var toggle = false
@@ -61,7 +61,7 @@ public class DoubleListViewController: UIViewController, UpdatableTableListAdapt
 }
 
 // UI
-extension DoubleListViewController {
+extension SimpleListViewController {
     final class CenterLabelCell: UICollectionViewCell {
         lazy private var label: UILabel = {
             let view = UILabel()
@@ -85,8 +85,7 @@ extension DoubleListViewController {
     }
 
     var tableView: UITableView {
-        let halfHeight = view.bounds.height / 2
-        let frame = CGRect(x: 0, y: 0, width: view.frame.width, height: halfHeight)
+        let frame = CGRect(x: 0, y: 0, width: view.frame.width, height: view.bounds.height)
         let tableView = UITableView(frame: frame)
         view.addSubview(tableView)
         tableView.autoresizingMask = [.flexibleHeight, .flexibleWidth]
@@ -104,7 +103,7 @@ extension DoubleListViewController {
     }
 
     @objc func refresh() {
-//        performUpdate()
+        performUpdate()
     }
 
     @objc func add() {
@@ -134,7 +133,7 @@ struct DoubleList_Preview: UIViewControllerRepresentable, PreviewProvider {
     static var previews: some View { DoubleList_Preview() }
 
     func makeUIViewController(context: Self.Context) -> UINavigationController {
-        UINavigationController(rootViewController: DoubleListViewController())
+        UINavigationController(rootViewController: SimpleListViewController())
     }
 
     func updateUIViewController(_ uiViewController: UINavigationController, context: Self.Context) { }
@@ -142,7 +141,7 @@ struct DoubleList_Preview: UIViewControllerRepresentable, PreviewProvider {
 
 #endif
 
-public extension DoubleListViewController {
+public extension SimpleListViewController {
 //    static var toggle = true
 //
 //    typealias Item = (Int)

@@ -10,11 +10,6 @@ import Foundation
 public enum Count: Equatable {
     case items(Int?)
     case sections(Int?, [Int], Int?)
-
-    var sectioned: Bool {
-        if case .items = self { return false }
-        return true
-    }
 }
 
 public protocol ListCoordinator {
@@ -45,18 +40,18 @@ public protocol ListCoordinator {
     ) -> Output?
 
     @discardableResult
-    func apply<Input, Output, Index>(
+    func apply<Input, Output, Index: ListKit.Index>(
         _ selector: Selector,
         for context: ListCoordinatorContext,
         view: AnyObject,
         with input: Input,
         index: Index,
-        _ offset: Index
+        _ rawIndex: Index
     ) -> Output?
 }
 
 public extension ListCoordinator {
-    var selectors: Set<Selector>? { .init() }
+    var selectors: Set<Selector>? { nil }
     var needSetupWithListView: Bool { false }
 
     func setupWithListView(offset: IndexPath, storages: inout [CoordinatorStorage: [IndexPath]]) { }
@@ -77,15 +72,15 @@ public extension ListCoordinator {
         _apply(selector, for: context, view: view, with: input)
     }
 
-    func apply<Input, Output, Index>(
+    func apply<Input, Output, Index: ListKit.Index>(
         _ selector: Selector,
         for context: ListCoordinatorContext,
         view: AnyObject,
         with input: Input,
         index: Index,
-        _ offset: Index
+        _ rawIndex: Index
     ) -> Output? {
-        _apply(selector, for: context, view: view, with: input, index: index, offset)
+        _apply(selector, for: context, view: view, with: input, index: index, rawIndex)
     }
 }
 
@@ -104,18 +99,18 @@ extension ListCoordinator {
     }
 
     @discardableResult
-    func _apply<Input, Output, Index>(
+    func _apply<Input, Output, Index: ListKit.Index>(
         _ selector: Selector,
         for context: ListCoordinatorContext,
         view: AnyObject,
         with input: Input,
         index: Index,
-        _ offset: Index
+        _ rawIndex: Index
     ) -> Output? {
         guard let rawClosure = context.functions[selector],
-              let closure = rawClosure as? (AnyObject, ListCoordinatorContext, Input, Index, Index) -> Output
+              let closure = rawClosure as? (AnyObject, Index, Index, ListCoordinatorContext, Input) -> Output
         else { return nil }
-        return closure(view, context, input, index, offset)
+        return closure(view, index, rawIndex, context, input)
     }
 }
 
@@ -166,7 +161,7 @@ extension ListCoordinator {
 //                results.append((offset, context))
 //            }
 //
-//            results += context.contextAtIndex?(context.index, offset, list) ?? []
+//            results += context.contextAtIndex?(context.index, rawIndex, list) ?? []
 //        }
 //        return results
 //    }

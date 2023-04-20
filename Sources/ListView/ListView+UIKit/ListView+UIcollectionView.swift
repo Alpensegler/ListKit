@@ -31,8 +31,10 @@ public extension UICollectionView {
     }
 
     func resetDelegates(toNil: Bool) {
-        dataSource = toNil ? nil : dataSource
-        delegate = toNil ? nil : delegate
+        let temp = (dataSource, delegate)
+        (dataSource, delegate) = (nil, nil)
+        if toNil { return }
+        (dataSource, delegate) = temp
     }
 
     func reloadSynchronously(animated: Bool = true) {

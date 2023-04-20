@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		3C275A5D28A6562600975E07 /* ListAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C275A5C28A6562600975E07 /* ListAdapter.swift */; };
+		3C2DF53729F0B4C30086FB69 /* SimpleListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2DF53629F0B4C30086FB69 /* SimpleListViewController.swift */; };
 		3CB1153029B75FAF00312263 /* TupleSources.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CB1152F29B75FAF00312263 /* TupleSources.swift */; };
 		3CB1153229B76CB500312263 /* TableListAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CB1153129B76CB500312263 /* TableListAdapter.swift */; };
 		3CB1153629B7770F00312263 /* CollectionListAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CB1153529B7770F00312263 /* CollectionListAdapter.swift */; };
@@ -15,6 +16,8 @@
 		3CD3EECB29CD4762003DE3CB /* ListCoordinatorContextTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CD3EEBC29CD46E0003DE3CB /* ListCoordinatorContextTests.swift */; };
 		3CD3EECD29CD4775003DE3CB /* ListCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CD3EECC29CD4775003DE3CB /* ListCoordinatorTests.swift */; };
 		3CD3EED129CDB15E003DE3CB /* DataSourcesCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CD3EED029CDB15E003DE3CB /* DataSourcesCoordinator.swift */; };
+		3CD3EED929D18DAE003DE3CB /* ListKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "ListKit::ListKit::Product" /* ListKit.framework */; };
+		3CD3EEDA29D18DAE003DE3CB /* ListKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = "ListKit::ListKit::Product" /* ListKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F3040D81238B21560055E6E7 /* ListCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3040D80238B21560055E6E7 /* ListCoordinator.swift */; };
 		F304A6DF239E94CC00133D14 /* Context+UIKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = F304A6DE239E94CC00133D14 /* Context+UIKit.swift */; };
 		F304A6E1239E95DC00133D14 /* ListView+NSCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F304A6E0239E95DB00133D14 /* ListView+NSCollectionView.swift */; };
@@ -37,8 +40,6 @@
 		F365501A2451B4060038172F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F36550192451B4060038172F /* AppDelegate.swift */; };
 		F36550232451B4070038172F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F36550222451B4070038172F /* Assets.xcassets */; };
 		F36550262451B4070038172F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F36550242451B4070038172F /* LaunchScreen.storyboard */; };
-		F36550342451B6910038172F /* ListKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "ListKit::ListKit::Product" /* ListKit.framework */; };
-		F36550352451B6910038172F /* ListKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = "ListKit::ListKit::Product" /* ListKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F365503E2451B78B0038172F /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F365503D2451B78B0038172F /* Default-568h@2x.png */; };
 		F3698AFD258B5DB800285F56 /* ListDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3698AFC258B5DB800285F56 /* ListDelegate.swift */; };
 		F36E6016250AC69700F2D441 /* ConditionalSources.swift in Sources */ = {isa = PBXBuildFile; fileRef = F36E6015250AC69700F2D441 /* ConditionalSources.swift */; };
@@ -67,7 +68,6 @@
 		F3F799A124E5E32200771F7F /* ContentsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3F7999B24E5E32100771F7F /* ContentsViewController.swift */; };
 		F3F799A224E5E32200771F7F /* SectionListViewControlle.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3F7999C24E5E32100771F7F /* SectionListViewControlle.swift */; };
 		F3F799A324E5E32200771F7F /* IdentifiableSectionListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3F7999D24E5E32100771F7F /* IdentifiableSectionListViewController.swift */; };
-		F3F799A424E5E32200771F7F /* DoubleListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3F7999E24E5E32100771F7F /* DoubleListViewController.swift */; };
 		F3F799A524E5E32200771F7F /* TestListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3F7999F24E5E32100771F7F /* TestListViewController.swift */; };
 		F3F799A624E5E32200771F7F /* NestedListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3F799A024E5E32100771F7F /* NestedListViewController.swift */; };
 		F3FAECCB24FFE0C3001CBA34 /* IndexPathSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3FAECCA24FFE0C3001CBA34 /* IndexPathSet.swift */; };
@@ -84,7 +84,14 @@
 			remoteGlobalIDString = "ListKit::ListKit";
 			remoteInfo = ListKit;
 		};
-		F36550362451B6910038172F /* PBXContainerItemProxy */ = {
+		3CD3EED629D18D34003DE3CB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = OBJ_1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = "ListKit::ListKit";
+			remoteInfo = ListKit;
+		};
+		3CD3EEDB29D18DAE003DE3CB /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = OBJ_1 /* Project object */;
 			proxyType = 1;
@@ -94,13 +101,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		F36550382451B6910038172F /* Embed Frameworks */ = {
+		3CD3EEDE29D18DAE003DE3CB /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				F36550352451B6910038172F /* ListKit.framework in Embed Frameworks */,
+				3CD3EEDA29D18DAE003DE3CB /* ListKit.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -109,6 +116,7 @@
 
 /* Begin PBXFileReference section */
 		3C275A5C28A6562600975E07 /* ListAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListAdapter.swift; sourceTree = "<group>"; };
+		3C2DF53629F0B4C30086FB69 /* SimpleListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SimpleListViewController.swift; path = ListKit.playground/Sources/SimpleListViewController.swift; sourceTree = "<group>"; };
 		3CB1152F29B75FAF00312263 /* TupleSources.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TupleSources.swift; sourceTree = "<group>"; };
 		3CB1153129B76CB500312263 /* TableListAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableListAdapter.swift; sourceTree = "<group>"; };
 		3CB1153529B7770F00312263 /* CollectionListAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionListAdapter.swift; sourceTree = "<group>"; };
@@ -169,7 +177,6 @@
 		F3F7999B24E5E32100771F7F /* ContentsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ContentsViewController.swift; path = ListKit.playground/Sources/ContentsViewController.swift; sourceTree = "<group>"; };
 		F3F7999C24E5E32100771F7F /* SectionListViewControlle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SectionListViewControlle.swift; path = ListKit.playground/Sources/SectionListViewControlle.swift; sourceTree = "<group>"; };
 		F3F7999D24E5E32100771F7F /* IdentifiableSectionListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = IdentifiableSectionListViewController.swift; path = ListKit.playground/Sources/IdentifiableSectionListViewController.swift; sourceTree = "<group>"; };
-		F3F7999E24E5E32100771F7F /* DoubleListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DoubleListViewController.swift; path = ListKit.playground/Sources/DoubleListViewController.swift; sourceTree = "<group>"; };
 		F3F7999F24E5E32100771F7F /* TestListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TestListViewController.swift; path = ListKit.playground/Sources/TestListViewController.swift; sourceTree = "<group>"; };
 		F3F799A024E5E32100771F7F /* NestedListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NestedListViewController.swift; path = ListKit.playground/Sources/NestedListViewController.swift; sourceTree = "<group>"; };
 		F3FAECCA24FFE0C3001CBA34 /* IndexPathSet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IndexPathSet.swift; sourceTree = "<group>"; };
@@ -189,11 +196,11 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		F36550142451B4050038172F /* Frameworks */ = {
+		3CD3EEDD29D18DAE003DE3CB /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F36550342451B6910038172F /* ListKit.framework in Frameworks */,
+				3CD3EED929D18DAE003DE3CB /* ListKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -288,7 +295,7 @@
 				F365502B2451B51D0038172F /* SupportFiles */,
 				F3B15B8A24E598F8009BE889 /* ListKit.playground */,
 				F3F7999B24E5E32100771F7F /* ContentsViewController.swift */,
-				F3F7999E24E5E32100771F7F /* DoubleListViewController.swift */,
+				3C2DF53629F0B4C30086FB69 /* SimpleListViewController.swift */,
 				F3F7999D24E5E32100771F7F /* IdentifiableSectionListViewController.swift */,
 				F3F799A024E5E32100771F7F /* NestedListViewController.swift */,
 				F3F7999C24E5E32100771F7F /* SectionListViewControlle.swift */,
@@ -469,14 +476,15 @@
 			buildConfigurationList = F365502A2451B4070038172F /* Build configuration list for PBXNativeTarget "ListKitExample" */;
 			buildPhases = (
 				F36550132451B4050038172F /* Sources */,
-				F36550142451B4050038172F /* Frameworks */,
 				F36550152451B4050038172F /* Resources */,
-				F36550382451B6910038172F /* Embed Frameworks */,
+				3CD3EEDD29D18DAE003DE3CB /* Frameworks */,
+				3CD3EEDE29D18DAE003DE3CB /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				F36550372451B6910038172F /* PBXTargetDependency */,
+				3CD3EED729D18D34003DE3CB /* PBXTargetDependency */,
+				3CD3EEDC29D18DAE003DE3CB /* PBXTargetDependency */,
 			);
 			name = ListKitExample;
 			productName = ListKitExample;
@@ -529,6 +537,7 @@
 					};
 					F36550162451B4050038172F = {
 						CreatedOnToolsVersion = 11.3.1;
+						DevelopmentTeam = 38U8W94Y3Q;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -590,9 +599,9 @@
 			files = (
 				F3F799A124E5E32200771F7F /* ContentsViewController.swift in Sources */,
 				F365501A2451B4060038172F /* AppDelegate.swift in Sources */,
+				3C2DF53729F0B4C30086FB69 /* SimpleListViewController.swift in Sources */,
 				F3831EB824EE89E4002B5D73 /* CoreDataListViewController.swift in Sources */,
 				F3F799A524E5E32200771F7F /* TestListViewController.swift in Sources */,
-				F3F799A424E5E32200771F7F /* DoubleListViewController.swift in Sources */,
 				F3831D8224EDE520002B5D73 /* DataModel.xcdatamodeld in Sources */,
 				F3F799A324E5E32200771F7F /* IdentifiableSectionListViewController.swift in Sources */,
 				F3F799A624E5E32200771F7F /* NestedListViewController.swift in Sources */,
@@ -672,10 +681,15 @@
 			target = "ListKit::ListKit" /* ListKit */;
 			targetProxy = 3CD3EEC629CD4749003DE3CB /* PBXContainerItemProxy */;
 		};
-		F36550372451B6910038172F /* PBXTargetDependency */ = {
+		3CD3EED729D18D34003DE3CB /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = "ListKit::ListKit" /* ListKit */;
-			targetProxy = F36550362451B6910038172F /* PBXContainerItemProxy */;
+			targetProxy = 3CD3EED629D18D34003DE3CB /* PBXContainerItemProxy */;
+		};
+		3CD3EEDC29D18DAE003DE3CB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = "ListKit::ListKit" /* ListKit */;
+			targetProxy = 3CD3EEDB29D18DAE003DE3CB /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -800,7 +814,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 38U8W94Y3Q;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -865,7 +879,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 38U8W94Y3Q;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;

@@ -26,56 +26,29 @@ extension DataSourcesCoordinator {
         view: AnyObject,
         with input: Input
     ) -> Output? {
-        guard subselectors.contains(selector) else {
-            return _apply(selector, for: context, view: view, with: input)
+        var output: Output? = _apply(selector, for: context, view: view, with: input)
+        guard output == nil || Output.self == Void.self, subselectors.contains(selector) else { return output }
+        for context in contexts {
+            output = output ?? context.coordinator.apply(selector, for: context, view: view, with: input)
         }
-        if Output.self == Void.self {
-            let output: Output? = contexts.compactMap { (context) in
-                context.coordinator.apply(selector, for: context, view: view, with: input)
-            }.first
-            return _apply(selector, for: context, view: view, with: input) ?? output
-        } else {
-            let output: Output? = contexts.lazy.compactMap { (context) in
-                context.coordinator.apply(selector, for: context, view: view, with: input)
-            }.first
-            return output ?? _apply(selector, for: context, view: view, with: input)
-        }
+        return output
     }
 
-    func apply<Input, Output, Index>(
+    func apply<Input, Output, Index: ListKit.Index>(
         _ selector: Selector,
         for context: ListCoordinatorContext,
         view: AnyObject,
         with input: Input,
         index: Index,
-        _ offset: Index
+        _ rawIndex: Index
     ) -> Output? {
-        guard subselectors.contains(selector) else {
-            return _apply(selector, for: context, view: view, with: input, index: index, offset)
-        }
-        var output: Output?
-        if let index = index as? IndexPath, var offset = offset as? IndexPath {
-            let offsetted = index.offseted(offset, plus: false)
-            let (sectionOffset, itemOffset) = contextsOffsets[indices[offsetted.section].indices[offsetted.item]]
-            let context = contexts[indices[offsetted.section].indices[offsetted.item]]
-            offset = offset.offseted(sectionOffset, itemOffset)
-            output = context.coordinator.apply(selector, for: context, view: view, with: input, index: index, offset)
-        } else if let index = index as? Int, var offset = offset as? Int {
-            let offsetted = index.offseted(offset, plus: false)
-            guard let contextIndex = indices[offsetted].index else {
-                return _apply(selector, for: context, view: view, with: input, index: index, offset)
-            }
-            offset = offset.offseted(contextsOffsets[contextIndex].sectionOffset)
-            let context = contexts[contextIndex]
-            output = context.coordinator.apply(selector, for: context, view: view, with: input, index: index, offset)
-        } else {
-            return _apply(selector, for: context, view: view, with: input, index: index, offset)
-        }
-        if Output.self == Void.self {
-            return _apply(selector, for: context, view: view, with: input, index: index, offset) ?? output
-        } else {
-            return output ?? _apply(selector, for: context, view: view, with: input, index: index, offset)
-        }
+        let output: Output? = _apply(selector, for: context, view: view, with: input, index: index, rawIndex)
+        guard output == nil || Output.self == Void.self,
+              subselectors.contains(selector),
+              let contextIndex = index.contextIndex(at: indices) else { return output }
+        let (sectionOffset, itemOffset) = contextsOffsets[contextIndex]
+        let withoutOffset = index.offseted(section: -sectionOffset, item: -itemOffset)
+        return contexts[contextIndex].apply(selector, view: view, with: input, index: withoutOffset, rawIndex)
     }
 
     func setupWithListView(offset: IndexPath, storages: inout [CoordinatorStorage: [IndexPath]]) {
@@ -125,34 +98,40 @@ extension DataSourcesCoordinator {
                 }
             }
             
-            func appendIndices(sectionOffset: Int, itemOffset: Int, preNext: Int?, nextPre: Int?, sections: [Int]? = nil, nextNext: Int? = nil) {
+            func appendIndices(sectionOffset: Int, itemOffset: Int, preNext: Int?, nextPre: Int? = nil, sections: [Int]? = nil, nextNext: Int? = nil) {
                 contextsOffsets.append((sectionOffset, itemOffset))
                 addIndices(pre: preNext, next: nextPre)
                 sections?.forEach { indices.append((.init(repeating: index, count: $0), index)) }
                 addIndices(next: nextNext)
             }
 
-            switch (count, context.count) {
-            case let (.items(preNext), .items(nextPre)):
+            switch (count, context.count, context.coordinator.count) {
+            case let (.items(preNext), .coordinatorCount, .items(nextPre)):
                 appendIndices(sectionOffset: 0, itemOffset: preNext ?? 0, preNext: preNext, nextPre: nextPre)
                 count = .items(preNext + nextPre)
-            case let (.items(preNext), .sections(nextPre, sections, nextNext)):
+            case let (.items(preNext), .coordinatorCount, .sections(nextPre, sections, nextNext)):
                 let sectionOffset = nextPre == nil ? (preNext == nil ? 0 : 1) : 0
                 let itemOffset = nextPre == nil ? 0 : (preNext ?? 0)
                 appendIndices(sectionOffset: sectionOffset, itemOffset: itemOffset, preNext: preNext, nextPre: nextPre, sections: sections, nextNext: nextNext)
                 count = .sections(preNext + nextPre, sections, nextNext)
-            case let (.sections(prePre, sections, preNext), .items(nextPre)):
+            case let (.items(preNext), .sectioned(sections, style: _), _):
+                appendIndices(sectionOffset: preNext == nil ? 0 : 1, itemOffset: 0, preNext: preNext, sections: sections)
+                count = .sections(preNext, sections, nil)
+            case let (.sections(prePre, sections, preNext), .coordinatorCount, .items(nextPre)):
                 let sectionOffset = sections.count + (prePre == nil ? 0 : 1)
                 let itemOffset = preNext ?? 0
                 appendIndices(sectionOffset: sectionOffset, itemOffset: itemOffset, preNext: preNext, nextPre: nextPre)
                 count = .sections(prePre, sections, preNext + nextPre)
-            case let (.sections(prePre, preSections, preNext), .sections(nextPre, nextSections, nextNext)):
+            case let (.sections(prePre, preSections, preNext), .coordinatorCount, .sections(nextPre, nextSections, nextNext)):
                 let sectionOffset = (nextPre == nil ? (preNext == nil ? 0 : 1) : 0) + preSections.count + (prePre == nil ? 0 : 1)
                 let itemOffset = nextPre == nil ? 0 : (preNext ?? 0)
                 appendIndices(sectionOffset: sectionOffset, itemOffset: itemOffset, preNext: preNext, nextPre: nextPre, sections: nextSections, nextNext: nextNext)
                 count = .sections(prePre, preSections + ((preNext + nextPre).map { [$0] } ?? []) + nextSections, nextNext)
+            case let (.sections(prePre, preSections, preNext), .sectioned(nextSections, style: _), _):
+                let sectionOffset = (preNext == nil ? 0 : 1) + preSections.count + (prePre == nil ? 0 : 1)
+                appendIndices(sectionOffset: sectionOffset, itemOffset: 0, preNext: preNext, sections: nextSections)
+                count = .sections(prePre, preSections + (preNext.map { [$0] } ?? []) + nextSections, nil)
             }
         }
     }
-
 }

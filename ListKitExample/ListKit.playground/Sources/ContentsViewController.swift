@@ -29,10 +29,10 @@ public class ContentsViewController: UIViewController, TableListAdapter {
     convenience init() {
         self.init(nibName: nil, bundle: nil)
         models = [
-            ("DoubleList", DoubleListViewController.self),
-//            ("SectionList", SectionListViewControlle.self),
-//            ("NestedList", NestedListViewController.self),
-//            ("IdentifiableSectionList", IdentifiableSectionListViewController.self),
+            ("SimpleList", SimpleListViewController.self),
+            ("SectionList", SectionListViewControlle.self),
+            ("NestedList", NestedListViewController.self),
+            ("IdentifiableSectionList", IdentifiableSectionListViewController.self),
 //            ("CoreDataListViewController", CoreDataListViewController.self),
             ("TestList", TestListViewController.self),
         ]

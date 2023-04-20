@@ -8,48 +8,102 @@
 import Foundation
 
 public struct ListCoordinatorContext {
+    enum ContextCount: Equatable {
+        enum EmptySectionStyle: Equatable {
+            case remove(mapping: [Int]?)
+            case keep
+        }
+
+        case coordinatorCount
+        case sectioned([Int], style: EmptySectionStyle)
+    }
+
     weak var storage: CoordinatorStorage?
     var coordinator: ListCoordinator
-    var count: Count
+    var count = ContextCount.coordinatorCount
 
     var selectors = Set<Selector>()
     var functions = [Selector: Any]()
-
-    var section = (sectioned: false, removeEmpty: false) {
-        didSet {
-            if section == oldValue { return }
-            count = reconfigCount()
+    var coordinatorCount: Count {
+        switch count {
+        case .coordinatorCount: return coordinator.count
+        case let .sectioned(sections, _): return .sections(nil, sections, nil)
         }
     }
-
-    var index = 0
+    
+    var sections: [Int] {
+        guard case let .sectioned(sections, _) = count else {
+            fatalError("should config section for once")
+        }
+        return sections
+    }
 
     init(coordinator: ListCoordinator) {
         self.coordinator = coordinator
         selectors = coordinator.selectors ?? .init()
-        count = coordinator.count
     }
 
-    func reconfigCount() -> Count {
-        var count = coordinator.count
-        switch (count, section.sectioned) {
-        case (let .items(itemCount), true):
-            count = .sections(nil, itemCount == 0 && section.removeEmpty ? [] : [itemCount ?? 0], nil)
-        case (let .items(itemCount), false):
-            count = .items(itemCount == 0 && section.removeEmpty ? nil : itemCount)
-        case (.sections(let pre, var sections, let next), true):
-            if section.removeEmpty { sections = sections.filter { $0 != 0 } }
-            pre.map { count in if count != 0 || !section.removeEmpty { sections.insert(count, at: 0) } }
-            next.map { count in if count != 0 || !section.removeEmpty { sections.append(count) } }
-            count = .sections(nil, sections, nil)
-        case (var .sections(pre, sections, next), false) where section.removeEmpty:
-            sections = sections.filter { $0 != 0 }
-            if pre == 0 { pre = nil }
-            if next == 0 { next = nil }
-            count = .sections(pre, sections, next)
-        default:
-            break
+    mutating func reconfigCount() {
+        switch count {
+        case .coordinatorCount: break
+        case .sectioned(_, style: let style): _configSectioned(style != .keep)
         }
-        return count
+    }
+
+    mutating func configSectioned(_ removeEmptySection: Bool = false) {
+        switch (count, removeEmptySection) {
+        case (.sectioned(_, .keep), false), (.sectioned(_, .remove), _): return
+        default: _configSectioned(removeEmptySection)
+        }
+    }
+}
+
+extension ListCoordinatorContext {
+    func apply<Input, Output>(
+        _ selector: Selector,
+        view: AnyObject,
+        with input: Input
+    ) -> Output? {
+        coordinator.apply(selector, for: self, view: view, with: input)
+    }
+
+    func apply<Input, Output, Index: ListKit.Index>(
+        _ selector: Selector,
+        view: AnyObject,
+        with input: Input,
+        index: Index,
+        _ rawIndex: Index
+    ) -> Output? {
+        var index = index
+        if case let .sectioned(_, .remove(mapping?)) = count {
+            index.section = mapping[index.section]
+        }
+        return coordinator.apply(selector, for: self, view: view, with: input, index: index, rawIndex)
+    }
+}
+
+private extension ListCoordinatorContext {
+    mutating func _configSectioned(_ removeEmptySection: Bool) {
+        switch coordinator.count {
+        case let .items(count):
+            self.count = .sectioned(
+                count ?? 0 == 0 && removeEmptySection ? [] : [count ?? 0],
+                style: removeEmptySection ? .remove(mapping: nil) : .keep
+            )
+        case .sections(let pre, var section, let next):
+            if let pre = pre { section.insert(pre, at: 0) }
+            if let next = next { section.append(next) }
+            var mapping: [Int]?
+            if removeEmptySection, section.contains(0) {
+                mapping = section.enumerated().compactMap {
+                    $0.element == 0 ? nil : $0.offset
+                }
+                section = section.filter { $0 != 0 }
+            }
+            self.count = .sectioned(
+                section,
+                style: removeEmptySection ? .remove(mapping: mapping) : .keep
+            )
+        }
     }
 }

@@ -10,10 +10,7 @@ public protocol DataSource {
     var listCoordinatorContext: ListCoordinatorContext { get }
 }
 
-public extension DataSource {
-    var listCoordinatorContext: ListCoordinatorContext { .init(coordinator: listCoordinator) }
-}
-
 public protocol ContainerDataSource: DataSource {
     associatedtype ContainType
+    var listCoordinatorContext: ListCoordinatorContext { get set }
 }

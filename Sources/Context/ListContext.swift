@@ -32,7 +32,7 @@ extension ListContext {
 public struct ListIndexContext<View, Index>: Context {
     public let listView: View
     public let index: Index
-    public let offset: Index
+    public let rawIndex: Index
     let context: ListCoordinatorContext
 }
 
@@ -40,13 +40,13 @@ extension ListIndexContext {
     init(
         view: AnyObject,
         index: Index,
-        offset: Index,
+        rawIndex: Index,
         context: ListCoordinatorContext
     ) {
         self.init(
             listView: view as! View,
             index: index,
-            offset: offset,
+            rawIndex: rawIndex,
             context: context
         )
     }
@@ -63,15 +63,15 @@ public extension ListAdapter {
 }
 
 public extension ListIndexContext where Index == Int {
-    var section: Int { index - offset }
+    var section: Int { index }
 }
 
 public extension ListIndexContext where Index == IndexPath {
-    var section: Int { index.section - offset.section }
-    var item: Int { index.item - offset.item }
+    var section: Int { index.section }
+    var item: Int { index.item }
 
     var containedType: Any {
-        context.coordinator.model(at: index.offseted(offset, plus: false))
+        context.coordinator.model(at: index)
     }
 }
 

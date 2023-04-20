@@ -11,7 +11,6 @@ final class Delegate: NSObject {
     unowned let listView: SetuptableListView
     var context: ListCoordinatorContext!
     var coordinator: ListCoordinator { context.coordinator }
-    var counts = [Int]()
     var valid: Bool {
         guard let storage = context.storage else { return true }
         return !storage.isObjectAssciated || storage.object != nil
@@ -63,26 +62,8 @@ extension Delegate {
         animated: Bool,
         completion: ((Bool) -> Void)?
     ) {
-        switch context.count {
-        case let .items(count):
-            counts = count.map { [$0] } ?? .init()
-        case .sections(let pre, var sections, let next):
-            pre.map { sections.insert($0, at: 0) }
-            next.map { sections.append($0) }
-            counts = sections
-        }
-        if context.coordinator.needSetupWithListView {
-            var storages = [CoordinatorStorage: [IndexPath]]()
-            context.coordinator.setupWithListView(offset: .zero, storages: &storages)
-            if let storage = context.storage {
-                storages[storage, default: []].append(.init())
-            }
-            for (storage, contexts) in storages {
-                storage.contexts[ObjectIdentifier(self)] = (delegateGetter, contexts)
-            }
-        } else if let storage = context.storage {
-            storage.contexts[.init(self)] = (delegateGetter, [.init()])
-        }
+        var context = context
+        config(context: &context)
         self.context = context
         if !listView.isDelegate(self) { listView.setup(with: self) }
 //        let updatable = isDelegate && rawCoordinator.map {
@@ -93,10 +74,6 @@ extension Delegate {
         listView.reloadSynchronously(animated: animated)
 //        }
         completion?(true)
-    }
-
-    func getListView() -> ListView? {
-        return listView.isDelegate(self) ? listView : nil
     }
 
     func perform(update: BatchUpdates, animated: Bool, to context: ListCoordinatorContext, at positions: [IndexPath], completion: ((ListView, Bool) -> Void)?) {
@@ -111,10 +88,11 @@ extension Delegate {
             }
         }
 
+        config(context: &finalContext)
         perform(
             to: finalContext,
             updates: update,
-            shouldRestDelegate: finalContext.selectors == self.context.selectors,
+            shouldRestDelegate: finalContext.selectors != self.context.selectors,
             animated: animated,
             completion: completion
         )
@@ -163,12 +141,30 @@ extension Delegate {
 }
 
 extension Delegate {
+    func config(context: inout ListCoordinatorContext) {
+        context.configSectioned()
+        if context.coordinator.needSetupWithListView {
+            var storages = [CoordinatorStorage: [IndexPath]]()
+            context.coordinator.setupWithListView(offset: .init(), storages: &storages)
+            if let storage = context.storage {
+                storages[storage, default: []].append(.init())
+            }
+            for (storage, contexts) in storages {
+                storage.contexts[ObjectIdentifier(self)] = (delegateGetter, contexts)
+            }
+        } else if let storage = context.storage {
+            storage.contexts[.init(self)] = (delegateGetter, [.init()])
+        }
+    }
+}
+
+extension Delegate {
     func numberOfItemsInSection(_ section: Int) -> Int {
-        counts[section]
+        context.sections[section]
     }
 
     func numbersOfSections() -> Int {
-        counts.count
+        context.sections.count
     }
 }
 
@@ -180,7 +176,7 @@ extension Delegate {
         default: @autoclosure () -> Output
     ) -> Output {
         guard valid else { return `default`() }
-        return coordinator.apply(selector, for: context, view: view, with: input) ?? `default`()
+        return context.apply(selector, view: view, with: input) ?? `default`()
     }
 
     func apply<Output>(
@@ -189,10 +185,10 @@ extension Delegate {
         default: @autoclosure () -> Output
     ) -> Output {
         guard valid else { return `default`() }
-        return coordinator.apply(selector, for: context, view: view, with: ()) ?? `default`()
+        return context.apply(selector, view: view, with: ()) ?? `default`()
     }
 
-    func apply<Input, Output, Index: ListIndex>(
+    func apply<Input, Output, Index: ListKit.Index>(
         _ selector: Selector,
         view: AnyObject,
         with input: Input,
@@ -200,6 +196,6 @@ extension Delegate {
         default: @autoclosure () -> Output
     ) -> Output {
         guard valid else { return `default`() }
-        return coordinator.apply(selector, for: context, view: view, with: input, index: index, .zero) ?? `default`()
+        return context.apply(selector, view: view, with: input, index: index, index) ?? `default`()
     }
 }

@@ -73,10 +73,10 @@ public struct IndexFunction<List: DataSource, V, Input, Output, Closure, Index>:
     ) -> Self {
         var function = self
         function.listCoordinatorContext.functions[selector] = {
-            closure(.init(view: $0, index: $3, offset: $4, context: $1), $2)
+            closure(.init(view: $0, index: $1, rawIndex: $2, context: $3), $4)
         }
         if hasSectionIndex {
-            function.listCoordinatorContext.section.sectioned = true
+            function.listCoordinatorContext.configSectioned()
         }
         return function
     }
@@ -102,6 +102,9 @@ public struct IndexFunction<List: DataSource, V, Input, Output, Closure, Index>:
 
 extension Function: TableList where View == TableView { }
 extension Function: CollectionList where View == CollectionView { }
+extension Function: ContainerDataSource where List: ContainerDataSource {
+    public typealias ContainType = List.ContainType
+}
 
 extension IndexFunction: TableList where View == TableView { }
 extension IndexFunction: CollectionList where View == CollectionView { }

@@ -15,15 +15,22 @@ public struct Model<ContainType>: ContainerDataSource {
         var list: ContainType
     }
     public var list: ContainType
-    public var listCoordinator: ListCoordinator { Coordinator(list: wrappedValue) }
-    public var wrappedValue: ContainType { list }
+    public let listCoordinator: ListCoordinator
+    public var listCoordinatorContext: ListCoordinatorContext
+    public var wrappedValue: ContainType {
+        get { list }
+        _modify { yield &list }
+        set { list = newValue }
+    }
 
     public init(_ model: ContainType) {
-        self.list = model
+        list = model
+        listCoordinator = Coordinator(list: list)
+        listCoordinatorContext = .init(coordinator: listCoordinator)
     }
 
     public init(wrappedValue: ContainType) {
-        self.list = wrappedValue
+        self.init(wrappedValue)
     }
 }
 

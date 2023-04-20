@@ -25,7 +25,14 @@ public struct ConditionalSources<TrueContent: DataSource, FalseContent: DataSour
     }
 
     public var list: List
-    public var listCoordinator: ListCoordinator { Coordinator(list: list, context: list.context) }
+    public let listCoordinator: ListCoordinator
+    public var listCoordinatorContext: ListCoordinatorContext
+
+    init(_ content: List) {
+        list = content
+        listCoordinator = Coordinator(list: list, context: content.context)
+        listCoordinatorContext = .init(coordinator: listCoordinator)
+    }
 }
 
 extension ConditionalSources: TableList where TrueContent: TableList, FalseContent: TableList { }
@@ -35,18 +42,14 @@ extension ConditionalSources: ListAdapter where TrueContent: ListAdapter, FalseC
 }
 
 extension ConditionalSources.Coordinator {
-    var count: Count { context.count }
-    var selectors: Set<Selector>? { context.coordinator.selectors }
+    var count: Count { context.coordinatorCount }
+    var selectors: Set<Selector>? { context.selectors }
     var needSetupWithListView: Bool { context.coordinator.needSetupWithListView }
     func setupWithListView(
         offset: IndexPath,
         storages: inout [CoordinatorStorage: [IndexPath]]
     ) {
         context.coordinator.setupWithListView(offset: offset, storages: &storages)
-    }
-
-    func performUpdate(to coordinator: ListCoordinator) -> BatchUpdates {
-        .reload(change: nil)
     }
 
     mutating func performUpdate(
@@ -64,18 +67,28 @@ extension ConditionalSources.Coordinator {
         view: AnyObject,
         with input: Input
     ) -> Output? {
-        self.context.coordinator.apply(selector, for: self.context, view: view, with: input)
+        let output: Output? = _apply(selector, for: context, view: view, with: input)
+        guard output == nil || Output.self == Void.self,
+              self.context.selectors.contains(selector) else { return output }
+        return self.context.apply(selector, view: view, with: input)
     }
 
     @discardableResult
-    func apply<Input, Output, Index>(
+    func apply<Input, Output, Index: ListKit.Index>(
         _ selector: Selector,
         for context: ListCoordinatorContext,
         view: AnyObject,
         with input: Input,
         index: Index,
-        _ offset: Index
+        _ rawIndex: Index
     ) -> Output? {
-        self.context.coordinator.apply(selector, for: self.context, view: view, with: input, index: index, offset)
+        let output: Output? = _apply(selector, for: context, view: view, with: input, index: index, rawIndex)
+        guard output == nil || Output.self == Void.self,
+              self.context.selectors.contains(selector) else { return output }
+        return self.context.apply(selector, view: view, with: input, index: index, rawIndex)
+    }
+
+    func performUpdate(to coordinator: ListCoordinator) -> BatchUpdates {
+        .reload(change: nil)
     }
 }

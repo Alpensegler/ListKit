@@ -13,6 +13,9 @@ extension Optional: DataSource where Wrapped: DataSource {
     }
 
     public var listCoordinator: ListCoordinator { Coordinator(context: self?.listCoordinatorContext) }
+    public var listCoordinatorContext: ListCoordinatorContext {
+        .init(coordinator: listCoordinator)
+    }
 }
 
 extension Optional: TableList where Wrapped: TableList { }
@@ -33,8 +36,8 @@ extension Optional {
 }
 
 extension Optional.Coordinator {
-    var count: Count { context?.coordinator.count ?? .items(nil) }
-    var selectors: Set<Selector>? { context?.coordinator.selectors }
+    var count: Count { context?.coordinatorCount ?? .items(nil) }
+    var selectors: Set<Selector>? { context?.selectors }
     var needSetupWithListView: Bool { context?.coordinator.needSetupWithListView ?? false }
     func setupWithListView(
         offset: IndexPath,
@@ -62,21 +65,25 @@ extension Optional.Coordinator {
         view: AnyObject,
         with input: Input
     ) -> Output? {
-        guard let context = self.context else { return nil }
-        return context.coordinator.apply(selector, for: context, view: view, with: input)
+        let output: Output? = _apply(selector, for: context, view: view, with: input)
+        guard output == nil || Output.self == Void.self,
+              let context = self.context else { return nil }
+        return context.apply(selector, view: view, with: input)
     }
 
     @discardableResult
-    func apply<Input, Output, Index>(
+    func apply<Input, Output, Index: ListKit.Index>(
         _ selector: Selector,
         for context: ListCoordinatorContext,
         view: AnyObject,
         with input: Input,
         index: Index,
-        _ offset: Index
+        _ rawIndex: Index
     ) -> Output? {
-        guard let context = self.context else { return nil }
-        return context.coordinator.apply(selector, for: context, view: view, with: input, index: index, offset)
+        let output: Output? = _apply(selector, for: context, view: view, with: input, index: index, rawIndex)
+        guard output == nil || Output.self == Void.self,
+              let context = self.context else { return nil }
+        return context.apply(selector, view: view, with: input, index: index, rawIndex)
     }
 }
 

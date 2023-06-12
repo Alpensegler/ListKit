@@ -6,83 +6,64 @@ import UIKit
 public class TestListViewController: UIViewController, UpdatableTableListAdapter {
     public var toggle = true
 
-//    lazy var itemSource = ItemSource()
-//    lazy var itemsSource = Sources(models: [1.0, 2.0, 3.0], options: .removeEmptySection)
-//        .cellForRow()
-//        .didSelectRow { [unowned self] (context, _) in
+    lazy var itemSource = ItemSource()
+    lazy var itemsSource = Models([1.0, 2.0, 3.0]) // .removeEmptySection
+        .cellForRow()
+        .didSelectRow { [unowned self] context in
 //            batchRemove(at: context.item)
-//        }
-//        .headerTitleForSection("items")
-//
-//    final class ItemSource: UpdatableListAdapter {
-//        // swiftlint: disable nesting
-//        public typealias Model = Any
-//        // swiftlint: enable nesting
-//        var toggle = true
-//
-//        public var source: AnyTableSources {
-//            AnyTableSources {
-//                if toggle {
-//                    Sources(model: true)
-//                        .cellForRow()
-//                        .didSelectRow { [unowned self] (context, _) in
-//                            context.deselect(animated: false)
-//                            toggle.toggle()
-//                            performUpdate()
-//                        }
-//                } else {
-//                    Sources(models: [false, false, false])
-//                        .cellForRow()
-//                        .didSelectRow { [unowned self] (context, _) in
-//                            context.deselect(animated: false)
-//                            toggle.toggle()
-//                            performUpdate()
-//                        }
-//                }
-//            }
-//            .headerTitleForSection("item")
-//        }
-//    }
+        }
+        .headerTitleForSection("items")
 
-    public var list: TableList {
-        Models([1, 2, 3])
-            .cellForRow()
-        if toggle {
+    final class ItemSource: UpdatableTableListAdapter {
+        var toggle = true
+
+        public var list: TableList {
             buildList {
-                Models([4, 5, 6])
-                    .cellForRow()
-                Model(toggle)
-                    .cellForRow()
+                if toggle {
+                    Model(true)
+                        .cellForRow()
+                        .didSelectRow { [unowned self] context in
+                            context.deselect(animated: false)
+                            toggle.toggle()
+                            performUpdate()
+                        }
+                } else {
+                    Models([false, false, false])
+                        .cellForRow()
+                        .didSelectRow { [unowned self] context in
+                            context.deselect(animated: false)
+                            toggle.toggle()
+                            performUpdate()
+                        }
+                }
             }
-            .headerTitleForSection("sections2")
+            .headerTitleForSection("item")
         }
     }
 
-//    public var source: AnyTableSources {
-//        AnyTableSources {
-//            if toggle {
-//                itemSource
-//                itemsSource
-//            }
-//            Sources(sections: [[1, 2, 3], [1, 2, 3]])
-//                .cellForRow()
-//                .headerTitleForSection("sections")
-//            AnyTableSources {
-//                Sources(model: 2)
-//                    .cellForRow()
-//                    .didSelectRow { (context, model) in
-//                        context.deselect(animated: false)
-//                        print(model)
-//                    }
-//                Sources(models: ["a", "b", "c"])
-//                    .cellForRow()
-//                    .didSelectRow { (context, model) in
-//                        context.deselect(animated: false)
-//                        print(model)
-//                    }
-//            }.headerTitleForSection("sources")
-//        }
-//    }
+    public var list: TableList {
+        if toggle {
+            itemSource
+            itemsSource
+        }
+        Sections([[1, 2, 3], [1, 2, 3]])
+            .cellForRow()
+            .headerTitleForSection("sections")
+        buildList {
+            Model(2)
+                .cellForRow()
+                .didSelectRow { context, model in
+                    context.deselect(animated: false)
+                    print(model)
+                }
+            Models(["a", "b", "c"])
+                .cellForRow()
+                .didSelectRow { context, model in
+                    context.deselect(animated: false)
+                    print(model)
+                }
+        }.headerTitleForSection("sources")
+    }
 
     public override func viewDidLoad() {
         apply(by: tableView)
@@ -116,24 +97,24 @@ extension TestListViewController {
     }
 }
 
-//#if canImport(SwiftUI) && EXAMPLE
-//
-//import SwiftUI
-//
-//@available(iOS 13.0, *)
-//struct TestList_Preview: UIViewControllerRepresentable, PreviewProvider {
-//    static var previews: some View { TestList_Preview() }
-//
-//    func makeUIViewController(context: Self.Context) -> UINavigationController {
-//        UINavigationController(rootViewController: TestListViewController())
-//    }
-//
-//    func updateUIViewController(_ uiViewController: UINavigationController, context: Self.Context) {
-//
-//    }
-//}
-//
-//#endif
+#if canImport(SwiftUI) && EXAMPLE
+
+import SwiftUI
+
+@available(iOS 13.0, *)
+struct TestList_Preview: UIViewControllerRepresentable, PreviewProvider {
+    static var previews: some View { TestList_Preview() }
+
+    func makeUIViewController(context: Self.Context) -> UINavigationController {
+        UINavigationController(rootViewController: TestListViewController())
+    }
+
+    func updateUIViewController(_ uiViewController: UINavigationController, context: Self.Context) {
+
+    }
+}
+
+#endif
 
 //extension TestListViewController {
 //    var source: AnyTableSources {

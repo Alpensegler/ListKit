@@ -20,6 +20,8 @@ where C.Element == ContainType, ContainType: DataSource {
         var subselectors = Set<Selector>()
         var count = Count.items(0)
         var needSetupWithListView = false
+        var identifier: ((ContainType) -> AnyHashable)?
+        var areEquivalent: ((ContainType, ContainType) -> Bool)?
     }
 
     public var list: C
@@ -31,14 +33,31 @@ where C.Element == ContainType, ContainType: DataSource {
         set { list = newValue }
     }
 
-    public init(_ dataSources: C) {
-        list = dataSources
-        listCoordinator = Coordinator(list: list)
-        listCoordinatorContext = .init(coordinator: listCoordinator)
+    init(list: C,
+         identifier: ((ContainType) -> AnyHashable)? = nil,
+         areEquivalent: ((ContainType, ContainType) -> Bool)? = nil
+    ) {
+        self.list = list
+        self.listCoordinator = Coordinator(list: list, identifier: identifier, areEquivalent: areEquivalent)
+        self.listCoordinatorContext = .init(coordinator: listCoordinator)
+    }
+}
+
+public extension DataSources {
+    init(_ dataSources: C) {
+        self.init(list: dataSources)
     }
 
-    public init(wrappedValue: C) {
-        self.init(wrappedValue)
+    init(wrappedValue: C) {
+        self.init(list: wrappedValue)
+    }
+
+    func diff<ID: Hashable>(id: @escaping (ContainType) -> ID, by areEquivalent: @escaping (ContainType, ContainType) -> Bool) -> Sections<C, ContainType> {
+        .init(list: list, identifier: { id($0) }, areEquivalent: areEquivalent)
+    }
+
+    func diff(by areEquivalent: @escaping (ContainType, ContainType) -> Bool) -> DataSources<C, ContainType> {
+        .init(list: list, areEquivalent: areEquivalent)
     }
 }
 
@@ -49,9 +68,14 @@ extension DataSources: ListAdapter where ContainType: ListAdapter {
 }
 
 extension DataSources.Coordinator {
-    init(list: C) {
+    init(list: C,
+         identifier: ((ContainType) -> AnyHashable)? = nil,
+         areEquivalent: ((ContainType, ContainType) -> Bool)? = nil
+    ) {
         self.list = .init(list)
         self.contexts = list.mapContiguous { $0.listCoordinatorContext }
+        self.identifier = identifier
+        self.areEquivalent = areEquivalent
         configCount()
     }
 

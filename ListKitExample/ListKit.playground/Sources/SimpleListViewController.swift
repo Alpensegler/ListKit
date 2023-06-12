@@ -29,20 +29,8 @@ public class SimpleListViewController: UIViewController, UpdatableTableListAdapt
             }
     }
 
-//    public var collectionList: CollectionList<DoubleListViewController> {
-//        collectionViewCellForItem(CenterLabelCell.self) { (cell, _, item) in
-//            cell.text = "\(item)"
-//        }
-//        .collectionViewLayoutSizeForItem { (item) -> CGSize in
-//            print("fake calculating size for \(item)")
-//            return CGSize(width: 75, height: 75)
-//        }
-//        .collectionViewLayoutInsetForSection(UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10))
-//    }
-
     public override func viewDidLoad() {
         super.viewDidLoad()
-//        apply(by: collectionView)
         apply(by: tableView)
 
         navigationItem.rightBarButtonItems = [
@@ -107,20 +95,20 @@ extension SimpleListViewController {
     }
 
     @objc func add() {
-//        let alert = UIAlertController(title: "Add content", message: nil, preferredStyle: .alert)
-//        alert.addTextField { (textField) in
-//            textField.text = "Content"
-//            textField.selectAll(nil)
-//        }
-//
-//        alert.addAction(UIAlertAction(title: "cancel", style: .cancel))
-//
-//        let ok = UIAlertAction(title: "Done", style: .default) { [unowned self, unowned alert] _ in
-//            guard let content = alert.textFields?.first?.text, !content.isEmpty else { return }
+        let alert = UIAlertController(title: "Add content", message: nil, preferredStyle: .alert)
+        alert.addTextField { (textField) in
+            textField.text = "Content"
+            textField.selectAll(nil)
+        }
+
+        alert.addAction(UIAlertAction(title: "cancel", style: .cancel))
+
+        let ok = UIAlertAction(title: "Done", style: .default) { [unowned self, unowned alert] _ in
+            guard let content = alert.textFields?.first?.text, !content.isEmpty else { return }
 //            self.perform(.append(content))
-//        }
-//        alert.addAction(ok)
-//        present(alert, animated: true)
+        }
+        alert.addAction(ok)
+        present(alert, animated: true)
     }
 }
 

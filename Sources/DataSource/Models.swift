@@ -13,9 +13,8 @@ import Foundation
 public struct Models<C: Collection, ContainType>: ContainerDataSource where C.Element == ContainType {
     struct Coordinator: ListCoordinator {
         var list: ContiguousArray<ContainType>
-        init(list: C) {
-            self.list = list.mapContiguous { $0 }
-        }
+        var identifier: ((ContainType) -> AnyHashable)?
+        var areEquivalent: ((ContainType, ContainType) -> Bool)?
     }
     public var list: C
     public let listCoordinator: ListCoordinator
@@ -26,14 +25,51 @@ public struct Models<C: Collection, ContainType>: ContainerDataSource where C.El
         set { list = newValue }
     }
 
-    public init(_ models: C) {
-        list = models
-        listCoordinator = Coordinator(list: list)
-        listCoordinatorContext = .init(coordinator: listCoordinator)
+    init(list: C,
+         identifier: ((ContainType) -> AnyHashable)? = nil,
+         areEquivalent: ((ContainType, ContainType) -> Bool)? = nil
+    ) {
+        self.list = list
+        self.listCoordinator = Coordinator(list: list.mapContiguous { $0 }, identifier: identifier, areEquivalent: areEquivalent)
+        self.listCoordinatorContext = .init(coordinator: listCoordinator)
+    }
+}
+
+public extension Models {
+    init(wrappedValue: C) {
+        self.init(list: wrappedValue)
     }
 
-    public init(wrappedValue: C) {
-        self.init(wrappedValue)
+    init(_ models: C) {
+        self.init(list: models)
+    }
+
+    func diff<ID: Hashable>(id: @escaping (ContainType) -> ID, by areEquivalent: @escaping (ContainType, ContainType) -> Bool) -> Models<C, ContainType> {
+        .init(list: list, identifier: { id($0) }, areEquivalent: areEquivalent)
+    }
+
+    func diff(by areEquivalent: @escaping (ContainType, ContainType) -> Bool) -> Models<C, ContainType> {
+        .init(list: list, areEquivalent: areEquivalent)
+    }
+}
+
+public extension Models where ContainType: Equatable {
+    init(wrappedValue: C) {
+        self.init(list: wrappedValue, areEquivalent: ==)
+    }
+
+    init(_ models: C) {
+        self.init(list: models, areEquivalent: ==)
+    }
+}
+
+public extension Models where ContainType: Hashable {
+    init(wrappedValue: C) {
+        self.init(list: wrappedValue, identifier: { $0 }, areEquivalent: ==)
+    }
+
+    init(_ models: C) {
+        self.init(list: models, identifier: { $0 }, areEquivalent: ==)
     }
 }
 

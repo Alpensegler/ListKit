@@ -13,6 +13,7 @@ import Foundation
 public struct Model<ContainType>: ContainerDataSource {
     struct Coordinator: ListCoordinator {
         var list: ContainType
+        var areEquivalent: ((ContainType, ContainType) -> Bool)?
     }
     public var list: ContainType
     public let listCoordinator: ListCoordinator
@@ -23,14 +24,34 @@ public struct Model<ContainType>: ContainerDataSource {
         set { list = newValue }
     }
 
-    public init(_ model: ContainType) {
-        list = model
-        listCoordinator = Coordinator(list: list)
-        listCoordinatorContext = .init(coordinator: listCoordinator)
+    init(list: ContainType, areEquivalent: ((ContainType, ContainType) -> Bool)? = nil) {
+        self.list = list
+        self.listCoordinator = Coordinator(list: list, areEquivalent: areEquivalent)
+        self.listCoordinatorContext = .init(coordinator: listCoordinator)
+    }
+}
+
+public extension Model {
+    init(wrappedValue: ContainType) {
+        self.init(list: wrappedValue)
     }
 
-    public init(wrappedValue: ContainType) {
-        self.init(wrappedValue)
+    init(_ model: ContainType) {
+        self.init(list: model)
+    }
+
+    func diff(by areEquivalent: @escaping (ContainType, ContainType) -> Bool) -> Model<ContainType> {
+        .init(list: list, areEquivalent: areEquivalent)
+    }
+}
+
+public extension Model where ContainType: Equatable {
+    init(wrappedValue: ContainType) {
+        self.init(list: wrappedValue, areEquivalent: ==)
+    }
+
+    init(_ model: ContainType) {
+        self.init(list: model, areEquivalent: ==)
     }
 }
 

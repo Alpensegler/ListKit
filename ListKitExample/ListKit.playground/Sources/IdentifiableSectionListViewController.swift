@@ -16,7 +16,7 @@ public class Room {
 extension Room: UpdatableCollectionListAdapter {
     public var list: CollectionList {
         Models(people.shuffled())
-            .cellForItem(CenterLabelCell.self) { (cell, context, model) in
+            .cellForItem(CenterLabelCell.self, identifier: "") { (cell, context, model) in
                 cell.text = model
             }
             .didSelectItem { [weak self] (context, model) in

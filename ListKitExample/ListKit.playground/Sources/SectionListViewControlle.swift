@@ -88,17 +88,3 @@ struct SectionList_Preview: UIViewControllerRepresentable, PreviewProvider {
 }
 
 #endif
-
-//public extension SectionListViewControlle {
-//    static var toggle = true
-//
-//    typealias Item = Int
-//    var source: [[Item]] {
-//        Self.toggle.toggle()
-//        if Self.toggle {
-//            return [[1,2,3]]
-//        } else {
-//            return [[1,2,3], [4,5,6]]
-//        }
-//    }
-//}

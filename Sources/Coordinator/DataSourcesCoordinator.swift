@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol DataSourcesCoordinator: ListCoordinator {
+public protocol DataSourcesCoordinator: ListCoordinator {
     typealias Offset = (sectionOffset: Int, itemOffset: Int)
     var contexts: ContiguousArray<ListCoordinatorContext> { get set }
     var contextsOffsets: ContiguousArray<Offset> { get set }
@@ -17,7 +17,7 @@ protocol DataSourcesCoordinator: ListCoordinator {
     var needSetupWithListView: Bool { get set }
 }
 
-extension DataSourcesCoordinator {
+public extension DataSourcesCoordinator {
     var selectors: Set<Selector>? { subselectors }
 
     func apply<Input, Output>(

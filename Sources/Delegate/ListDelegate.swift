@@ -9,7 +9,7 @@ import Foundation
 
 public protocol FunctionOutput { }
 
-public struct Function<List: DataSource, V, Input, Output, Closure>: ListAdapter {
+public struct Function<List, V, Input, Output, Closure>: ListAdapter {
     public typealias View = V
     public let selector: Selector
     public let list: List
@@ -17,32 +17,38 @@ public struct Function<List: DataSource, V, Input, Output, Closure>: ListAdapter
     public var listCoordinatorContext: ListCoordinatorContext
     let toClosure: (Closure) -> (ListContext<V>, Input) -> Output
 
-    public func callAsFunction(closure: Closure) -> Self {
+    public func callAsFunction(closure: Closure) -> Modifier<List, V> {
         toTarget(closure: toClosure(closure))
     }
 
-    public func callAsFunction(_ output: Output) -> Self where Output: FunctionOutput {
+    public func callAsFunction(_ output: Output) -> Modifier<List, V> where Output: FunctionOutput {
         toTarget { _, _ in output }
     }
 
-    func toTarget(closure: @escaping (ListContext<V>, Input) -> Output) -> Self {
-        var function = self
-        function.listCoordinatorContext.functions[selector] = { closure(.init(view: $0, context: $1), $2) }
-        return self
+    func toTarget(closure: @escaping (ListContext<V>, Input) -> Output) -> Modifier<List, V> {
+        var listCoordinatorContext = self.listCoordinatorContext
+        listCoordinatorContext.functions[selector] = { closure(.init(view: $0, context: $1), $2) }
+        return .init(list: list, listCoordinator: listCoordinator, listCoordinatorContext: listCoordinatorContext)
     }
 
-    init(selector: Selector, list: List, toClosure: @escaping (Closure) -> (ListContext<V>, Input) -> Output) {
+    init(
+        selector: Selector,
+        list: List,
+        listCoordinator: ListCoordinator,
+        listCoordinatorContext: ListCoordinatorContext,
+        toClosure: @escaping (Closure) -> (ListContext<V>, Input) -> Output
+    ) {
         self.selector = selector
         self.list = list
-        self.listCoordinator = list.listCoordinator
-        var context = list.listCoordinatorContext
+        self.listCoordinator = listCoordinator
+        var context = listCoordinatorContext
         context.selectors.insert(selector)
         self.listCoordinatorContext = context
         self.toClosure = toClosure
     }
 }
 
-public struct IndexFunction<List: DataSource, V, Input, Output, Closure, Index>: ListAdapter {
+public struct IndexFunction<List, V, Input, Output, Closure, Index>: ListAdapter {
     public typealias View = V
     public let selector: Selector
     public let hasSectionIndex: Bool
@@ -52,47 +58,49 @@ public struct IndexFunction<List: DataSource, V, Input, Output, Closure, Index>:
     let indexForInput: (Input) -> Index
     let toClosure: (Closure) -> (ListIndexContext<V, Index>, Input) -> Output
 
-    public func callAsFunction(closure: Closure) -> Self {
+    public func callAsFunction(closure: Closure) -> Modifier<List, V> {
         toTarget(closure: toClosure(closure))
     }
 
-    public func callAsFunction(_ output: Output) -> Self where Output: FunctionOutput {
+    public func callAsFunction(_ output: Output) -> Modifier<List, V> where Output: FunctionOutput {
         toTarget { _, _ in output }
     }
 
     public func callAsFunction(
-        closure: @escaping (ListIndexContext<V, Index>, List.ContainType) -> Output
-    ) -> Self where Closure == (ListIndexContext<V, Index>) -> Output, List: ContainerDataSource, Index == IndexPath {
+        closure: @escaping (ListIndexContext<V, Index>, List.Element) -> Output
+    ) -> Modifier<List, V> where Closure == (ListIndexContext<V, Index>) -> Output, List: TypedListAdapter, Index == IndexPath {
         toTarget { context, _ in
-            closure(context, context.containedType as! List.ContainType)
+            closure(context, context.containedType as! List.Element)
         }
     }
 
     func toTarget(
         closure: @escaping (ListIndexContext<V, Index>, Input) -> Output
-    ) -> Self {
-        var function = self
-        function.listCoordinatorContext.functions[selector] = {
+    ) -> Modifier<List, V> {
+        var listCoordinatorContext = self.listCoordinatorContext
+        listCoordinatorContext.functions[selector] = {
             closure(.init(view: $0, index: $1, rawIndex: $2, context: $3), $4)
         }
         if hasSectionIndex {
-            function.listCoordinatorContext.configSectioned()
+            listCoordinatorContext.configSectioned()
         }
-        return function
+        return .init(list: list, listCoordinator: listCoordinator, listCoordinatorContext: listCoordinatorContext)
     }
 
     init(
         selector: Selector,
         hasSectionIndex: Bool,
         list: List,
+        listCoordinator: ListCoordinator,
+        listCoordinatorContext: ListCoordinatorContext,
         indexForInput: @escaping (Input) -> Index,
         toClosure: @escaping (Closure) -> (ListIndexContext<V, Index>, Input) -> Output
     ) {
         self.selector = selector
         self.hasSectionIndex = hasSectionIndex
         self.list = list
-        self.listCoordinator = list.listCoordinator
-        var context = list.listCoordinatorContext
+        self.listCoordinator = listCoordinator
+        var context = listCoordinatorContext
         context.selectors.insert(selector)
         self.listCoordinatorContext = context
         self.indexForInput = indexForInput
@@ -102,14 +110,14 @@ public struct IndexFunction<List: DataSource, V, Input, Output, Closure, Index>:
 
 extension Function: TableList where View == TableView { }
 extension Function: CollectionList where View == CollectionView { }
-extension Function: ContainerDataSource where List: ContainerDataSource {
-    public typealias ContainType = List.ContainType
+extension Function: TypedListAdapter where List: TypedListAdapter {
+    public typealias Element = List.Element
 }
 
 extension IndexFunction: TableList where View == TableView { }
 extension IndexFunction: CollectionList where View == CollectionView { }
-extension IndexFunction: ContainerDataSource where List: ContainerDataSource {
-    public typealias ContainType = List.ContainType
+extension IndexFunction: TypedListAdapter where List: TypedListAdapter {
+    public typealias Element = List.Element
 }
 
 extension String: FunctionOutput { }
@@ -130,7 +138,7 @@ extension UITableViewCell.EditingStyle: FunctionOutput { }
 #endif
 
 // swiftlint:disable large_tuple
-extension DataSource {
+extension ListAdapter {
     func toClosure<Input, Output, Context>() -> (@escaping (Context) -> Output) -> (Context, Input) -> Output {
         { closure in { context, _ in closure(context) } }
     }
@@ -162,23 +170,23 @@ extension DataSource {
     func toFunction<Input, Output, Closure, View>(
         _ selector: Selector,
         _ toClosure: @escaping (Closure) -> (ListKit.ListContext<View>, Input) -> Output
-    ) -> Function<Self, View, Input, Output, Closure> {
-        .init(selector: selector, list: self, toClosure: toClosure)
+    ) -> ListKit.Function<List, View, Input, Output, Closure> {
+        .init(selector: selector, list: list, listCoordinator: listCoordinator, listCoordinatorContext: listCoordinatorContext, toClosure: toClosure)
     }
 
     func toFunction<Input, Output, Closure, View, Index: ListIndex>(
         _ selector: Selector,
         _ indexForInput: @escaping (Input) -> Index,
         _ toClosure: @escaping (Closure) -> (ListIndexContext<View, Index>, Input) -> Output
-    ) -> IndexFunction<Self, View, Input, Output, Closure, Index> {
-        .init(selector: selector, hasSectionIndex: Index.isSection, list: self, indexForInput: indexForInput, toClosure: toClosure)
+    ) -> IndexFunction<List, View, Input, Output, Closure, Index> {
+        .init(selector: selector, hasSectionIndex: Index.isSection, list: list, listCoordinator: listCoordinator, listCoordinatorContext: listCoordinatorContext, indexForInput: indexForInput, toClosure: toClosure)
     }
 
     func toFunction<Output, Closure, View, Index: ListIndex>(
         _ selector: Selector,
         _ toClosure: @escaping (Closure) -> (ListIndexContext<View, Index>, Index) -> Output
-    ) -> IndexFunction<Self, View, Index, Output, Closure, Index> {
-        .init(selector: selector, hasSectionIndex: Index.isSection, list: self, indexForInput: { $0 }, toClosure: toClosure)
+    ) -> IndexFunction<List, View, Index, Output, Closure, Index> {
+        .init(selector: selector, hasSectionIndex: Index.isSection, list: list, listCoordinator: listCoordinator, listCoordinatorContext: listCoordinatorContext, indexForInput: { $0 }, toClosure: toClosure)
     }
 }
 // swiftlint:enable large_tuple

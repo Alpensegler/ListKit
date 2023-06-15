@@ -13,7 +13,7 @@ public class SectionListViewControlle: UIViewController, UpdatableCollectionList
     }
 
     public var list: CollectionList {
-        Sections(models)
+        SectionedElements(models)
             .cellForItem(CenterLabelCell.self) { (cell, _, model) in
                 cell.text = "\(model)"
             }

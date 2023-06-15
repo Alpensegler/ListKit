@@ -16,7 +16,7 @@ public class SimpleListViewController: UIViewController, UpdatableTableListAdapt
     }
 
     public var list: TableList {
-        Models(models)
+        CollectionElements(models)
             .cellForRow()
             .didSelectRow { _, _ in //[unowned self] (context, model) in
 //                performUpdate(.remove(at: context.item))

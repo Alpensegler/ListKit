@@ -6,7 +6,7 @@ public class ContentsViewController: UIViewController, TableListAdapter {
     public var models = [Content]()
 
     public var list: TableList {
-        Models(models)
+        CollectionElements(models)
             .cellForRow { context, model -> UITableViewCell in
                 let labelCell = context.dequeueReusableCell(UITableViewCell.self)
                 labelCell.textLabel?.text = model.title

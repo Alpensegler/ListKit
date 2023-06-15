@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		3C275A5D28A6562600975E07 /* ListAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C275A5C28A6562600975E07 /* ListAdapter.swift */; };
 		3C2DF53729F0B4C30086FB69 /* SimpleListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2DF53629F0B4C30086FB69 /* SimpleListViewController.swift */; };
-		3CB1153029B75FAF00312263 /* TupleSources.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CB1152F29B75FAF00312263 /* TupleSources.swift */; };
+		3CB1153029B75FAF00312263 /* TupleListAdapters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CB1152F29B75FAF00312263 /* TupleListAdapters.swift */; };
 		3CB1153229B76CB500312263 /* TableListAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CB1153129B76CB500312263 /* TableListAdapter.swift */; };
 		3CB1153629B7770F00312263 /* CollectionListAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CB1153529B7770F00312263 /* CollectionListAdapter.swift */; };
 		3CD3EEC529CD4749003DE3CB /* ListKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "ListKit::ListKit::Product" /* ListKit.framework */; };
@@ -25,8 +25,8 @@
 		F304A6E3239E95ED00133D14 /* ListView+NSTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F304A6E2239E95ED00133D14 /* ListView+NSTableView.swift */; };
 		F304A6E5239E962300133D14 /* NSListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F304A6E4239E962300133D14 /* NSListView.swift */; };
 		F30CF60824E7D2370078720C /* ListOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35A67FE248F7DB700FEAC22 /* ListOptions.swift */; };
-		F30CF60924E7D23F0078720C /* DataSources.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3AD067F238FF3DA000AF1B3 /* DataSources.swift */; };
-		F30CF60A24E7D2440078720C /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3AD0139238BE6FE000AF1B3 /* Models.swift */; };
+		F30CF60924E7D23F0078720C /* ListAdapters.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3AD067F238FF3DA000AF1B3 /* ListAdapters.swift */; };
+		F30CF60A24E7D2440078720C /* CollectionElements.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3AD0139238BE6FE000AF1B3 /* CollectionElements.swift */; };
 		F31250E9239C545200E77969 /* ListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31250E8239C545200E77969 /* ListView.swift */; };
 		F31250EE239C5EB200E77969 /* ListDelegates+UICollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31250ED239C5EB200E77969 /* ListDelegates+UICollectionView.swift */; };
 		F31250F0239C636100E77969 /* ListDelegates+UIScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31250EF239C636100E77969 /* ListDelegates+UIScrollView.swift */; };
@@ -43,13 +43,13 @@
 		F36550262451B4070038172F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F36550242451B4070038172F /* LaunchScreen.storyboard */; };
 		F365503E2451B78B0038172F /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F365503D2451B78B0038172F /* Default-568h@2x.png */; };
 		F3698AFD258B5DB800285F56 /* ListDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3698AFC258B5DB800285F56 /* ListDelegate.swift */; };
-		F36E6016250AC69700F2D441 /* ConditionalSources.swift in Sources */ = {isa = PBXBuildFile; fileRef = F36E6015250AC69700F2D441 /* ConditionalSources.swift */; };
+		F36E6016250AC69700F2D441 /* ConditionalListAdapters.swift in Sources */ = {isa = PBXBuildFile; fileRef = F36E6015250AC69700F2D441 /* ConditionalListAdapters.swift */; };
 		F372F6E6248E52E9001B42D5 /* ListCoordinatorContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = F372F6E5248E52E9001B42D5 /* ListCoordinatorContext.swift */; };
 		F374B1442471A0FA0009420D /* Mapping.swift in Sources */ = {isa = PBXBuildFile; fileRef = F374B1432471A0FA0009420D /* Mapping.swift */; };
 		F37A122A239FC0720001E9EE /* ListAdapter+UIScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F37A1229239FC0720001E9EE /* ListAdapter+UIScrollView.swift */; };
 		F37A122E239FC0CB0001E9EE /* ListAdapter+UICollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F37A122D239FC0CB0001E9EE /* ListAdapter+UICollectionView.swift */; };
-		F37BF3CA239686470095C419 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = F37BF3C9239686470095C419 /* Model.swift */; };
-		F37BF3CC23968B7E0095C419 /* Sections.swift in Sources */ = {isa = PBXBuildFile; fileRef = F37BF3CB23968B7E0095C419 /* Sections.swift */; };
+		F37BF3CA239686470095C419 /* SingleElement.swift in Sources */ = {isa = PBXBuildFile; fileRef = F37BF3C9239686470095C419 /* SingleElement.swift */; };
+		F37BF3CC23968B7E0095C419 /* SectionedElements.swift in Sources */ = {isa = PBXBuildFile; fileRef = F37BF3CB23968B7E0095C419 /* SectionedElements.swift */; };
 		F383064323506BAC00AE8B97 /* CollectionDifference.swift in Sources */ = {isa = PBXBuildFile; fileRef = F383064023506BAC00AE8B97 /* CollectionDifference.swift */; };
 		F383064423506BAC00AE8B97 /* Differing.swift in Sources */ = {isa = PBXBuildFile; fileRef = F383064123506BAC00AE8B97 /* Differing.swift */; };
 		F3831D8224EDE520002B5D73 /* DataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = F3831D8024EDE520002B5D73 /* DataModel.xcdatamodeld */; };
@@ -118,7 +118,7 @@
 /* Begin PBXFileReference section */
 		3C275A5C28A6562600975E07 /* ListAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListAdapter.swift; sourceTree = "<group>"; };
 		3C2DF53629F0B4C30086FB69 /* SimpleListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SimpleListViewController.swift; path = ListKit.playground/Sources/SimpleListViewController.swift; sourceTree = "<group>"; };
-		3CB1152F29B75FAF00312263 /* TupleSources.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TupleSources.swift; sourceTree = "<group>"; };
+		3CB1152F29B75FAF00312263 /* TupleListAdapters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TupleListAdapters.swift; sourceTree = "<group>"; };
 		3CB1153129B76CB500312263 /* TableListAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableListAdapter.swift; sourceTree = "<group>"; };
 		3CB1153529B7770F00312263 /* CollectionListAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionListAdapter.swift; sourceTree = "<group>"; };
 		3CD3EEBC29CD46E0003DE3CB /* ListCoordinatorContextTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListCoordinatorContextTests.swift; sourceTree = "<group>"; };
@@ -150,13 +150,13 @@
 		F36550272451B4070038172F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F365503D2451B78B0038172F /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		F3698AFC258B5DB800285F56 /* ListDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListDelegate.swift; sourceTree = "<group>"; };
-		F36E6015250AC69700F2D441 /* ConditionalSources.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConditionalSources.swift; sourceTree = "<group>"; };
+		F36E6015250AC69700F2D441 /* ConditionalListAdapters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConditionalListAdapters.swift; sourceTree = "<group>"; };
 		F372F6E5248E52E9001B42D5 /* ListCoordinatorContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListCoordinatorContext.swift; sourceTree = "<group>"; };
 		F374B1432471A0FA0009420D /* Mapping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Mapping.swift; sourceTree = "<group>"; };
 		F37A1229239FC0720001E9EE /* ListAdapter+UIScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ListAdapter+UIScrollView.swift"; sourceTree = "<group>"; };
 		F37A122D239FC0CB0001E9EE /* ListAdapter+UICollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ListAdapter+UICollectionView.swift"; sourceTree = "<group>"; };
-		F37BF3C9239686470095C419 /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
-		F37BF3CB23968B7E0095C419 /* Sections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sections.swift; sourceTree = "<group>"; };
+		F37BF3C9239686470095C419 /* SingleElement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleElement.swift; sourceTree = "<group>"; };
+		F37BF3CB23968B7E0095C419 /* SectionedElements.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionedElements.swift; sourceTree = "<group>"; };
 		F383064023506BAC00AE8B97 /* CollectionDifference.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CollectionDifference.swift; sourceTree = "<group>"; };
 		F383064123506BAC00AE8B97 /* Differing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Differing.swift; sourceTree = "<group>"; };
 		F3831D8124EDE520002B5D73 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
@@ -165,8 +165,8 @@
 		F3841D5C2355E0DA006386E3 /* Collection+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Collection+Extension.swift"; sourceTree = "<group>"; };
 		F39A23F523A16D1F0024F9AF /* CoreData+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CoreData+Extension.swift"; sourceTree = "<group>"; };
 		F3A4A2EB2463AD22007FAB3B /* ListIndex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListIndex.swift; sourceTree = "<group>"; };
-		F3AD0139238BE6FE000AF1B3 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
-		F3AD067F238FF3DA000AF1B3 /* DataSources.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSources.swift; sourceTree = "<group>"; };
+		F3AD0139238BE6FE000AF1B3 /* CollectionElements.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionElements.swift; sourceTree = "<group>"; };
+		F3AD067F238FF3DA000AF1B3 /* ListAdapters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListAdapters.swift; sourceTree = "<group>"; };
 		F3B15B8A24E598F8009BE889 /* ListKit.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = ListKit.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		F3D122C3254783530000BC3F /* IndexSet+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "IndexSet+Extension.swift"; sourceTree = "<group>"; };
 		F3D785C72398FC5B00D7A5CD /* UpdatableListAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdatableListAdapter.swift; sourceTree = "<group>"; };
@@ -289,12 +289,12 @@
 			isa = PBXGroup;
 			children = (
 				F33FBC3C234F33A70054BA38 /* DataSource.swift */,
-				F37BF3C9239686470095C419 /* Model.swift */,
-				F3AD0139238BE6FE000AF1B3 /* Models.swift */,
-				F37BF3CB23968B7E0095C419 /* Sections.swift */,
-				F3AD067F238FF3DA000AF1B3 /* DataSources.swift */,
-				F36E6015250AC69700F2D441 /* ConditionalSources.swift */,
-				3CB1152F29B75FAF00312263 /* TupleSources.swift */,
+				F37BF3C9239686470095C419 /* SingleElement.swift */,
+				F3AD0139238BE6FE000AF1B3 /* CollectionElements.swift */,
+				F37BF3CB23968B7E0095C419 /* SectionedElements.swift */,
+				F3AD067F238FF3DA000AF1B3 /* ListAdapters.swift */,
+				F36E6015250AC69700F2D441 /* ConditionalListAdapters.swift */,
+				3CB1152F29B75FAF00312263 /* TupleListAdapters.swift */,
 			);
 			path = DataSource;
 			sourceTree = "<group>";
@@ -631,7 +631,7 @@
 				F3D785C82398FC5B00D7A5CD /* UpdatableListAdapter.swift in Sources */,
 				F354B6F624C38A0C00E9D19B /* BatchUpdate.swift in Sources */,
 				3CB1153629B7770F00312263 /* CollectionListAdapter.swift in Sources */,
-				F36E6016250AC69700F2D441 /* ConditionalSources.swift in Sources */,
+				F36E6016250AC69700F2D441 /* ConditionalListAdapters.swift in Sources */,
 				F32F922B25B6FAAC00C55F7A /* ListDelegate+IndexFunction+CallAsFunction.swift in Sources */,
 				F30CF60824E7D2370078720C /* ListOptions.swift in Sources */,
 				F3EB15DA23A2CF8D00C9AC5E /* Optional+Extension.swift in Sources */,
@@ -644,7 +644,7 @@
 				3CB1153229B76CB500312263 /* TableListAdapter.swift in Sources */,
 				F374B1442471A0FA0009420D /* Mapping.swift in Sources */,
 				F383064323506BAC00AE8B97 /* CollectionDifference.swift in Sources */,
-				F30CF60A24E7D2440078720C /* Models.swift in Sources */,
+				F30CF60A24E7D2440078720C /* CollectionElements.swift in Sources */,
 				F31250E9239C545200E77969 /* ListView.swift in Sources */,
 				F31250EE239C5EB200E77969 /* ListDelegates+UICollectionView.swift in Sources */,
 				F312515C239E352100E77969 /* ListDelegates+UITableView.swift in Sources */,
@@ -653,18 +653,18 @@
 				3C275A5D28A6562600975E07 /* ListAdapter.swift in Sources */,
 				3CD3EED129CDB15E003DE3CB /* DataSourcesCoordinator.swift in Sources */,
 				F304A6DF239E94CC00133D14 /* Context+UIKit.swift in Sources */,
-				F37BF3CC23968B7E0095C419 /* Sections.swift in Sources */,
+				F37BF3CC23968B7E0095C419 /* SectionedElements.swift in Sources */,
 				F372F6E6248E52E9001B42D5 /* ListCoordinatorContext.swift in Sources */,
 				F383064423506BAC00AE8B97 /* Differing.swift in Sources */,
 				F3698AFD258B5DB800285F56 /* ListDelegate.swift in Sources */,
-				F37BF3CA239686470095C419 /* Model.swift in Sources */,
-				3CB1153029B75FAF00312263 /* TupleSources.swift in Sources */,
+				F37BF3CA239686470095C419 /* SingleElement.swift in Sources */,
+				3CB1153029B75FAF00312263 /* TupleListAdapters.swift in Sources */,
 				F3D787032399327200D7A5CD /* ListViewStorage.swift in Sources */,
 				F3A4A2EC2463AD22007FAB3B /* ListIndex.swift in Sources */,
 				F3FAECCB24FFE0C3001CBA34 /* IndexPathSet.swift in Sources */,
 				F3D786FE239931CE00D7A5CD /* UIListView.swift in Sources */,
 				F37A122E239FC0CB0001E9EE /* ListAdapter+UICollectionView.swift in Sources */,
-				F30CF60924E7D23F0078720C /* DataSources.swift in Sources */,
+				F30CF60924E7D23F0078720C /* ListAdapters.swift in Sources */,
 				F35BBA07239FD1600024EA7D /* ListAdapter+UITableView.swift in Sources */,
 				F3831F8624EE95E1002B5D73 /* AllSelectors.swift in Sources */,
 				OBJ_18 /* ListKit.swift in Sources */,

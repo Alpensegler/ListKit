@@ -21,9 +21,19 @@ public extension ListAdapter {
     }
 }
 
+public extension ListAdapter where Self: ListCoordinator, Self == List {
+    var list: Self { self }
+    var listCoordinator: ListCoordinator { self }
+    var listCoordinatorContext: ListCoordinatorContext { .init(coordinator: self) }
+}
+
 public extension ListAdapter where List == DataSource {
     var listCoordinator: ListCoordinator { list.listCoordinator }
     var listCoordinatorContext: ListCoordinatorContext { list.listCoordinatorContext }
+}
+
+public protocol TypedListAdapter: ListAdapter {
+    associatedtype Element
 }
 
 public extension ListAdapter where View: ListView {
@@ -48,23 +58,23 @@ public extension ListBuilder {
         first
     }
 
-    static func buildPartialBlock<F: DataSource, S: DataSource>(accumulated: F, next: S) -> TupleSources<F, S> {
+    static func buildPartialBlock<F: DataSource, S: DataSource>(accumulated: F, next: S) -> TupleListAdapters<F, S> {
         .init([accumulated.listCoordinatorContext, next.listCoordinatorContext])
     }
 
-    static func buildPartialBlock<F: DataSource, S: DataSource, N: DataSource>(accumulated: TupleSources<F, S>, next: N) -> TupleSources<TupleSources<F, S>, N> {
-        .init(accumulated.list + [next.listCoordinatorContext])
+    static func buildPartialBlock<F: DataSource, S: DataSource, N: DataSource>(accumulated: TupleListAdapters<F, S>, next: N) -> TupleListAdapters<TupleListAdapters<F, S>, N> {
+        .init(accumulated.contexts + [next.listCoordinatorContext])
     }
 
-    static func buildEither<T: DataSource, F: DataSource>(first component: T) -> ConditionalSources<T, F> {
+    static func buildEither<T: DataSource, F: DataSource>(first component: T) -> ConditionalListAdapters<T, F> {
         .init(.first(component))
     }
 
-    static func buildEither<T: DataSource, F: DataSource>(second component: F) -> ConditionalSources<T, F> {
+    static func buildEither<T: DataSource, F: DataSource>(second component: F) -> ConditionalListAdapters<T, F> {
         .init(.second(component))
     }
 
-    static func buildArray<D: DataSource>(_ components: [D]) -> DataSources<[D], D> {
+    static func buildArray<D: DataSource>(_ components: [D]) -> ListAdapters<[D]> {
         .init(components)
     }
 

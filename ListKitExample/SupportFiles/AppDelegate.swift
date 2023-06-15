@@ -14,7 +14,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-//        ListKit.Log.logger = { print($0) }
+        ListKit.Log.logger = { print($0) }
 
         window = UIWindow()
         window?.rootViewController = UINavigationController(rootViewController: ContentsViewController())

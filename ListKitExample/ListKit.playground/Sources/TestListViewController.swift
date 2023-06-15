@@ -7,7 +7,7 @@ public class TestListViewController: UIViewController, UpdatableTableListAdapter
     public var toggle = true
 
     lazy var itemSource = ItemSource()
-    lazy var itemsSource = Models([1.0, 2.0, 3.0]) // .removeEmptySection
+    lazy var itemsSource = CollectionElements([1.0, 2.0, 3.0]) // .removeEmptySection
         .cellForRow()
         .didSelectRow { [unowned self] context in
 //            batchRemove(at: context.item)
@@ -20,7 +20,7 @@ public class TestListViewController: UIViewController, UpdatableTableListAdapter
         public var list: TableList {
             buildList {
                 if toggle {
-                    Model(true)
+                    SingleElement(true)
                         .cellForRow()
                         .didSelectRow { [unowned self] context in
                             context.deselect(animated: false)
@@ -28,7 +28,7 @@ public class TestListViewController: UIViewController, UpdatableTableListAdapter
                             performUpdate()
                         }
                 } else {
-                    Models([false, false, false])
+                    CollectionElements([false, false, false])
                         .cellForRow()
                         .didSelectRow { [unowned self] context in
                             context.deselect(animated: false)
@@ -46,17 +46,17 @@ public class TestListViewController: UIViewController, UpdatableTableListAdapter
             itemSource
             itemsSource
         }
-        Sections([[1, 2, 3], [1, 2, 3]])
+        SectionedElements([[1, 2, 3], [1, 2, 3]])
             .cellForRow()
             .headerTitleForSection("sections")
         buildList {
-            Model(2)
+            SingleElement(2)
                 .cellForRow()
                 .didSelectRow { context, model in
                     context.deselect(animated: false)
                     print(model)
                 }
-            Models(["a", "b", "c"])
+            CollectionElements(["a", "b", "c"])
                 .cellForRow()
                 .didSelectRow { context, model in
                     context.deselect(animated: false)

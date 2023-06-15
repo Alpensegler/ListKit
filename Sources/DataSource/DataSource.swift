@@ -9,8 +9,3 @@ public protocol DataSource {
     var listCoordinator: ListCoordinator { get }
     var listCoordinatorContext: ListCoordinatorContext { get }
 }
-
-public protocol ContainerDataSource: DataSource {
-    associatedtype ContainType
-    var listCoordinatorContext: ListCoordinatorContext { get set }
-}

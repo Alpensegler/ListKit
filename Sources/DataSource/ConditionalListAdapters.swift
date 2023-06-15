@@ -7,8 +7,9 @@
 
 import Foundation
 
-public struct ConditionalSources<TrueContent: DataSource, FalseContent: DataSource>: DataSource {
-    public enum List {
+public struct ConditionalListAdapters<TrueContent: ListAdapter, FalseContent: ListAdapter>: ListAdapter, ListCoordinator {
+    public typealias View = TrueContent.View
+    public enum Value {
         case first(TrueContent), second(FalseContent)
 
         var context: ListCoordinatorContext {
@@ -19,29 +20,19 @@ public struct ConditionalSources<TrueContent: DataSource, FalseContent: DataSour
         }
     }
 
-    struct Coordinator: ListCoordinator {
-        var list: List
-        var context: ListCoordinatorContext
-    }
+    public let value: Value
+    var context: ListCoordinatorContext
 
-    public var list: List
-    public let listCoordinator: ListCoordinator
-    public var listCoordinatorContext: ListCoordinatorContext
-
-    init(_ content: List) {
-        list = content
-        listCoordinator = Coordinator(list: list, context: content.context)
-        listCoordinatorContext = .init(coordinator: listCoordinator)
+    init(_ value: Value) {
+        self.value = value
+        self.context = value.context
     }
 }
 
-extension ConditionalSources: TableList where TrueContent: TableList, FalseContent: TableList { }
-extension ConditionalSources: CollectionList where TrueContent: CollectionList, FalseContent: CollectionList { }
-extension ConditionalSources: ListAdapter where TrueContent: ListAdapter, FalseContent: ListAdapter, TrueContent.View == FalseContent.View {
-    public typealias View = TrueContent.View
-}
+extension ConditionalListAdapters: TableList where TrueContent: TableList, FalseContent: TableList { }
+extension ConditionalListAdapters: CollectionList where TrueContent: CollectionList, FalseContent: CollectionList { }
 
-extension ConditionalSources.Coordinator {
+public extension ConditionalListAdapters {
     var count: Count { context.coordinatorCount }
     var selectors: Set<Selector>? { context.selectors }
     var needSetupWithListView: Bool { context.coordinator.needSetupWithListView }

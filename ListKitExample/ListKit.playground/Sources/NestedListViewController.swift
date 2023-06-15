@@ -4,18 +4,18 @@ import ListKit
 import UIKit
 
 public class NestedListViewController: UIViewController, UpdatableTableListAdapter {
-    let nestedSources = Models(0..<10)
+    let nestedSources = CollectionElements(0..<10)
         .cellForItem(CenterLabelCell.self) { (cell, context, model) in
             cell.text = "\(model)"
         }
 
     public var list: TableList {
-        Model(nestedSources)
+        SingleElement(nestedSources)
             .cellForRow(EmbeddedCell.self) { (cell, context, model) in
                 model.apply(by: cell.collectionView)
             }
             .heightForRow(100)
-        Models(["a", "b", "c"])
+        CollectionElements(["a", "b", "c"])
             .cellForRow()
             .heightForRow(50)
     }

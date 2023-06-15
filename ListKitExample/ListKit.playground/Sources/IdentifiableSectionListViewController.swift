@@ -15,7 +15,7 @@ public class Room {
 
 extension Room: UpdatableCollectionListAdapter {
     public var list: CollectionList {
-        Models(people.shuffled())
+        CollectionElements(people.shuffled())
             .cellForItem(CenterLabelCell.self, identifier: "") { (cell, context, model) in
                 cell.text = model
             }
@@ -37,7 +37,7 @@ extension Room: UpdatableCollectionListAdapter {
 
 public class IdentifiableSectionListViewController: UIViewController, UpdatableCollectionListAdapter {
     public var list: CollectionList {
-        DataSources(Room.random)
+        ListAdapters(Room.random)
     }
 
     public override func viewDidLoad() {

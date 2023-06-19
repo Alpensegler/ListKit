@@ -10,32 +10,32 @@ import UIKit
 
 // MARK: - TableView DataSource
 public extension ListAdapter {
-    var cellForRow: IndexFunction<List, UITableView, IndexPath, UITableViewCell, (ListIndexContext<UITableView, IndexPath>) -> UITableViewCell, IndexPath> {
+    var cellForRow: IndexFunction<UITableView, List, IndexPath, UITableViewCell, (ListIndexContext<UITableView, IndexPath>) -> UITableViewCell, IndexPath> {
         toFunction(#selector(UITableViewDataSource.tableView(_:cellForRowAt:)), toClosure())
     }
 }
 
 public extension ListAdapter where View: UITableView {
     // MARK: - Providing Cells, Headers, and Footers
-    var headerTitleForSection: SectionFunction<Int, String?, (ListSectionContext) -> String?> {
+    var headerTitleForSection: SectionFunction<Int, String?, (SectionContext) -> String?> {
         toFunction(#selector(UITableViewDataSource.tableView(_:titleForHeaderInSection:)), toClosure())
     }
 
-    var footerTitleForSection: SectionFunction<Int, String?, (ListSectionContext) -> String?> {
+    var footerTitleForSection: SectionFunction<Int, String?, (SectionContext) -> String?> {
         toFunction(#selector(UITableViewDataSource.tableView(_:titleForFooterInSection:)), toClosure())
     }
 
 //    // MARK: - Inserting or Deleting Table Rows
-//    var commitEdittingStyleForRow: ModelFunction<(IndexPath, UITableViewCell.EditingStyle), Void, (ListModelContext, UITableViewCell.EditingStyle) -> Void> {
+//    var commitEdittingStyleForRow: ElementFunction<(IndexPath, UITableViewCell.EditingStyle), Void, (ElementContext, UITableViewCell.EditingStyle) -> Void> {
 //        toFunction(#selector(UITableViewDataSource.tableView(_:commit:forRowAt:)), \.0, toClosure())
 //    }
 //
-//    var canEditRow: ModelFunction<IndexPath, Bool, (ListModelContext) -> Bool> {
+//    var canEditRow: ElementFunction<IndexPath, Bool, (ElementContext) -> Bool> {
 //        toFunction(#selector(UITableViewDataSource.tableView(_:canEditRowAt:)), toClosure())
 //    }
 //
 //    // MARK: - Reordering Table Rows
-//    var canMoveRow: ModelFunction<IndexPath, Bool, (ListModelContext) -> Bool> {
+//    var canMoveRow: ElementFunction<IndexPath, Bool, (ElementContext) -> Bool> {
 //        toFunction(#selector(UITableViewDataSource.tableView(_:canMoveRowAt:)), toClosure())
 //    }
 //
@@ -56,43 +56,43 @@ public extension ListAdapter where View: UITableView {
 // MARK: - TableView Delegate
 public extension ListAdapter where View: UITableView {
     // MARK: - Configuring Rows for the Table View
-    var willDisplayRow: ModelFunction<(IndexPath, UITableViewCell), Void, (ListModelContext, UITableViewCell) -> Void> {
+    var willDisplayRow: ElementFunction<(IndexPath, UITableViewCell), Void, (ElementContext, UITableViewCell) -> Void> {
         toFunction(#selector(UITableViewDelegate.tableView(_:willDisplay:forRowAt:)), \.0, toClosure())
     }
 
-//    var indentationLevelForRow: ModelFunction<IndexPath, Int, (ListModelContext) -> Int> {
+//    var indentationLevelForRow: ElementFunction<IndexPath, Int, (ElementContext) -> Int> {
 //        toFunction(#selector(UITableViewDelegate.tableView(_:indentationLevelForRowAt:)), toClosure())
 //    }
 //
 //    @available(iOS 11.0, *)
-//    var shouldSpringLoadRow: ModelFunction<(IndexPath, UISpringLoadedInteractionContext), Bool, (ListModelContext, UISpringLoadedInteractionContext) -> Bool> {
+//    var shouldSpringLoadRow: ElementFunction<(IndexPath, UISpringLoadedInteractionContext), Bool, (ElementContext, UISpringLoadedInteractionContext) -> Bool> {
 //        toFunction(#selector(UITableViewDelegate.tableView(_:shouldSpringLoadRowAt:with:)), \.0, toClosure())
 //    }
 
     // MARK: - Responding to Row Selections
-    var willSelectRow: ModelFunction<IndexPath, IndexPath?, (ListModelContext) -> IndexPath?> {
+    var willSelectRow: ElementFunction<IndexPath, IndexPath?, (ElementContext) -> IndexPath?> {
         toFunction(#selector(UITableViewDelegate.tableView(_:willSelectRowAt:)), toClosure())
     }
 
-    var didSelectRow: ModelFunction<IndexPath, Void, (ListModelContext) -> Void> {
+    var didSelectRow: ElementFunction<IndexPath, Void, (ElementContext) -> Void> {
         toFunction(#selector(UITableViewDelegate.tableView(_:didSelectRowAt:)), toClosure())
     }
 
-    var willDeselectRow: ModelFunction<IndexPath, IndexPath?, (ListModelContext) -> IndexPath?> {
+    var willDeselectRow: ElementFunction<IndexPath, IndexPath?, (ElementContext) -> IndexPath?> {
         toFunction(#selector(UITableViewDelegate.tableView(_:willDeselectRowAt:)), toClosure())
     }
 
-    var didDeselectRow: ModelFunction<IndexPath, Void, (ListModelContext) -> Void> {
+    var didDeselectRow: ElementFunction<IndexPath, Void, (ElementContext) -> Void> {
         toFunction(#selector(UITableViewDelegate.tableView(_:didDeselectRowAt:)), toClosure())
     }
 
 //    @available(iOS 13.0, *)
-//    var shouldBeginMultipleSelectionInteraction: ModelFunction<IndexPath, Bool, (ListModelContext) -> Bool> {
+//    var shouldBeginMultipleSelectionInteraction: ElementFunction<IndexPath, Bool, (ElementContext) -> Bool> {
 //        toFunction(#selector(UITableViewDelegate.tableView(_:shouldBeginMultipleSelectionInteractionAt:)), toClosure())
 //    }
 //
 //    @available(iOS 13.0, *)
-//    var didBeginMultipleSelectionInteraction: ModelFunction<IndexPath, Void, (ListModelContext) -> Void> {
+//    var didBeginMultipleSelectionInteraction: ElementFunction<IndexPath, Void, (ElementContext) -> Void> {
 //        toFunction(#selector(UITableViewDelegate.tableView(_:didBeginMultipleSelectionInteractionAt:)), toClosure())
 //    }
 //
@@ -102,95 +102,95 @@ public extension ListAdapter where View: UITableView {
 //    }
 
     // MARK: - Providing Custom Header and Footer Views
-    var viewHeaderForSection: SectionFunction<Int, UIView?, (ListSectionContext) -> UIView?> {
+    var viewHeaderForSection: SectionFunction<Int, UIView?, (SectionContext) -> UIView?> {
         toFunction(#selector(UITableViewDelegate.tableView(_:viewForHeaderInSection:)), toClosure())
     }
 
-    var viewFooterForSection: SectionFunction<Int, UIView?, (ListSectionContext) -> UIView?> {
+    var viewFooterForSection: SectionFunction<Int, UIView?, (SectionContext) -> UIView?> {
         toFunction(#selector(UITableViewDelegate.tableView(_:viewForFooterInSection:)), toClosure())
     }
 
-    var willDisplayHeaderView: SectionFunction<(Int, UIView), Void, (ListSectionContext, UIView) -> Void> {
+    var willDisplayHeaderView: SectionFunction<(Int, UIView), Void, (SectionContext, UIView) -> Void> {
         toFunction(#selector(UITableViewDelegate.tableView(_:willDisplayHeaderView:forSection:)), \.0, toClosure())
     }
 
-    var willDisplayFooterView: SectionFunction<(Int, UIView), Void, (ListSectionContext, UIView) -> Void> {
+    var willDisplayFooterView: SectionFunction<(Int, UIView), Void, (SectionContext, UIView) -> Void> {
         toFunction(#selector(UITableViewDelegate.tableView(_:willDisplayFooterView:forSection:)), \.0, toClosure())
     }
 
     // MARK: - Providing Header, Footer, and Row Heights
-    var heightForRow: ModelFunction<IndexPath, CGFloat, (ListModelContext) -> CGFloat> {
+    var heightForRow: ElementFunction<IndexPath, CGFloat, (ElementContext) -> CGFloat> {
         toFunction(#selector(UITableViewDelegate.tableView(_:heightForRowAt:)), toClosure())
     }
 
-    var heightForHeader: SectionFunction<Int, CGFloat, (ListSectionContext) -> CGFloat> {
+    var heightForHeader: SectionFunction<Int, CGFloat, (SectionContext) -> CGFloat> {
         toFunction(#selector(UITableViewDelegate.tableView(_:heightForHeaderInSection:)), toClosure())
     }
 
-    var heightForFooter: SectionFunction<Int, CGFloat, (ListSectionContext) -> CGFloat> {
+    var heightForFooter: SectionFunction<Int, CGFloat, (SectionContext) -> CGFloat> {
         toFunction(#selector(UITableViewDelegate.tableView(_:heightForFooterInSection:)), toClosure())
     }
 
     // MARK: - Estimating Heights for the Table's Content
-    var estimatedHeightForRow: ModelFunction<IndexPath, CGFloat, (ListModelContext) -> CGFloat> {
+    var estimatedHeightForRow: ElementFunction<IndexPath, CGFloat, (ElementContext) -> CGFloat> {
         toFunction(#selector(UITableViewDelegate.tableView(_:estimatedHeightForRowAt:)), toClosure())
     }
 
-    var estimatedHeightForHeader: SectionFunction<Int, CGFloat, (ListSectionContext) -> CGFloat> {
+    var estimatedHeightForHeader: SectionFunction<Int, CGFloat, (SectionContext) -> CGFloat> {
         toFunction(#selector(UITableViewDelegate.tableView(_:estimatedHeightForHeaderInSection:)), toClosure())
     }
 
-    var estimatedHeightForFooter: SectionFunction<Int, CGFloat, (ListSectionContext) -> CGFloat> {
+    var estimatedHeightForFooter: SectionFunction<Int, CGFloat, (SectionContext) -> CGFloat> {
         toFunction(#selector(UITableViewDelegate.tableView(_:estimatedHeightForFooterInSection:)), toClosure())
     }
 
 //    // MARK: - Managing Accessory Views
-//    var accessoryButtonTapped: ModelFunction<IndexPath, Void, (ListModelContext) -> Void> {
+//    var accessoryButtonTapped: ElementFunction<IndexPath, Void, (ElementContext) -> Void> {
 //        toFunction(#selector(UITableViewDelegate.tableView(_:accessoryButtonTappedForRowWith:)), toClosure())
 //    }
 //
 //    // MARK: - Responding to Row Actions
 //    @available(iOS 11.0, *)
-//    var leadingSwipeActionsConfiguration: ModelFunction<IndexPath, UISwipeActionsConfiguration?, (ListModelContext) -> UISwipeActionsConfiguration?> {
+//    var leadingSwipeActionsConfiguration: ElementFunction<IndexPath, UISwipeActionsConfiguration?, (ElementContext) -> UISwipeActionsConfiguration?> {
 //        toFunction(#selector(UITableViewDelegate.tableView(_:leadingSwipeActionsConfigurationForRowAt:)), toClosure())
 //    }
 //
 //    @available(iOS 11.0, *)
-//    var trailingSwipeActionsConfiguration: ModelFunction<IndexPath, UISwipeActionsConfiguration?, (ListModelContext) -> UISwipeActionsConfiguration?> {
+//    var trailingSwipeActionsConfiguration: ElementFunction<IndexPath, UISwipeActionsConfiguration?, (ElementContext) -> UISwipeActionsConfiguration?> {
 //        toFunction(#selector(UITableViewDelegate.tableView(_:trailingSwipeActionsConfigurationForRowAt:)), toClosure())
 //    }
 //
-//    var shouldShowMenuForRow: ModelFunction<IndexPath, Bool, (ListModelContext) -> Bool> {
+//    var shouldShowMenuForRow: ElementFunction<IndexPath, Bool, (ElementContext) -> Bool> {
 //        toFunction(#selector(UITableViewDelegate.tableView(_:shouldShowMenuForRowAt:)), toClosure())
 //    }
 //
-//    var canPerformActionWithSender: ModelFunction<(IndexPath, Selector, Any?), Bool, (ListModelContext, Selector, Any?) -> Bool> {
+//    var canPerformActionWithSender: ElementFunction<(IndexPath, Selector, Any?), Bool, (ElementContext, Selector, Any?) -> Bool> {
 //        toFunction(#selector(UITableViewDelegate.tableView(_:canPerformAction:forRowAt:withSender:)), \.0, toClosure())
 //    }
 //
-//    var performActionWithSender: ModelFunction<(IndexPath, Selector, Any?), Void, (ListModelContext, Selector, Any?) -> Void> {
+//    var performActionWithSender: ElementFunction<(IndexPath, Selector, Any?), Void, (ElementContext, Selector, Any?) -> Void> {
 //        toFunction(#selector(UITableViewDelegate.tableView(_:performAction:forRowAt:withSender:)), \.0, toClosure())
 //    }
 //
-//    var editActionsForRow: ModelFunction<IndexPath, [UITableViewRowAction]?, (ListModelContext) -> [UITableViewRowAction]?> {
+//    var editActionsForRow: ElementFunction<IndexPath, [UITableViewRowAction]?, (ElementContext) -> [UITableViewRowAction]?> {
 //        toFunction(#selector(UITableViewDelegate.tableView(_:editActionsForRowAt:)), toClosure())
 //    }
 
     // MARK: - Managing Table View Highlights
-    var shouldHighlight: ModelFunction<IndexPath, Bool, (ListModelContext) -> Bool> {
+    var shouldHighlight: ElementFunction<IndexPath, Bool, (ElementContext) -> Bool> {
         toFunction(#selector(UITableViewDelegate.tableView(_:shouldHighlightRowAt:)), toClosure())
     }
 
-    var didHighlight: ModelFunction<IndexPath, Void, (ListModelContext) -> Void> {
+    var didHighlight: ElementFunction<IndexPath, Void, (ElementContext) -> Void> {
         toFunction(#selector(UITableViewDelegate.tableView(_:didHighlightRowAt:)), toClosure())
     }
 
-    var didUnhighlight: ModelFunction<IndexPath, Void, (ListModelContext) -> Void> {
+    var didUnhighlight: ElementFunction<IndexPath, Void, (ElementContext) -> Void> {
         toFunction(#selector(UITableViewDelegate.tableView(_:didUnhighlightRowAt:)), toClosure())
     }
 
 //    // MARK: - Editing Table Rows
-//    var willBeginEditing: ModelFunction<IndexPath, Void, (ListModelContext) -> Void> {
+//    var willBeginEditing: ElementFunction<IndexPath, Void, (ElementContext) -> Void> {
 //        toFunction(#selector(UITableViewDelegate.tableView(_:willBeginEditingRowAt:)), toClosure())
 //    }
 //
@@ -198,15 +198,15 @@ public extension ListAdapter where View: UITableView {
 //        toFunction(#selector(UITableViewDelegate.tableView(_:didEndEditingRowAt:)), toClosure())
 //    }
 //
-//    var editingStyle: ModelFunction<IndexPath, UITableViewCell.EditingStyle, (ListModelContext) -> UITableViewCell.EditingStyle> {
+//    var editingStyle: ElementFunction<IndexPath, UITableViewCell.EditingStyle, (ElementContext) -> UITableViewCell.EditingStyle> {
 //        toFunction(#selector(UITableViewDelegate.tableView(_:editingStyleForRowAt:)), toClosure())
 //    }
 //
-//    var titleForDeleteConfirmationButton: ModelFunction<IndexPath, String?, (ListModelContext) -> String?> {
+//    var titleForDeleteConfirmationButton: ElementFunction<IndexPath, String?, (ElementContext) -> String?> {
 //        toFunction(#selector(UITableViewDelegate.tableView(_:titleForDeleteConfirmationButtonForRowAt:)), toClosure())
 //    }
 //
-//    var shouldIndentWhileEditing: ModelFunction<IndexPath, Bool, (ListModelContext) -> Bool> {
+//    var shouldIndentWhileEditing: ElementFunction<IndexPath, Bool, (ElementContext) -> Bool> {
 //        toFunction(#selector(UITableViewDelegate.tableView(_:shouldIndentWhileEditingRowAt:)), toClosure())
 //    }
 //
@@ -229,7 +229,7 @@ public extension ListAdapter where View: UITableView {
     }
 
 //    // MARK: - Managing Table View Focus
-//    var canFocusRow: ModelFunction<IndexPath, Bool, (ListModelContext) -> Bool> {
+//    var canFocusRow: ElementFunction<IndexPath, Bool, (ElementContext) -> Bool> {
 //        toFunction(#selector(UITableViewDelegate.tableView(_:canFocusRowAt:)), toClosure())
 //    }
 //
@@ -247,7 +247,7 @@ public extension ListAdapter where View: UITableView {
 //
 //    // MARK: - Instance Methods
 //    @available(iOS 13.0, *)
-//    var contextMenuConfigurationForRow: ModelFunction<(IndexPath, CGPoint), UIContextMenuConfiguration, (ListModelContext, CGPoint) -> UIContextMenuConfiguration> {
+//    var contextMenuConfigurationForRow: ElementFunction<(IndexPath, CGPoint), UIContextMenuConfiguration, (ElementContext, CGPoint) -> UIContextMenuConfiguration> {
 //        toFunction(#selector(UITableViewDelegate.tableView(_:contextMenuConfigurationForRowAt:point:)), \.0, toClosure())
 //    }
 //

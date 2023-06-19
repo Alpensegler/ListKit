@@ -7,30 +7,38 @@
 
 import Foundation
 
+public enum ConditionalValue<FirstContent, SecondContent> {
+    case first(FirstContent), second(SecondContent)
+}
+
 public struct ConditionalListAdapters<TrueContent: ListAdapter, FalseContent: ListAdapter>: ListAdapter, ListCoordinator {
     public typealias View = TrueContent.View
-    public enum Value {
-        case first(TrueContent), second(FalseContent)
 
-        var context: ListCoordinatorContext {
-            switch self {
-            case .first(let content): return content.listCoordinatorContext
-            case .second(let content): return content.listCoordinatorContext
-            }
-        }
-    }
-
-    public let value: Value
+    public let value: ConditionalValue<TrueContent, FalseContent>
     var context: ListCoordinatorContext
 
-    init(_ value: Value) {
+    init(_ value: ConditionalValue<TrueContent, FalseContent>) {
+        switch value {
+        case .first(let content): context = content.listCoordinatorContext
+        case .second(let content): context = content.listCoordinatorContext
+        }
         self.value = value
-        self.context = value.context
     }
 }
 
 extension ConditionalListAdapters: TableList where TrueContent: TableList, FalseContent: TableList { }
 extension ConditionalListAdapters: CollectionList where TrueContent: CollectionList, FalseContent: CollectionList { }
+extension ConditionalListAdapters: TypedListAdapter where TrueContent: TypedListAdapter, FalseContent: TypedListAdapter {
+    public typealias Element = ConditionalValue<TrueContent.Element, FalseContent.Element>
+    public func element<View>(at context: ListIndexContext<View, IndexPath>) -> Element {
+        switch value {
+        case .first(let adapter):
+            return .first(adapter.element(at: context))
+        case .second(let adapter):
+            return .second(adapter.element(at: context))
+        }
+    }
+}
 
 public extension ConditionalListAdapters {
     var count: Count { context.coordinatorCount }

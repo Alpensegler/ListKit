@@ -7,6 +7,8 @@
 
 import Foundation
 
+import UIKit
+
 final class Delegate: NSObject {
     unowned let listView: SetuptableListView
     var context: ListCoordinatorContext!

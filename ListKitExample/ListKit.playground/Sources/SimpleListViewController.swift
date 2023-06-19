@@ -3,7 +3,7 @@
 import ListKit
 import UIKit
 
-public class SimpleListViewController: UIViewController, UpdatableTableListAdapter {
+public class SimpleListViewController: UIViewController, TableListAdapter {
     private let _models = ["Roy", "Pinlin", "Zhiyi", "Frain", "Jack", "Cookie", "Kubrick", "Jeremy", "Juhao", "Herry"]
 
     var toggle = false
@@ -18,7 +18,7 @@ public class SimpleListViewController: UIViewController, UpdatableTableListAdapt
     public var list: TableList {
         CollectionElements(models)
             .cellForRow()
-            .didSelectRow { _, _ in //[unowned self] (context, model) in
+            .didSelectRow { _, _ in //[unowned self] context, element in
 //                performUpdate(.remove(at: context.item))
             }
             .didEndDragging { _, bool in
@@ -31,7 +31,7 @@ public class SimpleListViewController: UIViewController, UpdatableTableListAdapt
 
     public override func viewDidLoad() {
         super.viewDidLoad()
-        apply(by: tableView)
+        tableView.adapted(by: self)
 
         navigationItem.rightBarButtonItems = [
             UIBarButtonItem(

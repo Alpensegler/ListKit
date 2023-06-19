@@ -3,18 +3,13 @@ import UIKit
 
 // swiftlint:disable comment_spacing orphaned_doc_comment
 
-public class TestListViewController: UIViewController, UpdatableTableListAdapter {
+public class TestListViewController: UIViewController, TableListAdapter {
     public var toggle = true
 
-    lazy var itemSource = ItemSource()
-    lazy var itemsSource = CollectionElements([1.0, 2.0, 3.0]) // .removeEmptySection
-        .cellForRow()
-        .didSelectRow { [unowned self] context in
-//            batchRemove(at: context.item)
-        }
-        .headerTitleForSection("items")
+    @CollectionElements
+    var collectionElements = [1.0, 2.0, 3.0]
 
-    final class ItemSource: UpdatableTableListAdapter {
+    final class SingleListAdapter: TableListAdapter {
         var toggle = true
 
         public var list: TableList {
@@ -43,30 +38,38 @@ public class TestListViewController: UIViewController, UpdatableTableListAdapter
 
     public var list: TableList {
         if toggle {
-            itemSource
-            itemsSource
+            SingleListAdapter()
+            $collectionElements
+                .cellForRow()
+                .headerTitleForSection("items")
         }
         SectionedElements([[1, 2, 3], [1, 2, 3]])
             .cellForRow()
             .headerTitleForSection("sections")
         buildList {
+            SingleElement("a")
+                .cellForRow()
             SingleElement(2)
                 .cellForRow()
-                .didSelectRow { context, model in
-                    context.deselect(animated: false)
-                    print(model)
-                }
             CollectionElements(["a", "b", "c"])
                 .cellForRow()
-                .didSelectRow { context, model in
-                    context.deselect(animated: false)
-                    print(model)
-                }
-        }.headerTitleForSection("sources")
+        }
+        .didSelectRow { context, element in
+            context.deselect(animated: false)
+            switch element {
+            case .first(.first(let element)):
+                print(element) // String
+            case .first(.second(let element)):
+                print(element) // Int
+            case .second(let element):
+                print(element) // String
+            }
+        }
+        .headerTitleForSection("sources")
     }
 
     public override func viewDidLoad() {
-        apply(by: tableView)
+        tableView.adapted(by: self)
         configActions()
     }
 
@@ -115,67 +118,3 @@ struct TestList_Preview: UIViewControllerRepresentable, PreviewProvider {
 }
 
 #endif
-
-//extension TestListViewController {
-//    var source: AnyTableSources {
-//        AnyTableSources {
-//            if toggle {
-//                Sources(model: "b")
-//                    .tableViewCellForRow()
-//                    .tableViewDidSelectRow { (context, model) in
-//                        context.deselectItem(animated: false)
-//                        print(item)
-//                    }
-//            }
-//            Sources(id: 1, items: ["a", "b", "c"])
-//                .tableViewCellForRow()
-//                .tableViewDidSelectRow { (context, model) in
-//                    context.deselectItem(animated: false)
-//                    print(item)
-//                }
-//                .tableViewHeaderTitleForSection { (context) -> String? in
-//                    "sources"
-//                }
-//        }
-//    }
-//}
-//
-//public extension TestListViewController {
-//    static var source = [AnyTableSources]()
-//
-//    typealias Item = Any
-//    var source: [AnyTableSources] {
-//        []
-//    }
-//
-//    func configActions() {
-//        navigationItem.rightBarButtonItems = [
-//            UIBarButtonItem(
-//                barButtonSystemItem: .add,
-//                target: self,
-//                action: #selector(add)
-//            ),
-//            UIBarButtonItem(
-//                barButtonSystemItem: .refresh,
-//                target: self,
-//                action: #selector(refresh)
-//            )
-//        ]
-//    }
-//
-//    @objc func add() {
-//        let source = AnyTableSources {
-//            itemsSource
-//        }
-//        perform(.append(source))
-//    }
-//
-//    @objc func refresh() {
-//        var update = ListUpdate<SourceBase>()
-//        update.add(.subsource(itemsSource, update: [.append(4.0), .update(0.0, at: 0)]))
-//        perform(update)
-//
-//        itemSource.toggle.toggle()
-//        itemSource.performUpdate()
-//    }
-//}

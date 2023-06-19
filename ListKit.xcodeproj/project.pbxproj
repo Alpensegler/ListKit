@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3C092F442A40404A00C9F72D /* TypedListAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C092F432A40404A00C9F72D /* TypedListAdapter.swift */; };
+		3C092F462A40410F00C9F72D /* ListBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C092F452A40410F00C9F72D /* ListBuilder.swift */; };
 		3C275A5D28A6562600975E07 /* ListAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C275A5C28A6562600975E07 /* ListAdapter.swift */; };
 		3C2DF53729F0B4C30086FB69 /* SimpleListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2DF53629F0B4C30086FB69 /* SimpleListViewController.swift */; };
 		3CB1153029B75FAF00312263 /* TupleListAdapters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CB1152F29B75FAF00312263 /* TupleListAdapters.swift */; };
@@ -24,7 +26,6 @@
 		F304A6E1239E95DC00133D14 /* ListView+NSCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F304A6E0239E95DB00133D14 /* ListView+NSCollectionView.swift */; };
 		F304A6E3239E95ED00133D14 /* ListView+NSTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F304A6E2239E95ED00133D14 /* ListView+NSTableView.swift */; };
 		F304A6E5239E962300133D14 /* NSListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F304A6E4239E962300133D14 /* NSListView.swift */; };
-		F30CF60824E7D2370078720C /* ListOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35A67FE248F7DB700FEAC22 /* ListOptions.swift */; };
 		F30CF60924E7D23F0078720C /* ListAdapters.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3AD067F238FF3DA000AF1B3 /* ListAdapters.swift */; };
 		F30CF60A24E7D2440078720C /* CollectionElements.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3AD0139238BE6FE000AF1B3 /* CollectionElements.swift */; };
 		F31250E9239C545200E77969 /* ListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31250E8239C545200E77969 /* ListView.swift */; };
@@ -59,7 +60,6 @@
 		F39A23F623A16D1F0024F9AF /* CoreData+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = F39A23F523A16D1F0024F9AF /* CoreData+Extension.swift */; };
 		F3A4A2EC2463AD22007FAB3B /* ListIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A4A2EB2463AD22007FAB3B /* ListIndex.swift */; };
 		F3D122C4254783530000BC3F /* IndexSet+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3D122C3254783530000BC3F /* IndexSet+Extension.swift */; };
-		F3D785C82398FC5B00D7A5CD /* UpdatableListAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3D785C72398FC5B00D7A5CD /* UpdatableListAdapter.swift */; };
 		F3D786FC2399318B00D7A5CD /* Associator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3D786FB2399318B00D7A5CD /* Associator.swift */; };
 		F3D786FE239931CE00D7A5CD /* UIListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3D786FD239931CE00D7A5CD /* UIListView.swift */; };
 		F3D787022399327200D7A5CD /* ListView+UITableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3D786FF2399327200D7A5CD /* ListView+UITableView.swift */; };
@@ -116,6 +116,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		3C092F432A40404A00C9F72D /* TypedListAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypedListAdapter.swift; sourceTree = "<group>"; };
+		3C092F452A40410F00C9F72D /* ListBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListBuilder.swift; sourceTree = "<group>"; };
 		3C275A5C28A6562600975E07 /* ListAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListAdapter.swift; sourceTree = "<group>"; };
 		3C2DF53629F0B4C30086FB69 /* SimpleListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SimpleListViewController.swift; path = ListKit.playground/Sources/SimpleListViewController.swift; sourceTree = "<group>"; };
 		3CB1152F29B75FAF00312263 /* TupleListAdapters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TupleListAdapters.swift; sourceTree = "<group>"; };
@@ -141,7 +143,6 @@
 		F33FBC3C234F33A70054BA38 /* DataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSource.swift; sourceTree = "<group>"; };
 		F34E7F3B24D6D3B600DE3844 /* ListContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListContext.swift; sourceTree = "<group>"; };
 		F354B6F524C38A0C00E9D19B /* BatchUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatchUpdate.swift; sourceTree = "<group>"; };
-		F35A67FE248F7DB700FEAC22 /* ListOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListOptions.swift; sourceTree = "<group>"; };
 		F35BBA06239FD1600024EA7D /* ListAdapter+UITableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ListAdapter+UITableView.swift"; sourceTree = "<group>"; };
 		F36550172451B4060038172F /* ListKitExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ListKitExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F36550192451B4060038172F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -169,7 +170,6 @@
 		F3AD067F238FF3DA000AF1B3 /* ListAdapters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListAdapters.swift; sourceTree = "<group>"; };
 		F3B15B8A24E598F8009BE889 /* ListKit.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = ListKit.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		F3D122C3254783530000BC3F /* IndexSet+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "IndexSet+Extension.swift"; sourceTree = "<group>"; };
-		F3D785C72398FC5B00D7A5CD /* UpdatableListAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdatableListAdapter.swift; sourceTree = "<group>"; };
 		F3D786FB2399318B00D7A5CD /* Associator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Associator.swift; sourceTree = "<group>"; };
 		F3D786FD239931CE00D7A5CD /* UIListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIListView.swift; sourceTree = "<group>"; };
 		F3D786FF2399327200D7A5CD /* ListView+UITableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ListView+UITableView.swift"; sourceTree = "<group>"; };
@@ -229,7 +229,8 @@
 			children = (
 				F37A1228239FC0590001E9EE /* ListAdapter+UIKit */,
 				3C275A5C28A6562600975E07 /* ListAdapter.swift */,
-				F3D785C72398FC5B00D7A5CD /* UpdatableListAdapter.swift */,
+				3C092F452A40410F00C9F72D /* ListBuilder.swift */,
+				3C092F432A40404A00C9F72D /* TypedListAdapter.swift */,
 				3CB1153129B76CB500312263 /* TableListAdapter.swift */,
 				3CB1153529B7770F00312263 /* CollectionListAdapter.swift */,
 			);
@@ -374,7 +375,6 @@
 				F374B1432471A0FA0009420D /* Mapping.swift */,
 				F354B6F524C38A0C00E9D19B /* BatchUpdate.swift */,
 				F3A4A2EB2463AD22007FAB3B /* ListIndex.swift */,
-				F35A67FE248F7DB700FEAC22 /* ListOptions.swift */,
 				F3FAECCA24FFE0C3001CBA34 /* IndexPathSet.swift */,
 				F3FAECCC24FFE16A001CBA34 /* ChangeSet.swift */,
 			);
@@ -628,13 +628,12 @@
 				F304A6E1239E95DC00133D14 /* ListView+NSCollectionView.swift in Sources */,
 				F3841D5D2355E0DA006386E3 /* Collection+Extension.swift in Sources */,
 				F34E7F3C24D6D3B600DE3844 /* ListContext.swift in Sources */,
-				F3D785C82398FC5B00D7A5CD /* UpdatableListAdapter.swift in Sources */,
 				F354B6F624C38A0C00E9D19B /* BatchUpdate.swift in Sources */,
 				3CB1153629B7770F00312263 /* CollectionListAdapter.swift in Sources */,
 				F36E6016250AC69700F2D441 /* ConditionalListAdapters.swift in Sources */,
 				F32F922B25B6FAAC00C55F7A /* ListDelegate+IndexFunction+CallAsFunction.swift in Sources */,
-				F30CF60824E7D2370078720C /* ListOptions.swift in Sources */,
 				F3EB15DA23A2CF8D00C9AC5E /* Optional+Extension.swift in Sources */,
+				3C092F442A40404A00C9F72D /* TypedListAdapter.swift in Sources */,
 				F304A6E3239E95ED00133D14 /* ListView+NSTableView.swift in Sources */,
 				F314FAE223BC71EA0060985E /* Delegate.swift in Sources */,
 				F3D787022399327200D7A5CD /* ListView+UITableView.swift in Sources */,
@@ -643,6 +642,7 @@
 				F329598323A10B7D001D6063 /* ListViewStorage+UIKit.swift in Sources */,
 				3CB1153229B76CB500312263 /* TableListAdapter.swift in Sources */,
 				F374B1442471A0FA0009420D /* Mapping.swift in Sources */,
+				3C092F462A40410F00C9F72D /* ListBuilder.swift in Sources */,
 				F383064323506BAC00AE8B97 /* CollectionDifference.swift in Sources */,
 				F30CF60A24E7D2440078720C /* CollectionElements.swift in Sources */,
 				F31250E9239C545200E77969 /* ListView.swift in Sources */,

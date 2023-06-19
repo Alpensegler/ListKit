@@ -3,7 +3,7 @@ import UIKit
 
 // swiftlint:disable comment_spacing
 
-public class SectionListViewControlle: UIViewController, UpdatableCollectionListAdapter {
+public class SectionListViewControlle: UIViewController, CollectionListAdapter {
     static let emojis = (0x1F600...0x1F647).compactMap { UnicodeScalar($0) }
 
     public var models: [[UnicodeScalar]] {
@@ -23,7 +23,7 @@ public class SectionListViewControlle: UIViewController, UpdatableCollectionList
 
     public override func viewDidLoad() {
         super.viewDidLoad()
-        apply(by: collectionView)
+        collectionView.adapted(by: self)
 
         navigationItem.rightBarButtonItem = UIBarButtonItem(
             barButtonSystemItem: .refresh,

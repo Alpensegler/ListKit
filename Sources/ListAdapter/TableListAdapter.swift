@@ -14,7 +14,7 @@ public extension TableListAdapter where List == TableList {
     var listCoordinatorContext: ListCoordinatorContext { list.listCoordinatorContext }
 }
 
-public extension UpdatableListAdapter where Self: TableListAdapter, List == TableList {
+public extension ListAdapter where Self: AnyObject, List == TableList {
     var listCoordinator: ListCoordinator { list.listCoordinator }
     var listCoordinatorContext: ListCoordinatorContext {
         listCoordinatorContext(from: list)
@@ -24,14 +24,13 @@ public extension UpdatableListAdapter where Self: TableListAdapter, List == Tabl
         animated: Bool = true,
         completion: ((ListView, Bool) -> Void)? = nil
     ) {
-        _perform(reload: true, animated: animated, coordinatorGetter: list.listCoordinatorContext, completion: completion)
+        _perform(reload: true, animated: animated, coordinatorGetter: self.list.listCoordinatorContext, completion: completion)
     }
 
     func performUpdate(
         animated: Bool = true,
         completion: ((ListView, Bool) -> Void)? = nil
     ) {
-        _perform(reload: false, animated: animated, coordinatorGetter: list.listCoordinatorContext, completion: completion)
+        _perform(reload: false, animated: animated, coordinatorGetter: self.list.listCoordinatorContext, completion: completion)
     }
-    
 }

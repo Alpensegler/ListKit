@@ -11,7 +11,7 @@ import UIKit
 
 // swiftlint: disable comment_spacing todo orphaned_doc_comment
 
-//public class CoreDataListViewController: UIViewController, UpdatableListAdapter {
+//public class CoreDataListViewController: UIViewController, ListAdapter {
 //    var fetchLimit = 3
 //
 //    public var toggle = true
@@ -75,7 +75,7 @@ import UIKit
 //
 //    func configLoadMore() -> ListAdaptation<ModelSources<String>, UITableView> {
 //        Sources(model: "loadmore")
-//            .cellForRow(UITableViewCell.self) { (cell, context, model) in
+//            .cellForRow(UITableViewCell.self) { cell, context, element in
 //                cell.textLabel?.text = model
 //                cell.textLabel?.textAlignment = .center
 //            }
@@ -268,7 +268,7 @@ import UIKit
 //#endif
 
 //extension CoreDataListViewController {
-//    struct ItemSource: UpdatableTableListAdapter {
+//    struct ItemSource: TableListAdapter {
 //        var coordinatorStorage = CoordinatorStorage<ItemSource>()
 //
 //        typealias Item = Any

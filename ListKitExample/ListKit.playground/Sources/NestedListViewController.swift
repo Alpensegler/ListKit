@@ -3,16 +3,16 @@
 import ListKit
 import UIKit
 
-public class NestedListViewController: UIViewController, UpdatableTableListAdapter {
+public class NestedListViewController: UIViewController, TableListAdapter {
     let nestedSources = CollectionElements(0..<10)
-        .cellForItem(CenterLabelCell.self) { (cell, context, model) in
-            cell.text = "\(model)"
+        .cellForItem(CenterLabelCell.self) { cell, _, element in
+            cell.text = "\(element)"
         }
 
     public var list: TableList {
         SingleElement(nestedSources)
-            .cellForRow(EmbeddedCell.self) { (cell, context, model) in
-                model.apply(by: cell.collectionView)
+            .cellForRow(EmbeddedCell.self) { cell, _, element in
+                cell.collectionView.adapted(by: element)
             }
             .heightForRow(100)
         CollectionElements(["a", "b", "c"])
@@ -21,7 +21,7 @@ public class NestedListViewController: UIViewController, UpdatableTableListAdapt
     }
 
     public override func viewDidLoad() {
-        apply(by: tableView)
+        tableView.adapted(by: self)
     }
 }
 

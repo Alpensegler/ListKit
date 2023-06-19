@@ -52,16 +52,6 @@ extension ListIndexContext {
     }
 }
 
-public extension ListAdapter {
-    typealias ListContext = ListKit.ListContext<View>
-    typealias ListModelContext = ListIndexContext<View, IndexPath>
-    typealias ListSectionContext = ListIndexContext<View, Int>
-
-    typealias Function<Input, Output, Closure> = ListKit.Function<List, View, Input, Output, Closure>
-    typealias ModelFunction<Input, Output, Closure> = IndexFunction<List, View, Input, Output, Closure, IndexPath>
-    typealias SectionFunction<Input, Output, Closure> = IndexFunction<List, View, Input, Output, Closure, Int>
-}
-
 public extension ListIndexContext where Index == Int {
     var section: Int { index }
 }
@@ -69,9 +59,11 @@ public extension ListIndexContext where Index == Int {
 public extension ListIndexContext where Index == IndexPath {
     var section: Int { index.section }
     var item: Int { index.item }
+}
 
-    var containedType: Any {
-        context.coordinator.model(at: index)
+extension ListIndexContext where Index == IndexPath {
+    func element<List: TypedListAdapter>(for type: List.Type) -> List.Element {
+        (context.coordinator as! List).element(at: self)
     }
 }
 

@@ -25,7 +25,7 @@ class EmojiViewModel: ListAdapter {
     typealias Model = Character
     var source = "🥳🤭😇"
     var tableList: ListAdaptation<AdapterBase, UITableView> {
-        cellForRow(UITableViewCell.self) { cell, context, model in
+        cellForRow(UITableViewCell.self) { cell, context, element in
             cell.textLabel?.text = "\(model)"
         }
     }
@@ -55,10 +55,10 @@ class RoomViewModel: UpdatableListAdapter {
     }
     
     var tableList: ListAdaptation<AdapterBase, UITableView> {
-        cellForRow(UITableViewCell.self) { cell, context, model in
+        cellForRow(UITableViewCell.self) { cell, context, element in
             cell.textLabel?.text = "\(model)"
         }
-        didSelectRow { (context, model) in
+        didSelectRow { context, element in
             print(model)
         }
     }

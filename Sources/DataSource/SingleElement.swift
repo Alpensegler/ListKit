@@ -28,15 +28,17 @@ public extension SingleElement {
         self.init(value: wrappedValue)
     }
 
-    init(_ model: Element) {
-        self.init(value: model)
+    init(_ element: Element) {
+        self.init(value: element)
     }
 
     func diff(by areEquivalent: @escaping (Element, Element) -> Bool) -> SingleElement<Element> {
         .init(value: wrappedValue, areEquivalent: areEquivalent)
     }
 
-    func model(at indexPath: IndexPath) -> Any { list }
+    func element<View>(at context: ListIndexContext<View, IndexPath>) -> Element {
+        wrappedValue
+    }
 
     func performUpdate(to coordinator: ListCoordinator) -> BatchUpdates {
         .reload(change: nil)
@@ -48,8 +50,8 @@ public extension SingleElement where Element: Equatable {
         self.init(value: wrappedValue, areEquivalent: ==)
     }
 
-    init(_ model: Element) {
-        self.init(value: model, areEquivalent: ==)
+    init(_ element: Element) {
+        self.init(value: element, areEquivalent: ==)
     }
 }
 

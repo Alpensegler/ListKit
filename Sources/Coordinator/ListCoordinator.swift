@@ -22,7 +22,6 @@ public protocol ListCoordinator {
     )
 
     func performUpdate(to coordinator: ListCoordinator) -> BatchUpdates
-    func model(at indexPath: IndexPath) -> Any
 
     @discardableResult
     mutating func performUpdate(

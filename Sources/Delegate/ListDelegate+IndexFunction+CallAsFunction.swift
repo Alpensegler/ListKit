@@ -24,7 +24,7 @@ public extension IndexFunction where View: UICollectionView, Index == IndexPath 
         _ cellClass: Cell.Type,
         identifier: String = "",
         configCell: @escaping (Cell, ListIndexContext<View, Index>) -> Void = { _, _ in }
-    ) -> Modifier<List, V> where Output == UICollectionViewCell {
+    ) -> Modifier<V, List> where Output == UICollectionViewCell {
         toTarget { (context, _) in
             let cell = context.dequeueReusableCell(cellClass, identifier: identifier)
             configCell(cell, context)
@@ -36,7 +36,7 @@ public extension IndexFunction where View: UICollectionView, Index == IndexPath 
         _ cellClass: Cell.Type,
         storyBoardIdentifier: String,
         configCell: @escaping (Cell, ListIndexContext<View, Index>) -> Void = { _, _ in }
-    ) -> Modifier<List, V> where Output == UICollectionViewCell {
+    ) -> Modifier<V, List> where Output == UICollectionViewCell {
         toTarget { (context, _) in
             let cell = context.dequeueReusableCell(cellClass, storyBoardIdentifier: storyBoardIdentifier)
             configCell(cell, context)
@@ -48,10 +48,10 @@ public extension IndexFunction where View: UICollectionView, Index == IndexPath 
         _ cellClass: Cell.Type,
         identifier: String = "",
         configCell: @escaping (Cell, ListIndexContext<View, Index>, List.Element) -> Void
-    ) -> Modifier<List, V> where Output == UICollectionViewCell, List: TypedListAdapter {
+    ) -> Modifier<V, List> where Output == UICollectionViewCell, List: TypedListAdapter {
         toTarget { (context, _) in
             let cell = context.dequeueReusableCell(cellClass, identifier: identifier)
-            configCell(cell, context, context.containedType as! List.Element)
+            configCell(cell, context, context.element(for: List.self))
             return cell
         }
     }
@@ -60,10 +60,10 @@ public extension IndexFunction where View: UICollectionView, Index == IndexPath 
         _ cellClass: Cell.Type,
         storyBoardIdentifier: String,
         configCell: @escaping (Cell, ListIndexContext<View, Index>, List.Element) -> Void = { _, _, _ in }
-    ) -> Modifier<List, V> where Output == UICollectionViewCell, List: TypedListAdapter {
+    ) -> Modifier<V, List> where Output == UICollectionViewCell, List: TypedListAdapter {
         toTarget { (context, _) in
             let cell = context.dequeueReusableCell(cellClass, storyBoardIdentifier: storyBoardIdentifier)
-            configCell(cell, context, context.containedType as! List.Element)
+            configCell(cell, context, context.element(for: List.self))
             return cell
         }
     }
@@ -129,10 +129,10 @@ public extension IndexFunction where View: UICollectionView, Index == IndexPath 
 
 // MARK: - TableView Related Functions
 public extension IndexFunction where View: UITableView, Index == IndexPath {
-    func callAsFunction() -> Modifier<List, V> where Output == UITableViewCell {
+    func callAsFunction() -> Modifier<V, List> where Output == UITableViewCell, List: TypedListAdapter {
         toTarget { context, _ in
             let cell = context.dequeueReusableCell(UITableViewCell.self)
-            cell.textLabel?.text = "\(context.containedType)"
+            cell.textLabel?.text = "\(context.element(for: List.self))"
             return cell
         }
     }
@@ -141,7 +141,7 @@ public extension IndexFunction where View: UITableView, Index == IndexPath {
         _ cellClass: Cell.Type,
         identifier: String = "",
         configCell: @escaping (Cell, ListIndexContext<View, Index>) -> Void = { _, _ in }
-    ) -> Modifier<List, V> where Output == UITableViewCell {
+    ) -> Modifier<V, List> where Output == UITableViewCell {
         toTarget { (context, _) in
             let cell = context.dequeueReusableCell(cellClass, identifier: identifier)
             configCell(cell, context)
@@ -153,7 +153,7 @@ public extension IndexFunction where View: UITableView, Index == IndexPath {
         _ cellClass: Cell.Type,
         storyBoardIdentifier: String,
         configCell: @escaping (Cell, ListIndexContext<View, Index>) -> Void = { _, _ in }
-    ) -> Modifier<List, V> where Output == UITableViewCell {
+    ) -> Modifier<V, List> where Output == UITableViewCell {
         toTarget { (context, _) in
             let cell = context.dequeueReusableCell(cellClass, storyBoardIdentifier: storyBoardIdentifier)
             configCell(cell, context)
@@ -165,10 +165,10 @@ public extension IndexFunction where View: UITableView, Index == IndexPath {
         _ cellClass: Cell.Type,
         identifier: String = "",
         configCell: @escaping (Cell, ListIndexContext<View, Index>, List.Element) -> Void
-    ) -> Modifier<List, V> where Output == UITableViewCell, List: TypedListAdapter {
+    ) -> Modifier<V, List> where Output == UITableViewCell, List: TypedListAdapter {
         toTarget { (context, _) in
             let cell = context.dequeueReusableCell(cellClass, identifier: identifier)
-            configCell(cell, context, context.containedType as! List.Element)
+            configCell(cell, context, context.element(for: List.self))
             return cell
         }
     }
@@ -177,10 +177,10 @@ public extension IndexFunction where View: UITableView, Index == IndexPath {
         _ cellClass: Cell.Type,
         storyBoardIdentifier: String,
         configCell: @escaping (Cell, ListIndexContext<View, Index>, List.Element) -> Void
-    ) -> Modifier<List, V> where Output == UITableViewCell, List: TypedListAdapter {
+    ) -> Modifier<V, List> where Output == UITableViewCell, List: TypedListAdapter {
         toTarget { (context, _) in
             let cell = context.dequeueReusableCell(cellClass, storyBoardIdentifier: storyBoardIdentifier)
-            configCell(cell, context, context.containedType as! List.Element)
+            configCell(cell, context, context.element(for: List.self))
             return cell
         }
     }

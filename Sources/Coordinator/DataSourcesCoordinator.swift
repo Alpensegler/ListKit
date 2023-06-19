@@ -45,10 +45,15 @@ public extension DataSourcesCoordinator {
         let output: Output? = _apply(selector, for: context, view: view, with: input, index: index, rawIndex)
         guard output == nil || Output.self == Void.self,
               subselectors.contains(selector),
-              let contextIndex = index.contextIndex(at: indices) else { return output }
+              let (context, _, index) = contextAndIndex(at: index) else { return output }
+        return context.apply(selector, view: view, with: input, index: index, rawIndex)
+    }
+
+    func contextAndIndex<Index: ListKit.Index>(at index: Index) -> (ListCoordinatorContext, Int, Index)? {
+        guard let contextIndex = index.contextIndex(at: indices) else { return nil }
         let (sectionOffset, itemOffset) = contextsOffsets[contextIndex]
-        let withoutOffset = index.offseted(section: -sectionOffset, item: -itemOffset)
-        return contexts[contextIndex].apply(selector, view: view, with: input, index: withoutOffset, rawIndex)
+        let index = index.offseted(section: -sectionOffset, item: -itemOffset)
+        return (contexts[contextIndex], contextIndex, index)
     }
 
     func setupWithListView(offset: IndexPath, storages: inout [CoordinatorStorage: [IndexPath]]) {

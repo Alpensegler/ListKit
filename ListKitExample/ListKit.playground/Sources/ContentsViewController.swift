@@ -21,7 +21,7 @@ public class ContentsViewController: UIViewController, TableListAdapter {
     }
 
     public override func viewDidLoad() {
-        apply(by: tableView)
+        tableView.adapted(by: self)
         title = "Contents"
     }
 

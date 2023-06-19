@@ -21,13 +21,16 @@ public struct CollectionElements<C: Collection>: TypedListAdapter, ListCoordinat
         }
     }
     public var projectedValue: Self { self }
+}
 
-    init(value: C,
-         identifier: ((Element) -> AnyHashable)? = nil,
-         areEquivalent: ((Element, Element) -> Bool)? = nil
+extension CollectionElements {
+    init(
+        _ wrappedValue: C,
+        identifier: ((Element) -> AnyHashable)? = nil,
+        areEquivalent: ((Element, Element) -> Bool)? = nil
     ) {
-        self.wrappedValue = value
-        self.value = value.mapContiguous { $0 }
+        self.wrappedValue = wrappedValue
+        self.value = wrappedValue.mapContiguous { $0 }
         self.areEquivalent = areEquivalent
     }
 }
@@ -36,46 +39,46 @@ public extension CollectionElements {
     var count: Count { .items(value.count) }
 
     init(wrappedValue: C) {
-        self.init(value: wrappedValue)
+        self.init(wrappedValue)
     }
 
-    init(_ models: C) {
-        self.init(wrappedValue: models)
+    init(_ collection: C) {
+        self.init(collection, identifier: nil, areEquivalent: nil)
     }
 
     func diff<ID: Hashable>(id: @escaping (Element) -> ID, by areEquivalent: @escaping (Element, Element) -> Bool) -> CollectionElements<C> {
-        .init(value: wrappedValue, identifier: { id($0) }, areEquivalent: areEquivalent)
+        .init(value: value, identifier: { id($0) }, areEquivalent: areEquivalent, wrappedValue: wrappedValue)
     }
 
     func diff(by areEquivalent: @escaping (Element, Element) -> Bool) -> CollectionElements<C> {
-        .init(value: wrappedValue, areEquivalent: areEquivalent)
+        .init(value: value, areEquivalent: areEquivalent, wrappedValue: wrappedValue)
+    }
+
+    func element<View>(at context: ListIndexContext<View, IndexPath>) -> Element {
+        value[context.item]
     }
 
     func performUpdate(to coordinator: ListCoordinator) -> BatchUpdates {
         .reload(change: nil)
     }
-
-    func model(at indexPath: IndexPath) -> Any {
-        value[indexPath.item]
-    }
 }
 
 public extension CollectionElements where Element: Equatable {
     init(wrappedValue: C) {
-        self.init(value: wrappedValue, areEquivalent: ==)
+        self.init(wrappedValue, areEquivalent: ==)
     }
 
-    init(_ models: C) {
-        self.init(value: models, areEquivalent: ==)
+    init(_ collection: C) {
+        self.init(collection, areEquivalent: ==)
     }
 }
 
 public extension CollectionElements where Element: Hashable {
     init(wrappedValue: C) {
-        self.init(value: wrappedValue, identifier: { $0 }, areEquivalent: ==)
+        self.init(wrappedValue, identifier: { $0 }, areEquivalent: ==)
     }
 
-    init(_ models: C) {
-        self.init(value: models, identifier: { $0 }, areEquivalent: ==)
+    init(_ collection: C) {
+        self.init(collection, identifier: { $0 }, areEquivalent: ==)
     }
 }

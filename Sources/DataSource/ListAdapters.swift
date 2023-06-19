@@ -14,8 +14,8 @@ public struct ListAdapters<C: RangeReplaceableCollection>: TypedListAdapter, Dat
     public typealias Element = C.Element
     public typealias View = Element.View
     var value: ContiguousArray<Element>
-    var identifier: ((Element) -> AnyHashable)?
-    var areEquivalent: ((Element, Element) -> Bool)?
+    let identifier: ((Element) -> AnyHashable)?
+    let areEquivalent: ((Element, Element) -> Bool)?
     public var contexts: ContiguousArray<ListCoordinatorContext>
     public var contextsOffsets = ContiguousArray<Offset>()
     public var indices = ContiguousArray<(indices: [Int], index: Int?)>()
@@ -29,39 +29,64 @@ public struct ListAdapters<C: RangeReplaceableCollection>: TypedListAdapter, Dat
             configCount()
         }
     }
+}
 
-    init(value: C,
-         identifier: ((Element) -> AnyHashable)? = nil,
-         areEquivalent: ((Element, Element) -> Bool)? = nil
+extension ListAdapters {
+    init(
+        _ wrappedValue: C,
+        identifier: ((Element) -> AnyHashable)? = nil,
+        areEquivalent: ((Element, Element) -> Bool)? = nil
     ) {
-        self.value = .init(value)
-        self.contexts = value.mapContiguous { $0.listCoordinatorContext }
+        self.value = .init(wrappedValue)
+        self.contexts = wrappedValue.mapContiguous { $0.listCoordinatorContext }
         self.identifier = identifier
         self.areEquivalent = areEquivalent
-        self.wrappedValue = value
+        self.wrappedValue = wrappedValue
         configCount()
     }
 }
 
 public extension ListAdapters {
-    init(_ dataSources: C) {
-        self.init(value: dataSources)
+    init(wrappedValue: C) {
+        self.init(wrappedValue)
     }
 
-    init(wrappedValue: C) {
-        self.init(value: wrappedValue)
+    init(_ dataSources: C) {
+        self.init(dataSources, identifier: nil, areEquivalent: nil)
     }
 
     func diff<ID: Hashable>(id: @escaping (Element) -> ID, by areEquivalent: @escaping (Element, Element) -> Bool) -> ListAdapters<C> {
-        .init(value: wrappedValue, identifier: { id($0) }, areEquivalent: areEquivalent)
+        .init(
+            value: value,
+            identifier: id,
+            areEquivalent: areEquivalent,
+            contexts: contexts,
+            contextsOffsets: contextsOffsets,
+            indices: indices,
+            subselectors: subselectors,
+            needSetupWithListView: needSetupWithListView,
+            count: count,
+            wrappedValue: wrappedValue
+        )
     }
 
     func diff(by areEquivalent: @escaping (Element, Element) -> Bool) -> ListAdapters<C> {
-        .init(value: wrappedValue, areEquivalent: areEquivalent)
+        .init(
+            value: value,
+            identifier: nil,
+            areEquivalent: areEquivalent,
+            contexts: contexts,
+            contextsOffsets: contextsOffsets,
+            indices: indices,
+            subselectors: subselectors,
+            needSetupWithListView: needSetupWithListView,
+            count: count,
+            wrappedValue: wrappedValue
+        )
     }
 
-    func model(at indexPath: IndexPath) -> Any {
-        value[indices[indexPath.section].indices[indexPath.item]]
+    func element<View>(at context: ListIndexContext<View, IndexPath>) -> Element {
+        value[indices[context.section].indices[context.item]]
     }
 
     func performUpdate(to coordinator: ListCoordinator) -> BatchUpdates {
@@ -69,6 +94,25 @@ public extension ListAdapters {
     }
 }
 
-extension ListAdapters: DataSource where Element: DataSource { }
+public extension ListAdapters where Element: Equatable {
+    init(wrappedValue: C) {
+        self.init(wrappedValue, areEquivalent: ==)
+    }
+
+    init(_ listAdapters: C) {
+        self.init(listAdapters, areEquivalent: ==)
+    }
+}
+
+public extension ListAdapters where Element: Hashable {
+    init(wrappedValue: C) {
+        self.init(wrappedValue, identifier: { $0 }, areEquivalent: ==)
+    }
+
+    init(_ listAdapters: C) {
+        self.init(listAdapters, identifier: { $0 }, areEquivalent: ==)
+    }
+}
+
 extension ListAdapters: TableList where Element: TableList { }
 extension ListAdapters: CollectionList where Element: CollectionList { }

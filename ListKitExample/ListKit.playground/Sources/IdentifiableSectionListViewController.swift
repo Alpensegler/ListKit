@@ -13,13 +13,13 @@ public class Room {
     }
 }
 
-extension Room: UpdatableCollectionListAdapter {
+extension Room: CollectionListAdapter {
     public var list: CollectionList {
         CollectionElements(people.shuffled())
-            .cellForItem(CenterLabelCell.self, identifier: "") { (cell, context, model) in
-                cell.text = model
+            .cellForItem(CenterLabelCell.self, identifier: "") { cell, _, element in
+                cell.text = element
             }
-            .didSelectItem { [weak self] (context, model) in
+            .didSelectItem { [weak self] context, element in
                 self?.performUpdate()
             }
             .layoutSizeForItem(CGSize(width: 70, height: 70))
@@ -35,15 +35,17 @@ extension Room: UpdatableCollectionListAdapter {
     }
 }
 
-public class IdentifiableSectionListViewController: UIViewController, UpdatableCollectionListAdapter {
+public class IdentifiableSectionListViewController: UIViewController, CollectionListAdapter {
     public var list: CollectionList {
-        ListAdapters(Room.random)
+        for room in Room.random {
+            room
+        }
     }
 
     public override func viewDidLoad() {
         super.viewDidLoad()
 
-        apply(by: collectionView)
+        collectionView.adapted(by: self)
 
         navigationItem.rightBarButtonItem = UIBarButtonItem(
             barButtonSystemItem: .refresh,

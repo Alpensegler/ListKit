@@ -5,32 +5,20 @@
 //  Created by Frain on 2023/3/2.
 //
 
-public protocol CollectionList: DataSource { }
+public protocol CollectionListAdapter: ListAdapter where View == CollectionView, List == CollectionList { }
 
-public protocol CollectionListAdapter: ListAdapter, CollectionList where View == CollectionView, List == CollectionList { }
-
-public extension CollectionListAdapter where List == CollectionList {
-    var listCoordinator: ListCoordinator { list.listCoordinator }
-    var listCoordinatorContext: ListCoordinatorContext { list.listCoordinatorContext }
+public struct CollectionList: CollectionListAdapter {
+    public typealias View = CollectionView
+    public var list: CollectionList { return self }
+    public let listCoordinator: ListCoordinator
+    public let listCoordinatorContext: ListCoordinatorContext
 }
 
-public extension ListAdapter where Self: AnyObject, List == CollectionList {
-    var listCoordinator: ListCoordinator { list.listCoordinator }
-    var listCoordinatorContext: ListCoordinatorContext {
-        listCoordinatorContext(from: list)
-    }
-    
-    func performReload(
-        animated: Bool = true,
-        completion: ((ListView, Bool) -> Void)? = nil
-    ) {
-        _perform(reload: true, animated: animated, coordinatorGetter: self.list.listCoordinatorContext, completion: completion)
-    }
-
-    func performUpdate(
-        animated: Bool = true,
-        completion: ((ListView, Bool) -> Void)? = nil
-    ) {
-        _perform(reload: false, animated: animated, coordinatorGetter: self.list.listCoordinatorContext, completion: completion)
+public extension ListBuilder where View == CollectionView {
+    static func buildFinalResult<List: ListAdapter>(_ component: List) -> CollectionList where List.View == CollectionView {
+        .init(
+            listCoordinator: component.listCoordinator,
+            listCoordinatorContext: component.listCoordinatorContext
+        )
     }
 }

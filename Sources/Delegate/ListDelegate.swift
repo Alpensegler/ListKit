@@ -9,7 +9,7 @@ import Foundation
 
 public protocol FunctionOutput { }
 
-public struct Function<V, List, Input, Output, Closure>: ListAdapter {
+public struct Function<V, List: ListAdapter, Input, Output, Closure>: ListAdapter {
     public typealias View = V
     public let selector: Selector
     public let list: List
@@ -48,7 +48,7 @@ public struct Function<V, List, Input, Output, Closure>: ListAdapter {
     }
 }
 
-public struct IndexFunction<V, List, Input, Output, Closure, Index>: ListAdapter {
+public struct IndexFunction<V, List: ListAdapter, Input, Output, Closure, Index>: ListAdapter {
     public typealias View = V
     public let selector: Selector
     public let hasSectionIndex: Bool
@@ -107,13 +107,7 @@ public struct IndexFunction<V, List, Input, Output, Closure, Index>: ListAdapter
         self.toClosure = toClosure
     }
 }
-
-extension Function: TableList where View == TableView { }
-extension Function: CollectionList where View == CollectionView { }
 extension Function: TypedListAdapter where List: TypedListAdapter { }
-
-extension IndexFunction: TableList where View == TableView { }
-extension IndexFunction: CollectionList where View == CollectionView { }
 extension IndexFunction: TypedListAdapter where List: TypedListAdapter { }
 
 extension String: FunctionOutput { }

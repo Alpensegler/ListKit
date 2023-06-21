@@ -5,32 +5,20 @@
 //  Created by Frain on 2023/3/2.
 //
 
-public protocol TableList: DataSource { }
+public protocol TableListAdapter: ListAdapter where View == TableView, List == TableList { }
 
-public protocol TableListAdapter: ListAdapter, TableList where View == TableView, List == TableList { }
-
-public extension TableListAdapter where List == TableList {
-    var listCoordinator: ListCoordinator { list.listCoordinator }
-    var listCoordinatorContext: ListCoordinatorContext { list.listCoordinatorContext }
+public struct TableList: TableListAdapter {
+    public typealias View = TableView
+    public var list: TableList { return self }
+    public let listCoordinator: ListCoordinator
+    public let listCoordinatorContext: ListCoordinatorContext
 }
 
-public extension ListAdapter where Self: AnyObject, List == TableList {
-    var listCoordinator: ListCoordinator { list.listCoordinator }
-    var listCoordinatorContext: ListCoordinatorContext {
-        listCoordinatorContext(from: list)
-    }
-    
-    func performReload(
-        animated: Bool = true,
-        completion: ((ListView, Bool) -> Void)? = nil
-    ) {
-        _perform(reload: true, animated: animated, coordinatorGetter: self.list.listCoordinatorContext, completion: completion)
-    }
-
-    func performUpdate(
-        animated: Bool = true,
-        completion: ((ListView, Bool) -> Void)? = nil
-    ) {
-        _perform(reload: false, animated: animated, coordinatorGetter: self.list.listCoordinatorContext, completion: completion)
+public extension ListBuilder where View == TableView {
+    static func buildFinalResult<List: ListAdapter>(_ component: List) -> TableList where List.View == TableView {
+        .init(
+            listCoordinator: component.listCoordinator,
+            listCoordinatorContext: component.listCoordinatorContext
+        )
     }
 }

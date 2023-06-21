@@ -21,13 +21,13 @@
 除了 Readme 以外，本项目有 iOS Project，Playground，SwiftUI Preview 几种例子形式，强烈建议下载后在 ListKitExample 中查看
 
 ``` swift
-class EmojiViewModel: ListAdapter {
-    typealias Model = Character
+class EmojiViewModel: TableListAdapter {
     var source = "🥳🤭😇"
-    var tableList: ListAdaptation<AdapterBase, UITableView> {
-        cellForRow(UITableViewCell.self) { cell, context, element in
-            cell.textLabel?.text = "\(model)"
-        }
+    var tableList: TableList {
+        CollectionElements(source)
+            .cellForRow(UITableViewCell.self) { cell, _, char in
+                cell.textLabel?.text = "\(char)"
+            }
     }
 }
 ```

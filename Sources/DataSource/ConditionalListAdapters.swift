@@ -26,8 +26,6 @@ public struct ConditionalListAdapters<TrueContent: ListAdapter, FalseContent: Li
     }
 }
 
-extension ConditionalListAdapters: TableList where TrueContent: TableList, FalseContent: TableList { }
-extension ConditionalListAdapters: CollectionList where TrueContent: CollectionList, FalseContent: CollectionList { }
 extension ConditionalListAdapters: TypedListAdapter where TrueContent: TypedListAdapter, FalseContent: TypedListAdapter {
     public typealias Element = ConditionalValue<TrueContent.Element, FalseContent.Element>
     public func element<View>(at context: ListIndexContext<View, IndexPath>) -> Element {

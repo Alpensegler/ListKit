@@ -8,8 +8,8 @@
 import Foundation
 
 protocol TupleListAdaptersProtocol: TypedListAdapter {
-    associatedtype FirstAdapter: ListKit.TypedListAdapter
-    associatedtype SecondAdapter: ListKit.TypedListAdapter
+    associatedtype FirstAdapter: TypedListAdapter
+    associatedtype SecondAdapter: TypedListAdapter
 
     static func element<View>(
         at context: ListIndexContext<View, IndexPath>,
@@ -34,8 +34,6 @@ public struct TupleListAdapters<FirstAdapter: ListAdapter, SecondAdapter: ListAd
     }
 }
 
-extension TupleListAdapters: TableList where FirstAdapter: TableList, SecondAdapter: TableList { }
-extension TupleListAdapters: CollectionList where FirstAdapter: CollectionList, SecondAdapter: CollectionList { }
 extension TupleListAdapters: TypedListAdapter where FirstAdapter: TypedListAdapter, SecondAdapter: TypedListAdapter {
     public typealias Element = ConditionalValue<FirstAdapter.Element, SecondAdapter.Element>
     public func element<View>(at context: ListIndexContext<View, IndexPath>) -> Element {

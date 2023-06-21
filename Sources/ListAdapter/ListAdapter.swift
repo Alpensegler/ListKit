@@ -11,18 +11,24 @@ import Foundation
 
 public protocol ListAdapter: DataSource {
     associatedtype View = Never
-    associatedtype List = DataSource
+    associatedtype List: ListAdapter = ListKit.List
 
-    @ListBuilder
+    @ListBuilder<View>
     var list: List { get }
 }
 
-public extension ListAdapter where List == DataSource {
+public struct List: ListAdapter {
+    public var list: List { return self }
+    public let listCoordinator: ListCoordinator
+    public let listCoordinatorContext: ListCoordinatorContext
+}
+
+public extension ListAdapter {
     var listCoordinator: ListCoordinator { list.listCoordinator }
     var listCoordinatorContext: ListCoordinatorContext { list.listCoordinatorContext }
 }
 
-public extension ListAdapter where Self: AnyObject, List == DataSource {
+public extension ListAdapter where Self: AnyObject {
     var listCoordinatorContext: ListCoordinatorContext {
         listCoordinatorContext(from: list)
     }
@@ -48,7 +54,7 @@ public extension ListAdapter {
     typealias ElementFunction<Input, Output, Closure> = IndexFunction<View, List, Input, Output, Closure, IndexPath>
     typealias SectionFunction<Input, Output, Closure> = IndexFunction<View, List, Input, Output, Closure, Int>
 
-    func buildList<List>(@ListBuilder list: () -> List) -> List {
+    func buildList<List>(@ListBuilder<Void> list: () -> List) -> List {
         list()
     }
 }

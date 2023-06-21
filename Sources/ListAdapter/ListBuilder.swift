@@ -6,7 +6,7 @@
 //
 
 @resultBuilder
-public enum ListBuilder { }
+public enum ListBuilder<View> { }
 
 public extension ListBuilder {
     static func buildPartialBlock<D: DataSource>(first: D) -> D {
@@ -36,9 +36,27 @@ public extension ListBuilder {
     static func buildOptional<S: DataSource>(_ content: S?) -> S? {
         content
     }
+}
 
-    #if DEBUG
+public extension ListBuilder where View == Never {
+    static func buildFinalResult<S: DataSource>(_ component: S) -> ListKit.List {
+        Log.log(logType(of: component))
+        return .init(
+            listCoordinator: component.listCoordinator,
+            listCoordinatorContext: component.listCoordinatorContext
+        )
+    }
+}
+
+public extension ListBuilder where View == Void {
     static func buildFinalResult<S>(_ component: S) -> S {
+        Log.log(logType(of: component))
+        return component
+    }
+}
+
+extension ListBuilder {
+    static func logType<S>(of component: S) -> String {
         let input = String(describing: type(of: component))
         func formatTypeString(index: inout String.Index) -> [String] {
             var currentLevel = [""]
@@ -49,44 +67,42 @@ public extension ListBuilder {
                 }
                 currentLevel[currentLevel.count - 1].append(char)
             }
-            loop: while index != input.endIndex {
-                let char = input[index]
-                input.formIndex(after: &index)
-                switch char {
-                case "<":
-                    appendChar(char)
-                    if parenthesisCount == 0 {
-                       let same = formatTypeString(index: &index)
-                        if same.count == 1 {
-                            currentLevel[currentLevel.count - 1].append("\(same.last ?? "")>")
-                        } else {
-                            currentLevel.append(contentsOf: same.map { "  \($0)" })
-                            currentLevel.append(">")
-                        }
+        loop: while index != input.endIndex {
+            let char = input[index]
+            input.formIndex(after: &index)
+            switch char {
+            case "<":
+                appendChar(char)
+                if parenthesisCount == 0 {
+                    let same = formatTypeString(index: &index)
+                    if same.count == 1 {
+                        currentLevel[currentLevel.count - 1].append("\(same.last ?? "")>")
+                    } else {
+                        currentLevel.append(contentsOf: same.map { "  \($0)" })
+                        currentLevel.append(">")
                     }
-                case ">" where currentLevel.last?.last != "-":
-                    if parenthesisCount == 0 { break loop }
-                    appendChar(char)
-                case ",":
-                    appendChar(char)
-                    if parenthesisCount == 0 {
-                        currentLevel.append("")
-                    }
-                case "(":
-                    parenthesisCount += 1
-                    appendChar(char)
-                case ")":
-                    parenthesisCount -= 1
-                    appendChar(char)
-                default:
-                    appendChar(char)
                 }
+            case ">" where currentLevel.last?.last != "-":
+                if parenthesisCount == 0 { break loop }
+                appendChar(char)
+            case ",":
+                appendChar(char)
+                if parenthesisCount == 0 {
+                    currentLevel.append("")
+                }
+            case "(":
+                parenthesisCount += 1
+                appendChar(char)
+            case ")":
+                parenthesisCount -= 1
+                appendChar(char)
+            default:
+                appendChar(char)
             }
+        }
             return currentLevel
         }
         var start = input.startIndex
-        Log.log(formatTypeString(index: &start).joined(separator: "\n"))
-        return component
+        return formatTypeString(index: &start).joined(separator: "\n")
     }
-    #endif
 }

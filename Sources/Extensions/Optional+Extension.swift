@@ -18,11 +18,9 @@ extension Optional: DataSource where Wrapped: DataSource {
     }
 }
 
-extension Optional: TableList where Wrapped: TableList { }
-extension Optional: CollectionList where Wrapped: CollectionList { }
 extension Optional: ListAdapter where Wrapped: ListAdapter {
     public typealias View = Wrapped.View
-    public var list: Self { self }
+    public var list: Self { return self }
 }
 
 extension Optional {

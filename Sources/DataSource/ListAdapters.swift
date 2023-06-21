@@ -113,6 +113,3 @@ public extension ListAdapters where Element: Hashable {
         self.init(listAdapters, identifier: { $0 }, areEquivalent: ==)
     }
 }
-
-extension ListAdapters: TableList where Element: TableList { }
-extension ListAdapters: CollectionList where Element: CollectionList { }

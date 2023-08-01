@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		33EA9D112A7956D900C29C6C /* Differing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33EA9D102A7956D900C29C6C /* Differing.swift */; };
 		3C092F442A40404A00C9F72D /* TypedListAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C092F432A40404A00C9F72D /* TypedListAdapter.swift */; };
 		3C092F462A40410F00C9F72D /* ListBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C092F452A40410F00C9F72D /* ListBuilder.swift */; };
 		3C275A5D28A6562600975E07 /* ListAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C275A5C28A6562600975E07 /* ListAdapter.swift */; };
@@ -116,6 +117,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		33EA9D102A7956D900C29C6C /* Differing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Differing.swift; sourceTree = "<group>"; };
 		3C092F432A40404A00C9F72D /* TypedListAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypedListAdapter.swift; sourceTree = "<group>"; };
 		3C092F452A40410F00C9F72D /* ListBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListBuilder.swift; sourceTree = "<group>"; };
 		3C275A5C28A6562600975E07 /* ListAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListAdapter.swift; sourceTree = "<group>"; };
@@ -388,6 +390,7 @@
 		F383063F23506BAC00AE8B97 /* Utility */ = {
 			isa = PBXGroup;
 			children = (
+				33EA9D102A7956D900C29C6C /* Differing.swift */,
 				F3D786FB2399318B00D7A5CD /* Associator.swift */,
 				F374B1432471A0FA0009420D /* Mapping.swift */,
 				F354B6F524C38A0C00E9D19B /* BatchUpdate.swift */,
@@ -638,6 +641,7 @@
 				F34E7F3C24D6D3B600DE3844 /* ListContext.swift in Sources */,
 				F354B6F624C38A0C00E9D19B /* BatchUpdate.swift in Sources */,
 				3CB1153629B7770F00312263 /* CollectionListAdapter.swift in Sources */,
+				33EA9D112A7956D900C29C6C /* Differing.swift in Sources */,
 				F36E6016250AC69700F2D441 /* ConditionalListAdapters.swift in Sources */,
 				F32F922B25B6FAAC00C55F7A /* ListDelegate+IndexFunction+CallAsFunction.swift in Sources */,
 				F3EB15DA23A2CF8D00C9AC5E /* Optional+Extension.swift in Sources */,

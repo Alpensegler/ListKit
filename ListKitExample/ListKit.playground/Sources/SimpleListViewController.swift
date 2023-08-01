@@ -12,7 +12,7 @@ public class SimpleListViewController: UIViewController, TableListAdapter {
         var shuffledModels = _models.shuffled()
         shuffledModels.removeFirst()
         shuffledModels.removeLast()
-        return shuffledModels.shuffled()
+        return shuffledModels
     }
 
     public var list: TableList {

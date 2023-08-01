@@ -37,11 +37,11 @@ public extension ListAdapter where Self: AnyObject {
         animated: Bool = true,
         completion: ((ListView, Bool) -> Void)? = nil
     ) {
-        _perform(reload: true, animated: animated, coordinatorGetter: self.list.listCoordinatorContext, completion: completion)
+        _perform(reload: true, animated: animated, completion: completion)
     }
 
     func performUpdate(animated: Bool = true, completion: ((ListView, Bool) -> Void)? = nil) {
-        _perform(reload: false, animated: animated, coordinatorGetter: self.list.listCoordinatorContext, completion: completion)
+        _perform(reload: false, animated: animated, completion: completion)
     }
 }
 
@@ -103,7 +103,6 @@ extension ListAdapter where Self: AnyObject {
     func _perform(
         reload: Bool,
         animated: Bool,
-        coordinatorGetter: @autoclosure @escaping () -> ListCoordinatorContext,
         completion: ((ListView, Bool) -> Void)? = nil
     ) {
 //        if update.isEmpty { return }
@@ -112,9 +111,9 @@ extension ListAdapter where Self: AnyObject {
         }
         let isMainThread = Thread.isMainThread
 //        var update = update
-        var context = coordinatorGetter()
+        var context: ListCoordinatorContext!
         let work = {
-            context = coordinatorGetter()
+            context = self.list.listCoordinatorContext
 //            Log.log("----start-update: \(update.updateType)----")
 //            if update.needSource, update.source == nil {
 //                update.source = self.sourceBase.source

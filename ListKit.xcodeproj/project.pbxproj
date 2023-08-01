@@ -11,6 +11,8 @@
 		3C092F462A40410F00C9F72D /* ListBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C092F452A40410F00C9F72D /* ListBuilder.swift */; };
 		3C275A5D28A6562600975E07 /* ListAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C275A5C28A6562600975E07 /* ListAdapter.swift */; };
 		3C2DF53729F0B4C30086FB69 /* SimpleListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2DF53629F0B4C30086FB69 /* SimpleListViewController.swift */; };
+		3C3C5D982A790B1400FDD815 /* ListAdapter+NSCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C3C5D972A790B1300FDD815 /* ListAdapter+NSCollectionView.swift */; };
+		3C3C5D9B2A790FF500FDD815 /* ListDelegates+NSCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C3C5D9A2A790FF500FDD815 /* ListDelegates+NSCollectionView.swift */; };
 		3CB1153029B75FAF00312263 /* TupleListAdapters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CB1152F29B75FAF00312263 /* TupleListAdapters.swift */; };
 		3CB1153229B76CB500312263 /* TableListAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CB1153129B76CB500312263 /* TableListAdapter.swift */; };
 		3CB1153629B7770F00312263 /* CollectionListAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CB1153529B7770F00312263 /* CollectionListAdapter.swift */; };
@@ -51,8 +53,6 @@
 		F37A122E239FC0CB0001E9EE /* ListAdapter+UICollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F37A122D239FC0CB0001E9EE /* ListAdapter+UICollectionView.swift */; };
 		F37BF3CA239686470095C419 /* SingleElement.swift in Sources */ = {isa = PBXBuildFile; fileRef = F37BF3C9239686470095C419 /* SingleElement.swift */; };
 		F37BF3CC23968B7E0095C419 /* SectionedElements.swift in Sources */ = {isa = PBXBuildFile; fileRef = F37BF3CB23968B7E0095C419 /* SectionedElements.swift */; };
-		F383064323506BAC00AE8B97 /* CollectionDifference.swift in Sources */ = {isa = PBXBuildFile; fileRef = F383064023506BAC00AE8B97 /* CollectionDifference.swift */; };
-		F383064423506BAC00AE8B97 /* Differing.swift in Sources */ = {isa = PBXBuildFile; fileRef = F383064123506BAC00AE8B97 /* Differing.swift */; };
 		F3831D8224EDE520002B5D73 /* DataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = F3831D8024EDE520002B5D73 /* DataModel.xcdatamodeld */; };
 		F3831EB824EE89E4002B5D73 /* CoreDataListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3831EB724EE89E4002B5D73 /* CoreDataListViewController.swift */; };
 		F3831F8624EE95E1002B5D73 /* AllSelectors.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3831F8524EE95E1002B5D73 /* AllSelectors.swift */; };
@@ -120,6 +120,8 @@
 		3C092F452A40410F00C9F72D /* ListBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListBuilder.swift; sourceTree = "<group>"; };
 		3C275A5C28A6562600975E07 /* ListAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListAdapter.swift; sourceTree = "<group>"; };
 		3C2DF53629F0B4C30086FB69 /* SimpleListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SimpleListViewController.swift; path = ListKit.playground/Sources/SimpleListViewController.swift; sourceTree = "<group>"; };
+		3C3C5D972A790B1300FDD815 /* ListAdapter+NSCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ListAdapter+NSCollectionView.swift"; sourceTree = "<group>"; };
+		3C3C5D9A2A790FF500FDD815 /* ListDelegates+NSCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ListDelegates+NSCollectionView.swift"; sourceTree = "<group>"; };
 		3CB1152F29B75FAF00312263 /* TupleListAdapters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TupleListAdapters.swift; sourceTree = "<group>"; };
 		3CB1153129B76CB500312263 /* TableListAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableListAdapter.swift; sourceTree = "<group>"; };
 		3CB1153529B7770F00312263 /* CollectionListAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionListAdapter.swift; sourceTree = "<group>"; };
@@ -158,8 +160,6 @@
 		F37A122D239FC0CB0001E9EE /* ListAdapter+UICollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ListAdapter+UICollectionView.swift"; sourceTree = "<group>"; };
 		F37BF3C9239686470095C419 /* SingleElement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleElement.swift; sourceTree = "<group>"; };
 		F37BF3CB23968B7E0095C419 /* SectionedElements.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionedElements.swift; sourceTree = "<group>"; };
-		F383064023506BAC00AE8B97 /* CollectionDifference.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CollectionDifference.swift; sourceTree = "<group>"; };
-		F383064123506BAC00AE8B97 /* Differing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Differing.swift; sourceTree = "<group>"; };
 		F3831D8124EDE520002B5D73 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		F3831EB724EE89E4002B5D73 /* CoreDataListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CoreDataListViewController.swift; path = ListKit.playground/Sources/CoreDataListViewController.swift; sourceTree = "<group>"; };
 		F3831F8524EE95E1002B5D73 /* AllSelectors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AllSelectors.swift; sourceTree = "<group>"; };
@@ -216,6 +216,22 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3C3C5D962A7909BC00FDD815 /* ListAdapter+AppKit */ = {
+			isa = PBXGroup;
+			children = (
+				3C3C5D972A790B1300FDD815 /* ListAdapter+NSCollectionView.swift */,
+			);
+			path = "ListAdapter+AppKit";
+			sourceTree = "<group>";
+		};
+		3C3C5D992A790FD300FDD815 /* ListDelegates+AppKit */ = {
+			isa = PBXGroup;
+			children = (
+				3C3C5D9A2A790FF500FDD815 /* ListDelegates+NSCollectionView.swift */,
+			);
+			path = "ListDelegates+AppKit";
+			sourceTree = "<group>";
+		};
 		3CF219602A25F5F900C309E4 /* Modifier */ = {
 			isa = PBXGroup;
 			children = (
@@ -227,6 +243,7 @@
 		F3040D242389046D0055E6E7 /* ListAdapter */ = {
 			isa = PBXGroup;
 			children = (
+				3C3C5D962A7909BC00FDD815 /* ListAdapter+AppKit */,
 				F37A1228239FC0590001E9EE /* ListAdapter+UIKit */,
 				3C275A5C28A6562600975E07 /* ListAdapter.swift */,
 				3C092F452A40410F00C9F72D /* ListBuilder.swift */,
@@ -250,6 +267,7 @@
 		F314FAE023BC71D50060985E /* Delegate */ = {
 			isa = PBXGroup;
 			children = (
+				3C3C5D992A790FD300FDD815 /* ListDelegates+AppKit */,
 				F314FAE323BC74D70060985E /* ListDelegates+UIKit */,
 				F314FAE123BC71EA0060985E /* Delegate.swift */,
 				F3831F8524EE95E1002B5D73 /* AllSelectors.swift */,
@@ -370,7 +388,6 @@
 		F383063F23506BAC00AE8B97 /* Utility */ = {
 			isa = PBXGroup;
 			children = (
-				F3D785C42398F54C00D7A5CD /* Diff */,
 				F3D786FB2399318B00D7A5CD /* Associator.swift */,
 				F374B1432471A0FA0009420D /* Mapping.swift */,
 				F354B6F524C38A0C00E9D19B /* BatchUpdate.swift */,
@@ -390,15 +407,6 @@
 				F3D122C3254783530000BC3F /* IndexSet+Extension.swift */,
 			);
 			path = Extensions;
-			sourceTree = "<group>";
-		};
-		F3D785C42398F54C00D7A5CD /* Diff */ = {
-			isa = PBXGroup;
-			children = (
-				F383064023506BAC00AE8B97 /* CollectionDifference.swift */,
-				F383064123506BAC00AE8B97 /* Differing.swift */,
-			);
-			path = Diff;
 			sourceTree = "<group>";
 		};
 		F3D786952399262A00D7A5CD /* Context */ = {
@@ -636,6 +644,7 @@
 				3C092F442A40404A00C9F72D /* TypedListAdapter.swift in Sources */,
 				F304A6E3239E95ED00133D14 /* ListView+NSTableView.swift in Sources */,
 				F314FAE223BC71EA0060985E /* Delegate.swift in Sources */,
+				3C3C5D9B2A790FF500FDD815 /* ListDelegates+NSCollectionView.swift in Sources */,
 				F3D787022399327200D7A5CD /* ListView+UITableView.swift in Sources */,
 				F39A23F623A16D1F0024F9AF /* CoreData+Extension.swift in Sources */,
 				F3FAECCD24FFE16A001CBA34 /* ChangeSet.swift in Sources */,
@@ -643,7 +652,6 @@
 				3CB1153229B76CB500312263 /* TableListAdapter.swift in Sources */,
 				F374B1442471A0FA0009420D /* Mapping.swift in Sources */,
 				3C092F462A40410F00C9F72D /* ListBuilder.swift in Sources */,
-				F383064323506BAC00AE8B97 /* CollectionDifference.swift in Sources */,
 				F30CF60A24E7D2440078720C /* CollectionElements.swift in Sources */,
 				F31250E9239C545200E77969 /* ListView.swift in Sources */,
 				F31250EE239C5EB200E77969 /* ListDelegates+UICollectionView.swift in Sources */,
@@ -654,8 +662,8 @@
 				3CD3EED129CDB15E003DE3CB /* DataSourcesCoordinator.swift in Sources */,
 				F304A6DF239E94CC00133D14 /* Context+UIKit.swift in Sources */,
 				F37BF3CC23968B7E0095C419 /* SectionedElements.swift in Sources */,
+				3C3C5D982A790B1400FDD815 /* ListAdapter+NSCollectionView.swift in Sources */,
 				F372F6E6248E52E9001B42D5 /* ListCoordinatorContext.swift in Sources */,
-				F383064423506BAC00AE8B97 /* Differing.swift in Sources */,
 				F3698AFD258B5DB800285F56 /* ListDelegate.swift in Sources */,
 				F37BF3CA239686470095C419 /* SingleElement.swift in Sources */,
 				3CB1153029B75FAF00312263 /* TupleListAdapters.swift in Sources */,
@@ -843,7 +851,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = ListKitExample/SupportFiles/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -851,9 +859,13 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.frain.ListKitExample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,7";
 			};
 			name = Debug;
 		};
@@ -903,7 +915,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = ListKitExample/SupportFiles/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -911,8 +923,12 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.frain.ListKitExample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,7";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -996,6 +1012,7 @@
 		OBJ_3 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -1042,7 +1059,8 @@
 				OTHER_SWIFT_FLAGS = "$(inherited) -DXcode";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
-				SUPPORTED_PLATFORMS = "macosx iphoneos iphonesimulator";
+				SUPPORTED_PLATFORMS = "xrsimulator xros watchsimulator watchos macosx iphonesimulator iphoneos appletvsimulator appletvos";
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) SWIFT_PACKAGE DEBUG";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				USE_HEADERMAP = NO;
@@ -1052,6 +1070,7 @@
 		OBJ_4 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -1094,7 +1113,8 @@
 				OTHER_SWIFT_FLAGS = "$(inherited) -DXcode";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
-				SUPPORTED_PLATFORMS = "macosx iphoneos iphonesimulator";
+				SUPPORTED_PLATFORMS = "xrsimulator xros watchsimulator watchos macosx iphonesimulator iphoneos appletvsimulator appletvos";
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) SWIFT_PACKAGE";
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				USE_HEADERMAP = NO;

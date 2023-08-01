@@ -54,17 +54,6 @@ public class TestListViewController: UIViewController, TableListAdapter {
             CollectionElements(["a", "b", "c"])
                 .cellForRow()
         }
-        .didSelectRow { context, element in
-            context.deselect(animated: false)
-            switch element {
-            case .first(.first(let element)):
-                print(element) // String
-            case .first(.second(let element)):
-                print(element) // Int
-            case .second(let element):
-                print(element) // String
-            }
-        }
         .headerTitleForSection("sources")
     }
 

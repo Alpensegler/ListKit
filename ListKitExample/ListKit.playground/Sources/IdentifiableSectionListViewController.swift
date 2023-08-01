@@ -5,7 +5,7 @@ import UIKit
 
 public class Room {
     let name: String
-    let people: [String]
+    var people: [String]
 
     init(_ name: String, _ people: [String]) {
         self.name = name
@@ -22,11 +22,13 @@ extension Room: CollectionListAdapter {
             .didSelectItem { [weak self] context, element in
                 self?.performUpdate()
             }
-            .layoutSizeForItem(CGSize(width: 70, height: 70))
+            .layoutSizeForItem(CGSize(width: 100, height: 100))
             .layoutInsetForSection(UIEdgeInsets(top: 10, left: 10, bottom: 30, right: 10))
             .layoutMinimumLineSpacingForSection(50)
             .layoutMinimumInteritemSpacingForSection(5)
-            .layoutReferenceSizeForHeaderInSection(CGSize(width: UIScreen.main.bounds.width, height: 30))
+            .layoutReferenceSizeForHeaderInSection { context, _ in
+                CGSize(width: context.listView.frame.size.width, height: 30)
+            }
             .supplementaryViewForItem { [name] in
                 let header = $0.dequeueReusableSupplementaryView(type: $1, TitleHeader.self)
                 header.text = name
@@ -97,7 +99,7 @@ extension IdentifiableSectionListViewController {
         let collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: UICollectionViewFlowLayout())
         view.addSubview(collectionView)
         collectionView.autoresizingMask = [.flexibleHeight, .flexibleWidth]
-        collectionView.backgroundColor = .white
+        collectionView.backgroundColor = .clear
         return collectionView
     }
 }
@@ -108,7 +110,6 @@ extension Room {
             let view = UILabel()
             view.backgroundColor = .clear
             view.textAlignment = .center
-            view.textColor = .black
             view.font = .boldSystemFont(ofSize: 18)
             self.contentView.addSubview(view)
             return view
@@ -144,7 +145,6 @@ extension Room {
             button.addTarget(self, action: #selector(refreshAction), for: .touchUpInside)
             button.isHidden = true
             button.sizeToFit()
-            button.frame.origin.x = UIScreen.main.bounds.width - button.frame.size.width
             self.addSubview(button)
             return button
         }()

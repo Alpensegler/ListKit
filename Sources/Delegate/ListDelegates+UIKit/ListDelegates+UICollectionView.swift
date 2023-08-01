@@ -29,14 +29,14 @@ extension Delegate: UICollectionViewDataSource {
         apply(#selector(UICollectionViewDataSource.collectionView(_:viewForSupplementaryElementOfKind:at:)), view: collectionView, with: (indexPath, kind), index: indexPath, default: .init())
     }
 
-//    // MARK: - Reordering Items
-//    func collectionView(_ collectionView: UICollectionView, canMoveItemAt indexPath: IndexPath) -> Bool {
-//        apply(#selector(UICollectionViewDataSource.collectionView(_:canMoveItemAt:)), view: collectionView, with: indexPath, index: indexPath, default: true)
-//    }
-//
-//    func collectionView(_ collectionView: UICollectionView, moveItemAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
-//        apply(#selector(UICollectionViewDataSource.collectionView(_:moveItemAt:to:)), view: collectionView, with: (sourceIndexPath, destinationIndexPath), default: ())
-//    }
+    // MARK: - Reordering Items
+    func collectionView(_ collectionView: UICollectionView, canMoveItemAt indexPath: IndexPath) -> Bool {
+        apply(#selector(UICollectionViewDataSource.collectionView(_:canMoveItemAt:)), view: collectionView, with: indexPath, index: indexPath, default: true)
+    }
+
+    func collectionView(_ collectionView: UICollectionView, moveItemAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+        apply(#selector(UICollectionViewDataSource.collectionView(_:moveItemAt:to:)), view: collectionView, with: (sourceIndexPath, destinationIndexPath), default: ())
+    }
 }
 
 extension Delegate: UICollectionViewDelegate {

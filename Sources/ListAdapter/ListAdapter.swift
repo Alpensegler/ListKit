@@ -5,108 +5,145 @@
 //  Created by Frain on 2022/8/12.
 //
 
-public protocol ListAdapter: DataSource {
-    associatedtype View: ListView = TableView
+// swiftlint:disable comment_spacing
 
-    @ListBuilder<AdapterBase, View>
-    var list: ListAdaptation<AdapterBase, View> { get }
+import Foundation
+
+public protocol ListAdapter: DataSource {
+    associatedtype View = Never
+    associatedtype List: ListAdapter = ListKit.List
+
+    @ListBuilder<View>
+    var list: List { get }
 }
 
-@propertyWrapper
-@dynamicMemberLookup
-public struct ListAdaptation<Source: DataSource, View: ListView>: ListAdapter
-where Source.AdapterBase == Source {
-    public typealias Model = Source.Model
-    public typealias SourceBase = Source.SourceBase
-    public typealias AdapterBase = Source
+public struct List: ListAdapter {
+    public var list: List { return self }
+    public let listCoordinator: ListCoordinator
+    public let listCoordinatorContext: ListCoordinatorContext
+}
 
-    public var source: Source
-    public var sourceBase: SourceBase { source.sourceBase }
-    public var adapterBase: Source { source }
+public extension ListAdapter {
+    var listCoordinator: ListCoordinator { list.listCoordinator }
+    var listCoordinatorContext: ListCoordinatorContext { list.listCoordinatorContext }
+}
 
-    public var listUpdate: ListUpdate<SourceBase>.Whole { source.listUpdate }
-    public var listDiffer: ListDiffer<SourceBase> { source.listDiffer }
-    public var listOptions: ListOptions { source.listOptions }
-
-    public var listDelegate: ListDelegate
-    public var listCoordinatorContext: ListCoordinatorContext<SourceBase> {
-        source.listCoordinatorContext.context(with: listDelegate)
+public extension ListAdapter where Self: AnyObject {
+    var listCoordinatorContext: ListCoordinatorContext {
+        listCoordinatorContext(from: list)
     }
 
-    public lazy var listCoordinator = source.listCoordinator
-    public lazy var coordinatorStorage = listCoordinator.storage.or({
-        let storage = CoordinatorStorage<SourceBase>()
-        listCoordinator.storage = storage
-        return storage
-    }())
-
-    public var list: ListAdaptation<Source, View> { self }
-
-    public var wrappedValue: Source {
-        get { source }
-        set { source = newValue }
+    func performReload(
+        animated: Bool = true,
+        completion: ((ListView, Bool) -> Void)? = nil
+    ) {
+        _perform(reload: true, animated: animated, completion: completion)
     }
 
-    public subscript<Value>(dynamicMember path: KeyPath<Source, Value>) -> Value {
-        source[keyPath: path]
-    }
-
-    public subscript<Value>(dynamicMember path: WritableKeyPath<Source, Value>) -> Value {
-        get { source[keyPath: path] }
-        set { source[keyPath: path] = newValue }
-    }
-
-    init<OtherSource: DataSource>(
-        _ source: OtherSource,
-        options: ListOptions = .init()
-    ) where Source == AnySources {
-        self.source = AnySources(source, options: options)
-        self.listDelegate = .init()
-    }
-
-    init(_ source: Source) {
-        self.source = source
-        self.listDelegate = source.listDelegate
-    }
-
-    init(_ source: Source, listDelegate: ListDelegate) {
-        self.source = source
-        self.listDelegate = listDelegate
+    func performUpdate(animated: Bool = true, completion: ((ListView, Bool) -> Void)? = nil) {
+        _perform(reload: false, animated: animated, completion: completion)
     }
 }
 
 public extension ListAdapter {
-    @discardableResult
-    func apply(
-        by listView: View,
-        update: ListUpdate<SourceBase>.Whole?,
-        animated: Bool = true,
-        completion: ((Bool) -> Void)? = nil
-    ) -> ListAdaptation<AdapterBase, View> {
-        (listView as? DelegateSetuptable)?.listDelegate.setCoordinator(
-            context: listCoordinatorContext,
-            update: update,
-            animated: animated,
-            completion: completion
-        )
-        return list
-    }
+    typealias ListContext = ListKit.ListContext<View>
+    typealias ElementContext = ListIndexContext<View, IndexPath>
+    typealias SectionContext = ListIndexContext<View, Int>
 
-    @discardableResult
-    func apply(
-        by listView: View,
-        animated: Bool = true,
-        completion: ((Bool) -> Void)? = nil
-    ) -> ListAdaptation<AdapterBase, View> {
-        apply(by: listView, update: listUpdate, animated: animated, completion: completion)
+    typealias Function<Input, Output, Closure> = ListKit.Function<View, List, Input, Output, Closure>
+    typealias ElementFunction<Input, Output, Closure> = IndexFunction<View, List, Input, Output, Closure, IndexPath>
+    typealias SectionFunction<Input, Output, Closure> = IndexFunction<View, List, Input, Output, Closure, Int>
+
+    func buildList<List>(@ListBuilder<Void> list: () -> List) -> List {
+        list()
     }
 }
 
-extension ListAdaptation: ModelCachedDataSource where Source: ModelCachedDataSource {
-    public typealias ModelCache = Source.ModelCache
+public extension ListAdapter where Self: ListCoordinator, Self == List {
+    var list: Self { self }
+    var listCoordinator: ListCoordinator { self }
+    var listCoordinatorContext: ListCoordinatorContext { .init(coordinator: self) }
+}
 
-    public var modelCached: ModelCached<Source.SourceBase, Source.ModelCache> { source.modelCached }
-    public var base: ListAdaptation<Source.SourceBase.AdapterBase, View> {
-        .init(source.sourceBase.adapterBase, listDelegate: listDelegate)
+public final class CoordinatorStorage: Hashable {
+    var context: ListCoordinatorContext?
+    var isObjectAssciated = false
+    var contexts = [ObjectIdentifier: (() -> Delegate?, [IndexPath])]()
+    weak var object: AnyObject?
+
+    public init() { }
+
+    init(_ object: AnyObject) {
+        self.object = object
+        self.isObjectAssciated = true
+    }
+
+    deinit {
+        contexts.forEach {
+            let (getter, contexts) = $0.value
+            guard contexts.isEmpty else { return }
+            getter()?.listView.resetDelegates(toNil: true)
+        }
+    }
+}
+
+public extension CoordinatorStorage {
+    static func == (lhs: CoordinatorStorage, rhs: CoordinatorStorage) -> Bool {
+        lhs === rhs
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(ObjectIdentifier(self))
+    }
+}
+
+private var storageKey: Void?
+
+extension ListAdapter where Self: AnyObject {
+    func _perform(
+        reload: Bool,
+        animated: Bool,
+        completion: ((ListView, Bool) -> Void)? = nil
+    ) {
+//        if update.isEmpty { return }
+        guard let currentContext = coordinatorStorage.context else {
+            return
+        }
+        let isMainThread = Thread.isMainThread
+//        var update = update
+        var context: ListCoordinatorContext!
+        let work = {
+            context = self.list.listCoordinatorContext
+//            Log.log("----start-update: \(update.updateType)----")
+//            if update.needSource, update.source == nil {
+//                update.source = self.sourceBase.source
+//                Log.log("from \(self.currentSource)")
+//                Log.log("to   \(update.source!)")
+//            }
+        }
+        _ = isMainThread ? work() : DispatchQueue.main.sync(execute: work)
+        let update = reload ? .reload(change: nil) : currentContext.coordinator.performUpdate(to: context.coordinator)
+        let afterWork: () -> Void = {
+            defer { self.coordinatorStorage.context = context }
+            guard !self.coordinatorStorage.contexts.isEmpty else { return }
+            for (delegateGetter, positions) in self.coordinatorStorage.contexts.values {
+                delegateGetter()?.perform(update: update, animated: animated, to: context, at: positions, completion: completion)
+            }
+        }
+        _ = isMainThread ? afterWork() : DispatchQueue.main.sync(execute: afterWork)
+    }
+
+    func listCoordinatorContext(from list: DataSource) -> ListCoordinatorContext {
+        coordinatorStorage.context ?? {
+            var context = list.listCoordinatorContext
+            context.storage = coordinatorStorage
+            coordinatorStorage.context = context
+            return context
+        }()
+    }
+
+    var coordinatorStorage: CoordinatorStorage {
+        get { Associator.getValue(key: &storageKey, from: self, initialValue: .init(self)) }
+        set { Associator.set(value: newValue, key: &storageKey, to: self) }
     }
 }

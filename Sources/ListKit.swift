@@ -1,5 +1,3 @@
-public typealias UpdatableListAdapter = ListAdapter & UpdatableDataSource
-
 public enum Log {
     public static var logger: ((String) -> Void)?
 

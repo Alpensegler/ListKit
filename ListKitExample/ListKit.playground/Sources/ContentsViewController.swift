@@ -1,40 +1,42 @@
 import ListKit
 import UIKit
 
-public class ContentsViewController: UIViewController, UpdatableListAdapter {
-    public typealias Model = (title: String, viewController: UIViewController.Type)
-    public var source = [Model]()
+public class ContentsViewController: UIViewController, TableListAdapter {
+    public typealias Content = (title: String, viewController: UIViewController.Type)
+    public var models = [Content]()
 
-    public var list: ListAdaptation<ContentsViewController, UITableView> {
-        cellForRow { (context, model) -> UITableViewCell in
-            let labelCell = context.dequeueReusableCell(UITableViewCell.self)
-            labelCell.textLabel?.text = model.title
-            return labelCell
-        }
-        didSelectRow { [unowned navigationController] (context, model) in
-            context.deselect(animated: true)
-            let viewController = model.viewController.init()
-            viewController.title = model.title
-            navigationController?.pushViewController(viewController, animated: true)
-        }
+    public var list: TableList {
+        CollectionElements(models)
+            .cellForRow { context, model -> UITableViewCell in
+                let labelCell = context.dequeueReusableCell(UITableViewCell.self)
+                labelCell.textLabel?.text = model.title
+                return labelCell
+            }
+            .didSelectRow { [unowned navigationController] context, model in
+                context.deselect(animated: true)
+                let viewController = model.viewController.init()
+                viewController.title = model.title
+                navigationController?.pushViewController(viewController, animated: true)
+            }
     }
 
     public override func viewDidLoad() {
-        apply(by: tableView)
+        tableView.adapted(by: self)
         title = "Contents"
     }
 
     #if EXAMPLE
     convenience init() {
         self.init(nibName: nil, bundle: nil)
-        source = [
-            ("DoubleList", DoubleListViewController.self),
+        models = [
+            ("SimpleList", SimpleListViewController.self),
             ("SectionList", SectionListViewControlle.self),
             ("NestedList", NestedListViewController.self),
             ("IdentifiableSectionList", IdentifiableSectionListViewController.self),
-            ("CoreDataListViewController", CoreDataListViewController.self),
+//            ("CoreDataListViewController", CoreDataListViewController.self),
             ("TestList", TestListViewController.self),
         ]
+
     }
     #endif
 }

@@ -43,9 +43,6 @@ let allSelectors: Set<Selector> = {
         #selector(UICollectionViewDelegate.collectionView(_:transitionLayoutForOldLayout:newLayout:)),
         #selector(UICollectionViewDelegate.collectionView(_:targetContentOffsetForProposedContentOffset:)),
         #selector(UICollectionViewDelegate.collectionView(_:targetIndexPathForMoveFromItemAt:toProposedIndexPath:)),
-        #selector(UICollectionViewDelegate.collectionView(_:shouldShowMenuForItemAt:)),
-        #selector(UICollectionViewDelegate.collectionView(_:canPerformAction:forItemAt:withSender:)),
-        #selector(UICollectionViewDelegate.collectionView(_:performAction:forItemAt:withSender:)),
         #selector(UICollectionViewDelegate.collectionView(_:canFocusItemAt:)),
         #selector(UICollectionViewDelegate.indexPathForPreferredFocusedView(in:)),
         #selector(UICollectionViewDelegate.collectionView(_:shouldUpdateFocusIn:)),
@@ -85,10 +82,6 @@ let allSelectors: Set<Selector> = {
         #selector(UITableViewDelegate.tableView(_:estimatedHeightForHeaderInSection:)),
         #selector(UITableViewDelegate.tableView(_:estimatedHeightForFooterInSection:)),
         #selector(UITableViewDelegate.tableView(_:accessoryButtonTappedForRowWith:)),
-        #selector(UITableViewDelegate.tableView(_:shouldShowMenuForRowAt:)),
-        #selector(UITableViewDelegate.tableView(_:canPerformAction:forRowAt:withSender:)),
-        #selector(UITableViewDelegate.tableView(_:performAction:forRowAt:withSender:)),
-        #selector(UITableViewDelegate.tableView(_:editActionsForRowAt:)),
         #selector(UITableViewDelegate.tableView(_:shouldHighlightRowAt:)),
         #selector(UITableViewDelegate.tableView(_:didHighlightRowAt:)),
         #selector(UITableViewDelegate.tableView(_:didUnhighlightRowAt:)),
@@ -105,6 +98,15 @@ let allSelectors: Set<Selector> = {
         #selector(UITableViewDelegate.tableView(_:shouldUpdateFocusIn:)),
         #selector(UITableViewDelegate.tableView(_:didUpdateFocusIn:with:)),
         #selector(UITableViewDelegate.indexPathForPreferredFocusedView(in:)),
+
+        // maybe should remove for vision os
+        #selector(UICollectionViewDelegate.collectionView(_:shouldShowMenuForItemAt:)),
+        #selector(UICollectionViewDelegate.collectionView(_:canPerformAction:forItemAt:withSender:)),
+        #selector(UICollectionViewDelegate.collectionView(_:performAction:forItemAt:withSender:)),
+        #selector(UITableViewDelegate.tableView(_:shouldShowMenuForRowAt:)),
+        #selector(UITableViewDelegate.tableView(_:canPerformAction:forRowAt:withSender:)),
+        #selector(UITableViewDelegate.tableView(_:performAction:forRowAt:withSender:)),
+        #selector(UITableViewDelegate.tableView(_:editActionsForRowAt:)),
     ]
 
     guard #available(iOS 11.0, *) else { return selectors }
@@ -136,4 +138,15 @@ let allSelectors: Set<Selector> = {
 
     return selectors
 }()
+
+#elseif os(macOS)
+import AppKit
+
+let allSelectors: Set<Selector> = {
+    var selectors: Set<Selector> = [
+        
+    ]
+    return selectors
+}()
+
 #endif

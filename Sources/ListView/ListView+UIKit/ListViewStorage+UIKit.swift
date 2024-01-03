@@ -20,7 +20,7 @@ public extension UIListView {
         let id = NSStringFromClass(CustomCell.self) + identifier
         if !_storage.registeredCellIdentifiers.contains(id) {
             _storage.registeredCellIdentifiers.insert(id)
-            register(CustomCell.self, forCellReuseIdentifier: id)
+            register(cellClass, forCellReuseIdentifier: id)
         }
         return dequeueReusableCell(withIdentifier: id, for: indexPath) as! CustomCell
     }

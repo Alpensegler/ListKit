@@ -31,9 +31,23 @@ public extension UITableView {
         set { Associator.set(value: newValue, key: &listViewDefaultAnimationKey, to: self) }
     }
 
+    func adapted<Adapter: ListAdapter>(
+        by listAdapter: Adapter,
+        animated: Bool = true,
+        completion: ((Bool) -> Void)? = nil
+    ) where Adapter.View: UITableView {
+        listDelegate.setCoordinator(
+            context: listAdapter.listCoordinatorContext,
+            animated: animated,
+            completion: completion
+        )
+    }
+
     func resetDelegates(toNil: Bool) {
-        dataSource = toNil ? nil : dataSource
-        delegate = toNil ? nil : delegate
+        let temp = (dataSource, delegate)
+        (dataSource, delegate) = (nil, nil)
+        if toNil { return }
+        (dataSource, delegate) = temp
     }
 
     func reloadSynchronously(animated: Bool = true) {

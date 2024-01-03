@@ -13,11 +13,11 @@ import UIKit
 extension Delegate: UICollectionViewDataSource {
     // MARK: - Getting Item and Section Metrics
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        context.numbersOfModel(in: section)
+        numberOfItemsInSection(section)
     }
 
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        context.numbersOfSections()
+        numbersOfSections()
     }
 
     // MARK: - Getting Views for Items
@@ -57,20 +57,20 @@ extension Delegate: UICollectionViewDelegate {
         apply(#selector(UICollectionViewDelegate.collectionView(_:didDeselectItemAt:)), view: collectionView, with: indexPath, index: indexPath, default: ())
     }
 
-    @available(iOS 13.0, *)
-    func collectionView(_ collectionView: UICollectionView, shouldBeginMultipleSelectionInteractionAt indexPath: IndexPath) -> Bool {
-        apply(#selector(UICollectionViewDelegate.collectionView(_:shouldBeginMultipleSelectionInteractionAt:)), view: collectionView, with: indexPath, index: indexPath, default: true)
-    }
-
-    @available(iOS 13.0, *)
-    func collectionView(_ collectionView: UICollectionView, didBeginMultipleSelectionInteractionAt indexPath: IndexPath) {
-        apply(#selector(UICollectionViewDelegate.collectionView(_:didBeginMultipleSelectionInteractionAt:)), view: collectionView, with: indexPath, index: indexPath, default: ())
-    }
-
-    @available(iOS 13.0, *)
-    func collectionViewDidEndMultipleSelectionInteraction(_ collectionView: UICollectionView) {
-        apply(#selector(UICollectionViewDelegate.collectionViewDidEndMultipleSelectionInteraction(_:)), view: collectionView, default: ())
-    }
+//    @available(iOS 13.0, *)
+//    func collectionView(_ collectionView: UICollectionView, shouldBeginMultipleSelectionInteractionAt indexPath: IndexPath) -> Bool {
+//        apply(#selector(UICollectionViewDelegate.collectionView(_:shouldBeginMultipleSelectionInteractionAt:)), view: collectionView, with: indexPath, index: indexPath, default: true)
+//    }
+//
+//    @available(iOS 13.0, *)
+//    func collectionView(_ collectionView: UICollectionView, didBeginMultipleSelectionInteractionAt indexPath: IndexPath) {
+//        apply(#selector(UICollectionViewDelegate.collectionView(_:didBeginMultipleSelectionInteractionAt:)), view: collectionView, with: indexPath, index: indexPath, default: ())
+//    }
+//
+//    @available(iOS 13.0, *)
+//    func collectionViewDidEndMultipleSelectionInteraction(_ collectionView: UICollectionView) {
+//        apply(#selector(UICollectionViewDelegate.collectionViewDidEndMultipleSelectionInteraction(_:)), view: collectionView, default: ())
+//    }
 
     // MARK: - Managing Cell Highlighting
     func collectionView(_ collectionView: UICollectionView, shouldHighlightItemAt indexPath: IndexPath) -> Bool {
@@ -102,75 +102,75 @@ extension Delegate: UICollectionViewDelegate {
         apply(#selector(UICollectionViewDelegate.collectionView(_:didEndDisplayingSupplementaryView:forElementOfKind:at:)), view: collectionView, with: (view, elementKind, indexPath), default: ())
     }
 
-    // MARK: - Handling Layout Changes
-    func collectionView(_ collectionView: UICollectionView, transitionLayoutForOldLayout fromLayout: UICollectionViewLayout, newLayout toLayout: UICollectionViewLayout) -> UICollectionViewTransitionLayout {
-        apply(#selector(UICollectionViewDelegate.collectionView(_:transitionLayoutForOldLayout:newLayout:)), view: collectionView, with: (fromLayout, toLayout), default: .init(currentLayout: fromLayout, nextLayout: toLayout))
-    }
+//    // MARK: - Handling Layout Changes
+//    func collectionView(_ collectionView: UICollectionView, transitionLayoutForOldLayout fromLayout: UICollectionViewLayout, newLayout toLayout: UICollectionViewLayout) -> UICollectionViewTransitionLayout {
+//        apply(#selector(UICollectionViewDelegate.collectionView(_:transitionLayoutForOldLayout:newLayout:)), view: collectionView, with: (fromLayout, toLayout), default: .init(currentLayout: fromLayout, nextLayout: toLayout))
+//    }
+//
+//    func collectionView(_ collectionView: UICollectionView, targetContentOffsetForProposedContentOffset proposedContentOffset: CGPoint) -> CGPoint {
+//        apply(#selector(UICollectionViewDelegate.collectionView(_:targetContentOffsetForProposedContentOffset:)), view: collectionView, with: (proposedContentOffset), default: proposedContentOffset)
+//    }
+//
+//    func collectionView(_ collectionView: UICollectionView, targetIndexPathForMoveFromItemAt originalIndexPath: IndexPath, toProposedIndexPath proposedIndexPath: IndexPath) -> IndexPath {
+//        apply(#selector(UICollectionViewDelegate.collectionView(_:targetIndexPathForMoveFromItemAt:toProposedIndexPath:)), view: collectionView, with: (originalIndexPath, proposedIndexPath), default: proposedIndexPath)
+//    }
+//
+//    // MARK: - Managing Actions for Cells
+//    func collectionView(_ collectionView: UICollectionView, shouldShowMenuForItemAt indexPath: IndexPath) -> Bool {
+//        apply(#selector(UICollectionViewDelegate.collectionView(_:shouldShowMenuForItemAt:)), view: collectionView, with: indexPath, index: indexPath, default: true)
+//    }
+//
+//    func collectionView(_ collectionView: UICollectionView, canPerformAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) -> Bool {
+//        apply(#selector(UICollectionViewDelegate.collectionView(_:canPerformAction:forItemAt:withSender:)), view: collectionView, with: (indexPath, action, sender), index: indexPath, default: true)
+//    }
+//
+//    func collectionView(_ collectionView: UICollectionView, performAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) {
+//        apply(#selector(UICollectionViewDelegate.collectionView(_:performAction:forItemAt:withSender:)), view: collectionView, with: (indexPath, action, sender), index: indexPath, default: ())
+//    }
+//
+//    // MARK: - Managing Focus in a Collection View
+//    func collectionView(_ collectionView: UICollectionView, canFocusItemAt indexPath: IndexPath) -> Bool {
+//        apply(#selector(UICollectionViewDelegate.collectionView(_:canFocusItemAt:)), view: collectionView, with: indexPath, index: indexPath, default: true)
+//    }
+//
+//    func indexPathForPreferredFocusedView(in collectionView: UICollectionView) -> IndexPath? {
+//        apply(#selector(UICollectionViewDelegate.indexPathForPreferredFocusedView(in:)), view: collectionView, default: nil)
+//    }
+//
+//    func collectionView(_ collectionView: UICollectionView, shouldUpdateFocusIn context: UICollectionViewFocusUpdateContext) -> Bool {
+//        apply(#selector(UICollectionViewDelegate.collectionView(_:shouldUpdateFocusIn:)), view: collectionView, with: context, default: true)
+//    }
+//
+//    func collectionView(_ collectionView: UICollectionView, didUpdateFocusIn context: UICollectionViewFocusUpdateContext, with coordinator: UIFocusAnimationCoordinator) {
+//        apply(#selector(UICollectionViewDelegate.collectionView(_:didUpdateFocusIn:with:)), view: collectionView, with: (context, coordinator), default: ())
+//    }
 
-    func collectionView(_ collectionView: UICollectionView, targetContentOffsetForProposedContentOffset proposedContentOffset: CGPoint) -> CGPoint {
-        apply(#selector(UICollectionViewDelegate.collectionView(_:targetContentOffsetForProposedContentOffset:)), view: collectionView, with: (proposedContentOffset), default: proposedContentOffset)
-    }
+//    // MARK: - Controlling the Spring-Loading Behavior
+//    @available(iOS 11.0, *)
+//    func collectionView(_ collectionView: UICollectionView, shouldSpringLoadItemAt indexPath: IndexPath, with context: UISpringLoadedInteractionContext) -> Bool {
+//        apply(#selector(UICollectionViewDelegate.collectionView(_:shouldSpringLoadItemAt:with:)), view: collectionView, with: (indexPath, context), index: indexPath, default: true)
+//    }
 
-    func collectionView(_ collectionView: UICollectionView, targetIndexPathForMoveFromItemAt originalIndexPath: IndexPath, toProposedIndexPath proposedIndexPath: IndexPath) -> IndexPath {
-        apply(#selector(UICollectionViewDelegate.collectionView(_:targetIndexPathForMoveFromItemAt:toProposedIndexPath:)), view: collectionView, with: (originalIndexPath, proposedIndexPath), default: proposedIndexPath)
-    }
-
-    // MARK: - Managing Actions for Cells
-    func collectionView(_ collectionView: UICollectionView, shouldShowMenuForItemAt indexPath: IndexPath) -> Bool {
-        apply(#selector(UICollectionViewDelegate.collectionView(_:shouldShowMenuForItemAt:)), view: collectionView, with: indexPath, index: indexPath, default: true)
-    }
-
-    func collectionView(_ collectionView: UICollectionView, canPerformAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) -> Bool {
-        apply(#selector(UICollectionViewDelegate.collectionView(_:canPerformAction:forItemAt:withSender:)), view: collectionView, with: (indexPath, action, sender), index: indexPath, default: true)
-    }
-
-    func collectionView(_ collectionView: UICollectionView, performAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) {
-        apply(#selector(UICollectionViewDelegate.collectionView(_:performAction:forItemAt:withSender:)), view: collectionView, with: (indexPath, action, sender), index: indexPath, default: ())
-    }
-
-    // MARK: - Managing Focus in a Collection View
-    func collectionView(_ collectionView: UICollectionView, canFocusItemAt indexPath: IndexPath) -> Bool {
-        apply(#selector(UICollectionViewDelegate.collectionView(_:canFocusItemAt:)), view: collectionView, with: indexPath, index: indexPath, default: true)
-    }
-
-    func indexPathForPreferredFocusedView(in collectionView: UICollectionView) -> IndexPath? {
-        apply(#selector(UICollectionViewDelegate.indexPathForPreferredFocusedView(in:)), view: collectionView, default: nil)
-    }
-
-    func collectionView(_ collectionView: UICollectionView, shouldUpdateFocusIn context: UICollectionViewFocusUpdateContext) -> Bool {
-        apply(#selector(UICollectionViewDelegate.collectionView(_:shouldUpdateFocusIn:)), view: collectionView, with: context, default: true)
-    }
-
-    func collectionView(_ collectionView: UICollectionView, didUpdateFocusIn context: UICollectionViewFocusUpdateContext, with coordinator: UIFocusAnimationCoordinator) {
-        apply(#selector(UICollectionViewDelegate.collectionView(_:didUpdateFocusIn:with:)), view: collectionView, with: (context, coordinator), default: ())
-    }
-
-    // MARK: - Controlling the Spring-Loading Behavior
-    @available(iOS 11.0, *)
-    func collectionView(_ collectionView: UICollectionView, shouldSpringLoadItemAt indexPath: IndexPath, with context: UISpringLoadedInteractionContext) -> Bool {
-        apply(#selector(UICollectionViewDelegate.collectionView(_:shouldSpringLoadItemAt:with:)), view: collectionView, with: (indexPath, context), index: indexPath, default: true)
-    }
-
-    // MARK: - Instance Methods
-    @available(iOS 13.0, *)
-    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
-        apply(#selector(UICollectionViewDelegate.collectionView(_:contextMenuConfigurationForItemAt:point:)), view: collectionView, with: (indexPath, point), index: indexPath, default: nil)
-    }
-
-    @available(iOS 13.0, *)
-    func collectionView(_ collectionView: UICollectionView, previewForDismissingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
-        apply(#selector(UICollectionViewDelegate.collectionView(_:previewForDismissingContextMenuWithConfiguration:)), view: collectionView, with: (configuration), default: nil)
-    }
-
-    @available(iOS 13.0, *)
-    func collectionView(_ collectionView: UICollectionView, previewForHighlightingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
-        apply(#selector(UICollectionViewDelegate.collectionView(_:previewForHighlightingContextMenuWithConfiguration:)), view: collectionView, with: (configuration), default: nil)
-    }
-
-    @available(iOS 13.0, *)
-    func collectionView(_ collectionView: UICollectionView, willPerformPreviewActionForMenuWith configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionCommitAnimating) {
-        apply(#selector(UICollectionViewDelegate.collectionView(_:willPerformPreviewActionForMenuWith:animator:)), view: collectionView, with: (configuration, animator), default: ())
-    }
+//    // MARK: - Instance Methods
+//    @available(iOS 13.0, *)
+//    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+//        apply(#selector(UICollectionViewDelegate.collectionView(_:contextMenuConfigurationForItemAt:point:)), view: collectionView, with: (indexPath, point), index: indexPath, default: nil)
+//    }
+//
+//    @available(iOS 13.0, *)
+//    func collectionView(_ collectionView: UICollectionView, previewForDismissingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
+//        apply(#selector(UICollectionViewDelegate.collectionView(_:previewForDismissingContextMenuWithConfiguration:)), view: collectionView, with: (configuration), default: nil)
+//    }
+//
+//    @available(iOS 13.0, *)
+//    func collectionView(_ collectionView: UICollectionView, previewForHighlightingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
+//        apply(#selector(UICollectionViewDelegate.collectionView(_:previewForHighlightingContextMenuWithConfiguration:)), view: collectionView, with: (configuration), default: nil)
+//    }
+//
+//    @available(iOS 13.0, *)
+//    func collectionView(_ collectionView: UICollectionView, willPerformPreviewActionForMenuWith configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionCommitAnimating) {
+//        apply(#selector(UICollectionViewDelegate.collectionView(_:willPerformPreviewActionForMenuWith:animator:)), view: collectionView, with: (configuration, animator), default: ())
+//    }
 }
 
 extension Delegate: UICollectionViewDelegateFlowLayout {

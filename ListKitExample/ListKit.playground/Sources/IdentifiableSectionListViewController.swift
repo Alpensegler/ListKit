@@ -1,56 +1,53 @@
-// swiftlint:disable unused_closure_parameter comment_spacing
+// swiftlint:disable comment_spacing orphaned_doc_comment
 
 import ListKit
 import UIKit
 
-public struct Room: UpdatableDataSource {
-    public var coordinatorStorage = CoordinatorStorage<Room>()
+public class Room {
     let name: String
-    let people: [String]
-}
+    var people: [String]
 
-extension Room: ListAdapter, ModelCachedDataSource {
-    public typealias Model = String
-    public typealias ModelCache = String
-
-    public var source: [String] { people.shuffled() }
-    public var listDiffer: ListDiffer<Room> { .diff(id: \.name) }
-    public var listOptions: ListOptions { .removeEmptySection }
-    public var modelCached: ModelCached<Room, String> { withModelCached { $0 } }
-
-    public var list: ListAdaptation<Room, UICollectionView> {
-        cellForItem(CenterLabelCell.self) { (cell, context, model) in
-            cell.text = model
-        }
-        didSelectItem { (context, model) in
-            perform(.remove(at: context.item))
-        }
-        layoutSizeForItem(CGSize(width: 70, height: 70))
-        layoutInsetForSection(UIEdgeInsets(top: 10, left: 10, bottom: 30, right: 10))
-        layoutMinimumLineSpacingForSection(50)
-        layoutMinimumInteritemSpacingForSection(5)
-        layoutReferenceSizeForHeaderInSection(CGSize(width: UIScreen.main.bounds.width, height: 30))
-        supplementaryViewForItem { [name] in
-            let header = $0.dequeueReusableSupplementaryView(type: $1, TitleHeader.self)
-            header.text = name
-            return header
-        }
+    init(_ name: String, _ people: [String]) {
+        self.name = name
+        self.people = people
     }
 }
 
-public class IdentifiableSectionListViewController: UIViewController, UpdatableListAdapter, ModelCachedDataSource {
-    public typealias Model = String
-    public typealias ModelCache = String
-    public typealias View = UICollectionView
+extension Room: CollectionListAdapter {
+    public var list: CollectionList {
+        CollectionElements(people.shuffled())
+            .cellForItem(CenterLabelCell.self, identifier: "") { cell, _, element in
+                cell.text = element
+            }
+            .didSelectItem { [weak self] context, element in
+                self?.performUpdate()
+            }
+            .layoutSizeForItem(CGSize(width: 100, height: 100))
+            .layoutInsetForSection(UIEdgeInsets(top: 10, left: 10, bottom: 30, right: 10))
+            .layoutMinimumLineSpacingForSection(50)
+            .layoutMinimumInteritemSpacingForSection(5)
+            .layoutReferenceSizeForHeaderInSection { context, _ in
+                CGSize(width: context.listView.frame.size.width, height: 30)
+            }
+            .supplementaryViewForItem { [name] in
+                let header = $0.dequeueReusableSupplementaryView(type: $1, TitleHeader.self)
+                header.text = name
+                return header
+            }
+    }
+}
 
-    public var source: [Room] {
-        Room.random
+public class IdentifiableSectionListViewController: UIViewController, CollectionListAdapter {
+    public var list: CollectionList {
+        for room in Room.random {
+            room
+        }
     }
 
     public override func viewDidLoad() {
         super.viewDidLoad()
 
-        apply(by: collectionView)
+        collectionView.adapted(by: self)
 
         navigationItem.rightBarButtonItem = UIBarButtonItem(
             barButtonSystemItem: .refresh,
@@ -85,19 +82,12 @@ extension Room: CustomStringConvertible {
             let people = Bool.random() || Bool.random()
                 ? (0...Int.random(in: 0..<limit)).compactMap { _ in shuffled.popLast() }
                 : []
-            results.append(.init(name, people))
+            results.append(.init(name, people.map { "\($0)" }))
         }
 
-        return results.sorted { $0.people.count > $1.people.count }
-    }
-
-    init(_ name: String, _ people: [String]) {
-        self.name = name
-        self.people = people
-    }
-    init(_ name: String, _ people: [Int] = []) {
-        self.name = name
-        self.people = people.map { "\($0)" }
+        let random = results.sorted { $0.people.count > $1.people.count }
+        print(random)
+        return random
     }
 
     public var description: String { "Room(\"\(name)\", \(people))" }
@@ -109,7 +99,7 @@ extension IdentifiableSectionListViewController {
         let collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: UICollectionViewFlowLayout())
         view.addSubview(collectionView)
         collectionView.autoresizingMask = [.flexibleHeight, .flexibleWidth]
-        collectionView.backgroundColor = .white
+        collectionView.backgroundColor = .clear
         return collectionView
     }
 }
@@ -120,7 +110,6 @@ extension Room {
             let view = UILabel()
             view.backgroundColor = .clear
             view.textAlignment = .center
-            view.textColor = .black
             view.font = .boldSystemFont(ofSize: 18)
             self.contentView.addSubview(view)
             return view
@@ -156,7 +145,6 @@ extension Room {
             button.addTarget(self, action: #selector(refreshAction), for: .touchUpInside)
             button.isHidden = true
             button.sizeToFit()
-            button.frame.origin.x = UIScreen.main.bounds.width - button.frame.size.width
             self.addSubview(button)
             return button
         }()
@@ -194,16 +182,3 @@ struct IdentifiableSectionList_Preview: UIViewControllerRepresentable, PreviewPr
 }
 
 #endif
-
-//extension IdentifiableSectionListViewController {
-//    static var toggle = false
-//
-//    public var source: [Room] {
-//        Self.toggle.toggle()
-//        if Self.toggle {
-//            return [Room("A", [1]), Room("B", [4, 5, 6])]
-//        } else {
-//            return [Room("B", [4, 5, 6]), Room("A", [1, 2, 3])]
-//        }
-//    }
-//}

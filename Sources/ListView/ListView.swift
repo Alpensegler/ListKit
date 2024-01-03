@@ -40,7 +40,7 @@ extension SetuptableListView {
 
     func isCoordinator(_ coordinator: AnyObject) -> Bool {
         if let delegate: Delegate = Associator.getValue(key: &listDelegateKey, from: self) {
-            return isDelegate(delegate) && delegate.context?.isCoordinator(coordinator) ?? false
+            return isDelegate(delegate)
         }
         return false
     }

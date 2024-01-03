@@ -10,15 +10,15 @@ import UIKit
 
 public extension ListIndexContext where Index == IndexPath, View: UIListView {
     func select(animated: Bool, scrollPosition: View.ScrollPosition) {
-        listView.selectItem(at: index, animated: animated, scrollPosition: scrollPosition)
+        listView.selectItem(at: rawIndex, animated: animated, scrollPosition: scrollPosition)
     }
 
     func deselect(animated: Bool) {
-        listView.deselectItem(at: index, animated: animated)
+        listView.deselectItem(at: rawIndex, animated: animated)
     }
 
     var cell: View.Cell? {
-        listView.cellForItem(at: index)
+        listView.cellForItem(at: rawIndex)
     }
 
     func dequeueReusableCell<CustomCell: UIView>(
@@ -28,7 +28,7 @@ public extension ListIndexContext where Index == IndexPath, View: UIListView {
         listView.dequeueReusableCell(
             cellClass,
             identifier: identifier,
-            indexPath: index
+            indexPath: rawIndex
         )
     }
 
@@ -39,7 +39,7 @@ public extension ListIndexContext where Index == IndexPath, View: UIListView {
         listView.dequeueReusableCell(
             cellClass,
             storyBoardIdentifier: storyBoardIdentifier,
-            indexPath: index
+            indexPath: rawIndex
         )
     }
 
@@ -52,7 +52,7 @@ public extension ListIndexContext where Index == IndexPath, View: UIListView {
             cellClass,
             withNibName: nibName,
             bundle: bundle,
-            indexPath: index
+            indexPath: rawIndex
         )
     }
 }
@@ -67,7 +67,7 @@ public extension ListIndexContext where Index == IndexPath, View: UICollectionVi
             type: type,
             supplementaryClass,
             identifier: identifier,
-            indexPath: index
+            indexPath: rawIndex
         )
     }
 
@@ -82,7 +82,7 @@ public extension ListIndexContext where Index == IndexPath, View: UICollectionVi
             supplementaryClass,
             nibName: nibName,
             bundle: bundle,
-            indexPath: index
+            indexPath: rawIndex
         )
     }
 }

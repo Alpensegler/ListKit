@@ -1,31 +1,27 @@
-// swiftlint:disable unused_closure_parameter
+// swiftlint:disable comment_spacing
 
 import ListKit
 import UIKit
 
-public class NestedListViewController: UIViewController, UpdatableListAdapter {
-    public typealias Model = Any
-
-    let nestedSources = Sources(models: 0..<10)
-        .cellForItem(CenterLabelCell.self) { (cell, context, model) in
-            cell.text = "\(model)"
+public class NestedListViewController: UIViewController, TableListAdapter {
+    let nestedSources = CollectionElements(0..<10)
+        .cellForItem(CenterLabelCell.self) { cell, _, element in
+            cell.text = "\(element)"
         }
 
-    public var source: AnyTableSources {
-        AnyTableSources {
-            Sources(model: nestedSources)
-                .cellForRow(EmbeddedCell.self) { (cell, context, model) in
-                    model.apply(by: cell.collectionView)
-                }
-                .heightForRow(100)
-            Sources(models: ["a", "b", "c"])
-                .cellForRow()
-                .heightForRow(50)
-        }
+    public var list: TableList {
+        SingleElement(nestedSources)
+            .cellForRow(EmbeddedCell.self) { cell, _, element in
+                cell.collectionView.adapted(by: element)
+            }
+            .heightForRow(100)
+        CollectionElements(["a", "b", "c"])
+            .cellForRow()
+            .heightForRow(50)
     }
 
     public override func viewDidLoad() {
-        apply(by: tableView)
+        tableView.adapted(by: self)
     }
 }
 

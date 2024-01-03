@@ -3,12 +3,11 @@ import PlaygroundSupport
 import UIKit
 
 let contentsViewController = ContentsViewController()
-contentsViewController.source = [
-    ("DoubleList", DoubleListViewController.self),
+contentsViewController.models = [
+    ("SimpleList", SimpleListViewController.self),
     ("SectionList", SectionListViewControlle.self),
     ("NestedList", NestedListViewController.self),
     ("IdentifiableSectionList", IdentifiableSectionListViewController.self),
-    ("CoreDataListViewController", CoreDataListViewController.self),
     ("TestList", TestListViewController.self)
 ]
 

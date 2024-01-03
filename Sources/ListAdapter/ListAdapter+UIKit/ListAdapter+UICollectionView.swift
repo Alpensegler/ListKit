@@ -5,30 +5,26 @@
 //  Created by Frain on 2019/12/10.
 //
 
-// swiftlint:disable identifier_name large_tuple
+// swiftlint:disable large_tuple
 
 #if os(iOS) || os(tvOS)
 import UIKit
 
 // MARK: - Collection View Data Source
-public extension DataSource {
-    var cellForItem: ListDelegate.IndexFunction<UICollectionView, Self, IndexPath, UICollectionViewCell, (ListIndexContext<UICollectionView, Self, IndexPath>, Model) -> UICollectionViewCell, IndexPath> {
+public extension ListAdapter {
+    var cellForItem: IndexFunction<UICollectionView, List, IndexPath, UICollectionViewCell, (ListIndexContext<UICollectionView, IndexPath>) -> UICollectionViewCell, IndexPath> {
         toFunction(#selector(UICollectionViewDataSource.collectionView(_:cellForItemAt:)), toClosure())
     }
 }
 
 public extension ListAdapter where View: UICollectionView {
     // MARK: - Getting Views for Items
-    var cellForItem: ModelFunction<IndexPath, UICollectionViewCell, (ListModelContext, Model) -> UICollectionViewCell> {
-        toFunction(#selector(UICollectionViewDataSource.collectionView(_:cellForItemAt:)), toClosure())
-    }
-
-    var supplementaryViewForItem: ModelFunction<(IndexPath, String), UICollectionReusableView, (ListModelContext, CollectionView.SupplementaryViewType) -> UICollectionReusableView> {
+    var supplementaryViewForItem: ElementFunction<(IndexPath, String), UICollectionReusableView, (ElementContext, CollectionView.SupplementaryViewType) -> UICollectionReusableView> {
         toFunction(#selector(UICollectionViewDataSource.collectionView(_:viewForSupplementaryElementOfKind:at:)), \.0) { closure in { context, input in closure(context, .init(rawValue: input.1)) } }
     }
 
     // MARK: - Reordering Items
-    var canMoveItem: ModelFunction<IndexPath, Bool, (ListModelContext, Model) -> Bool> {
+    var canMoveItem: ElementFunction<IndexPath, Bool, (ElementContext) -> Bool> {
         toFunction(#selector(UICollectionViewDataSource.collectionView(_:canMoveItemAt:)), toClosure())
     }
 
@@ -40,29 +36,29 @@ public extension ListAdapter where View: UICollectionView {
 // MARK: - Collection View Delegate
 public extension ListAdapter where View: UICollectionView {
     // MARK: - Managing the Selected Cells
-    var shouldSelectItem: ModelFunction<IndexPath, Bool, (ListModelContext, Model) -> Bool> {
+    var shouldSelectItem: ElementFunction<IndexPath, Bool, (ElementContext) -> Bool> {
         toFunction(#selector(UICollectionViewDelegate.collectionView(_:shouldSelectItemAt:)), toClosure())
     }
 
-    var didSelectItem: ModelFunction<IndexPath, Void, (ListModelContext, Model) -> Void> {
+    var didSelectItem: ElementFunction<IndexPath, Void, (ElementContext) -> Void> {
         toFunction(#selector(UICollectionViewDelegate.collectionView(_:didSelectItemAt:)), toClosure())
     }
 
-    var shouldDeselectItem: ModelFunction<IndexPath, Bool, (ListModelContext, Model) -> Bool> {
+    var shouldDeselectItem: ElementFunction<IndexPath, Bool, (ElementContext) -> Bool> {
         toFunction(#selector(UICollectionViewDelegate.collectionView(_:shouldDeselectItemAt:)), toClosure())
     }
 
-    var didDeselectItem: ModelFunction<IndexPath, Void, (ListModelContext, Model) -> Void> {
+    var didDeselectItem: ElementFunction<IndexPath, Void, (ElementContext) -> Void> {
         toFunction(#selector(UICollectionViewDelegate.collectionView(_:didDeselectItemAt:)), toClosure())
     }
 
     @available(iOS 13.0, *)
-    var shouldBeginMultipleSelectionInteractionForItem: ModelFunction<IndexPath, Bool, (ListModelContext, Model) -> Bool> {
+    var shouldBeginMultipleSelectionInteractionForItem: ElementFunction<IndexPath, Bool, (ElementContext) -> Bool> {
         toFunction(#selector(UICollectionViewDelegate.collectionView(_:shouldBeginMultipleSelectionInteractionAt:)), toClosure())
     }
 
     @available(iOS 13.0, *)
-    var didBeginMultipleSelectionInteractionAtForItem: ModelFunction<IndexPath, Void, (ListModelContext, Model) -> Void> {
+    var didBeginMultipleSelectionInteractionAtForItem: ElementFunction<IndexPath, Void, (ElementContext) -> Void> {
         toFunction(#selector(UICollectionViewDelegate.collectionView(_:didBeginMultipleSelectionInteractionAt:)), toClosure())
     }
 
@@ -72,25 +68,25 @@ public extension ListAdapter where View: UICollectionView {
     }
 
     // MARK: - Managing Cell Highlighting
-    var shouldHighlightItem: ModelFunction<IndexPath, Bool, (ListModelContext, Model) -> Bool> {
+    var shouldHighlightItem: ElementFunction<IndexPath, Bool, (ElementContext) -> Bool> {
         toFunction(#selector(UICollectionViewDelegate.collectionView(_:shouldHighlightItemAt:)), toClosure())
     }
 
-    var didHighlightItem: ModelFunction<IndexPath, Void, (ListModelContext, Model) -> Void> {
+    var didHighlightItem: ElementFunction<IndexPath, Void, (ElementContext) -> Void> {
         toFunction(#selector(UICollectionViewDelegate.collectionView(_:didHighlightItemAt:)), toClosure())
     }
 
-    var didUnhighlightItem: ModelFunction<IndexPath, Void, (ListModelContext, Model) -> Void> {
+    var didUnhighlightItem: ElementFunction<IndexPath, Void, (ElementContext) -> Void> {
         toFunction(#selector(UICollectionViewDelegate.collectionView(_:didUnhighlightItemAt:)), toClosure())
     }
 
     // MARK: - Tracking the Addition and Removal of Views
-    var willDisplayForItem: ModelFunction<(IndexPath, UICollectionViewCell), Void, (ListModelContext, UICollectionViewCell, Model) -> Void> {
+    var willDisplayForItem: ElementFunction<(IndexPath, UICollectionViewCell), Void, (ElementContext, UICollectionViewCell) -> Void> {
         toFunction(#selector(UICollectionViewDelegate.collectionView(_:willDisplay:forItemAt:)), \.0, toClosure())
     }
 
-    var willDisplaySupplementaryView: ModelFunction<(IndexPath, UICollectionReusableView, String), Void, (ListModelContext, UICollectionReusableView, CollectionView.SupplementaryViewType, Model) -> Void> {
-        toFunction(#selector(UICollectionViewDelegate.collectionView(_:willDisplaySupplementaryView:forElementKind:at:)), \.0) { closure in { context, input in closure(context, input.1, .init(rawValue: input.2), context.model) } }
+    var willDisplaySupplementaryView: ElementFunction<(IndexPath, UICollectionReusableView, String), Void, (ElementContext, UICollectionReusableView, CollectionView.SupplementaryViewType) -> Void> {
+        toFunction(#selector(UICollectionViewDelegate.collectionView(_:willDisplaySupplementaryView:forElementKind:at:)), \.0) { closure in { context, input in closure(context, input.1, .init(rawValue: input.2)) } }
     }
 
     var didEndDisplayingItem: Function<(IndexPath, UICollectionViewCell), Void, (ListContext, IndexPath, UICollectionViewCell) -> Void> {
@@ -115,20 +111,20 @@ public extension ListAdapter where View: UICollectionView {
     }
 
     // MARK: - Managing Actions for Cells
-    var shouldShowMenuForItem: ModelFunction<IndexPath, Bool, (ListModelContext, Model) -> Bool> {
+    var shouldShowMenuForItem: ElementFunction<IndexPath, Bool, (ElementContext) -> Bool> {
         toFunction(#selector(UICollectionViewDelegate.collectionView(_:shouldShowMenuForItemAt:)), toClosure())
     }
 
-    var canPerformActionWithSender: ModelFunction<(IndexPath, Selector, Any?), Bool, (ListModelContext, Selector, Any?, Model) -> Bool> {
+    var canPerformActionWithSender: ElementFunction<(IndexPath, Selector, Any?), Bool, (ElementContext, Selector, Any?) -> Bool> {
         toFunction(#selector(UICollectionViewDelegate.collectionView(_:canPerformAction:forItemAt:withSender:)), \.0, toClosure())
     }
 
-    var performActionWithSender: ModelFunction<(IndexPath, Selector, Any?), Void, (ListModelContext, Selector, Any?, Model) -> Void> {
+    var performActionWithSender: ElementFunction<(IndexPath, Selector, Any?), Void, (ElementContext, Selector, Any?) -> Void> {
         toFunction(#selector(UICollectionViewDelegate.collectionView(_:performAction:forItemAt:withSender:)), \.0, toClosure())
     }
 
     // MARK: - Managing Focus in a Collection View
-    var canFocusItem: ModelFunction<IndexPath, Bool, (ListModelContext, Model) -> Bool> {
+    var canFocusItem: ElementFunction<IndexPath, Bool, (ElementContext) -> Bool> {
         toFunction(#selector(UICollectionViewDelegate.collectionView(_:canFocusItemAt:)), toClosure())
     }
 
@@ -146,13 +142,13 @@ public extension ListAdapter where View: UICollectionView {
 
     // MARK: - Controlling the Spring-Loading Behavior
     @available(iOS 11.0, *)
-    var shouldSpringLoadItemAtWith: ModelFunction<(IndexPath, UISpringLoadedInteractionContext), Bool, (ListModelContext, UISpringLoadedInteractionContext, Model) -> Bool> {
+    var shouldSpringLoadItemAtWith: ElementFunction<(IndexPath, UISpringLoadedInteractionContext), Bool, (ElementContext, UISpringLoadedInteractionContext) -> Bool> {
         toFunction(#selector(UICollectionViewDelegate.collectionView(_:shouldSpringLoadItemAt:with:)), \.0, toClosure())
     }
 
     // MARK: - Instance Methods
     @available(iOS 13.0, *)
-    var contextMenuConfigurationForItem: ModelFunction<(IndexPath, CGPoint), UIContextMenuConfiguration?, (ListModelContext, CGPoint, Model) -> UIContextMenuConfiguration> {
+    var contextMenuConfigurationForItem: ElementFunction<(IndexPath, CGPoint), UIContextMenuConfiguration?, (ElementContext, CGPoint) -> UIContextMenuConfiguration> {
         toFunction(#selector(UICollectionViewDelegate.collectionView(_:contextMenuConfigurationForItemAt:point:)), \.0, toClosure())
     }
 
@@ -175,29 +171,29 @@ public extension ListAdapter where View: UICollectionView {
 // MARK: - Collection View Delegate Flow Layout
 public extension ListAdapter where View: UICollectionView {
     // MARK: - Getting the Size of Items
-    var layoutSizeForItem: ModelFunction<(IndexPath, UICollectionViewLayout), CGSize, (ListModelContext, UICollectionViewLayout, Model) -> CGSize> {
+    var layoutSizeForItem: ElementFunction<(IndexPath, UICollectionViewLayout), CGSize, (ElementContext, UICollectionViewLayout) -> CGSize> {
         toFunction(#selector(UICollectionViewDelegateFlowLayout.collectionView(_:layout:sizeForItemAt:)), \.0, toClosure())
     }
 
     // MARK: - Getting the Section Spacing
-    var layoutInsetForSection: SectionFunction<(Int, UICollectionViewLayout), UIEdgeInsets, (ListSectionContext, UICollectionViewLayout) -> UIEdgeInsets> {
+    var layoutInsetForSection: SectionFunction<(Int, UICollectionViewLayout), UIEdgeInsets, (SectionContext, UICollectionViewLayout) -> UIEdgeInsets> {
         toFunction(#selector(UICollectionViewDelegateFlowLayout.collectionView(_:layout:insetForSectionAt:)), \.0, toClosure())
     }
 
-    var layoutMinimumLineSpacingForSection: SectionFunction<(Int, UICollectionViewLayout), CGFloat, (ListSectionContext, UICollectionViewLayout) -> CGFloat> {
+    var layoutMinimumLineSpacingForSection: SectionFunction<(Int, UICollectionViewLayout), CGFloat, (SectionContext, UICollectionViewLayout) -> CGFloat> {
         toFunction(#selector(UICollectionViewDelegateFlowLayout.collectionView(_:layout:minimumLineSpacingForSectionAt:)), \.0, toClosure())
     }
 
-    var layoutMinimumInteritemSpacingForSection: SectionFunction<(Int, UICollectionViewLayout), CGFloat, (ListSectionContext, UICollectionViewLayout) -> CGFloat> {
+    var layoutMinimumInteritemSpacingForSection: SectionFunction<(Int, UICollectionViewLayout), CGFloat, (SectionContext, UICollectionViewLayout) -> CGFloat> {
         toFunction(#selector(UICollectionViewDelegateFlowLayout.collectionView(_:layout:minimumInteritemSpacingForSectionAt:)), \.0, toClosure())
     }
 
     // MARK: - yGetting the Header and Footer Sizes
-    var layoutReferenceSizeForHeaderInSection: SectionFunction<(Int, UICollectionViewLayout), CGSize, (ListSectionContext, UICollectionViewLayout) -> CGSize> {
+    var layoutReferenceSizeForHeaderInSection: SectionFunction<(Int, UICollectionViewLayout), CGSize, (SectionContext, UICollectionViewLayout) -> CGSize> {
         toFunction(#selector(UICollectionViewDelegateFlowLayout.collectionView(_:layout:referenceSizeForHeaderInSection:)), \.0, toClosure())
     }
 
-    var layoutReferenceSizeForFooterInSection: SectionFunction<(Int, UICollectionViewLayout), CGSize, (ListSectionContext, UICollectionViewLayout) -> CGSize> {
+    var layoutReferenceSizeForFooterInSection: SectionFunction<(Int, UICollectionViewLayout), CGSize, (SectionContext, UICollectionViewLayout) -> CGSize> {
         toFunction(#selector(UICollectionViewDelegateFlowLayout.collectionView(_:layout:referenceSizeForFooterInSection:)), \.0, toClosure())
     }
 }

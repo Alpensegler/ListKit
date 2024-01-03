@@ -3,27 +3,27 @@ import UIKit
 
 // swiftlint:disable comment_spacing
 
-public class SectionListViewControlle: UIViewController, UpdatableListAdapter {
+public class SectionListViewControlle: UIViewController, CollectionListAdapter {
     static let emojis = (0x1F600...0x1F647).compactMap { UnicodeScalar($0) }
 
-    public typealias Model = UnicodeScalar
-    public var source: [[UnicodeScalar]] {
+    public var models: [[UnicodeScalar]] {
         (0..<Int.random(in: 2...4)).map { _ in
             Array(Self.emojis.shuffled()[0..<Int.random(in: 20...30)])
         }
     }
 
-    public var list: ListAdaptation<SectionListViewControlle, UICollectionView> {
-        cellForItem(CenterLabelCell.self) { (cell, _, model) in
-            cell.text = "\(model)"
-        }
-        layoutSizeForItem(CGSize(width: 30, height: 30))
-        layoutInsetForSection(UIEdgeInsets(top: 20, left: 10, bottom: 20, right: 10))
+    public var list: CollectionList {
+        SectionedElements(models)
+            .cellForItem(CenterLabelCell.self) { (cell, _, model) in
+                cell.text = "\(model)"
+            }
+            .layoutSizeForItem(CGSize(width: 30, height: 30))
+            .layoutInsetForSection(UIEdgeInsets(top: 20, left: 10, bottom: 20, right: 10))
     }
 
     public override func viewDidLoad() {
         super.viewDidLoad()
-        apply(by: collectionView)
+        collectionView.adapted(by: self)
 
         navigationItem.rightBarButtonItem = UIBarButtonItem(
             barButtonSystemItem: .refresh,
@@ -88,17 +88,3 @@ struct SectionList_Preview: UIViewControllerRepresentable, PreviewProvider {
 }
 
 #endif
-
-//public extension SectionListViewControlle {
-//    static var toggle = true
-//
-//    typealias Item = Int
-//    var source: [[Item]] {
-//        Self.toggle.toggle()
-//        if Self.toggle {
-//            return [[1,2,3]]
-//        } else {
-//            return [[1,2,3], [4,5,6]]
-//        }
-//    }
-//}

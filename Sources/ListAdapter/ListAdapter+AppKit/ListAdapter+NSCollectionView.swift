@@ -55,30 +55,102 @@ public extension ListAdapter where View: NSCollectionView {
     
     // MARK: - Tracking the Addition and Removal of Items
     @available(macOS 10.11, *)
-    var willDisplayItem: ElementFunction<IndexPath, Void, (ElementContext) -> Void> {
-        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:willDisplay:forRepresentedObjectAt:)), toClosure())
+    var willDisplayForItem: ElementFunction<(IndexPath, NSCollectionViewItem), Void, (ElementContext, NSCollectionViewItem) -> Void> {
+        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:willDisplay:forRepresentedObjectAt:)), \.0, toClosure())
     }
     
     @available(macOS 10.11, *)
-    var didEndDisplayingItem: ElementFunction<IndexPath, Void, (ElementContext) -> Void> {
+    var didEndDisplayingItem: Function<(IndexPath, NSCollectionViewItem), Void, (ListContext, IndexPath, NSCollectionViewItem) -> Void> {
         toFunction(#selector(NSCollectionViewDelegate.collectionView(_:didEndDisplaying:forRepresentedObjectAt:)), toClosure())
     }
     
     @available(macOS 10.11, *)
-    var willDisplaySupplementaryView: ElementFunction<IndexPath, Void, (ElementContext) -> Void> {
-        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:willDisplay:forRepresentedObjectAt:)), toClosure())
+    var willDisplaySupplementaryView: ElementFunction<(IndexPath, NSView, String), Void, (ElementContext, NSView, CollectionView.SupplementaryViewType) -> Void> {
+        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:willDisplay:forRepresentedObjectAt:)), \.0) { closure in { context, input in closure(context, input.1, .init(rawValue: input.2)) } }
     }
     
     @available(macOS 10.11, *)
-    var didEndDisplayingSupplementaryView: ElementFunction<IndexPath, Void, (ElementContext) -> Void> {
-        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:didEndDisplayingSupplementaryView:forElementOfKind:at:)), toClosure())
+    var didEndDisplayingSupplementaryView: Function<(NSView, String, IndexPath), Void, (ListContext, NSView, CollectionView.SupplementaryViewType, IndexPath) -> Void> {
+        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:didEndDisplayingSupplementaryView:forElementOfKind:at:))) { closure in { context, input in closure(context, input.0, .init(rawValue: input.1), input.2) } }
     }
     
     // MARK: - Handling Layout Changes
-    
+    @available(macOS 10.11, *)
+    var transitionLayoutForOldLayoutNewLayout: Function<(NSCollectionViewLayout, NSCollectionViewLayout), NSCollectionViewTransitionLayout, (ListContext, NSCollectionViewLayout, NSCollectionViewLayout) -> NSCollectionViewTransitionLayout> {
+        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:transitionLayoutForOldLayout:newLayout:)), toClosure())
+    }
+                   
     // MARK: - Drag and Drop Support
+    @available(macOS 10.11, *)
+    var canDragItems: Function<(Set<IndexPath>, NSEvent), Bool, (ListContext, Set<IndexPath>, NSEvent) -> Bool> {
+        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:canDragItemsAt:with:)), toClosure())
+    }
+    
+    var pasteboardWriterForItem: Function<IndexPath, NSPasteboardWriting?, (ListContext, IndexPath) -> NSPasteboardWriting?> {
+        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:pasteboardWriterForItemAt:)), toClosure())
+    }
+    
+    var writeItems: Function<(Set<IndexPath>, NSPasteboard), Bool, (ListContext, Set<IndexPath>, NSPasteboard) -> Bool> {
+        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:writeItemsAt:to:)), toClosure())
+    }
+    
+    var namesOfPromisedFilesDroppedAtDestination: Function<(URL, Set<IndexPath>), [String], (ListContext, URL, Set<IndexPath>) -> [String]> {
+        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:namesOfPromisedFilesDroppedAtDestination:forDraggedItemsAt:)), toClosure())
+    }
+    
+    var draggingImageForItems: Function<(Set<IndexPath>, NSEvent, NSPointPointer), NSImage, (ListContext, Set<IndexPath>, NSEvent, NSPointPointer) -> NSImage> {
+        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:draggingImageForItemsAt:with:offset:)), toClosure())
+    }
+    
+    var draggingSessionForItems: Function<(NSDraggingSession, NSPoint, Set<IndexPath>), Void, (ListContext, NSDraggingSession, NSPoint, Set<IndexPath>) -> Void> {
+        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:draggingSession:willBeginAt:forItemsAt:)), toClosure())
+    }
+    
+    var draggingSessionEnded: Function<(NSDraggingSession, NSPoint, NSDragOperation), Void, (ListContext, NSDraggingSession, NSPoint, NSDragOperation) -> Void> {
+        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:draggingSession:endedAt:dragOperation:)), toClosure())
+    }
+    
+    var updateDraggingItemsForDrag: Function<NSDraggingInfo, Void, (ListContext, NSDraggingInfo) -> Void> {
+        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:updateDraggingItemsForDrag:)), toClosure())
+    }
+    
+    var validateDrop: Function<(NSDraggingInfo, AutoreleasingUnsafeMutablePointer<NSIndexPath>, UnsafeMutablePointer<NSCollectionView.DropOperation>), NSDragOperation, (ListContext, NSDraggingInfo, AutoreleasingUnsafeMutablePointer<NSIndexPath>, UnsafeMutablePointer<NSCollectionView.DropOperation>) -> NSDragOperation> {
+        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:validateDrop:proposedIndexPath:dropOperation:)), toClosure())
+    }
+    
+    var acceptDrop: Function<(NSDraggingInfo, IndexPath, NSCollectionView.DropOperation), Bool, (ListContext, NSDraggingInfo, IndexPath, NSCollectionView.DropOperation) -> Bool> {
+        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:acceptDrop:indexPath:dropOperation:)), toClosure())
+    }
     
     // MARK: - Legacy Collection View Support
+    var canDragItems: Function<(IndexSet, NSEvent), Bool, (ListContext, IndexSet, NSEvent) -> Bool> {
+        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:canDragItemsAt:with:)), toClosure())
+    }
+    
+    var pasteboardWriterForItem: Function<Int, NSPasteboardWriting?, (ListContext, Int) -> NSPasteboardWriting?> {
+        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:pasteboardWriterForItemAt:)), toClosure())
+    }
+    
+    var writeItems: Function<(IndexSet, NSPasteboard), Bool, (ListContext, IndexSet, NSPasteboard) -> Bool> {
+        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:writeItemsAt:to:)), toClosure())
+    }
+    
+    var namesOfPromisedFilesDroppedAtDestination: Function<(URL, IndexSet), [String], (ListContext, URL, IndexSet) -> [String]> {
+        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:namesOfPromisedFilesDroppedAtDestination:forDraggedItemsAt:))), toClosure())
+    }
+    
+    var draggingImageForItems: Function<(IndexSet, NSEvent, NSPointPointer), NSImage, (ListContext, IndexSet, NSEvent, NSPointPointer) -> NSImage> {
+        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:draggingImageForItemsAt:with:offset:))), toClosure())
+    }
+    
+    var acceptDrop: Function<(NSDraggingInfo, Int, NSCollectionView.DropOperation), Bool, (ListContext, NSDraggingInfo, Int, NSCollectionView.DropOperation) -> Bool> {
+        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:acceptDrop:index:dropOperation:)), toClosure())
+    }
+    
+    var validateDrop: Function<(NSDraggingInfo, UnsafeMutablePointer<Int>, UnsafeMutablePointer<NSCollectionView.DropOperation>), NSDragOperation, (ListContext, NSDraggingInfo, UnsafeMutablePointer<Int>, UnsafeMutablePointer<NSCollectionView.DropOperation>), NSDragOperation) -> NSDragOperation> {
+        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:validateDrop:proposedIndex:dropOperation:)), toClosure())
+    }
+    
 }
 
 #endif

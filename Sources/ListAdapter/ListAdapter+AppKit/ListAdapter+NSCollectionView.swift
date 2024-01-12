@@ -24,22 +24,18 @@ public extension ListAdapter where View: NSCollectionView {
 // MARK: - Collection View Delegate
 public extension ListAdapter where View: NSCollectionView {
     // MARK: - Managing the Selection
-    @available(macOS 10.11, *)
     var shouldSelectItem: ElementFunction<IndexPath, Void, (ElementContext) -> Void> {
         toFunction(#selector(NSCollectionViewDelegate.collectionView(_:shouldSelectItemsAt:)), toClosure())
     }
     
-    @available(macOS 10.11, *)
     var shouldDeselectItems: ElementFunction<IndexPath, Void, (ElementContext) -> Void> {
         toFunction(#selector(NSCollectionViewDelegate.collectionView(_:shouldDeselectItemsAt:)), toClosure())
     }
     
-    @available(macOS 10.11, *)
     var didSelectItems: ElementFunction<IndexPath, Void, (ElementContext) -> Void> {
         toFunction(#selector(NSCollectionViewDelegate.collectionView(_:didSelectItemsAt:)), toClosure())
     }
     
-    @available(macOS 10.11, *)
     var didDeselectItems: ElementFunction<IndexPath, Void, (ElementContext) -> Void> {
         toFunction(#selector(NSCollectionViewDelegate.collectionView(_:didDeselectItemsAt:)), toClosure())
     }
@@ -54,34 +50,28 @@ public extension ListAdapter where View: NSCollectionView {
     }
     
     // MARK: - Tracking the Addition and Removal of Items
-    @available(macOS 10.11, *)
     var willDisplayForItem: ElementFunction<(IndexPath, NSCollectionViewItem), Void, (ElementContext, NSCollectionViewItem) -> Void> {
         toFunction(#selector(NSCollectionViewDelegate.collectionView(_:willDisplay:forRepresentedObjectAt:)), \.0, toClosure())
     }
     
-    @available(macOS 10.11, *)
     var didEndDisplayingItem: Function<(IndexPath, NSCollectionViewItem), Void, (ListContext, IndexPath, NSCollectionViewItem) -> Void> {
         toFunction(#selector(NSCollectionViewDelegate.collectionView(_:didEndDisplaying:forRepresentedObjectAt:)), toClosure())
     }
     
-    @available(macOS 10.11, *)
     var willDisplaySupplementaryView: ElementFunction<(IndexPath, NSView, String), Void, (ElementContext, NSView, CollectionView.SupplementaryViewType) -> Void> {
         toFunction(#selector(NSCollectionViewDelegate.collectionView(_:willDisplay:forRepresentedObjectAt:)), \.0) { closure in { context, input in closure(context, input.1, .init(rawValue: input.2)) } }
     }
     
-    @available(macOS 10.11, *)
     var didEndDisplayingSupplementaryView: Function<(NSView, String, IndexPath), Void, (ListContext, NSView, CollectionView.SupplementaryViewType, IndexPath) -> Void> {
         toFunction(#selector(NSCollectionViewDelegate.collectionView(_:didEndDisplayingSupplementaryView:forElementOfKind:at:))) { closure in { context, input in closure(context, input.0, .init(rawValue: input.1), input.2) } }
     }
     
     // MARK: - Handling Layout Changes
-    @available(macOS 10.11, *)
     var transitionLayoutForOldLayoutNewLayout: Function<(NSCollectionViewLayout, NSCollectionViewLayout), NSCollectionViewTransitionLayout, (ListContext, NSCollectionViewLayout, NSCollectionViewLayout) -> NSCollectionViewTransitionLayout> {
         toFunction(#selector(NSCollectionViewDelegate.collectionView(_:transitionLayoutForOldLayout:newLayout:)), toClosure())
     }
                    
     // MARK: - Drag and Drop Support
-    @available(macOS 10.11, *)
     var canDragItems: Function<(Set<IndexPath>, NSEvent), Bool, (ListContext, Set<IndexPath>, NSEvent) -> Bool> {
         toFunction(#selector(NSCollectionViewDelegate.collectionView(_:canDragItemsAt:with:)), toClosure())
     }

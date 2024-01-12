@@ -37,22 +37,18 @@ extension Delegate: NSCollectionViewDataSource {
 
 extension Delegate: NSCollectionViewDelegate {
     // MARK: - Managing the Selection
-    @available(macOS 10.11, *)
     func collectionView(_ collectionView: NSCollectionView, shouldSelectItemsAt indexPaths: Set<IndexPath>) -> Set<IndexPath> {
         apply(#selector(NSCollectionViewDelegate.collectionView(_:shouldSelectItemsAt:)), view: collectionView, with: indexPaths, default: indexPaths)
     }
 
-    @available(macOS 10.11, *)
     func collectionView(_ collectionView: NSCollectionView, shouldDeselectItemsAt indexPaths: Set<IndexPath>) -> Set<IndexPath> {
         apply(#selector(NSCollectionViewDelegate.collectionView(_:shouldDeselectItemsAt:)), view: collectionView, with: indexPaths, default: indexPaths)
     }
 
-    @available(macOS 10.11, *)
     func collectionView(_ collectionView: NSCollectionView, didSelectItemsAt indexPaths: Set<IndexPath>) {
         apply(#selector(NSCollectionViewDelegate.collectionView(_:didSelectItemsAt:)), view: collectionView, with: indexPaths, default: ())
     }
 
-    @available(macOS 10.11, *)
     func collectionView(_ collectionView: NSCollectionView, didDeselectItemsAt indexPaths: Set<IndexPath>) {
         apply(#selector(NSCollectionViewDelegate.collectionView(_:didDeselectItemsAt:)), view: collectionView, with: indexPaths, default: ())
     }
@@ -67,35 +63,29 @@ extension Delegate: NSCollectionViewDelegate {
     }
 
     // MARK: - Tracking the Addition and Removal of Items
-    @available(macOS 10.11, *)
     func collectionView(_ collectionView: NSCollectionView, willDisplay item: NSCollectionViewItem, forRepresentedObjectAt indexPath: IndexPath) {
         apply(#selector(NSCollectionViewDelegate.collectionView(_:willDisplay:forRepresentedObjectAt:)), view: collectionView, with: (item, indexPath), default: ())
     }
 
-    @available(macOS 10.11, *)
     func collectionView(_ collectionView: NSCollectionView, didEndDisplaying item: NSCollectionViewItem, forRepresentedObjectAt indexPath: IndexPath) {
         apply(#selector(NSCollectionViewDelegate.collectionView(_:didEndDisplaying:forRepresentedObjectAt:)), view: collectionView, with: (item, indexPath), default: ())
     }
 
-    @available(macOS 10.11, *)
     func collectionView(_ collectionView: NSCollectionView, willDisplaySupplementaryView view: NSView, forElementKind elementKind: NSCollectionView.SupplementaryElementKind, at indexPath: IndexPath) {
         apply(#selector(NSCollectionViewDelegate.collectionView(_:willDisplaySupplementaryView:forElementKind:at:)), view: collectionView, with: (view, elementKind, indexPath), default: ())
     }
 
-    @available(macOS 10.11, *)
     func collectionView(_ collectionView: NSCollectionView, didEndDisplayingSupplementaryView view: NSView, forElementOfKind elementKind: NSCollectionView.SupplementaryElementKind, at indexPath: IndexPath) {
         apply(#selector(NSCollectionViewDelegate.collectionView(_:didEndDisplayingSupplementaryView:forElementOfKind:at:)), view: collectionView, with: (view, elementKind, indexPath), default: ())
     }
 
 
     // MARK: - Handling Layout Changes
-    @available(macOS 10.11, *)
     func collectionView(_ collectionView: NSCollectionView, transitionLayoutForOldLayout fromLayout: NSCollectionViewLayout, newLayout toLayout: NSCollectionViewLayout) -> NSCollectionViewTransitionLayout {
         apply(#selector(NSCollectionViewDelegate.collectionView(_:transitionLayoutForOldLayout:newLayout:)), view: collectionView, with: (fromLayout, toLayout), default: NSCollectionViewTransitionLayout())
     }
 
     // MARK: - Drag and Drop Support
-    @available(macOS 10.11, *)
     func collectionView(_ collectionView: NSCollectionView, canDragItemsAt indexPaths: Set<IndexPath>, with event: NSEvent) -> Bool {
         apply(#selector(NSCollectionViewDelegate.collectionView(_:canDragItemsAt:with:)), view: collectionView, with: (indexPaths, event), default: true)
     }

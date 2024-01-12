@@ -121,36 +121,6 @@ public extension ListAdapter where View: NSCollectionView {
     var acceptDrop: Function<(NSDraggingInfo, IndexPath, NSCollectionView.DropOperation), Bool, (ListContext, NSDraggingInfo, IndexPath, NSCollectionView.DropOperation) -> Bool> {
         toFunction(#selector(NSCollectionViewDelegate.collectionView(_:acceptDrop:indexPath:dropOperation:)), toClosure())
     }
-    
-    // MARK: - Legacy Collection View Support
-    var canDragItems: Function<(IndexSet, NSEvent), Bool, (ListContext, IndexSet, NSEvent) -> Bool> {
-        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:canDragItemsAt:with:)), toClosure())
-    }
-    
-    var pasteboardWriterForItem: Function<Int, NSPasteboardWriting?, (ListContext, Int) -> NSPasteboardWriting?> {
-        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:pasteboardWriterForItemAt:)), toClosure())
-    }
-    
-    var writeItems: Function<(IndexSet, NSPasteboard), Bool, (ListContext, IndexSet, NSPasteboard) -> Bool> {
-        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:writeItemsAt:to:)), toClosure())
-    }
-    
-    var namesOfPromisedFilesDroppedAtDestination: Function<(URL, IndexSet), [String], (ListContext, URL, IndexSet) -> [String]> {
-        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:namesOfPromisedFilesDroppedAtDestination:forDraggedItemsAt:))), toClosure())
-    }
-    
-    var draggingImageForItems: Function<(IndexSet, NSEvent, NSPointPointer), NSImage, (ListContext, IndexSet, NSEvent, NSPointPointer) -> NSImage> {
-        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:draggingImageForItemsAt:with:offset:))), toClosure())
-    }
-    
-    var acceptDrop: Function<(NSDraggingInfo, Int, NSCollectionView.DropOperation), Bool, (ListContext, NSDraggingInfo, Int, NSCollectionView.DropOperation) -> Bool> {
-        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:acceptDrop:index:dropOperation:)), toClosure())
-    }
-    
-    var validateDrop: Function<(NSDraggingInfo, UnsafeMutablePointer<Int>, UnsafeMutablePointer<NSCollectionView.DropOperation>), NSDragOperation, (ListContext, NSDraggingInfo, UnsafeMutablePointer<Int>, UnsafeMutablePointer<NSCollectionView.DropOperation>), NSDragOperation) -> NSDragOperation> {
-        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:validateDrop:proposedIndex:dropOperation:)), toClosure())
-    }
-    
 }
 
 #endif

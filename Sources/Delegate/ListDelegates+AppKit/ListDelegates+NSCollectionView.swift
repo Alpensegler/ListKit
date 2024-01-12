@@ -135,35 +135,6 @@ extension Delegate: NSCollectionViewDelegate {
     func collectionView(_ collectionView: NSCollectionView, acceptDrop draggingInfo: NSDraggingInfo, indexPath: IndexPath, dropOperation: NSCollectionView.DropOperation) -> Bool {
         apply(#selector(NSCollectionViewDelegate.collectionView(_:acceptDrop:indexPath:dropOperation:)), view: collectionView, with: (draggingInfo, indexPath, dropOperation), default: false)
     }
-
-    // MARK: - Legacy Collection View Support
-    func collectionView(_ collectionView: NSCollectionView, canDragItemsAt indexes: IndexSet, with event: NSEvent) -> Bool {
-        apply(#selector(NSCollectionViewDelegate.collectionView(_:canDragItemsAt:with:)), view: collectionView, with: (indexes, event), default: true)
-    }
-
-    func collectionView(_ collectionView: NSCollectionView, pasteboardWriterForItemAt index: Int) -> NSPasteboardWriting? {
-        apply(#selector(NSCollectionViewDelegate.collectionView(_:pasteboardWriterForItemAt:)), view: collectionView, with: index, default: nil)
-    }
-
-    func collectionView(_ collectionView: NSCollectionView, writeItemsAt indexes: IndexSet, to pasteboard: NSPasteboard) -> Bool {
-        apply(#selector(NSCollectionViewDelegate.collectionView(_:writeItemsAt:to:)), view: collectionView, with: (indexes, pasteboard), default: false)
-    }
-
-    func collectionView(_ collectionView: NSCollectionView, namesOfPromisedFilesDroppedAtDestination dropURL: URL, forDraggedItemsAt indexes: IndexSet) -> [String] {
-        apply(#selector(NSCollectionViewDelegate.collectionView(_:namesOfPromisedFilesDroppedAtDestination:forDraggedItemsAt:)), view: collectionView, with: (dropURL, indexes), default: [])
-    }
-
-    func collectionView(_ collectionView: NSCollectionView, draggingImageForItemsAt indexes: IndexSet, with event: NSEvent, offset dragImageOffset: NSPointPointer) -> NSImage {
-        apply(#selector(NSCollectionViewDelegate.collectionView(_:draggingImageForItemsAt:with:offset:)), view: collectionView, with: (indexes, event, dragImageOffset), default: NSImage())
-    }
-
-    func collectionView(_ collectionView: NSCollectionView, acceptDrop draggingInfo: NSDraggingInfo, index: Int, dropOperation: NSCollectionView.DropOperation) -> Bool {
-        apply(#selector(NSCollectionViewDelegate.collectionView(_:acceptDrop:index:dropOperation:)), view: collectionView, with: (draggingInfo, index, dropOperation), default: false)
-    }
-
-    func collectionView(_ collectionView: NSCollectionView, validateDrop draggingInfo: NSDraggingInfo, proposedIndex proposedDropIndex: UnsafeMutablePointer<Int>, dropOperation proposedDropOperation: UnsafeMutablePointer<NSCollectionView.DropOperation>) -> NSDragOperation {
-        apply(#selector(NSCollectionViewDelegate.collectionView(_:validateDrop:proposedIndex:dropOperation:)), view: collectionView, with: (draggingInfo, proposedDropIndex, proposedDropOperation), default: [])
-    }
 }
 
 #endif

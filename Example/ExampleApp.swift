@@ -2,7 +2,7 @@
 //  ExampleApp.swift
 //  Example
 //
-//  Created by luofengyu on 2024/1/13.
+//  Created by Frain on 2024/1/13.
 //
 
 import SwiftUI
@@ -18,17 +18,25 @@ struct ExampleApp: App {
 
 #if canImport(UIKit)
 import UIKit
+public typealias ViewController = UIViewController
+public typealias ViewControllerRepresentable = UIViewControllerRepresentable
+
+struct Contents: ViewControllerRepresentable {
+    func updateUIViewController(_ uiviewController: UINavigationController, context: Context) { }
+    
+    func makeUIViewController(context: Context) -> UINavigationController {
+        return UINavigationController(rootViewController: ContentsViewController())
+    }
+}
 #else
 import AppKit
 public typealias ViewControllerRepresentable = NSViewControllerRepresentable
-#endif
 
 struct Contents: ViewControllerRepresentable {
-    func updateNSViewController(_ nsViewController: ContentsViewController, context: Context) {
-
-    }
+    func updateNSViewController(_ nsViewController: ContentsViewController, context: Context) { }
     
     func makeNSViewController(context: Context) -> ContentsViewController {
         .init()
     }
 }
+#endif

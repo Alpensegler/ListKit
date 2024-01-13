@@ -31,7 +31,6 @@
 		3CD3EECB29CD4762003DE3CB /* ListCoordinatorContextTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CD3EEBC29CD46E0003DE3CB /* ListCoordinatorContextTests.swift */; };
 		3CD3EECD29CD4775003DE3CB /* ListCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CD3EECC29CD4775003DE3CB /* ListCoordinatorTests.swift */; };
 		3CD3EED129CDB15E003DE3CB /* DataSourcesCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CD3EED029CDB15E003DE3CB /* DataSourcesCoordinator.swift */; };
-		3CE7FE632B530673003AC341 /* ListKit in Frameworks */ = {isa = PBXBuildFile; productRef = 3CE7FE622B530673003AC341 /* ListKit */; };
 		3CF219622A25F60C00C309E4 /* Modifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF219612A25F60C00C309E4 /* Modifier.swift */; };
 		F3040D81238B21560055E6E7 /* ListCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3040D80238B21560055E6E7 /* ListCoordinator.swift */; };
 		F304A6DF239E94CC00133D14 /* Context+UIKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = F304A6DE239E94CC00133D14 /* Context+UIKit.swift */; };
@@ -48,6 +47,8 @@
 		F329598323A10B7D001D6063 /* ListViewStorage+UIKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = F329598223A10B7D001D6063 /* ListViewStorage+UIKit.swift */; };
 		F32F922B25B6FAAC00C55F7A /* ListDelegate+IndexFunction+CallAsFunction.swift in Sources */ = {isa = PBXBuildFile; fileRef = F32F922A25B6FAAC00C55F7A /* ListDelegate+IndexFunction+CallAsFunction.swift */; };
 		F33FBC3D234F33A70054BA38 /* DataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F33FBC3C234F33A70054BA38 /* DataSource.swift */; };
+		F34AF0572B53154F001ADB2A /* ListKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "ListKit::ListKit::Product" /* ListKit.framework */; };
+		F34AF0582B53154F001ADB2A /* ListKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = "ListKit::ListKit::Product" /* ListKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F34E7F3C24D6D3B600DE3844 /* ListContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = F34E7F3B24D6D3B600DE3844 /* ListContext.swift */; };
 		F354B6F624C38A0C00E9D19B /* BatchUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F354B6F524C38A0C00E9D19B /* BatchUpdate.swift */; };
 		F35BBA07239FD1600024EA7D /* ListAdapter+UITableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35BBA06239FD1600024EA7D /* ListAdapter+UITableView.swift */; };
@@ -83,7 +84,28 @@
 			remoteGlobalIDString = "ListKit::ListKit";
 			remoteInfo = ListKit;
 		};
+		F34AF0592B53154F001ADB2A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = OBJ_1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = "ListKit::ListKit";
+			remoteInfo = ListKit;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		F34AF05B2B53154F001ADB2A /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				F34AF0582B53154F001ADB2A /* ListKit.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		33EA9D102A7956D900C29C6C /* Differing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Differing.swift; sourceTree = "<group>"; };
@@ -113,7 +135,6 @@
 		3CD3EEC129CD4749003DE3CB /* ListKitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ListKitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3CD3EECC29CD4775003DE3CB /* ListCoordinatorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListCoordinatorTests.swift; sourceTree = "<group>"; };
 		3CD3EED029CDB15E003DE3CB /* DataSourcesCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSourcesCoordinator.swift; sourceTree = "<group>"; };
-		3CE7FE612B530666003AC341 /* ListKit */ = {isa = PBXFileReference; lastKnownFileType = text; name = ListKit; sourceTree = SOURCE_ROOT; };
 		3CF219612A25F60C00C309E4 /* Modifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Modifier.swift; sourceTree = "<group>"; };
 		F3040D80238B21560055E6E7 /* ListCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListCoordinator.swift; sourceTree = "<group>"; };
 		F304A6DE239E94CC00133D14 /* Context+UIKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Context+UIKit.swift"; sourceTree = "<group>"; };
@@ -165,7 +186,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3CE7FE632B530673003AC341 /* ListKit in Frameworks */,
+				F34AF0572B53154F001ADB2A /* ListKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -206,7 +227,6 @@
 		3CABA1572B52D68200ABD815 /* Example */ = {
 			isa = PBXGroup;
 			children = (
-				3CE7FE612B530666003AC341 /* ListKit */,
 				3CABA1662B52D6E300ABD815 /* ContentsViewController.swift */,
 				3CABA1682B52D6E300ABD815 /* IdentifiableSectionListViewController.swift */,
 				3CABA1692B52D6E300ABD815 /* NestedListViewController.swift */,
@@ -451,14 +471,15 @@
 				3CABA1522B52D68200ABD815 /* Sources */,
 				3CABA1532B52D68200ABD815 /* Frameworks */,
 				3CABA1542B52D68200ABD815 /* Resources */,
+				F34AF05B2B53154F001ADB2A /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				F34AF05A2B53154F001ADB2A /* PBXTargetDependency */,
 			);
 			name = Example;
 			packageProductDependencies = (
-				3CE7FE622B530673003AC341 /* ListKit */,
 			);
 			productName = Example;
 			productReference = 3CABA1562B52D68200ABD815 /* Example.app */;
@@ -504,9 +525,10 @@
 		OBJ_1 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				BuildIndependentTargetsInParallel = YES;
 				LastSwiftMigration = 9999;
 				LastSwiftUpdateCheck = 1520;
-				LastUpgradeCheck = 1400;
+				LastUpgradeCheck = 1520;
 				TargetAttributes = {
 					3CABA1552B52D68200ABD815 = {
 						CreatedOnToolsVersion = 15.2;
@@ -648,6 +670,11 @@
 			target = "ListKit::ListKit" /* ListKit */;
 			targetProxy = 3CD3EEC629CD4749003DE3CB /* PBXContainerItemProxy */;
 		};
+		F34AF05A2B53154F001ADB2A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = "ListKit::ListKit" /* ListKit */;
+			targetProxy = F34AF0592B53154F001ADB2A /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
@@ -706,12 +733,12 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.Alpensegler.listKit.Example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,7";
 			};
 			name = Debug;
 		};
@@ -767,12 +794,12 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.Alpensegler.listKit.Example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = RELEASE;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,7";
 			};
 			name = Release;
 		};
@@ -1065,13 +1092,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		3CE7FE622B530673003AC341 /* ListKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = ListKit;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = OBJ_1 /* Project object */;
 }

@@ -128,12 +128,14 @@ public extension UITableView {
         }
     }
 
+    #if !os(visionOS)
     func register(supplementaryViewType: SupplementaryViewType, _ nib: UINib?, identifier: String) {
         switch supplementaryViewType {
         case .header: register(nib, forHeaderFooterViewReuseIdentifier: identifier)
         case .footer: register(nib, forHeaderFooterViewReuseIdentifier: identifier)
         }
     }
+    #endif
 
     func cellForItem(at indexPath: IndexPath) -> UITableViewCell? {
         cellForRow(at: indexPath)

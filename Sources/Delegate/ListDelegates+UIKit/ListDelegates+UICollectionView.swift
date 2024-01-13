@@ -116,9 +116,6 @@ extension Delegate: UICollectionViewDelegate {
 //    }
 //
 //    // MARK: - Managing Actions for Cells
-//    func collectionView(_ collectionView: UICollectionView, shouldShowMenuForItemAt indexPath: IndexPath) -> Bool {
-//        apply(#selector(UICollectionViewDelegate.collectionView(_:shouldShowMenuForItemAt:)), view: collectionView, with: indexPath, index: indexPath, default: true)
-//    }
 //
 //    func collectionView(_ collectionView: UICollectionView, canPerformAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) -> Bool {
 //        apply(#selector(UICollectionViewDelegate.collectionView(_:canPerformAction:forItemAt:withSender:)), view: collectionView, with: (indexPath, action, sender), index: indexPath, default: true)

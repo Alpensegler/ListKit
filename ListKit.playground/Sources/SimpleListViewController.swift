@@ -105,7 +105,7 @@ extension SimpleListViewController {
 
         alert.addAction(UIAlertAction(title: "cancel", style: .cancel))
 
-        let ok = UIAlertAction(title: "Done", style: .default) { [unowned self, unowned alert] _ in
+        let ok = UIAlertAction(title: "Done", style: .default) { [/*unowned self, */unowned alert] _ in
             guard let content = alert.textFields?.first?.text, !content.isEmpty else { return }
 //            self.perform(.append(content))
         }

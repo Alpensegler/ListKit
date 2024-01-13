@@ -96,7 +96,6 @@ let allSelectors: Set<Selector> = {
         #selector(UICollectionViewDelegate.collectionView(_:didEndDisplayingSupplementaryView:forElementOfKind:at:)),
         #selector(UICollectionViewDelegate.collectionView(_:transitionLayoutForOldLayout:newLayout:)),
         #selector(UICollectionViewDelegate.collectionView(_:targetContentOffsetForProposedContentOffset:)),
-        #selector(UICollectionViewDelegate.collectionView(_:targetIndexPathForMoveFromItemAt:toProposedIndexPath:)),
         #selector(UICollectionViewDelegate.collectionView(_:canFocusItemAt:)),
         #selector(UICollectionViewDelegate.indexPathForPreferredFocusedView(in:)),
         #selector(UICollectionViewDelegate.collectionView(_:shouldUpdateFocusIn:)),
@@ -152,16 +151,11 @@ let allSelectors: Set<Selector> = {
         #selector(UITableViewDelegate.tableView(_:shouldUpdateFocusIn:)),
         #selector(UITableViewDelegate.tableView(_:didUpdateFocusIn:with:)),
         #selector(UITableViewDelegate.indexPathForPreferredFocusedView(in:)),
-
-        // maybe should remove for vision os
-        #selector(UICollectionViewDelegate.collectionView(_:shouldShowMenuForItemAt:)),
-        #selector(UICollectionViewDelegate.collectionView(_:canPerformAction:forItemAt:withSender:)),
-        #selector(UICollectionViewDelegate.collectionView(_:performAction:forItemAt:withSender:)),
-        #selector(UITableViewDelegate.tableView(_:shouldShowMenuForRowAt:)),
-        #selector(UITableViewDelegate.tableView(_:canPerformAction:forRowAt:withSender:)),
-        #selector(UITableViewDelegate.tableView(_:performAction:forRowAt:withSender:)),
-        #selector(UITableViewDelegate.tableView(_:editActionsForRowAt:)),
     ]
+    
+    #if !os(visionOS)
+    selectors.insert(#selector(UICollectionViewDelegate.collectionView(_:targetIndexPathForMoveFromItemAt:toProposedIndexPath:)))
+    #endif
 
     guard #available(iOS 11.0, *) else { return selectors }
     selectors.formUnion([
@@ -177,9 +171,6 @@ let allSelectors: Set<Selector> = {
         #selector(UICollectionViewDelegate.collectionView(_:shouldBeginMultipleSelectionInteractionAt:)),
         #selector(UICollectionViewDelegate.collectionView(_:didBeginMultipleSelectionInteractionAt:)),
         #selector(UICollectionViewDelegate.collectionViewDidEndMultipleSelectionInteraction(_:)),
-        #selector(UICollectionViewDelegate.collectionView(_:contextMenuConfigurationForItemAt:point:)),
-        #selector(UICollectionViewDelegate.collectionView(_:previewForDismissingContextMenuWithConfiguration:)),
-        #selector(UICollectionViewDelegate.collectionView(_:previewForHighlightingContextMenuWithConfiguration:)),
         #selector(UICollectionViewDelegate.collectionView(_:willPerformPreviewActionForMenuWith:animator:)),
         #selector(UITableViewDelegate.tableView(_:shouldBeginMultipleSelectionInteractionAt:)),
         #selector(UITableViewDelegate.tableViewDidEndMultipleSelectionInteraction(_:)),
@@ -189,6 +180,14 @@ let allSelectors: Set<Selector> = {
         #selector(UITableViewDelegate.tableView(_:previewForHighlightingContextMenuWithConfiguration:)),
         #selector(UITableViewDelegate.tableView(_:willPerformPreviewActionForMenuWith:animator:)),
     ])
+    
+    #if !os(visionOS)
+    selectors.formUnion([
+        #selector(UICollectionViewDelegate.collectionView(_:contextMenuConfigurationForItemAt:point:)),
+        #selector(UICollectionViewDelegate.collectionView(_:previewForDismissingContextMenuWithConfiguration:)),
+        #selector(UICollectionViewDelegate.collectionView(_:previewForHighlightingContextMenuWithConfiguration:)),
+    ])
+    #endif
 
     return selectors
 }()

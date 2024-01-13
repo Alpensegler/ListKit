@@ -72,45 +72,45 @@ public extension ListAdapter where View: NSCollectionView {
     }
                    
     // MARK: - Drag and Drop Support
-    var canDragItems: Function<(Set<IndexPath>, NSEvent), Bool, (ListContext, Set<IndexPath>, NSEvent) -> Bool> {
-        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:canDragItemsAt:with:)), toClosure())
-    }
-    
-    var pasteboardWriterForItem: Function<IndexPath, NSPasteboardWriting?, (ListContext, IndexPath) -> NSPasteboardWriting?> {
-        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:pasteboardWriterForItemAt:)), toClosure())
-    }
-    
-    var writeItems: Function<(Set<IndexPath>, NSPasteboard), Bool, (ListContext, Set<IndexPath>, NSPasteboard) -> Bool> {
-        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:writeItemsAt:to:)), toClosure())
-    }
-    
-    var namesOfPromisedFilesDroppedAtDestination: Function<(URL, Set<IndexPath>), [String], (ListContext, URL, Set<IndexPath>) -> [String]> {
-        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:namesOfPromisedFilesDroppedAtDestination:forDraggedItemsAt:)), toClosure())
-    }
-    
-    var draggingImageForItems: Function<(Set<IndexPath>, NSEvent, NSPointPointer), NSImage, (ListContext, Set<IndexPath>, NSEvent, NSPointPointer) -> NSImage> {
-        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:draggingImageForItemsAt:with:offset:)), toClosure())
-    }
-    
-    var draggingSessionForItems: Function<(NSDraggingSession, NSPoint, Set<IndexPath>), Void, (ListContext, NSDraggingSession, NSPoint, Set<IndexPath>) -> Void> {
-        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:draggingSession:willBeginAt:forItemsAt:)), toClosure())
-    }
-    
-    var draggingSessionEnded: Function<(NSDraggingSession, NSPoint, NSDragOperation), Void, (ListContext, NSDraggingSession, NSPoint, NSDragOperation) -> Void> {
-        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:draggingSession:endedAt:dragOperation:)), toClosure())
-    }
-    
-    var updateDraggingItemsForDrag: Function<NSDraggingInfo, Void, (ListContext, NSDraggingInfo) -> Void> {
-        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:updateDraggingItemsForDrag:)), toClosure())
-    }
-    
-    var validateDrop: Function<(NSDraggingInfo, AutoreleasingUnsafeMutablePointer<NSIndexPath>, UnsafeMutablePointer<NSCollectionView.DropOperation>), NSDragOperation, (ListContext, NSDraggingInfo, AutoreleasingUnsafeMutablePointer<NSIndexPath>, UnsafeMutablePointer<NSCollectionView.DropOperation>) -> NSDragOperation> {
-        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:validateDrop:proposedIndexPath:dropOperation:)), toClosure())
-    }
-    
-    var acceptDrop: Function<(NSDraggingInfo, IndexPath, NSCollectionView.DropOperation), Bool, (ListContext, NSDraggingInfo, IndexPath, NSCollectionView.DropOperation) -> Bool> {
-        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:acceptDrop:indexPath:dropOperation:)), toClosure())
-    }
+//    var canDragItems: Function<(Set<IndexPath>, NSEvent), Bool, (ListContext, Set<IndexPath>, NSEvent) -> Bool> {
+//        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:canDragItemsAt:with:)), toClosure())
+//    }
+//    
+//    var pasteboardWriterForItem: Function<IndexPath, NSPasteboardWriting?, (ListContext, IndexPath) -> NSPasteboardWriting?> {
+//        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:pasteboardWriterForItemAt:)), toClosure())
+//    }
+//    
+//    var writeItems: Function<(Set<IndexPath>, NSPasteboard), Bool, (ListContext, Set<IndexPath>, NSPasteboard) -> Bool> {
+//        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:writeItemsAt:to:)), toClosure())
+//    }
+//    
+//    var namesOfPromisedFilesDroppedAtDestination: Function<(URL, Set<IndexPath>), [String], (ListContext, URL, Set<IndexPath>) -> [String]> {
+//        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:namesOfPromisedFilesDroppedAtDestination:forDraggedItemsAt:)), toClosure())
+//    }
+//    
+//    var draggingImageForItems: Function<(Set<IndexPath>, NSEvent, NSPointPointer), NSImage, (ListContext, Set<IndexPath>, NSEvent, NSPointPointer) -> NSImage> {
+//        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:draggingImageForItemsAt:with:offset:)), toClosure())
+//    }
+//    
+//    var draggingSessionForItems: Function<(NSDraggingSession, NSPoint, Set<IndexPath>), Void, (ListContext, NSDraggingSession, NSPoint, Set<IndexPath>) -> Void> {
+//        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:draggingSession:willBeginAt:forItemsAt:)), toClosure())
+//    }
+//    
+//    var draggingSessionEnded: Function<(NSDraggingSession, NSPoint, NSDragOperation), Void, (ListContext, NSDraggingSession, NSPoint, NSDragOperation) -> Void> {
+//        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:draggingSession:endedAt:dragOperation:)), toClosure())
+//    }
+//    
+//    var updateDraggingItemsForDrag: Function<NSDraggingInfo, Void, (ListContext, NSDraggingInfo) -> Void> {
+//        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:updateDraggingItemsForDrag:)), toClosure())
+//    }
+//    
+//    var validateDrop: Function<(NSDraggingInfo, AutoreleasingUnsafeMutablePointer<NSIndexPath>, UnsafeMutablePointer<NSCollectionView.DropOperation>), NSDragOperation, (ListContext, NSDraggingInfo, AutoreleasingUnsafeMutablePointer<NSIndexPath>, UnsafeMutablePointer<NSCollectionView.DropOperation>) -> NSDragOperation> {
+//        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:validateDrop:proposedIndexPath:dropOperation:)), toClosure())
+//    }
+//    
+//    var acceptDrop: Function<(NSDraggingInfo, IndexPath, NSCollectionView.DropOperation), Bool, (ListContext, NSDraggingInfo, IndexPath, NSCollectionView.DropOperation) -> Bool> {
+//        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:acceptDrop:indexPath:dropOperation:)), toClosure())
+//    }
 }
 
 #endif

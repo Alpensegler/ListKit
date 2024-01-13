@@ -5,7 +5,7 @@
 //  Created by Frain on 2019/4/6.
 //
 
-#if os(iOS) || os(tvOS)
+#if !os(macOS)
 import UIKit
 
 public typealias CollectionView = UICollectionView

@@ -5,7 +5,61 @@
 //  Created by Frain on 2019/12/13.
 //
 
-#if os(iOS) || os(tvOS)
+#if os(macOS)
+import AppKit
+
+let canDragItemsAtIndexPathsSelector = {
+    let string = "collectionView:canDragItemsAtIndexPaths:withEvent:"
+    return Selector(string)
+}()
+
+let pasteboardWriterForItemAtIndexPathSelector = {
+    let string =  "collectionView:pasteboardWriterForItemAtIndexPath:"
+    return Selector(string)
+}()
+
+let draggingImageForItemsAtIndexPathsSelector = {
+    let string =  "collectionView:draggingImageForItemsAtIndexPaths:withEvent:offset:"
+    return Selector(string)
+}()
+
+let draggingSessionSelector = {
+    let string =  "collectionView:draggingSession:willBeginAtPoint:forItemsAtIndexPaths:"
+    return Selector(string)
+}()
+
+let allSelectors: Set<Selector> = {
+    let ambigousSelectorString = "collectionView:canDragItemsAtIndexPaths:withEvent:"
+
+    var selectors: Set<Selector> = [
+        #selector(NSCollectionViewDataSource.collectionView(_:itemForRepresentedObjectAt:)),
+        #selector(NSCollectionViewDataSource.collectionView(_:viewForSupplementaryElementOfKind:at:)),
+        #selector(NSCollectionViewDelegate.collectionView(_:shouldChangeItemsAt:to:)),
+        #selector(NSCollectionViewDelegate.collectionView(_:didChangeItemsAt:to:)),
+        #selector(NSCollectionViewDelegate.collectionView(_:shouldSelectItemsAt:)),
+        #selector(NSCollectionViewDelegate.collectionView(_:shouldDeselectItemsAt:)),
+        #selector(NSCollectionViewDelegate.collectionView(_:didSelectItemsAt:)),
+        #selector(NSCollectionViewDelegate.collectionView(_:didDeselectItemsAt:)),
+        #selector(NSCollectionViewDelegate.collectionView(_:willDisplay:forRepresentedObjectAt:)),
+        #selector(NSCollectionViewDelegate.collectionView(_:didEndDisplaying:forRepresentedObjectAt:)),
+        #selector(NSCollectionViewDelegate.collectionView(_:willDisplaySupplementaryView:forElementKind:at:)),
+        #selector(NSCollectionViewDelegate.collectionView(_:didEndDisplayingSupplementaryView:forElementOfKind:at:)),
+        #selector(NSCollectionViewDelegate.collectionView(_:transitionLayoutForOldLayout:newLayout:)),
+        canDragItemsAtIndexPathsSelector,
+        pasteboardWriterForItemAtIndexPathSelector,
+//        #selector(NSCollectionViewDelegate.collectionView(_:writeItemsAt:to:)),
+//        #selector(NSCollectionViewDelegate.collectionView(_:namesOfPromisedFilesDroppedAtDestination:forDraggedItemsAt:)),
+        draggingImageForItemsAtIndexPathsSelector,
+        draggingSessionSelector,
+        #selector(NSCollectionViewDelegate.collectionView(_:draggingSession:endedAt:dragOperation:)),
+        #selector(NSCollectionViewDelegate.collectionView(_:updateDraggingItemsForDrag:)),
+        #selector(NSCollectionViewDelegate.collectionView(_:validateDrop:proposedIndexPath:dropOperation:)),
+        #selector(NSCollectionViewDelegate.collectionView(_:acceptDrop:indexPath:dropOperation:))
+    ]
+    return selectors
+}()
+
+#else
 import UIKit
 
 let allSelectors: Set<Selector> = {
@@ -138,37 +192,4 @@ let allSelectors: Set<Selector> = {
 
     return selectors
 }()
-
-#elseif os(macOS)
-import AppKit
-
-let allSelectors: Set<Selector> = {
-    var selectors: Set<Selector> = [
-        #selector(NSCollectionViewDataSource.collectionView(_:itemForRepresentedObjectAt:)),
-        #selector(NSCollectionViewDataSource.collectionView(_:viewForSupplementaryElementOfKind:at:)),
-        #selector(NSCollectionViewDelegate.collectionView(_:shouldChangeItemsAt:to:)),
-        #selector(NSCollectionViewDelegate.collectionView(_:didChangeItemsAt:to:)),
-        #selector(NSCollectionViewDelegate.collectionView(_:shouldSelectItemsAt:)),
-        #selector(NSCollectionViewDelegate.collectionView(_:shouldDeselectItemsAt:)),
-        #selector(NSCollectionViewDelegate.collectionView(_:didSelectItemsAt:)),
-        #selector(NSCollectionViewDelegate.collectionView(_:didDeselectItemsAt:)),
-        #selector(NSCollectionViewDelegate.collectionView(_:willDisplay:forRepresentedObjectAt:)),
-        #selector(NSCollectionViewDelegate.collectionView(_:didEndDisplaying:forRepresentedObjectAt:)),
-        #selector(NSCollectionViewDelegate.collectionView(_:willDisplaySupplementaryView:forElementKind:at:)),
-        #selector(NSCollectionViewDelegate.collectionView(_:didEndDisplayingSupplementaryView:forElementOfKind:at:)),
-        #selector(NSCollectionViewDelegate.collectionView(_:transitionLayoutForOldLayout:newLayout:)),
-        #selector(NSCollectionViewDelegate.collectionView(_:canDragItemsAt:with:)),
-        #selector(NSCollectionViewDelegate.collectionView(_:pasteboardWriterForItemAt:)),
-        #selector(NSCollectionViewDelegate.collectionView(_:writeItemsAt:to:)),
-        #selector(NSCollectionViewDelegate.collectionView(_:namesOfPromisedFilesDroppedAtDestination:forDraggedItemsAt:)),
-        #selector(NSCollectionViewDelegate.collectionView(_:draggingImageForItemsAt:with:offset:)),
-        #selector(NSCollectionViewDelegate.collectionView(_:draggingSession:willBeginAt:forItemsAt:)),
-        #selector(NSCollectionViewDelegate.collectionView(_:draggingSession:endedAt:dragOperation:)),
-        #selector(NSCollectionViewDelegate.collectionView(_:updateDraggingItemsForDrag:)),
-        #selector(NSCollectionViewDelegate.collectionView(_:validateDrop:proposedIndexPath:dropOperation:)),
-        #selector(NSCollectionViewDelegate.collectionView(_:acceptDrop:indexPath:dropOperation:))
-    ]
-    return selectors
-}()
-
 #endif

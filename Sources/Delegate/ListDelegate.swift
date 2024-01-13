@@ -125,6 +125,11 @@ extension UIEdgeInsets: FunctionOutput { }
 extension CGSize: FunctionOutput { }
 extension CGFloat: FunctionOutput { }
 extension UITableViewCell.EditingStyle: FunctionOutput { }
+#elseif canImport(AppKit)
+import AppKit
+extension NSEdgeInsets: FunctionOutput { }
+extension NSSize: FunctionOutput { }
+extension CGFloat: FunctionOutput { }
 #endif
 
 // swiftlint:disable large_tuple

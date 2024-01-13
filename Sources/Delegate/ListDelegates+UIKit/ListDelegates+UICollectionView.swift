@@ -7,7 +7,7 @@
 
 // swiftlint:disable line_length
 
-#if os(iOS) || os(tvOS)
+#if !os(macOS)
 import UIKit
 
 extension Delegate: UICollectionViewDataSource {

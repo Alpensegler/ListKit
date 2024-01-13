@@ -7,7 +7,7 @@
 
 // swiftlint:disable large_tuple
 
-#if os(iOS) || os(tvOS)
+#if !os(macOS)
 import UIKit
 
 // MARK: - Collection View Data Source

@@ -5,6 +5,8 @@
 //  Created by Frain on 2023/3/2.
 //
 
+#if !os(macOS)
+
 public protocol TableListAdapter: ListAdapter where View == TableView, List == TableList { }
 
 public struct TableList: TableListAdapter {
@@ -22,3 +24,5 @@ public extension ListBuilder where View == TableView {
         )
     }
 }
+
+#endif

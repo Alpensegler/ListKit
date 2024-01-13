@@ -48,10 +48,12 @@ public extension ListAdapter where Self: AnyObject {
 public extension ListAdapter {
     typealias ListContext = ListKit.ListContext<View>
     typealias ElementContext = ListIndexContext<View, IndexPath>
+//    typealias ElementsContext = ListIndexContext<View, Set<IndexPath>>
     typealias SectionContext = ListIndexContext<View, Int>
 
     typealias Function<Input, Output, Closure> = ListKit.Function<View, List, Input, Output, Closure>
     typealias ElementFunction<Input, Output, Closure> = IndexFunction<View, List, Input, Output, Closure, IndexPath>
+//    typealias ElementsFunction<Input, Output, Closure> = IndexFunction<View, List, Input, Output, Closure, Set<IndexPath>>
     typealias SectionFunction<Input, Output, Closure> = IndexFunction<View, List, Input, Output, Closure, Int>
 
     func buildList<List>(@ListBuilder<Void> list: () -> List) -> List {

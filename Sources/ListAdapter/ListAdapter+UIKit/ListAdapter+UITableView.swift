@@ -5,7 +5,7 @@
 //  Created by Frain on 2019/12/10.
 //
 
-#if os(iOS) || os(tvOS)
+#if !os(macOS)
 import UIKit
 
 // MARK: - TableView DataSource

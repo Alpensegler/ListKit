@@ -1,5 +1,7 @@
 // swiftlint: disable unused_closure_parameter
 
+#if !os(macOS)
+
 import ListKit
 import UIKit
 
@@ -149,3 +151,6 @@ public extension SimpleListViewController {
 //        .diff(id: \.0) { $0.1 == $1.1 }
 //    }
 }
+#else
+
+#endif

@@ -5,7 +5,7 @@
 //  Created by Frain on 2019/12/11.
 //
 
-#if os(iOS) || os(tvOS)
+#if !os(macOS)
 import UIKit
 
 public extension UIListView {

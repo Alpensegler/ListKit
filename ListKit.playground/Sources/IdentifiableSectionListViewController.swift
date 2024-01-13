@@ -1,6 +1,7 @@
 // swiftlint:disable comment_spacing orphaned_doc_comment
 
 import ListKit
+#if canImport(UIKit)
 import UIKit
 
 public class Room {
@@ -168,8 +169,7 @@ extension Room {
 
 import SwiftUI
 
-@available(iOS 13.0, *)
-struct IdentifiableSectionList_Preview: UIViewControllerRepresentable, PreviewProvider {
+struct IdentifiableSectionList_Preview: ViewControllerRepresentable, PreviewProvider {
     static var previews: some View { IdentifiableSectionList_Preview() }
 
     func makeUIViewController(context: Self.Context) -> UINavigationController {
@@ -180,5 +180,7 @@ struct IdentifiableSectionList_Preview: UIViewControllerRepresentable, PreviewPr
 
     }
 }
+
+#endif
 
 #endif

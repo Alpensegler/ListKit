@@ -8,8 +8,8 @@
 #if os(macOS)
 import AppKit
 
-public typealias TableView = NSTableView
-
-extension NSTableView: NSListView { }
+//public typealias TableView = NSTableView
+//
+//extension NSTableView: NSListView { }
 
 #endif

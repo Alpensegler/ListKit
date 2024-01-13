@@ -7,7 +7,7 @@
 
 // swiftlint:disable comment_spacing
 
-#if os(iOS) || os(tvOS)
+#if !os(macOS)
 import UIKit
 
 public extension ListAdapter where View: UIScrollView {

@@ -28,9 +28,17 @@ let draggingSessionSelector = {
     return Selector(string)
 }()
 
-let allSelectors: Set<Selector> = {
-    let ambigousSelectorString = "collectionView:canDragItemsAtIndexPaths:withEvent:"
+let writeItemsAtIndexPathsSelector = {
+    let string = "collectionView:writeItemsAtIndexPaths:toPasteboard:"
+    return Selector(string)
+}()
 
+let namesOfPromisedFilesDroppedAtDestinationSelector = {
+    let string = "collectionView:namesOfPromisedFilesDroppedAtDestination:forDraggedItemsAtIndexPaths:"
+    return Selector(string)
+}()
+
+let allSelectors: Set<Selector> = {
     var selectors: Set<Selector> = [
         #selector(NSCollectionViewDataSource.collectionView(_:itemForRepresentedObjectAt:)),
         #selector(NSCollectionViewDataSource.collectionView(_:viewForSupplementaryElementOfKind:at:)),
@@ -47,8 +55,8 @@ let allSelectors: Set<Selector> = {
         #selector(NSCollectionViewDelegate.collectionView(_:transitionLayoutForOldLayout:newLayout:)),
         canDragItemsAtIndexPathsSelector,
         pasteboardWriterForItemAtIndexPathSelector,
-//        #selector(NSCollectionViewDelegate.collectionView(_:writeItemsAt:to:)),
-//        #selector(NSCollectionViewDelegate.collectionView(_:namesOfPromisedFilesDroppedAtDestination:forDraggedItemsAt:)),
+        writeItemsAtIndexPathsSelector,
+        namesOfPromisedFilesDroppedAtDestinationSelector,
         draggingImageForItemsAtIndexPathsSelector,
         draggingSessionSelector,
         #selector(NSCollectionViewDelegate.collectionView(_:draggingSession:endedAt:dragOperation:)),

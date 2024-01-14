@@ -145,6 +145,10 @@ extension ListAdapter {
     func toClosure<Input1, Input2, Output, Context>() -> (@escaping (Context, Input1, Input2) -> Output) -> (Context, (Input1, Input2)) -> Output {
         { closure in { context, input in closure(context, input.0, input.1) } }
     }
+    
+    func toClosure<Input1, Input2, Input3, Output, Context>() -> (@escaping (Context, Input1, Input2, Input3) -> Output) -> (Context, (Input1, Input2, Input3)) -> Output {
+        { closure in { context, input in closure(context, input.0, input.1, input.2) } }
+    }
 
 //    func toClosure<Output, View>() -> (@escaping (ListIndexContext<View, IndexPath>) -> Output) -> (ListIndexContext<View, IndexPath>, IndexPath) -> Output {
 //        { closure in { context, _ in closure(context) } }

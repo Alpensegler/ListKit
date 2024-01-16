@@ -16,7 +16,7 @@ public extension ListAdapter {
 }
 
 public extension ListAdapter where View: NSCollectionView {
-    var supplementaryViewForItem: ElementFunction<(IndexPath, String), NSView, (ElementContext, CollectionView.SupplementaryViewType) -> NSView> {
+    var supplementaryViewForItem: ElementFunction<(IndexPath, NSCollectionView.SupplementaryElementKind), NSView, (ElementContext, CollectionView.SupplementaryViewType) -> NSView> {
         toFunction(#selector(NSCollectionViewDataSource.collectionView(_:viewForSupplementaryElementOfKind:at:)), \.0) { closure in { context, input in closure(context, .init(rawValue: input.1)) } }
     }
 }
@@ -62,8 +62,8 @@ public extension ListAdapter where View: NSCollectionView {
         toFunction(#selector(NSCollectionViewDelegate.collectionView(_:willDisplay:forRepresentedObjectAt:)), \.0) { closure in { context, input in closure(context, input.1, .init(rawValue: input.2)) } }
     }
     
-    var didEndDisplayingSupplementaryView: Function<(NSView, String, IndexPath), Void, (ListContext, NSView, CollectionView.SupplementaryViewType, IndexPath) -> Void> {
-        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:didEndDisplayingSupplementaryView:forElementOfKind:at:))) { closure in { context, input in closure(context, input.0, .init(rawValue: input.1), input.2) } }
+    var didEndDisplayingSupplementaryView: Function<(NSView, NSCollectionView.SupplementaryElementKind, IndexPath), Void, (ListContext, NSView, NSCollectionView.SupplementaryElementKind, IndexPath) -> Void> {
+        toFunction(#selector(NSCollectionViewDelegate.collectionView(_:didEndDisplayingSupplementaryView:forElementOfKind:at:))) { closure in { context, input in closure(context, input.0, .init(input.1), input.2) } }
     }
     
     // MARK: - Handling Layout Changes

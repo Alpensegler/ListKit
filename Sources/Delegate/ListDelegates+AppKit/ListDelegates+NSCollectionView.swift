@@ -86,29 +86,29 @@ extension Delegate: NSCollectionViewDelegate {
     }
 
     // MARK: - Drag and Drop Support
-//    func collectionView(_ collectionView: NSCollectionView, canDragItemsAt indexPaths: Set<IndexPath>, with event: NSEvent) -> Bool {
-//        apply(#selector(NSCollectionViewDelegate.collectionView(_:canDragItemsAt:with:)), view: collectionView, with: (indexPaths, event), default: true)
-//    }
-//
-//    func collectionView(_ collectionView: NSCollectionView, pasteboardWriterForItemAt indexPath: IndexPath) -> NSPasteboardWriting? {
-//        apply(#selector(NSCollectionViewDelegate.collectionView(_:pasteboardWriterForItemAt:)), view: collectionView, with: indexPath, default: nil)
-//    }
-//
-//    func collectionView(_ collectionView: NSCollectionView, writeItemsAt indexPaths: Set<IndexPath>, to pasteboard: NSPasteboard) -> Bool {
-//        apply(#selector(NSCollectionViewDelegate.collectionView(_:writeItemsAt:to:)), view: collectionView, with: (indexPaths, pasteboard), default: false)
-//    }
-//
-//    func collectionView(_ collectionView: NSCollectionView, namesOfPromisedFilesDroppedAtDestination dropURL: URL, forDraggedItemsAt indexPaths: Set<IndexPath>) -> [String] {
-//        apply(#selector(NSCollectionViewDelegate.collectionView(_:namesOfPromisedFilesDroppedAtDestination:forDraggedItemsAt:)), view: collectionView, with: (dropURL, indexPaths), default: [])
-//    }
-//
-//    func collectionView(_ collectionView: NSCollectionView, draggingImageForItemsAt indexPaths: Set<IndexPath>, with event: NSEvent, offset dragImageOffset: NSPointPointer) -> NSImage {
-//        apply(#selector(NSCollectionViewDelegate.collectionView(_:draggingImageForItemsAt:with:offset:)), view: collectionView, with: (indexPaths, event, dragImageOffset), default: NSImage())
-//    }
-//
-//    func collectionView(_ collectionView: NSCollectionView, draggingSession session: NSDraggingSession, willBeginAt screenPoint: NSPoint, forItemsAt indexPaths: Set<IndexPath>) {
-//        apply(#selector(NSCollectionViewDelegate.collectionView(_:draggingSession:willBeginAt:forItemsAt:)), view: collectionView, with: (session, screenPoint, indexPaths), default: ())
-//    }
+    func collectionView(_ collectionView: NSCollectionView, canDragItemsAt indexPaths: Set<IndexPath>, with event: NSEvent) -> Bool {
+        apply(canDragItemsAtIndexPathsSelector, view: collectionView, with: (indexPaths, event), default: true)
+    }
+
+    func collectionView(_ collectionView: NSCollectionView, pasteboardWriterForItemAt indexPath: IndexPath) -> NSPasteboardWriting? {
+        apply(pasteboardWriterForItemAtIndexPathSelector, view: collectionView, with: indexPath, default: nil)
+    }
+
+    func collectionView(_ collectionView: NSCollectionView, writeItemsAt indexPaths: Set<IndexPath>, to pasteboard: NSPasteboard) -> Bool {
+        apply(writeItemsAtIndexPathsSelector, view: collectionView, with: (indexPaths, pasteboard), default: false)
+    }
+
+    func collectionView(_ collectionView: NSCollectionView, namesOfPromisedFilesDroppedAtDestination dropURL: URL, forDraggedItemsAt indexPaths: Set<IndexPath>) -> [String] {
+        apply(namesOfPromisedFilesDroppedAtDestinationSelector, view: collectionView, with: (dropURL, indexPaths), default: [])
+    }
+
+    func collectionView(_ collectionView: NSCollectionView, draggingImageForItemsAt indexPaths: Set<IndexPath>, with event: NSEvent, offset dragImageOffset: NSPointPointer) -> NSImage {
+        apply(draggingImageForItemsAtIndexPathsSelector, view: collectionView, with: (indexPaths, event, dragImageOffset), default: NSImage())
+    }
+
+    func collectionView(_ collectionView: NSCollectionView, draggingSession session: NSDraggingSession, willBeginAt screenPoint: NSPoint, forItemsAt indexPaths: Set<IndexPath>) {
+        apply(draggingSessionSelector, view: collectionView, with: (session, screenPoint, indexPaths), default: ())
+    }
 
     func collectionView(_ collectionView: NSCollectionView, draggingSession session: NSDraggingSession, endedAt screenPoint: NSPoint, dragOperation operation: NSDragOperation) {
         apply(#selector(NSCollectionViewDelegate.collectionView(_:draggingSession:endedAt:dragOperation:)), view: collectionView, with: (session, screenPoint, operation), default: ())

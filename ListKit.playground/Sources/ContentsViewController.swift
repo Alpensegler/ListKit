@@ -9,10 +9,8 @@ public class ContentsViewController: UIViewController, TableListAdapter {
 
     public var list: TableList {
         CollectionElements(models)
-            .cellForRow { context, model -> UITableViewCell in
-                let labelCell = context.dequeueReusableCell(UITableViewCell.self)
+            .cellForRow(UITableViewCell.self) { labelCell, context, model -> UITableViewCell in
                 labelCell.textLabel?.text = model.title
-                return labelCell
             }
             .didSelectRow { [unowned navigationController] context, model in
                 context.deselect(animated: true)
@@ -81,10 +79,8 @@ public class ContentsViewController: NSViewController, CollectionListAdapter {
 
     public var list: CollectionList {
         CollectionElements(models)
-            .itemForRepresentedObjectAt { context, element in
-                let item = context.makeItem(MyCollectionViewItem.self)
+            .itemForRepresentedObjectAt(MyCollectionViewItem.self) { item, context, element in
                 item.configure(with: element.title)
-                return item
             }
             .didSelectItems { context, element in
                 context.deselect(animated: false)

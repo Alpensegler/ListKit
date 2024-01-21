@@ -5,7 +5,7 @@
 //  Created by Frain on 2019/12/9.
 //
 
-#if os(iOS) || os(tvOS)
+#if !os(macOS)
 import UIKit
 
 public extension ListIndexContext where Index == IndexPath, View: UIListView {
@@ -43,6 +43,7 @@ public extension ListIndexContext where Index == IndexPath, View: UIListView {
         )
     }
 
+    #if !os(visionOS)
     func dequeueReusableCell<CustomCell: UIView>(
         _ cellClass: CustomCell.Type,
         withNibName nibName: String,
@@ -55,6 +56,7 @@ public extension ListIndexContext where Index == IndexPath, View: UIListView {
             indexPath: rawIndex
         )
     }
+    #endif
 }
 
 public extension ListIndexContext where Index == IndexPath, View: UICollectionView {
@@ -71,6 +73,7 @@ public extension ListIndexContext where Index == IndexPath, View: UICollectionVi
         )
     }
 
+    #if !os(visionOS)
     func dequeueReusableSupplementaryView<SupplementaryView: UICollectionReusableView>(
         type: UICollectionView.SupplementaryViewType,
         _ supplementaryClass: SupplementaryView.Type,
@@ -85,6 +88,7 @@ public extension ListIndexContext where Index == IndexPath, View: UICollectionVi
             indexPath: rawIndex
         )
     }
+    #endif
 }
 
 public extension Context where View: UITableView {
@@ -100,7 +104,8 @@ public extension Context where View: UITableView {
             identifier: identifier
         )
     }
-
+    
+    #if !os(visionOS)
     func dequeueReusableSupplementaryView<SupplementaryView: UITableViewHeaderFooterView>(
         type: UITableView.SupplementaryViewType,
         _ supplementaryClass: SupplementaryView.Type,
@@ -114,6 +119,7 @@ public extension Context where View: UITableView {
             bundle: bundle
         )
     }
+    #endif
 }
 
 #endif

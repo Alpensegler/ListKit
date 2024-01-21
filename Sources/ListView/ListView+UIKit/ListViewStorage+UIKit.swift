@@ -5,7 +5,7 @@
 //  Created by Frain on 2019/12/11.
 //
 
-#if os(iOS) || os(tvOS)
+#if !os(macOS)
 import UIKit
 
 public extension UIListView {
@@ -37,6 +37,7 @@ public extension UIListView {
         return cell as! CustomCell
     }
 
+    #if !os(visionOS)
     func dequeueReusableCell<CustomCell: UIView>(
         _ cellClass: CustomCell.Type,
         withNibName nibName: String,
@@ -53,6 +54,7 @@ public extension UIListView {
         }
         return dequeueReusableCell(withIdentifier: nibName, for: indexPath) as! CustomCell
     }
+    #endif
 }
 
 public extension UICollectionView {
@@ -77,6 +79,7 @@ public extension UICollectionView {
         return supplementaryView as! SupplementaryView
     }
 
+    #if !os(visionOS)
     func dequeueReusableSupplementaryView<SupplementaryView: UICollectionReusableView>(
         type: SupplementaryViewType,
         _ supplementaryClass: SupplementaryView.Type,
@@ -99,6 +102,7 @@ public extension UICollectionView {
         )
         return supplementaryView as! SupplementaryView
     }
+    #endif
 }
 
 public extension UITableView {
@@ -118,6 +122,7 @@ public extension UITableView {
         return supplementaryView as? SupplementaryView
     }
 
+    #if !os(visionOS)
     func dequeueReusableSupplementaryView<SupplementaryView: UITableViewHeaderFooterView>(
         type: SupplementaryViewType,
         _ supplementaryClass: SupplementaryView.Type,
@@ -135,6 +140,7 @@ public extension UITableView {
         let supplementaryView = dequeueReusableHeaderFooterView(withIdentifier: id)
         return supplementaryView as? SupplementaryView
     }
+    #endif
 }
 
 #endif

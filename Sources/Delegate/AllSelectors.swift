@@ -5,7 +5,69 @@
 //  Created by Frain on 2019/12/13.
 //
 
-#if os(iOS) || os(tvOS)
+#if os(macOS)
+import AppKit
+
+let canDragItemsAtIndexPathsSelector = {
+    let string = "collectionView:canDragItemsAtIndexPaths:withEvent:"
+    return Selector(string)
+}()
+
+let pasteboardWriterForItemAtIndexPathSelector = {
+    let string =  "collectionView:pasteboardWriterForItemAtIndexPath:"
+    return Selector(string)
+}()
+
+let draggingImageForItemsAtIndexPathsSelector = {
+    let string =  "collectionView:draggingImageForItemsAtIndexPaths:withEvent:offset:"
+    return Selector(string)
+}()
+
+let draggingSessionSelector = {
+    let string =  "collectionView:draggingSession:willBeginAtPoint:forItemsAtIndexPaths:"
+    return Selector(string)
+}()
+
+let writeItemsAtIndexPathsSelector = {
+    let string = "collectionView:writeItemsAtIndexPaths:toPasteboard:"
+    return Selector(string)
+}()
+
+let namesOfPromisedFilesDroppedAtDestinationSelector = {
+    let string = "collectionView:namesOfPromisedFilesDroppedAtDestination:forDraggedItemsAtIndexPaths:"
+    return Selector(string)
+}()
+
+let allSelectors: Set<Selector> = {
+    var selectors: Set<Selector> = [
+        #selector(NSCollectionViewDataSource.collectionView(_:itemForRepresentedObjectAt:)),
+        #selector(NSCollectionViewDataSource.collectionView(_:viewForSupplementaryElementOfKind:at:)),
+        #selector(NSCollectionViewDelegate.collectionView(_:shouldChangeItemsAt:to:)),
+        #selector(NSCollectionViewDelegate.collectionView(_:didChangeItemsAt:to:)),
+        #selector(NSCollectionViewDelegate.collectionView(_:shouldSelectItemsAt:)),
+        #selector(NSCollectionViewDelegate.collectionView(_:shouldDeselectItemsAt:)),
+        #selector(NSCollectionViewDelegate.collectionView(_:didSelectItemsAt:)),
+        #selector(NSCollectionViewDelegate.collectionView(_:didDeselectItemsAt:)),
+        #selector(NSCollectionViewDelegate.collectionView(_:willDisplay:forRepresentedObjectAt:)),
+        #selector(NSCollectionViewDelegate.collectionView(_:didEndDisplaying:forRepresentedObjectAt:)),
+        #selector(NSCollectionViewDelegate.collectionView(_:willDisplaySupplementaryView:forElementKind:at:)),
+        #selector(NSCollectionViewDelegate.collectionView(_:didEndDisplayingSupplementaryView:forElementOfKind:at:)),
+        #selector(NSCollectionViewDelegate.collectionView(_:transitionLayoutForOldLayout:newLayout:)),
+        canDragItemsAtIndexPathsSelector,
+        pasteboardWriterForItemAtIndexPathSelector,
+        writeItemsAtIndexPathsSelector,
+        namesOfPromisedFilesDroppedAtDestinationSelector,
+        draggingImageForItemsAtIndexPathsSelector,
+        draggingSessionSelector,
+        #selector(NSCollectionViewDelegate.collectionView(_:draggingSession:endedAt:dragOperation:)),
+        #selector(NSCollectionViewDelegate.collectionView(_:updateDraggingItemsForDrag:)),
+        #selector(NSCollectionViewDelegate.collectionView(_:validateDrop:proposedIndexPath:dropOperation:)),
+        #selector(NSCollectionViewDelegate.collectionView(_:acceptDrop:indexPath:dropOperation:))
+    ]
+    return selectors
+}()
+
+#else
 import UIKit
 
 let allSelectors: Set<Selector> = {
@@ -42,7 +104,6 @@ let allSelectors: Set<Selector> = {
         #selector(UICollectionViewDelegate.collectionView(_:didEndDisplayingSupplementaryView:forElementOfKind:at:)),
         #selector(UICollectionViewDelegate.collectionView(_:transitionLayoutForOldLayout:newLayout:)),
         #selector(UICollectionViewDelegate.collectionView(_:targetContentOffsetForProposedContentOffset:)),
-        #selector(UICollectionViewDelegate.collectionView(_:targetIndexPathForMoveFromItemAt:toProposedIndexPath:)),
         #selector(UICollectionViewDelegate.collectionView(_:canFocusItemAt:)),
         #selector(UICollectionViewDelegate.indexPathForPreferredFocusedView(in:)),
         #selector(UICollectionViewDelegate.collectionView(_:shouldUpdateFocusIn:)),
@@ -98,16 +159,11 @@ let allSelectors: Set<Selector> = {
         #selector(UITableViewDelegate.tableView(_:shouldUpdateFocusIn:)),
         #selector(UITableViewDelegate.tableView(_:didUpdateFocusIn:with:)),
         #selector(UITableViewDelegate.indexPathForPreferredFocusedView(in:)),
-
-        // maybe should remove for vision os
-        #selector(UICollectionViewDelegate.collectionView(_:shouldShowMenuForItemAt:)),
-        #selector(UICollectionViewDelegate.collectionView(_:canPerformAction:forItemAt:withSender:)),
-        #selector(UICollectionViewDelegate.collectionView(_:performAction:forItemAt:withSender:)),
-        #selector(UITableViewDelegate.tableView(_:shouldShowMenuForRowAt:)),
-        #selector(UITableViewDelegate.tableView(_:canPerformAction:forRowAt:withSender:)),
-        #selector(UITableViewDelegate.tableView(_:performAction:forRowAt:withSender:)),
-        #selector(UITableViewDelegate.tableView(_:editActionsForRowAt:)),
     ]
+    
+    #if !os(visionOS)
+    selectors.insert(#selector(UICollectionViewDelegate.collectionView(_:targetIndexPathForMoveFromItemAt:toProposedIndexPath:)))
+    #endif
 
     guard #available(iOS 11.0, *) else { return selectors }
     selectors.formUnion([
@@ -123,9 +179,6 @@ let allSelectors: Set<Selector> = {
         #selector(UICollectionViewDelegate.collectionView(_:shouldBeginMultipleSelectionInteractionAt:)),
         #selector(UICollectionViewDelegate.collectionView(_:didBeginMultipleSelectionInteractionAt:)),
         #selector(UICollectionViewDelegate.collectionViewDidEndMultipleSelectionInteraction(_:)),
-        #selector(UICollectionViewDelegate.collectionView(_:contextMenuConfigurationForItemAt:point:)),
-        #selector(UICollectionViewDelegate.collectionView(_:previewForDismissingContextMenuWithConfiguration:)),
-        #selector(UICollectionViewDelegate.collectionView(_:previewForHighlightingContextMenuWithConfiguration:)),
         #selector(UICollectionViewDelegate.collectionView(_:willPerformPreviewActionForMenuWith:animator:)),
         #selector(UITableViewDelegate.tableView(_:shouldBeginMultipleSelectionInteractionAt:)),
         #selector(UITableViewDelegate.tableViewDidEndMultipleSelectionInteraction(_:)),
@@ -135,18 +188,15 @@ let allSelectors: Set<Selector> = {
         #selector(UITableViewDelegate.tableView(_:previewForHighlightingContextMenuWithConfiguration:)),
         #selector(UITableViewDelegate.tableView(_:willPerformPreviewActionForMenuWith:animator:)),
     ])
+    
+    #if !os(visionOS)
+    selectors.formUnion([
+        #selector(UICollectionViewDelegate.collectionView(_:contextMenuConfigurationForItemAt:point:)),
+        #selector(UICollectionViewDelegate.collectionView(_:previewForDismissingContextMenuWithConfiguration:)),
+        #selector(UICollectionViewDelegate.collectionView(_:previewForHighlightingContextMenuWithConfiguration:)),
+    ])
+    #endif
 
     return selectors
 }()
-
-#elseif os(macOS)
-import AppKit
-
-let allSelectors: Set<Selector> = {
-    var selectors: Set<Selector> = [
-        
-    ]
-    return selectors
-}()
-
 #endif

@@ -1,3 +1,4 @@
+#if !os(macOS)
 import ListKit
 import UIKit
 
@@ -105,5 +106,7 @@ struct TestList_Preview: UIViewControllerRepresentable, PreviewProvider {
 
     }
 }
+
+#endif
 
 #endif

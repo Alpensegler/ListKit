@@ -5,7 +5,7 @@
 //  Created by Frain on 2019/4/6.
 //
 
-#if os(iOS) || os(tvOS)
+#if !os(macOS)
 import UIKit
 
 public typealias CollectionView = UICollectionView
@@ -78,6 +78,7 @@ public extension UICollectionView {
         register(cellClass, forCellWithReuseIdentifier: identifier)
     }
 
+    #if !os(visionOS)
     func register(_ nib: UINib?, forCellReuseIdentifier identifier: String) {
         register(nib, forCellWithReuseIdentifier: identifier)
     }
@@ -85,6 +86,7 @@ public extension UICollectionView {
     func register(supplementaryViewType: SupplementaryViewType, _ nib: UINib?, identifier: String) {
         register(nib, forSupplementaryViewOfKind: kind(for: supplementaryViewType), withReuseIdentifier: identifier)
     }
+    #endif
 
     func register(supplementaryViewType: SupplementaryViewType, _ supplementaryClass: AnyClass?, identifier: String) {
         register(supplementaryClass, forSupplementaryViewOfKind: kind(for: supplementaryViewType), withReuseIdentifier: identifier)

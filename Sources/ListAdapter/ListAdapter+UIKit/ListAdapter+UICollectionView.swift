@@ -7,7 +7,7 @@
 
 // swiftlint:disable large_tuple
 
-#if os(iOS) || os(tvOS)
+#if !os(macOS)
 import UIKit
 
 // MARK: - Collection View Data Source
@@ -106,22 +106,11 @@ public extension ListAdapter where View: UICollectionView {
         toFunction(#selector(UICollectionViewDelegate.collectionView(_:targetContentOffsetForProposedContentOffset:)), toClosure())
     }
 
+    #if !os(visionOS)
     var targetIndexPathForMoveFromItem: Function<(IndexPath, IndexPath), IndexPath, (ListContext, IndexPath, IndexPath) -> IndexPath> {
         toFunction(#selector(UICollectionViewDelegate.collectionView(_:targetIndexPathForMoveFromItemAt:toProposedIndexPath:)), toClosure())
     }
-
-    // MARK: - Managing Actions for Cells
-    var shouldShowMenuForItem: ElementFunction<IndexPath, Bool, (ElementContext) -> Bool> {
-        toFunction(#selector(UICollectionViewDelegate.collectionView(_:shouldShowMenuForItemAt:)), toClosure())
-    }
-
-    var canPerformActionWithSender: ElementFunction<(IndexPath, Selector, Any?), Bool, (ElementContext, Selector, Any?) -> Bool> {
-        toFunction(#selector(UICollectionViewDelegate.collectionView(_:canPerformAction:forItemAt:withSender:)), \.0, toClosure())
-    }
-
-    var performActionWithSender: ElementFunction<(IndexPath, Selector, Any?), Void, (ElementContext, Selector, Any?) -> Void> {
-        toFunction(#selector(UICollectionViewDelegate.collectionView(_:performAction:forItemAt:withSender:)), \.0, toClosure())
-    }
+    #endif
 
     // MARK: - Managing Focus in a Collection View
     var canFocusItem: ElementFunction<IndexPath, Bool, (ElementContext) -> Bool> {
@@ -146,6 +135,7 @@ public extension ListAdapter where View: UICollectionView {
         toFunction(#selector(UICollectionViewDelegate.collectionView(_:shouldSpringLoadItemAt:with:)), \.0, toClosure())
     }
 
+    #if !os(visionOS)
     // MARK: - Instance Methods
     @available(iOS 13.0, *)
     var contextMenuConfigurationForItem: ElementFunction<(IndexPath, CGPoint), UIContextMenuConfiguration?, (ElementContext, CGPoint) -> UIContextMenuConfiguration> {
@@ -166,6 +156,7 @@ public extension ListAdapter where View: UICollectionView {
     var willPerformPreviewActionForMenuWithAnimator: Function<(UIContextMenuConfiguration, UIContextMenuInteractionCommitAnimating), Void, (ListContext, UIContextMenuConfiguration, UIContextMenuInteractionCommitAnimating) -> Void> {
         toFunction(#selector(UICollectionViewDelegate.collectionView(_:willPerformPreviewActionForMenuWith:animator:)), toClosure())
     }
+    #endif
 }
 
 // MARK: - Collection View Delegate Flow Layout

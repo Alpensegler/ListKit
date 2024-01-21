@@ -3,7 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "ListKit",
-    platforms: [.iOS(.v9), .macOS(.v10_10)],
+    platforms: [.iOS(.v11), .macOS(.v10_11)],
     products: [.library(name: "ListKit", targets: ["ListKit"])],
     targets: [
         .target(name: "ListKit", path: "Sources"),

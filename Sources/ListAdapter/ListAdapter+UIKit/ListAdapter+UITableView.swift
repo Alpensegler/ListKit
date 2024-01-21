@@ -5,7 +5,7 @@
 //  Created by Frain on 2019/12/10.
 //
 
-#if os(iOS) || os(tvOS)
+#if !os(macOS)
 import UIKit
 
 // MARK: - TableView DataSource
@@ -158,22 +158,6 @@ public extension ListAdapter where View: UITableView {
     @available(iOS 11.0, *)
     var trailingSwipeActionsConfiguration: ElementFunction<IndexPath, UISwipeActionsConfiguration?, (ElementContext) -> UISwipeActionsConfiguration?> {
         toFunction(#selector(UITableViewDelegate.tableView(_:trailingSwipeActionsConfigurationForRowAt:)), toClosure())
-    }
-
-    var shouldShowMenuForRow: ElementFunction<IndexPath, Bool, (ElementContext) -> Bool> {
-        toFunction(#selector(UITableViewDelegate.tableView(_:shouldShowMenuForRowAt:)), toClosure())
-    }
-
-    var canPerformActionWithSender: ElementFunction<(IndexPath, Selector, Any?), Bool, (ElementContext, Selector, Any?) -> Bool> {
-        toFunction(#selector(UITableViewDelegate.tableView(_:canPerformAction:forRowAt:withSender:)), \.0, toClosure())
-    }
-
-    var performActionWithSender: ElementFunction<(IndexPath, Selector, Any?), Void, (ElementContext, Selector, Any?) -> Void> {
-        toFunction(#selector(UITableViewDelegate.tableView(_:performAction:forRowAt:withSender:)), \.0, toClosure())
-    }
-
-    var editActionsForRow: ElementFunction<IndexPath, [UITableViewRowAction]?, (ElementContext) -> [UITableViewRowAction]?> {
-        toFunction(#selector(UITableViewDelegate.tableView(_:editActionsForRowAt:)), toClosure())
     }
 
     // MARK: - Managing Table View Highlights

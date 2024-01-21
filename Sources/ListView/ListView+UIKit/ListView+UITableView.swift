@@ -5,7 +5,7 @@
 //  Created by Frain on 2019/4/6.
 //
 
-#if os(iOS) || os(tvOS)
+#if !os(macOS)
 import UIKit
 
 private var listViewDefaultAnimationKey: Void?
@@ -128,12 +128,14 @@ public extension UITableView {
         }
     }
 
+    #if !os(visionOS)
     func register(supplementaryViewType: SupplementaryViewType, _ nib: UINib?, identifier: String) {
         switch supplementaryViewType {
         case .header: register(nib, forHeaderFooterViewReuseIdentifier: identifier)
         case .footer: register(nib, forHeaderFooterViewReuseIdentifier: identifier)
         }
     }
+    #endif
 
     func cellForItem(at indexPath: IndexPath) -> UITableViewCell? {
         cellForRow(at: indexPath)

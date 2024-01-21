@@ -1,9 +1,10 @@
 import ListKit
+#if canImport(UIKit)
 import UIKit
 
 // swiftlint:disable comment_spacing
 
-public class SectionListViewControlle: UIViewController, CollectionListAdapter {
+public class SectionListViewControlle: ViewController, CollectionListAdapter {
     static let emojis = (0x1F600...0x1F647).compactMap { UnicodeScalar($0) }
 
     public var models: [[UnicodeScalar]] {
@@ -87,4 +88,5 @@ struct SectionList_Preview: UIViewControllerRepresentable, PreviewProvider {
     }
 }
 
+#endif
 #endif

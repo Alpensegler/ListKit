@@ -1,6 +1,7 @@
 // swiftlint:disable comment_spacing
 
 import ListKit
+#if canImport(UIKit)
 import UIKit
 
 public class NestedListViewController: UIViewController, TableListAdapter {
@@ -91,5 +92,7 @@ struct NestedList_Preview: UIViewControllerRepresentable, PreviewProvider {
 
     }
 }
+
+#endif
 
 #endif

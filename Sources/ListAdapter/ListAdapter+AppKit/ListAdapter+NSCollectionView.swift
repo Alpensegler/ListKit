@@ -10,7 +10,7 @@ import AppKit
 
 // MARK: - Collection View Data Source
 public extension ListAdapter {
-    var itemForRepresentedObjectAt: IndexFunction<NSCollectionView, List, IndexPath, NSCollectionViewItem, (ListIndexContext<NSCollectionView, IndexPath>) -> NSCollectionViewItem, IndexPath> {
+    var itemForRepresentedObject: IndexFunction<NSCollectionView, List, IndexPath, NSCollectionViewItem, (ListIndexContext<NSCollectionView, IndexPath>) -> NSCollectionViewItem, IndexPath> {
         toFunction(#selector(NSCollectionViewDataSource.collectionView(_:itemForRepresentedObjectAt:)), toClosure())
     }
 }
@@ -28,24 +28,24 @@ public extension ListAdapter where View: NSCollectionView {
         toFunction(#selector(NSCollectionViewDelegate.collectionView(_:shouldSelectItemsAt:)), toClosure())
     }
     
-    var shouldDeselectItems: ElementFunction<IndexPath, Void, (ElementContext) -> Void> {
+    var shouldDeselectItem: ElementFunction<IndexPath, Void, (ElementContext) -> Void> {
         toFunction(#selector(NSCollectionViewDelegate.collectionView(_:shouldDeselectItemsAt:)), toClosure())
     }
     
-    var didSelectItems: ElementFunction<IndexPath, Void, (ElementContext) -> Void> {
+    var didSelectItem: ElementFunction<IndexPath, Void, (ElementContext) -> Void> {
         toFunction(#selector(NSCollectionViewDelegate.collectionView(_:didSelectItemsAt:)), toClosure())
     }
     
-    var didDeselectItems: ElementFunction<IndexPath, Void, (ElementContext) -> Void> {
+    var didDeselectItem: ElementFunction<IndexPath, Void, (ElementContext) -> Void> {
         toFunction(#selector(NSCollectionViewDelegate.collectionView(_:didDeselectItemsAt:)), toClosure())
     }
     
     // MARK: - Managing Item Highlighting
-    var shouldChangeItems: ElementFunction<IndexPath, Void, (ElementContext) -> Void> {
+    var shouldChangeItem: ElementFunction<IndexPath, Void, (ElementContext) -> Void> {
         toFunction(#selector(NSCollectionViewDelegate.collectionView(_:shouldChangeItemsAt:to:)), toClosure())
     }
     
-    var didChangeItems: ElementFunction<IndexPath, Void, (ElementContext) -> Void> {
+    var didChangeItem: ElementFunction<IndexPath, Void, (ElementContext) -> Void> {
         toFunction(#selector(NSCollectionViewDelegate.collectionView(_:didChangeItemsAt:to:)), toClosure())
     }
     

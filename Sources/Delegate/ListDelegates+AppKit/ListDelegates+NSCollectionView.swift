@@ -55,11 +55,11 @@ extension Delegate: NSCollectionViewDelegate {
 
     // MARK: - Managing Item Highlighting
     func collectionView(_ collectionView: NSCollectionView, shouldChangeItemsAt indexPaths: Set<IndexPath>, to highlightState: NSCollectionViewItem.HighlightState) -> Set<IndexPath> {
-        apply(#selector(NSCollectionViewDelegate.collectionView(_:shouldChangeItemsAt:to:)), view: collectionView, with: (indexPaths, highlightState), default: indexPaths)
+        return apply(#selector(NSCollectionViewDelegate.collectionView(_:shouldChangeItemsAt:to:)), view: collectionView, with: (indexPaths, highlightState), index: indexPaths.first!, default: true) ? indexPaths : []
     }
 
     func collectionView(_ collectionView: NSCollectionView, didChangeItemsAt indexPaths: Set<IndexPath>, to highlightState: NSCollectionViewItem.HighlightState) {
-        apply(#selector(NSCollectionViewDelegate.collectionView(_:didChangeItemsAt:to:)), view: collectionView, with: (indexPaths, highlightState), default: ())
+        apply(#selector(NSCollectionViewDelegate.collectionView(_:didChangeItemsAt:to:)), view: collectionView, with: (indexPaths, highlightState), index: indexPaths.first!, default: ())
     }
 
     // MARK: - Tracking the Addition and Removal of Items

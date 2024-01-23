@@ -38,11 +38,11 @@ extension Delegate: NSCollectionViewDataSource {
 extension Delegate: NSCollectionViewDelegate {
     // MARK: - Managing the Selection
     func collectionView(_ collectionView: NSCollectionView, shouldSelectItemsAt indexPaths: Set<IndexPath>) -> Set<IndexPath> {
-        apply(#selector(NSCollectionViewDelegate.collectionView(_:shouldSelectItemsAt:)), view: collectionView, with: indexPaths.first!, index: indexPaths.first!, default: indexPaths)
+        return apply(#selector(NSCollectionViewDelegate.collectionView(_:shouldSelectItemsAt:)), view: collectionView, with: indexPaths.first!, index: indexPaths.first!, default: true) ? indexPaths : []
     }
 
     func collectionView(_ collectionView: NSCollectionView, shouldDeselectItemsAt indexPaths: Set<IndexPath>) -> Set<IndexPath> {
-        apply(#selector(NSCollectionViewDelegate.collectionView(_:shouldDeselectItemsAt:)), view: collectionView, with: indexPaths.first!, index: indexPaths.first!, default: indexPaths)
+        return apply(#selector(NSCollectionViewDelegate.collectionView(_:shouldDeselectItemsAt:)), view: collectionView, with: indexPaths.first!, index: indexPaths.first!, default: true) ? indexPaths : []
     }
 
     func collectionView(_ collectionView: NSCollectionView, didSelectItemsAt indexPaths: Set<IndexPath>) {

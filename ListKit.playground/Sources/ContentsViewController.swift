@@ -79,11 +79,29 @@ public class ContentsViewController: NSViewController, CollectionListAdapter {
 
     public var list: CollectionList {
         CollectionElements(models)
-            .itemForRepresentedObjectAt(MyCollectionViewItem.self) { item, context, element in
+            .itemForRepresentedObject(MyCollectionViewItem.self) { item, context, element in
                 item.configure(with: element.title)
             }
-            .didSelectItems { context, element in
-                context.deselect(animated: false)
+            .shouldSelectItem { _ in
+                print("shouldSelectItem")
+                return true
+            }
+            .shouldDeselectItem { _ in
+                print("shouldDeselectItem")
+                return true
+            }
+            .didSelectItem { context, element in
+                print("didSelectItem")
+            }
+            .didDeselectItem { context, element in
+                print("didDeselectItem")
+            }
+            .shouldChangeItem { _ in
+                print("shouldChangeItem")
+                return true
+            }
+            .didChangeItem { _ in
+                print("didChangeItem")
             }
     }
 

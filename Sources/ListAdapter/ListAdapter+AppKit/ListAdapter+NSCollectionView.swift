@@ -24,11 +24,11 @@ public extension ListAdapter where View: NSCollectionView {
 // MARK: - Collection View Delegate
 public extension ListAdapter where View: NSCollectionView {
     // MARK: - Managing the Selection
-    var shouldSelectItem: ElementFunction<IndexPath, Void, (ElementContext) -> Void> {
+    var shouldSelectItem: ElementFunction<IndexPath, Bool, (ElementContext) -> Bool> {
         toFunction(#selector(NSCollectionViewDelegate.collectionView(_:shouldSelectItemsAt:)), toClosure())
     }
     
-    var shouldDeselectItem: ElementFunction<IndexPath, Void, (ElementContext) -> Void> {
+    var shouldDeselectItem: ElementFunction<IndexPath, Bool, (ElementContext) -> Bool> {
         toFunction(#selector(NSCollectionViewDelegate.collectionView(_:shouldDeselectItemsAt:)), toClosure())
     }
     
@@ -41,7 +41,7 @@ public extension ListAdapter where View: NSCollectionView {
     }
     
     // MARK: - Managing Item Highlighting
-    var shouldChangeItem: ElementFunction<IndexPath, Void, (ElementContext) -> Void> {
+    var shouldChangeItem: ElementFunction<IndexPath, Bool, (ElementContext) -> Bool> {
         toFunction(#selector(NSCollectionViewDelegate.collectionView(_:shouldChangeItemsAt:to:)), toClosure())
     }
     

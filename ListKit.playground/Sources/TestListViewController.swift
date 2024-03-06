@@ -55,6 +55,9 @@ public class TestListViewController: UIViewController, TableListAdapter {
             CollectionElements(["a", "b", "c"])
                 .cellForRow()
         }
+        .didSelectRow { context, element in
+            print(element)
+        }
         .headerTitleForSection("sources")
     }
 

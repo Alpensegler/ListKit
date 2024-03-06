@@ -9,7 +9,7 @@ public class ContentsViewController: UIViewController, TableListAdapter {
 
     public var list: TableList {
         CollectionElements(models)
-            .cellForRow(UITableViewCell.self) { labelCell, context, model -> UITableViewCell in
+            .cellForRow(UITableViewCell.self) { labelCell, context, model in
                 labelCell.textLabel?.text = model.title
             }
             .didSelectRow { [unowned navigationController] context, model in

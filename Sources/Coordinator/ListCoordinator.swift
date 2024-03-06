@@ -54,7 +54,6 @@ public extension ListCoordinator {
     var needSetupWithListView: Bool { false }
 
     func setupWithListView(offset: IndexPath, storages: inout [CoordinatorStorage: [IndexPath]]) { }
-    func model(at indexPath: IndexPath) -> Any { fatalError() }
 
     mutating func performUpdate(
         update: inout BatchUpdates,

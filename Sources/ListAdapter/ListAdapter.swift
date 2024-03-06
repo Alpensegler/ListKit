@@ -43,6 +43,10 @@ public extension ListAdapter where Self: AnyObject {
     func performUpdate(animated: Bool = true, completion: ((ListView, Bool) -> Void)? = nil) {
         _perform(reload: false, animated: animated, completion: completion)
     }
+
+    func element<View: ListView>(for listView: View, at indexPath: IndexPath) -> Any? {
+        (listCoordinatorContext.coordinator as? any TypedListAdapter)?.element(at: .init(listView: listView, index: indexPath, rawIndex: indexPath, context: listCoordinatorContext))
+    }
 }
 
 public extension ListAdapter {
@@ -126,7 +130,7 @@ extension ListAdapter where Self: AnyObject {
         _ = isMainThread ? work() : DispatchQueue.main.sync(execute: work)
         let update = reload ? .reload(change: nil) : currentContext.coordinator.performUpdate(to: context.coordinator)
         let afterWork: () -> Void = {
-            defer { self.coordinatorStorage.context = context }
+            self.coordinatorStorage.context = context
             guard !self.coordinatorStorage.contexts.isEmpty else { return }
             for (delegateGetter, positions) in self.coordinatorStorage.contexts.values {
                 delegateGetter()?.perform(update: update, animated: animated, to: context, at: positions, completion: completion)
